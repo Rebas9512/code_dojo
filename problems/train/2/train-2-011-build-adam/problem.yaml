@@ -1,0 +1,24 @@
+id: train-2-011-build-adam
+title: 把两个记忆系数交给 Adam
+track: train
+stage: '2'
+order: 110
+format: complete
+mode: function
+difficulty: 26
+skills:
+  requires:
+    - train.adam
+  introduces: null
+source: original
+entry: make_adam
+signature: 'def make_adam(params, rate, first, second):'
+compare: checker
+wrong_examples:
+  - why: 交换了方向与尺度的记忆。
+    code: |
+      import torch
+
+
+      def make_adam(params, rate, first, second):
+          return torch.optim.Adam(params, lr=rate, betas=(second, first))

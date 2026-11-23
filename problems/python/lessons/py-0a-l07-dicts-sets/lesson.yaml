@@ -12,7 +12,7 @@ steps:
   - type: read
     skill: py.dict-basics
     md: |
-      价目表的一条记录有两个部分：左边写商品名，右边写价格。字典用键标识这条记录，凭键就能取出相应的值。例如 `prices['梨']` 的意思是去找写着梨的价签。
+      价目表的一条记录有两个部分：左边写商品名，右边写价格。字典用键标识这条记录，凭键就能取出相应的值。例如 `prices['pear']` 的意思是去找写着 pear的价签。
 
       给已有键赋值会更新价签；给新键赋值才会多一项。直接读一个没有登记的键会报 KeyError，可以先检查它在不在。
 
@@ -21,22 +21,22 @@ steps:
     skill: py.dict-basics
     code: |
       # ① 建价目表，再给旧商品改价
-      prices = {"梨": 4}
-      prices["梨"] = 7
+      prices = {"pear": 4}
+      prices["pear"] = 7
       # ② 分别拿名字和价格查找
-      print(prices["梨"])   # 7
-      print("梨" in prices)  # True
+      print(prices["pear"])   # 7
+      print("pear" in prices)  # True
       print(7 in prices)     # False
-    md: 把改价那行的梨换成桃，再打印 len(prices)。
+    md: 把改价那行的 pear 换成 peach，再打印 len(prices)。
   - type: quiz
     skill: py.dict-basics
-    q: '3 in {''笔'': 3} 的结果是什么？'
+    q: '3 in {''pen'': 3} 的结果是什么？'
     options:
       - 'True'
       - 'False'
       - 报错
     answer: 1
-    explain: 唯一的键是字符串“笔”，数字 3 只出现在值的位置。
+    explain: 唯一的键是字符串“pen”，数字 3 只出现在值的位置。
   - type: read
     skill: py.dict-get
     md: |
@@ -49,15 +49,15 @@ steps:
     skill: py.dict-get
     code: |
       # ① 记录确实存在的一项
-      loans = {"河流": 0}
+      loans = {"River": 0}
       # ② 分别查看未登记和已登记的书
-      print(loans.get("山风", 5))  # 5
-      print(loans.get("河流", 5))  # 0
-      print("山风" in loans)       # False
-    md: 在两次查询前加上 loans['山风'] = 2 再运行。
+      print(loans.get("Breeze", 5))  # 5
+      print(loans.get("River", 5))  # 0
+      print("Breeze" in loans)       # False
+    md: 在两次查询前加上 loans['Breeze'] = 2 再运行。
   - type: quiz
     skill: py.dict-get
-    q: d = {}；执行 d.get('木', 8) 后 len(d) 是多少？
+    q: d = {}；执行 d.get('wood', 8) 后 len(d) 是多少？
     options:
       - '8'
       - '1'
@@ -78,13 +78,13 @@ steps:
       # ① 摆好空的计数表
       counts = {}
       # ② 每来一张票，取旧次数、加一、写回
-      for color in ["青", "白", "青"]:
+      for color in ["teal", "white", "teal"]:
           counts[color] = counts.get(color, 0) + 1
-      print(counts)  # {'青': 2, '白': 1}
-    md: 把青和白对调，再看每个键对应的次数。
+      print(counts)  # {'teal': 2, 'white': 1}
+    md: 把 teal 和 white 对调，再看每个键对应的次数。
   - type: quiz
     skill: py.dict-counting
-    q: 空字典 d 上直接执行 d['青'] += 1，会发生什么？
+    q: 空字典 d 上直接执行 d['teal'] += 1，会发生什么？
     options:
       - 写入 0
       - 写入 1
@@ -103,12 +103,12 @@ steps:
     skill: py.dict-iter
     code: |
       # ① 先登记，再修正第一人的分数
-      scores = {"叶": 2, "柳": 6}
-      scores["叶"] = 8
+      scores = {"Ye": 2, "Liu": 6}
+      scores["Ye"] = 8
       # ② 一次展开一对键值
       for name, score in scores.items():
           print(name, score)
-      # 输出依次为 叶 8、柳 6
+      # 输出依次为 Ye 8、Liu 6
     md: 把修正分数的名字换成全新的名字，看看它排在哪。
   - type: quiz
     skill: py.dict-iter
@@ -160,13 +160,13 @@ steps:
     skill: py.set-basics
     code: |
       # ① 将打卡记录变成成员表
-      day = set(["方", "余", "方"])
+      day = set(["Fang", "Yu", "Fang"])
       # ② 再打一次卡，与晚班比较
-      day.add("余")
-      night = {"余", "安"}
+      day.add("Yu")
+      night = {"Yu", "An"}
       print(len(day))                      # 2
       print(len(day.intersection(night)))  # 1
-    md: 把再次打卡的名字改成安，同时观察两个人数。
+    md: 把再次打卡的名字改成 An，同时观察两个人数。
   - type: quiz
     skill: py.set-basics
     q: 空集合里依次 add(3)、add(3)、add(4)，len 是多少？

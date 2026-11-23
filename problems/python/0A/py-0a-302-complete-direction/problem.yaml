@@ -21,4 +21,4 @@ wrong_examples:
   - why: 把两个读数相等也算成上升。
     code: |
       def trend(old: int, new: int) -> str:
-          return "升" if new >= old else "平或降"
+          return "up" if new >= old else "flat or down"

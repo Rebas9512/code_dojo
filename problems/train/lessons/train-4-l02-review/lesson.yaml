@@ -1,0 +1,31 @@
+id: train-4-l02-review
+title: 综合修复
+track: train
+skills:
+  - train.replay
+steps:
+  - type: read
+    skill: train.replay
+    md: |-
+      排查多个问题时，把一份已经验证的短实验当作对照。在同一批数据、同一种子、相同优化器设置下分别记录损失，第一处偏离可以缩小需要检查的代码范围。
+
+      参考轨迹 [4,1,0.25] 与实测 [4,1,0.6]，前两步一致，第 3 步开始前的参数或该步损失输入值得检查。先看数据与模式，再按前向、损失、梯度、更新、日志的顺序找证据。允许小幅舍入误差。
+
+      **TR20 常见误解**　两条轨迹最后都下降不代表每步等价。只比较最后一个数，也可能漏掉中途不同又碰巧回到同一点的运行。
+  - type: example
+    skill: train.replay
+    code: |
+      # ① 同一实验记录了两份逐步损失
+      reference = [4., 2., 1.]
+      observed = [4., 2.5, 1.]
+      # ② 标出偏差超过容差的位置
+      print([i + 1 for i in range(3) if abs(reference[i] - observed[i]) > 0.01])  # 输出 [2]
+    md: 把实测第二项改为 2.001，观察容差的作用。
+  - type: quiz
+    skill: train.replay
+    q: 两个脚本最后一个 loss 相同，要验证逐步等价还需要什么？
+    options:
+      - 每一步同起点下的数值
+      - 只比较最后一个参数的符号
+    answer: 0
+    explain: 中间步骤能暴露最终指标遮住的错误。

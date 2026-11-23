@@ -1,11 +1,11 @@
 {
   "examples": [
-    {"args": ["柳"], "expected": "柳"},
+    {"args": ["Liu"], "expected": "Liu"},
     {"args": ["Ada"], "expected": "Ada"}
   ],
   "hidden": [
     {"args": [""], "expected": ""},
-    {"args": ["林林"], "expected": "林林"},
+    {"args": ["Linlin"], "expected": "Linlin"},
     {"args": ["0"], "expected": "0"}
   ]
 }

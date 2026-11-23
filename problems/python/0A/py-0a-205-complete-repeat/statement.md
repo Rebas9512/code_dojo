@@ -7,15 +7,15 @@
 **示例 1**
 
 ```text
-输入：word = '松'
-输出：'松 松'
+输入：word = 'Pine'
+输出：'Pine Pine'
 ```
 
 **示例 2**
 
 ```text
-输入：word = '山', times = 3, sep = '/'
-输出：'山/山/山'
+输入：word = 'Hill', times = 3, sep = '/'
+输出：'Hill/Hill/Hill'
 ```
 
 ## 约束

@@ -34,7 +34,7 @@ steps:
   - type: quiz
     skill: sql.is-null
     q: "30 本书里 7 本是 Harbor Press 出版的，5 本出版社为空。`WHERE publisher <> 'Harbor Press'` 返回几行？"
-    options: ["23 行", "18 行", "30 行"]
+    options: ["23", "18", "30"]
     answer: 1
     explain: "出版社为空的 5 本比较结果是\"未知\"，被丢掉了：30 − 7 − 5 = 18。要把它们算上，加 `OR publisher IS NULL`。"
   - type: read
@@ -102,7 +102,7 @@ steps:
   - type: quiz
     skill: sql.order-by
     q: "`ORDER BY price DESC, title` 中，title 按什么方向排？"
-    options: ["从 A 到 Z（升序）", "从 Z 到 A（降序）"]
+    options: ["ASC", "DESC"]
     answer: 0
     explain: "DESC 只作用于 price；title 没写方向，默认升序。"
   - type: read
@@ -171,7 +171,7 @@ steps:
   - type: quiz
     skill: sql.distinct
     q: "users 里有 4 个用户的城市为空。`SELECT DISTINCT city FROM users;` 的结果里 NULL 出现几次？"
-    options: ["0 次", "1 次", "4 次"]
+    options: ["0", "1", "4"]
     answer: 1
     explain: "去重时 NULL 和 NULL 算相同，只留一行 NULL。"
   - type: read

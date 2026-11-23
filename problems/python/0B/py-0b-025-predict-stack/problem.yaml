@@ -15,6 +15,6 @@ milestones: []
 wrong_examples:
   - why: "PM37：把 pop() 当成取走最早入栈的纸条。"
     code: |
-      print("白")
-      print("青")
-      print("白黄")
+      print("white")
+      print("teal")
+      print("whiteyellow")

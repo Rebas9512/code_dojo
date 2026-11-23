@@ -1,5 +1,5 @@
 def checked():
-    print("检查")
+    print("check")
     return 8
 
 

@@ -79,17 +79,17 @@ steps:
   - type: read
     skill: py.fstring
     md: |
-      经常要把文字和变量的值拼成一句话，比如"Lin 今年 30 岁"。最方便的写法是 **f-string**：在字符串的引号前加一个 `f`，花括号 `{}` 里写变量或表达式，运行时会被替换成它的值。
+      经常要把文字和变量的值拼成一句话，比如"Lin is 30 years old"。最方便的写法是 **f-string**：在字符串的引号前加一个 `f`，花括号 `{}` 里写变量或表达式，运行时会被替换成它的值。
 
       ```python
       name = "Lin"
       age = 30
-      f"{name} 今年 {age} 岁"      # 'Lin 今年 30 岁'
-      f"明年 {age + 1} 岁"         # 花括号里可以计算
+      f"{name} is {age} years old"      # 'Lin is 30 years old'
+      f"next year: {age + 1} years old"         # 花括号里可以计算
       ```
       小数想保留几位，在花括号里加格式：`{price:.2f}` 保留 2 位小数。
 
-      为什么不用 `+` 拼？`"今年 " + age` 会报错（文字和数字是不同的类型，不能直接相加），f-string 会自动把数字变成文字。
+      为什么不用 `+` 拼？`"age: " + age` 会报错（文字和数字是不同的类型，不能直接相加），f-string 会自动把数字变成文字。
 
       常见误解：
       - **"花括号自己会替换"**：忘了开头的 `f`，结果就是字面上的 `{name}`。
@@ -98,11 +98,11 @@ steps:
     skill: py.fstring
     code: |
       # ① 准备数据
-      item = "笔记本"
+      item = "notebook"
       price = 12.5
       count = 3
       # ② 用 f-string 拼出一句话，金额保留两位小数
-      line = f"{item} x{count}，共 {price * count:.2f} 元"
+      line = f"{item} x{count}, total {price * count:.2f} yuan"
       print(line)
       # ③ 忘了 f 会怎样
       print("{item} x{count}")

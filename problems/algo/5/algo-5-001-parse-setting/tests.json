@@ -1,7 +1,7 @@
 {
   "examples": [
     {"args":[" limit = 0",8],"expected":0},
-    {"args":["workers=好",4],"expected":4}
+    {"args":["workers=ok",4],"expected":4}
   ],
   "hidden": [
     {"args":["a=b=1",2],"expected":2},

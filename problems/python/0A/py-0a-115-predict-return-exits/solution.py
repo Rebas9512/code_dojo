@@ -1,9 +1,9 @@
 def size(n):
     if n > 10:
-        return "大"
+        return "large"
     if n > 5:
-        return "中"
-    return "小"
+        return "medium"
+    return "small"
 
 print(size(20))
 print(size(7))

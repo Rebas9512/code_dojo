@@ -1,0 +1,17 @@
+id: train-3-013-dropout-modes
+title: 全部丢弃后验证还会丢吗
+track: train
+stage: '3'
+order: 130
+format: predict
+mode: predict
+difficulty: 31
+skills:
+  requires:
+    - train.evaluate
+  introduces: train.dropout
+source: original
+wrong_examples:
+  - why: 验证模式下 Dropout 直接传递输入。
+    code: |
+      print('[0.0, 0.0]\n[0.0, 0.0]')

@@ -1,0 +1,262 @@
+track: train
+skills:
+  - id: train.dataset
+    name: 按下标取一条样本
+    stage: '1'
+    group: 1
+    prereqs:
+      - py.class-methods
+      - py.index-len
+    card: |-
+      数据集是可以一条条取用的样本集合。训练程序希望用同一套办法读三条测量值或三万条测量值。温度记录 [12, 18, 15] 有三条，编号从 0 起，编号 1 对应 18。
+
+      把记录保存在 Dataset 子类的实例上。len(ds) 会调用 __len__，ds[i] 会调用 __getitem__。一条记录还能同时带读数和标签，两个字段共用同一个下标。
+
+      把一条记录的字段数当成数据集长度，会让加载器漏掉一些样本。
+  - id: train.batch
+    name: 批大小与不满的末批
+    stage: '1'
+    group: 1
+    prereqs:
+      - train.dataset
+      - tensor.create
+    card: |-
+      一批是模型一次处理的几条样本。批大小定为 2，五条记录会分成 2、2、1 三批。模型看到的第一维表示这一次拿了几条，最后一次可能不同。
+
+      DataLoader 接收数据集和 batch_size。遍历一次会依次交出各批，drop_last=True 会舍掉不足一批的余数，整除时两种设置所得批数相同。
+
+      批大小并不保证每次都取到这么多条。估算样本总数时要看最后一批的实际长度。
+  - id: train.shuffle
+    name: 用独立种子打乱整条记录
+    stage: '1'
+    group: 2
+    prereqs:
+      - train.batch
+      - ml.split
+    card: |-
+      连续记录常常恰好排好序，第一批可能只有一种标签。洗牌让各批看到不同的样本。比如把行号 [0,1,2] 排成 [2,0,1]，值列和标签列都要按这同一串行号读取。
+
+      给 DataLoader 设置 shuffle=True，并传入 torch.Generator().manual_seed(seed)。生成器保存抽签进度；重建同种子的生成器，第一次遍历就能重现。继续用原生成器会接着抽。
+
+      单独打乱两列会拆散样本，即使两列长度依旧相等。
+  - id: train.pad
+    name: 用 collate_fn 补齐变长序列
+    stage: '1'
+    group: 2
+    prereqs:
+      - train.batch
+      - data.missing
+      - tensor.mask
+    card: |-
+      拼批是把几条样本排成一个矩形。句子 [4,0] 和 [8] 分别长 2 和 1，第二行少一格。补齐（padding）只给批内空位安排占位符，好让模型一次处理整批。
+
+      DataLoader 会把本批的样本列表交给 collate_fn。先保存每行原长，再用 pad_sequence(..., batch_first=True, padding_value=...) 在右边补齐。原长能区分真实的零与补出来的零。
+
+      认识数据里的缺失表示尚无观测；补齐格同样不能当作真实观测参与统计。数非零项会把真实的零也删掉。
+  - id: train.holdout
+    name: 按行号留出验证样本
+    stage: '1'
+    group: 3
+    prereqs:
+      - train.shuffle
+      - ml.leakage
+    card: |-
+      训练集用来更新参数，验证集用来检查模型遇到新记录时的表现。五条样本留两条验证，哪怕两条数值相同，它们仍是两个行号。重复抽行可能让同一行两头都用。
+
+      torch.randperm(n, generator=g) 给出 0 到 n−1 的一个排列。按约定先切出验证段，剩下的交给训练；两端应互不重叠，拼起来能覆盖全部行号。
+
+      从两个独立排列各取一段，数量可以正确，行号却可能相交。
+  - id: train.loop
+    name: 一次更新的五个动作
+    stage: '2'
+    group: 1
+    prereqs:
+      - ml.descent
+      - ml.mse
+      - tensor.accumulate
+      - tensor.module
+    card: |-
+      模型有一组可以调的数，叫参数。把一批输入交给模型得到预测，称为前向；预测和目标之间的差距用一个标量 loss 表示。一次更新要回答两个问题：往哪里改，这一次改多少。
+
+      预测 1，目标 3，平方误差是 4，对预测的梯度是 −4。若参数本身就是预测，学习率 0.25 会把 1 更新为 2。代码先前向、算 loss，然后 zero_grad 清旧账、backward 算本步梯度、step 用它更新。
+
+      backward 会把梯度加到已有的 .grad。清得太晚会连这一步刚算的方向也抹掉。
+  - id: train.ce
+    name: 交叉熵的分数与标签
+    stage: '2'
+    group: 1
+    prereqs:
+      - ml.multiclass
+      - tensor.create
+    card: |-
+      分类模型每行给每个候选类一个原始分数，叫 logits。交叉熵把正确类别得到的支持换成损失，正确类分数相对越高，损失越小。两个类的分数都是 0 时，两类机会相同，损失约为 0.693。
+
+      两条样本、三个候选类时，分数形状是 (2,3)。采用类别下标的写法，每行只交一个从 0 开始的整数，标签形状 (2,)，类型 torch.long。CrossEntropyLoss 会在内部稳定地处理归一化。
+
+      先 softmax 再交给交叉熵，相当于把概率当成新分数，同一预测会得到另一份损失和梯度。
+  - id: train.momentum
+    name: SGD 与动量缓冲
+    stage: '2'
+    group: 2
+    prereqs:
+      - train.loop
+    card: |-
+      普通 SGD 按当前梯度走一小步。动量给反复出现的方向留一点记忆，这样连续的小推力会累积。学习率 0.1，连续两步梯度都为 2，普通 SGD 每次向下走 0.2。
+
+      SGD(..., momentum=0.5) 的缓冲先为 2，再为 0.5×2+2=3。第二步就走 0.3。优化器应在循环外建立，同一个实例才保得住缓冲。
+
+      每步重建优化器会丢失方向记忆；第一步通常看不出差别。
+  - id: train.adam
+    name: Adam 的两份移动平均
+    stage: '2'
+    group: 2
+    prereqs:
+      - train.momentum
+    card: |-
+      不同参数的梯度大小可能相差很多。Adam 为每个参数位置记两份数：梯度的移动平均提供方向，梯度平方的移动平均估计尺度。这样大梯度的方向不会仅仅因单位大而走得特别远。
+
+      第一次梯度为 2，修正起步偏差后的两份数是 2 和 4；前者除以后者的平方根约为 1。学习率 0.1，参数便约减去 0.1。betas 的第一个数控制方向的记忆，第二个数控制尺度的记忆。
+
+      Adam 的第二份记忆保留的是平方，不会因为梯度正负交替而抵消。
+  - id: train.schedule
+    name: 在轮末调学习率
+    stage: '2'
+    group: 3
+    prereqs:
+      - train.momentum
+    card: |-
+      一次遍历训练集叫一轮。到了接近目标的位置，过大的步子可能跨过目标。学习率调度器按计划改变后续步长，让最初几轮走得快，后几轮更细。
+
+      初始学习率 0.4，每两轮减半，各轮实际用的是 0.4、0.4、0.2、0.2。用 StepLR(optimizer, step_size=2, gamma=0.5)，先执行本轮的 optimizer.step()，在轮末再 scheduler.step()。
+
+      先改学习率再更新会把衰减日期提前；看日志要分清本轮使用的值和给下一轮准备的值。
+  - id: train.clip
+    name: 按总范数裁剪梯度
+    stage: '2'
+    group: 3
+    prereqs:
+      - train.loop
+      - math.distance
+    card: |-
+      梯度偶尔特别长，会让一次更新远远越过目标。梯度裁剪先把各参数的梯度视为一根长向量，超过上限才按同一个比例缩短，从而保留方向。
+
+      梯度 [3,4] 的长度为 5，上限 2.5，对应 [1.5,2]。用 clip_grad_norm_(parameters, max_norm) 原地修改 .grad。应在 backward 得到梯度之后、step 读取梯度之前裁剪。
+
+      逐项截断到上限会改变方向；如果原本就比上限短，也不用把梯度放大。
+  - id: train.evaluate
+    name: 切换验证模式并关闭梯度
+    stage: '3'
+    group: 1
+    prereqs:
+      - train.loop
+      - train.holdout
+      - tensor.boundary
+    card: |-
+      验证是在留出的样本上测量当前模型。某些层在训练时会使用随机数，验证时应使用稳定的规则；同时验证只做测量，记录反向传播路径会额外占内存。
+
+      两个开关各管一件事：model.eval() 让各层进入验证模式，with torch.no_grad() 暂停记录新运算的梯度。比如一层有两个权重，预测一次同样只要两个权重，不需要额外保存中间结果给 backward。
+
+      只写 eval() 仍可能得到有计算图的输出。退出 no_grad 会恢复之前的梯度开关，模型模式需要显式切回 train()。
+  - id: train.metric
+    name: 按样本数汇总验证指标
+    stage: '3'
+    group: 1
+    prereqs:
+      - train.evaluate
+      - ml.metrics
+    card: |-
+      准确率是答对的样本数占全部样本的比例。验证集常分成多批，最后一批可能很短。第一批 4 条全对，第二批 1 条答错，全场有 4 条答对、共 5 条，准确率是 0.8。
+
+      先在每批数出预测等于标签的样本，加到总正确数；分母累加实际样本数，最后只除一次。模型若输出每类分数，沿类别轴取最大值的位置作为预测。
+
+      直接平均各批准确率会让短批占过多分量。上面的两批直接平均会得到 0.5。
+  - id: train.patience
+    name: 验证早停与连续未改善轮数
+    stage: '3'
+    group: 2
+    prereqs:
+      - train.metric
+    card: |-
+      每一轮多花时间训练，验证误差却可能不再下降。早停规定可以再等几轮，这个等待上限叫 patience。我们跟踪迄今最低的验证误差，数它连续多久没有被刷新。
+
+      误差 [5,4,4,6]、patience=2。第 2 轮创下最低的 4，第 3 轮持平算等待 1 轮，第 4 轮变差算第 2 轮，于是停止。若中途出现更低的值，等待数重新从零算。
+
+      只和前一轮比较会误判：从 6 回到 5 虽比昨天好，但没有刷新最低的 4。
+  - id: train.decay
+    name: 用权重衰减约束参数
+    stage: '3'
+    group: 2
+    prereqs:
+      - train.momentum
+    card: |-
+      模型有时靠很大的权重去贴合训练数据的小波动。权重衰减给大权重加一道向零的推力。这里使用普通 SGD；数据损失提供的梯度以外，更新方向还多出系数 λ 乘以当前参数。
+
+      参数为 2，数据梯度为 0，学习率 0.1，λ=0.5，本次有效梯度就是 1，参数变成 1.9。在 SGD 构造时设置 weight_decay 即可。即使向零拉，数据梯度仍可能推动参数远离零。
+
+      衰减系数与学习率控制不同的量。把学习率变小并不会给零梯度的权重一个向零的推力。
+  - id: train.dropout
+    name: 追踪 dropout 的两种模式
+    stage: '3'
+    group: 2
+    prereqs:
+      - train.evaluate
+    card: |-
+      训练时随机暂时屏蔽一部分激活值，可以减少模型对某个位置的依赖。Dropout 的 p 是丢弃概率。训练时保留下来的值会除以 1−p，以便大量重复后平均输出仍接近原值。
+
+      p=0.5 时，输入 2 的位置在训练时可能是 0 或 4。在验证模式下，同一位置直接输出 2。用 model.train() 和 model.eval() 控制模块，固定种子可复现实验中的训练掩码。
+
+      no_grad 只管梯度；只要 Dropout 仍处在训练模式，它仍会随机丢弃位置。
+  - id: train.checkpoint
+    name: 在内存中保存与恢复训练现场
+    stage: '3'
+    group: 3
+    prereqs:
+      - tensor.state
+      - train.momentum
+    card: |-
+      检查点是一份可以恢复的训练现场。比如参数从 2 更新到 3，想保留在 2 的时刻，就要在更新前把数值写成独立快照。要沿动量方向继续走，还要带上优化器的缓冲和轮数。
+
+      state_dict() 列出模型或优化器的状态。torch.save 把这些状态写入 BytesIO，像写一份内存里的文件。读取前用 seek(0) 回到开头，再用 torch.load 和 load_state_dict 填回同结构的对象。
+
+      只把 state_dict 存进一个变量，其中张量仍可能与模型共享存储。之后的更新会影响想留住的旧值。
+  - id: train.curves
+    name: 结合对照实验判读损失曲线
+    stage: '3'
+    group: 4
+    prereqs:
+      - train.metric
+      - train.patience
+      - ml.trajectory
+    card: |-
+      每轮各记一个训练误差和一个验证误差，顺着轮次读，就能看到学习过程。两条曲线有不同来源：一条来自用来更新的数据，另一条来自留出的数据。验证变差时，先找它开始偏离的轮次。
+
+      训练误差 0.8→0.4→0.1、验证误差 0.8→0.5→0.7，最佳验证点在第 2 轮。训练仍在进步、验证开始回升，是过拟合的线索。两条都高要结合容量对照，两条都暴涨要检查学习率；脚本错误需要查看更新记录。
+
+      孤立的一个数通常分不清原因。比较只改变一个条件的两次运行，再核对权重是否真的发生更新。
+  - id: train.history
+    name: 记录脱离计算图的损失日志
+    stage: '4'
+    group: 1
+    prereqs:
+      - train.loop
+      - tensor.boundary
+    card: |-
+      每步的 loss 是一个张量，其中可能带着通往这一次运算的节点。训练几千步时，若列表一直保留这些张量，也会留住本可释放的图节点。日志要用于画曲线，只需记下数字。
+
+      若第一步损失是张量 4.0、第二步是张量 1.0，曲线只需要 [4.0,1.0]。用 history.append(loss.item()) 在每次更新时留下 Python 数值。反向仍应在原 loss 上调用。
+
+      loss.item 没有括号是方法本身，直接 append(loss) 则会留下张量；两种写法都没有得到所需的数值。
+  - id: train.replay
+    name: 用同起点逐步复核训练脚本
+    stage: '4'
+    group: 2
+    prereqs:
+      - train.history
+      - train.evaluate
+      - ml.trajectory
+    card: |-
+      排查多个问题时，把一份已经验证的短实验当作对照。在同一批数据、同一种子、相同优化器设置下分别记录损失，第一处偏离可以缩小需要检查的代码范围。
+
+      参考轨迹 [4,1,0.25] 与实测 [4,1,0.6]，前两步一致，第 3 步开始前的参数或该步损失输入值得检查。先看数据与模式，再按前向、损失、梯度、更新、日志的顺序找证据。允许小幅舍入误差。
+
+      两条轨迹最后都下降不代表每步等价。只比较最后一个数，也可能漏掉中途不同又碰巧回到同一点的运行。

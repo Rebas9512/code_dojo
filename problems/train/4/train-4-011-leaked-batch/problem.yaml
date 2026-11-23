@@ -1,0 +1,38 @@
+id: train-4-011-leaked-batch
+title: 哪些行不该出现在更新中
+track: train
+stage: '4'
+order: 110
+format: fix
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - train.loop
+    - train.holdout
+    - train.evaluate
+  introduces: null
+source: original
+entry: train
+signature: 'def train(model, data, optimizer, steps):'
+compare: checker
+wrong_examples:
+  - why: 拼批时混入了验证行。
+    code: |
+      import torch
+
+
+      def train(model, data, optimizer, steps):
+          features, labels = data.train
+          vx, vy = data.valid
+          features, labels = torch.cat([features, vx]), torch.cat([labels, vy])
+          for _ in range(steps):
+              scores = model(features)
+              loss = data.loss(scores, labels)
+              optimizer.zero_grad()
+              loss.backward()
+              optimizer.step()
+          model.eval()
+          with data.evaluating(), torch.no_grad():
+              model(data.valid[0])
+unit: 1

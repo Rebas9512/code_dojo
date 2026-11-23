@@ -1,0 +1,23 @@
+id: train-3-012-decay-update
+title: 手算一次带衰减的参数更新
+track: train
+stage: '3'
+order: 120
+format: write
+mode: function
+difficulty: 31
+skills:
+  requires:
+    - train.decay
+    - py.list-comp
+    - py.zip
+  introduces: null
+source: original
+entry: decay_step
+signature: 'def decay_step(weights, grads, rate, decay):'
+compare: float
+wrong_examples:
+  - why: 把同一个常量加在所有梯度上。
+    code: |
+      def decay_step(weights, grads, rate, decay):
+          return [w - rate * (g + decay) for w, g in zip(weights, grads)]

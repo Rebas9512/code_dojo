@@ -3,7 +3,7 @@ for i in range(3):
     print(i)
 print("---")
 for i in range(1, 1):
-    print("这一行会打印吗")
+    print("will this line print?")
 print("---")
 for i in range(1, 4):
     print(i)

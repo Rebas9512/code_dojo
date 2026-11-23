@@ -85,8 +85,8 @@ steps:
     skill: sql.cross-join
     q: 有四位学员、两门课。即使完全没有签到，用两个名册做 CROSS JOIN 能先建出几行？
     options:
-      - 0 行
-      - 6 行
-      - 8 行
+      - "0"
+      - "6"
+      - "8"
     answer: 2
     explain: 清单由两个名册决定，每位学员都配两门课，共 4 × 2 行。

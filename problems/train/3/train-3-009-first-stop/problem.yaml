@@ -1,0 +1,32 @@
+id: train-3-009-first-stop
+title: 找出真正该停的那一轮
+track: train
+stage: '3'
+order: 90
+format: write
+mode: function
+difficulty: 30
+skills:
+  requires:
+    - train.patience
+    - py.enumerate
+    - py.type-convert
+  introduces: null
+source: original
+entry: stop_epoch
+signature: 'def stop_epoch(losses, patience):'
+compare: exact
+wrong_examples:
+  - why: 多等了一轮。
+    code: |
+      def stop_epoch(losses, patience):
+          best = float("inf")
+          wait = 0
+          for epoch, loss in enumerate(losses, 1):
+              if loss < best:
+                  best, wait = loss, 0
+              else:
+                  wait += 1
+                  if wait > patience:
+                      return epoch
+          return 0

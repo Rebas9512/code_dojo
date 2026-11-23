@@ -4,15 +4,32 @@ summary: 编写数据管道和训练循环，读评估结果，修正训练脚�
 order: 8
 language: python
 runtime: ds
-status: planned
-requires: [ml]
+status: active
+requires:
+  - ml
 skill_prefix: train
 stages:
-  - id: "1"
+  - id: '1'
     name: 数据管道
-  - id: "2"
+    units:
+      1: 样本与批次
+      2: 洗牌与变长拼批
+      3: 分开训练与验证
+  - id: '2'
     name: 训练循环
-  - id: "3"
+    units:
+      1: 一次参数更新
+      2: 优化器的记忆
+      3: 控制步长与梯度
+  - id: '3'
     name: 评估和调参
-  - id: "4"
+    units:
+      1: 验证模式与指标
+      2: 早停与正则化
+      3: 保存与恢复
+      4: 读损失记录
+  - id: '4'
     name: 训练脚本改错
+    units:
+      1: 逐步排查训练脚本
+      2: 综合修复

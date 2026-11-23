@@ -6,7 +6,7 @@ steps:
   - type: read
     skill: algo.try-except
     md: |
-      读配置时，正常的一行能拆成键和值，值也能转成整数。可是一旦用户少打等号，或者打成“十个”，程序应该继续用哪个值？先和调用者约好默认值，再把拆分、转换放进 try。Python 遇到 ValueError 就跳到对应的 except，成功则直接交回转换结果。读一行所花的时间随字符数线性增长。把 try 限制在输入转换附近，后面的计算若写错，仍可看到出错的位置。
+      读配置时，正常的一行能拆成键和值，值也能转成整数。可是一旦用户少打等号，或者打成“ten”，程序应该继续用哪个值？先和调用者约好默认值，再把拆分、转换放进 try。Python 遇到 ValueError 就跳到对应的 except，成功则直接交回转换结果。读一行所花的时间随字符数线性增长。把 try 限制在输入转换附近，后面的计算若写错，仍可看到出错的位置。
   - type: example
     skill: algo.try-except
     code: |
@@ -18,7 +18,7 @@ steps:
               return fallback
 
       # ② 比较填错和确实填了零
-      print(count("三", 6))
+      print(count("three", 6))
       print(count("0", 6))
       # 输出
       # 6
@@ -27,7 +27,7 @@ steps:
   - type: quiz
     skill: algo.try-except
     q: 输入是 "0"，默认值是 6。若在成功转换后写 return value or 6，会交回什么？
-    options: ["0", "6", "抛出 ValueError"]
+    options: ["0", "6", "ValueError"]
     answer: 1
     explain: 整数 0 转换成功，但在 or 左边会被当成假值。只在转换失败的分支交回默认值。
   - type: read

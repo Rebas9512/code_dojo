@@ -17,8 +17,8 @@ data:
 answer:
   type: short
   accept:
-    - '3'
-    - 三
+    - "3"
+    - "three"
   misconceptions:
     '2': DM03
     '1': DM03

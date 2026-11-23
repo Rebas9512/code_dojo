@@ -1,0 +1,17 @@
+id: train-3-010-decay-sign
+title: 负权重朝哪个方向走
+track: train
+stage: '3'
+order: 100
+format: predict
+mode: predict
+difficulty: 30
+skills:
+  requires:
+    - train.momentum
+  introduces: train.decay
+source: original
+wrong_examples:
+  - why: 衰减对负权重的推力指向零。
+    code: |
+      print('-4.5')

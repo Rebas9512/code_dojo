@@ -135,6 +135,7 @@ def build_prompt(parent: Problem, *, request: str, skill_names: dict[str, str], 
     parts = [
         f"# 原题：{m.title}（模式 {m.mode}，题型 {m.format}，难度 {m.difficulty}/100）",
         parent.statement.strip(),
+        "题干用中文，学习者要输入或输出的内容用英文。",
         f"原题用到的技能（附加题只能用这些）：{'、'.join(skills) or '无'}",
     ]
     if m.signature:

@@ -1,0 +1,20 @@
+id: train-2-001-first-update
+title: 第一次更新后参数在哪里
+track: train
+stage: '2'
+order: 10
+format: predict
+mode: predict
+difficulty: 23
+skills:
+  requires:
+    - ml.descent
+    - ml.mse
+    - tensor.accumulate
+    - tensor.module
+  introduces: train.loop
+source: original
+wrong_examples:
+  - why: 打印的 loss 是更新之前算的。
+    code: |
+      print('4.0 2.0')

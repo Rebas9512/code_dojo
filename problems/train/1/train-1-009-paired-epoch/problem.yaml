@@ -1,0 +1,30 @@
+id: train-1-009-paired-epoch
+title: 洗牌后交回配对的两列
+track: train
+stage: '1'
+order: 90
+format: write
+mode: function
+difficulty: 22
+skills:
+  requires:
+    - train.shuffle
+    - py.list-comp
+    - py.zip
+  introduces: null
+source: original
+entry: paired_epoch
+signature: 'def paired_epoch(values, labels, width, seed):'
+compare: checker
+wrong_examples:
+  - why: 洗牌之前就把一列单独排序。
+    code: |
+      import torch
+      from torch.utils.data import DataLoader
+
+
+      def paired_epoch(values, labels, width, seed):
+          pairs = list(zip(values, sorted(labels)))
+          generator = torch.Generator().manual_seed(seed)
+          loader = DataLoader(pairs, batch_size=width, shuffle=True, generator=generator)
+          return [[xs.tolist(), ys.tolist()] for xs, ys in loader]

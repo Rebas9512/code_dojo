@@ -16,7 +16,7 @@ steps:
     db: bookstore
     patch: |
       CREATE TABLE tags(id int PRIMARY KEY, aisle text, price int);
-      INSERT INTO tags VALUES (1, '东', 30), (2, '东', 30), (3, '东', 10), (4, '西', 20);
+      INSERT INTO tags VALUES (1, 'east', 30), (2, 'east', 30), (3, 'east', 10), (4, 'west', 20);
     code: |
       -- ① 给每个货架按价分档
       WITH ranked AS (
@@ -58,6 +58,6 @@ steps:
     options:
       - '0'
       - 'NULL'
-      - 本行的 x
+      - "x"
     answer: 1
     explain: 第三个参数只在没有对应偏移行时使用。

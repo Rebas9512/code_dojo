@@ -26,8 +26,8 @@ def run_case(head: ListNode | None) -> ListNode | None:
             block.reverse()
         for expected_node, value in block:
             if node is not expected_node or node.val != value:
-                return ListNode("节点身份或数值有误")
+                return ListNode("wrong node identity or value")
             node = node.next
     if node is not None:
-        return ListNode("链尾应指向空")
+        return ListNode("tail should point to None")
     return result

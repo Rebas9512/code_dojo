@@ -16,7 +16,7 @@ ordered: false
 hints:
   - LENGTH 可以数出文字中的字符个数。
 wrong_examples:
-  - why: 按存储字节数计算，多字节的汉字会多算。
+  - why: 按存储字节数计算，把 Café 里的 é 按 UTF-8 字节数多算了。
     sql: |
       SELECT book_id, OCTET_LENGTH(title) AS chars FROM books;
   - why: 先删掉空格再计数，少算了书名里的空格。

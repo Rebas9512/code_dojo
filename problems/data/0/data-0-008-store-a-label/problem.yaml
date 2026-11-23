@@ -17,11 +17,12 @@ data:
 answer:
   type: short
   accept:
-    - 文字
-    - 文本
-    - 字符串
-    - text
+    - "text"
+    - "string"
+    - "str"
   misconceptions:
-    整数: DM04
-    数字: DM04
+    "integer": DM04
+    "int": DM04
+    "number": DM04
+    "numeric": DM04
 explain: 号码需要逐个字符保留。拿掉开头的 0 会改变标识，两个标识的平均数也没有业务含义。

@@ -10,8 +10,8 @@ books 有 id、name，lots 有 id、n。按 id 配对，返回每个匹配组合
 
 | id | name |
 | --- | --- |
-| 1 | 甲 |
-| 2 | 乙 |
+| 1 | A |
+| 2 | B |
 
 `lots`
 
@@ -25,8 +25,8 @@ books 有 id、name，lots 有 id、n。按 id 配对，返回每个匹配组合
 
 | id | name | n |
 | --- | --- | --- |
-| 1 | 甲 | 2 |
-| 1 | 甲 | 3 |
+| 1 | A | 2 |
+| 1 | A | 3 |
 
 ## 示例 2
 
@@ -34,7 +34,7 @@ books 有 id、name，lots 有 id、n。按 id 配对，返回每个匹配组合
 
 | id | name |
 | --- | --- |
-| 2 | 乙 |
+| 2 | B |
 
 `lots`
 

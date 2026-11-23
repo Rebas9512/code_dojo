@@ -7,8 +7,8 @@
 **示例 1**
 
 ```text
-输入：names = ['云', '松'], nicknames = {'云': '小云'}
-输出：['小云', '松']
+输入：names = ['Cloud', 'Pine'], nicknames = {'Cloud': 'Sunny'}
+输出：['Sunny', 'Pine']
 ```
 
 **示例 2**

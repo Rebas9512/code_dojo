@@ -23,12 +23,12 @@ steps:
               return 0
           # ② 等低一层回来，再拼出自己的答案
           lower = height(floor - 1)
-          print("算", floor)
+          print("level", floor)
           return lower + 1
 
 
-      print(height(2))  # 依次输出 算 1、算 2、2
-    md: 把入口改成 height(3)，在运行前写出每次“算”后面的数。
+      print(height(2))  # 依次输出 level 1、level 2、2
+    md: 把入口改成 height(3)，在运行前写出每次“level”后面的数。
   - type: quiz
     skill: py.recursion
     q: height(0) 刚刚 return 0，接下来在哪里继续？
@@ -65,9 +65,9 @@ steps:
     skill: py.recursion-seq
     q: 长度为 3，下标 i = 2。当前后缀还有几项？
     options:
-      - 0 项
-      - 1 项
-      - 2 项
+      - "0"
+      - "1"
+      - "2"
     answer: 1
     explain: 还有下标 2 处的最后一项。移动到 3 时才为空。
   - type: read
@@ -96,8 +96,8 @@ steps:
     skill: py.recursion-multi
     q: 单独计算 fib(3)，fib(1) 的函数体运行几次？
     options:
-      - 一次，结果会复用
-      - 两次，一次来自 fib(2)，一次来自 fib(3)
-      - 三次
+      - "1"
+      - "2"
+      - "3"
     answer: 1
     explain: 画出 fib(3) 的两个孩子，再展开 fib(2)，能沿两条不同路径走到 fib(1)。

@@ -12,28 +12,28 @@ skills:
   introduces: data.shapes
 data:
   - kind: json
-    title: 甲 · 价格摘录
+    title: A · 价格摘录
     file: value.json
   - kind: json
-    title: 乙 · 价格摘录
+    title: B · 价格摘录
     file: prices.json
   - kind: json
-    title: 丙 · 图书摘录
+    title: C · 图书摘录
     file: record.json
   - kind: json
-    title: 丁 · 图书摘录
+    title: D · 图书摘录
     file: records.json
   - kind: json
-    title: 戊 · 订单摘录
+    title: E · 订单摘录
     file: order.json
 answer:
   type: short
   accept:
-    - 乙 甲 丁 丙 戊
-    - 乙甲丁丙戊
+    - B A D C E
+    - BADCE
   misconceptions:
-    乙 甲 戊 丙 丁:
+    B A E C D:
       id: DM08
       name: 把嵌套订单和整张书表混在一起
-      line: 丁是两本书组成的表；戊是一笔订单，里面又放了一组明细。
-explain: 丙只写一本书，丁放了两本书、每本的字段相同。戊用一个订单编号把一组购书明细收在一起。甲和乙分别是一个值和一列。
+      line: D 是两本书组成的表；E 是一笔订单，里面又放了一组明细。
+explain: C 只写一本书，D 放了两本书、每本的字段相同。E 用一个订单编号把一组购书明细收在一起。A 和 B 分别是一个值和一列。

@@ -23,5 +23,6 @@ answer:
     - text,numeric
   misconceptions:
     integer numeric: DM04
+    int numeric: DM04
     numeric numeric: DM04
 explain: ISBN 是标识，text 能保留开头的 0。平均分要做数值计算并保留小数，可以用 numeric。

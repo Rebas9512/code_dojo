@@ -7,14 +7,14 @@
 **示例 1**
 
 ```text
-输入：prices = {'梨': 3, '茶': 7}, basket = ['茶', '梨', '梨']
+输入：prices = {'pear': 3, 'tea': 7}, basket = ['tea', 'pear', 'pear']
 输出：13
 ```
 
 **示例 2**
 
 ```text
-输入：prices = {'水': 0}, basket = ['水']
+输入：prices = {'water': 0}, basket = ['water']
 输出：0
 ```
 

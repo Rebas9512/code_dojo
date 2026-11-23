@@ -14,8 +14,8 @@
 **示例 2**
 
 ```text
-输入：n = 1, start = '东', spare = '中', end = '西'
-输出：['东→西']
+输入：n = 1, start = 'East', spare = 'Middle', end = 'West'
+输出：['East→West']
 ```
 
 ## 约束

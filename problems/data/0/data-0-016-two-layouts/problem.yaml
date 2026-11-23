@@ -12,17 +12,17 @@ skills:
   introduces: null
 data:
   - kind: json
-    title: 甲 · 每本书放在一起
+    title: A · 每本书放在一起
     file: records.json
   - kind: json
-    title: 乙 · 每个属性放在一起
+    title: B · 每个属性放在一起
     file: columns.json
 answer:
   type: short
   accept:
-    - 乙 甲
-    - 乙甲
+    - B A
+    - BA
   misconceptions:
-    甲 甲: DM08
-    乙 乙: DM08
-explain: 乙把两笔价格放在 price 后面。甲把同一本书的三个字段放在一对花括号里。两个版本保留了相同的信息。
+    A A: DM08
+    B B: DM08
+explain: B 把两笔价格放在 price 后面。A 把同一本书的三个字段放在一对花括号里。两个版本保留了相同的信息。

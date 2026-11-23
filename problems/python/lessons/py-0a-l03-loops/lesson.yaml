@@ -123,7 +123,7 @@ steps:
   - type: quiz
     skill: py.while
     q: "n = 5 时，`while n < 3:` 下面的循环体执行几次？"
-    options: ["0 次", "1 次", "3 次"]
+    options: ["0", "1", "3"]
     answer: 0
     explain: "第一次检查条件时 5 < 3 就是 False，循环体一次都不执行。"
   - type: read
@@ -255,6 +255,6 @@ steps:
   - type: quiz
     skill: py.nested-loop
     q: "外层循环 3 轮、内层循环每次 4 轮，内层的循环体一共执行几次？"
-    options: ["7 次", "12 次", "4 次"]
+    options: ["7", "12", "4"]
     answer: 1
     explain: "外层每一轮内层都完整跑 4 次：3 × 4 = 12。"

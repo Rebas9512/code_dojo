@@ -1,0 +1,34 @@
+id: train-4-009-still-training
+title: 验证开始时模型还在训练
+track: train
+stage: '4'
+order: 90
+format: fix
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - train.loop
+    - train.evaluate
+  introduces: null
+source: original
+entry: train
+signature: 'def train(model, data, optimizer, steps):'
+compare: checker
+wrong_examples:
+  - why: 未切换模型模式。
+    code: |
+      import torch
+
+
+      def train(model, data, optimizer, steps):
+          features, labels = data.train
+          for _ in range(steps):
+              scores = model(features)
+              loss = data.loss(scores, labels)
+              optimizer.zero_grad()
+              loss.backward()
+              optimizer.step()
+          with data.evaluating(), torch.no_grad():
+              model(data.valid[0])
+unit: 1

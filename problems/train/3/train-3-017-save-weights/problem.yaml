@@ -1,0 +1,27 @@
+id: train-3-017-save-weights
+title: 交回可立即读取的权重快照
+track: train
+stage: '3'
+order: 170
+format: complete
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - train.checkpoint
+  introduces: null
+source: original
+entry: save_weights
+signature: 'def save_weights(model):'
+compare: checker
+wrong_examples:
+  - why: 写完后读写位置仍在文件尾。
+    code: |
+      import torch
+      from io import BytesIO
+
+
+      def save_weights(model):
+          buf = BytesIO()
+          torch.save(model.state_dict(), buf)
+          return buf

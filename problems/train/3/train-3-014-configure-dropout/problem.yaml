@@ -1,0 +1,26 @@
+id: train-3-014-configure-dropout
+title: 按请求设置丢弃层的模式
+track: train
+stage: '3'
+order: 140
+format: complete
+mode: function
+difficulty: 31
+skills:
+  requires:
+    - train.dropout
+  introduces: null
+source: original
+entry: dropout_layer
+signature: 'def dropout_layer(p, training):'
+compare: checker
+wrong_examples:
+  - why: 总是选训练模式。
+    code: |
+      import torch
+
+
+      def dropout_layer(p, training):
+          layer = torch.nn.Dropout(p)
+          layer.train()
+          return layer

@@ -22,4 +22,4 @@ wrong_examples:
   - why: 把条件为真和为假的标签调换了。
     code: |
       def parity_tags(nums: list[int]) -> list[str]:
-          return ["奇" if n % 2 == 0 else "偶" for n in nums]
+          return ["odd" if n % 2 == 0 else "even" for n in nums]

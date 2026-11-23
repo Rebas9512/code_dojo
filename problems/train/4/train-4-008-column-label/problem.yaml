@@ -1,0 +1,30 @@
+id: train-4-008-column-label
+title: 每条标签怎么多了一根轴
+track: train
+stage: '4'
+order: 80
+format: fix
+mode: function
+difficulty: 33
+skills:
+  requires:
+    - train.loop
+    - train.ce
+  introduces: null
+source: original
+entry: train
+signature: 'def train(model, data, optimizer, steps):'
+compare: checker
+wrong_examples:
+  - why: 只改了 dtype，保留了多余的列轴。
+    code: |
+      def train(model, data, optimizer, steps):
+          features, labels = data.train
+          labels = labels.long()
+          for _ in range(steps):
+              scores = model(features)
+              loss = data.loss(scores, labels)
+              optimizer.zero_grad()
+              loss.backward()
+              optimizer.step()
+unit: 1

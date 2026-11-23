@@ -1,11 +1,11 @@
 {
   "examples": [
-    {"args": [{"风": 2}, "风", 0], "expected": {"风": 0}},
-    {"args": [{}, "雨", 3], "expected": {"雨": 3}}
+    {"args": [{"Wind": 2}, "Wind", 0], "expected": {"Wind": 0}},
+    {"args": [{}, "Rain", 3], "expected": {"Rain": 3}}
   ],
   "hidden": [
     {"args": [{"A": 1}, "B", 1], "expected": {"A": 1, "B": 1}},
     {"args": [{"A": 3}, "A", 3], "expected": {"A": 3}},
-    {"args": [{}, "月", 0], "expected": {"月": 0}}
+    {"args": [{}, "Moon", 0], "expected": {"Moon": 0}}
   ]
 }

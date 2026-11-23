@@ -20,7 +20,7 @@ steps:
       为什么先学它？因为它能让你**看见**程序在做什么——以后检查程序对不对，第一招就是把值 print 出来看看。
 
       怎么写：
-      - 文字要放在引号里：`print("你好")`。引号本身不会显示出来。
+      - 文字要放在引号里：`print("hello")`。引号本身不会显示出来。
       - 数字直接写：`print(2026)`。
       - 一次显示几个值，用逗号隔开：`print("code", "dojo")` 显示 `code dojo`，中间**自动加一个空格**。
       - `print()` 括号里什么都不写，就显示一个空行。
@@ -32,14 +32,14 @@ steps:
     skill: py.print
     code: |
       # ① 显示一行文字
-      print("早上好")
+      print("good morning")
       # ② 显示一个数字
       print(2026)
       # ③ 一次显示几个值：逗号变成空格
       print("code", "dojo", 2026)
       # ④ 先显示一个空行，再显示一行
       print()
-      print("结束")
+      print("done")
     md: 运行看看，再改一改：把第 ③ 步的文字换成你的名字；在 `print()` 里随便写点什么，空行还在吗？
   - type: quiz
     skill: py.print
@@ -61,7 +61,7 @@ steps:
   - type: read
     skill: py.value-types
     md: |-
-      把 7 和 "7" 各打印一次，屏幕上都只有一个 7。想知道拿到的是数还是文字，可以请 Python 报出类型。`type(值)` 的结果可以交给 print 显示；例如 `<class 'int'>` 中间的 int 就是类型名。
+      把 7 和 "7" 各打印一次，屏幕上都只有一个 7。想知道拿到的是数还是文字，可以请 Python 报出类型。`type(value)` 的结果可以交给 print 显示；例如 `<class 'int'>` 中间的 int 就是类型名。
 
       整数是 int，带小数点的数是 float，文字是 str。`9.0` 即使数值刚好是整数，写法仍给出 float。真假值 True 和 False 的类型叫 bool；引号里的 "True" 只是一段文字。用 None 表示没有值，它自己也有类型，名字叫 NoneType。
   - type: example
@@ -89,9 +89,9 @@ steps:
     skill: py.value-types
     q: '`"False"` 和 `False` 的类型依次是什么？'
     options:
-      - bool 和 bool
-      - str 和 bool
-      - str 和 str
+      - "bool, bool"
+      - "str, bool"
+      - "str, str"
     answer: 1
     explain: 第一个值有引号。第二个是 Python 的真假值。
   - type: read
@@ -165,8 +165,8 @@ steps:
     skill: py.type-ops
     q: '`"12" + "30"` 得到什么？'
     options:
-      - 数 42
-      - 文字 1230
+      - "42"
+      - "\"1230\""
     answer: 1
     explain: 两个操作数都是文字，加号把字符依次接在一起。
   - type: read
@@ -184,15 +184,15 @@ steps:
       # ② 截去小数部分
       print(int(7.9))               # 7
       # ③ 将结果写回一张文字标签
-      print("合计" + str(42))       # 合计42
+      print("total " + str(42))       # total 42
     md: 把 7.9 换成 -7.9，看 int 去掉的是哪一部分。想试试取最近的整数，可以另写一行 `print(round(7.9))`，看看它为什么显示 8。
   - type: quiz
     skill: py.type-convert
     q: '`int("3.5")` 会怎样？'
     options:
-      - 得到 3
-      - 报 ValueError
-      - 报 TypeError
+      - "3"
+      - "ValueError"
+      - "TypeError"
     answer: 1
     explain: int 可以接收文字，但要求内容写成整数。带小数点的文字不符合这个要求。
   - type: read
@@ -211,7 +211,7 @@ steps:
       常见误解：
       - **"input 读到的就是数字"**：读到的是字符串，`input() + input()` 是把两行文字接起来。
       - **"一次 input 读完所有行"**：一次只读一行。
-      - **"要先打印一句提示"**：不要写 `input("请输入：")`，提示文字会混进你的输出，判题就对不上了。
+      - **"要先打印一句提示"**：不要写 `input("Enter a value: ")`，提示文字会混进你的输出，判题就对不上了。
   - type: example
     skill: py.stdio-input
     code: |

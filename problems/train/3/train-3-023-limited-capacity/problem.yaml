@@ -1,0 +1,54 @@
+id: train-3-023-limited-capacity
+title: 换一个能表示弯曲关系的模型
+track: train
+stage: '3'
+order: 230
+format: inspect
+mode: inspect
+difficulty: 34
+skills:
+  requires:
+    - train.curves
+  introduces: null
+source: original
+data:
+  - kind: table
+    title: 同次训练的两份记录
+    content: |
+      轮次,训练 loss,验证 loss
+      1,2.8,2.9
+      2,2.1,2.2
+      3,2.0,2.1
+      4,2.0,2.1
+answer:
+  type: choice
+  options:
+    - 过拟合
+    - 欠拟合
+    - 学习率过大
+    - 训练脚本有 bug
+  correct: 1
+  misconceptions:
+    '0':
+      id: TR18-limited-capacity-0
+      name: 还要核对对照实验
+      line: 两份误差都高，延长训练无改善，而增加模型表达能力后两份一同降低。
+    '2':
+      id: TR18-limited-capacity-2
+      name: 还要核对对照实验
+      line: 两份误差都高，延长训练无改善，而增加模型表达能力后两份一同降低。
+    '3':
+      id: TR18-limited-capacity-3
+      name: 还要核对对照实验
+      line: 两份误差都高，延长训练无改善，而增加模型表达能力后两份一同降低。
+explain: 两份误差都高，延长训练无改善，而增加模型表达能力后两份一同降低。
+wrong_examples:
+  - answer: 0
+    code: print(0)
+    why: 此判断与对照记录不符。两份误差都高，延长训练无改善，而增加模型表达能力后两份一同降低。
+  - answer: 2
+    code: print(2)
+    why: 此判断与对照记录不符。两份误差都高，延长训练无改善，而增加模型表达能力后两份一同降低。
+  - answer: 3
+    code: print(3)
+    why: 此判断与对照记录不符。两份误差都高，延长训练无改善，而增加模型表达能力后两份一同降低。

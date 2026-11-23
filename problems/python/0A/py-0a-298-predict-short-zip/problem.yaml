@@ -16,4 +16,4 @@ milestones: []
 wrong_examples:
   - why: PM63：以为 zip 会自动为较短的一列补 None。
     code: |
-      print('叶 4\n柳 7\n林 None')
+      print('Ye 4\nLiu 7\nLin None')

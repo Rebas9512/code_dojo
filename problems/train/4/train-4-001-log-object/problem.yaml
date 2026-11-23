@@ -1,0 +1,18 @@
+id: train-4-001-log-object
+title: 两个日志格里装的是什么
+track: train
+stage: '4'
+order: 10
+format: predict
+mode: predict
+difficulty: 31
+skills:
+  requires:
+    - train.loop
+    - tensor.boundary
+  introduces: train.history
+source: original
+wrong_examples:
+  - why: item() 得到 Python 数值。
+    code: |
+      print('Tensor True')

@@ -17,12 +17,12 @@ data:
 answer:
   type: short
   accept:
-    - 文字
-    - 字符串
-    - 文本
-    - str
+    - "text"
+    - "string"
+    - "str"
   misconceptions:
-    小数: DM06
-    数字: DM06
-    float: DM06
+    "decimal": DM06
+    "float": DM06
+    "number": DM06
+    "numeric": DM06
 explain: 读取结果保留字符 18.50。默认读取器拆分字段，知道这一列表示价格的是使用这份文件的人。

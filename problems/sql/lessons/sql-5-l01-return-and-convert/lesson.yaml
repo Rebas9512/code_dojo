@@ -56,8 +56,8 @@ steps:
     skill: sql.funnel
     q: 先加购，后浏览，再付款。按严格三步漏斗，最深到哪步？
     options:
-      - 浏览
-      - 加购
-      - 付款
+      - "view"
+      - "cart"
+      - "buy"
     answer: 0
     explain: 浏览之后没有合法加购，先前那次不能接上浏览。

@@ -1,0 +1,35 @@
+id: train-4-014-broken-pairs
+title: 洗牌后还在学原来的对应关系吗
+track: train
+stage: '4'
+order: 140
+format: fix
+mode: function
+difficulty: 35
+skills:
+  requires:
+    - train.loop
+    - train.shuffle
+  introduces: null
+source: original
+entry: train
+signature: 'def train(model, data, optimizer, steps):'
+compare: checker
+wrong_examples:
+  - why: 只打乱特征，没有同步标签。
+    code: |
+      import torch
+
+
+      def train(model, data, optimizer, steps):
+          generator = torch.Generator().manual_seed(0)
+          x, y = data.train
+          for _ in range(steps):
+              order = torch.randperm(len(x), generator=generator)
+              features, labels = x[order], y
+              scores = model(features)
+              loss = data.loss(scores, labels)
+              optimizer.zero_grad()
+              loss.backward()
+              optimizer.step()
+unit: 1

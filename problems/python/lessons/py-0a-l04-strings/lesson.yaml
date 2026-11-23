@@ -75,13 +75,13 @@ steps:
   - type: quiz
     skill: py.for-each
     q: "`for ch in \"a b\"` 一共循环几次？"
-    options: ["2 次", "3 次", "1 次"]
+    options: ["2", "3", "1"]
     answer: 1
     explain: "空格也是字符：'a'、' '、'b' 一共 3 个。"
   - type: read
     skill: py.in-membership
     md: |
-      `x in 容器` 判断容器里有没有 x，结果是 True 或 False；`not in` 正好相反。
+      `x in items` 判断容器里有没有 x，结果是 True 或 False；`not in` 正好相反。
 
       对字符串：
       - 判断一个字符：`ch in "aeiou"`——比写五个 or 简洁得多；

@@ -12,7 +12,7 @@ skills:
     card: |
       `print(...)` 会把括号里的值显示在屏幕上，然后换行。
       数字直接写，文字放在引号里。`print(7)` 和 `print("7")` 都显示 7，引号不出现在输出里。
-      `print("书", 7)` 显示 `书 7`，中间有一个空格。`print()` 单独输出一行空行。
+      `print("book", 7)` 显示 `book 7`，中间有一个空格。`print()` 单独输出一行空行。
       预测输出时，每调用一次 print，就按顺序写一行。
 
   - id: py.value-types
@@ -86,7 +86,7 @@ skills:
     group: 1
     prereqs: [py.var-arith]
     card: |
-      `def` 定义函数（这时不运行），`f(参数)` 调用它，`return` 把结果交回调用处。
+      `def` 定义函数（这时不运行），`f(x)` 调用它，`return` 把结果交回调用处。
       function 模式的题会给出函数的第一行（签名），你在缩进的函数体里写代码，
       用 `return` 把结果交回去。判题程序直接调用函数、检查返回值。
       ```python
@@ -125,12 +125,12 @@ skills:
       字符串前加 `f`，花括号里可以放变量或表达式，运行时替换成它的值。
       ```python
       name, n = "Li", 3
-      f"{name} 有 {n * 2} 本书"     # 'Li 有 6 本书'
+      f"{name} has {n * 2} books"     # 'Li has 6 books'
       price = 3.14159
       f"{price:.2f}"                 # '3.14'，保留 2 位小数
       ```
       - `{x:.1f}` 保留 1 位小数（四舍五入到显示位）。
-      - 花括号外面的文字原样保留，包括空格和汉字。
+      - 花括号外面的文字和空格原样保留。
       常见坑：忘了开头的 `f`，结果就是字面上的 `"{name}"`。
 
   # ===================== 0A 第 2 组：条件和布尔逻辑 =====================
@@ -364,7 +364,7 @@ skills:
     group: 4
     prereqs: [py.compare-bool]
     card: |
-      `x in 容器` 判断是否包含，结果是布尔值。
+      `x in items` 判断是否包含，结果是布尔值。
       ```python
       "a" in "cat"            # True，单个字符
       "at" in "cat"           # True，字符串里判断的是子串
@@ -461,7 +461,7 @@ skills:
       ```
       `append` 直接修改列表、返回 `None`。
       常见坑：写成 `result = result.append(x)`，result 变成 None。
-      `extend(其他列表)` 一次追加多个元素。
+      `items.extend(more)` 一次追加多个元素。
 
   - id: py.list-builtins
     name: sum / min / max / len 作用于列表
@@ -786,7 +786,7 @@ skills:
     prereqs: [py.sorted, py.tuple]
     card: |
       `key` 是一个函数，排序按"对每个元素调用 key 的结果"来比较。
-      `lambda 参数: 表达式` 是写一次性小函数的简写。
+      `lambda x: x * 2` 是写一次性小函数的简写。
       ```python
       words.sort(key=len)                         # 按长度
       people.sort(key=lambda p: p[1])             # 按第二个字段
@@ -807,7 +807,7 @@ skills:
       evens = [x for x in nums if x % 2 == 0]
       grid = [[0] * cols for _ in range(rows)]   # 正确的二维表
       ```
-      读法：`[结果 for 变量 in 序列 if 条件]`。
+      读法：`[x * 2 for x in nums if x > 0]`。
       逻辑复杂（多分支、要 break）时还是写普通循环更清楚。
       常见坑：推导式里的变量在外面不可见；嵌套推导式的 for 顺序和普通嵌套循环相同。
 
@@ -862,7 +862,7 @@ skills:
     card: |
       一行写出"二选一"的值：
       ```python
-      label = "偶数" if n % 2 == 0 else "奇数"
+      label = "even" if n % 2 == 0 else "odd"
       step = 1 if a < b else -1
       ```
       只适合简单的二选一；多分支或有副作用的逻辑写普通 if。
@@ -893,7 +893,7 @@ skills:
     group: 9
     prereqs: [py.helper-func, py.dict-basics]
     card: |
-      类把"数据 + 操作"打包。`__init__` 在创建对象时运行，用 `self.属性` 保存状态。
+      类把"数据 + 操作"打包。`__init__` 在创建对象时运行，用 `self.name` 保存状态。
       ```python
       class Counter:
           def __init__(self, start: int):
@@ -1117,10 +1117,10 @@ skills:
       撤销最近一次操作时，可以把还有效的操作依次压在列表末尾。后放入的先取出，这就是栈。
       ```python
       stack = []
-      stack.append("草稿")
-      stack.append("签名")
+      stack.append("draft")
+      stack.append("signature")
       print(stack[-1])   # 看顶端，仍有两项
-      print(stack.pop()) # 取走签名
+      print(stack.pop()) # 取走 signature
       ```
       一次撤销只影响最后一项。`pop(0)` 会取走最早的一项，空栈上调用 `pop()` 会报错。
       在末尾连续追加或弹出时，每次操作的均摊成本是 O(1)。

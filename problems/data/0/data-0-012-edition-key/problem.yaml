@@ -20,6 +20,6 @@ answer:
   accept:
     - book_id
   misconceptions:
-    title: DM05
-    书名: DM05
+    "title": DM05
+    "book title": DM05
 explain: 两行都叫 Data at Dawn。书店给两个版本各发一个 book_id，12 和 27 分别指向一行。

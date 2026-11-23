@@ -13,5 +13,5 @@ def time_two_loops(nums: list[int]) -> list[int]:
             if nums[i] == nums[j]:
                 equal_pairs += 1
     end = time.perf_counter()
-    print("求和秒数", middle - start, "比较秒数", end - middle)
+    print("sum seconds", middle - start, "pair seconds", end - middle)
     return [total, equal_pairs]

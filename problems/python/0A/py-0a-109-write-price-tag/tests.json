@@ -1,11 +1,11 @@
 {
   "examples": [
-    {"args": ["苹果", 3.5], "expected": "苹果：3.50 元"},
-    {"args": ["笔记本", 12], "expected": "笔记本：12.00 元"}
+    {"args": ["apple", 3.5], "expected": "apple：3.50 yuan"},
+    {"args": ["notebook", 12], "expected": "notebook：12.00 yuan"}
   ],
   "hidden": [
-    {"args": ["书", 0], "expected": "书：0.00 元"},
-    {"args": ["咖啡", 31.999], "expected": "咖啡：32.00 元"},
-    {"args": ["糖", 0.30000000000000004], "expected": "糖：0.30 元"}
+    {"args": ["book", 0], "expected": "book：0.00 yuan"},
+    {"args": ["coffee", 31.999], "expected": "coffee：32.00 yuan"},
+    {"args": ["candy", 0.30000000000000004], "expected": "candy：0.30 yuan"}
   ]
 }

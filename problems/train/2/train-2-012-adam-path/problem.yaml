@@ -1,0 +1,33 @@
+id: train-2-012-adam-path
+title: 跟踪 Adam 换向后的三步
+track: train
+stage: '2'
+order: 120
+format: write
+mode: function
+difficulty: 27
+skills:
+  requires:
+    - train.adam
+    - py.list-append
+    - py.type-convert
+  introduces: null
+source: original
+entry: adam_path
+signature: 'def adam_path(start, grads, rate, memory):'
+compare: float
+wrong_examples:
+  - why: 第一份移动平均遗忘了方向。
+    code: |
+      import torch
+
+
+      def adam_path(start, grads, rate, memory):
+          p = torch.tensor(float(start), dtype=torch.float64, requires_grad=True)
+          opt = torch.optim.Adam([p], lr=rate, betas=(0., 0.9))
+          history = []
+          for g in grads:
+              p.grad = torch.tensor(g, dtype=p.dtype)
+              opt.step()
+              history.append(p.item())
+          return history

@@ -17,4 +17,4 @@ signature: "def format_duration(total_minutes: int) -> str:"
 compare: exact
 hints:
   - "f-string 以 f 开头，花括号里放变量：f\"{hours}...\"。"
-  - "汉字原样写在花括号外面。"
+  - "单位 h 和 min 原样写在花括号外面。"

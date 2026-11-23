@@ -1,0 +1,19 @@
+id: train-1-010-padded-shape
+title: 三个句子拼起来多宽
+track: train
+stage: '1'
+order: 100
+format: predict
+mode: predict
+difficulty: 22
+skills:
+  requires:
+    - train.batch
+    - data.missing
+    - tensor.mask
+  introduces: train.pad
+source: original
+wrong_examples:
+  - why: 把批轴与时间轴调换了。
+    code: |
+      print('(4, 3)')

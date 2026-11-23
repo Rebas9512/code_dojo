@@ -1,6 +1,6 @@
 {
   "examples": [
-    {"args":[["日#","4"]],"expected":"2#日#1#4"},
+    {"args":[["é#","4"]],"expected":"2#é#1#4"},
     {"args":[["",""]],"expected":"0#0#"}
   ],
   "hidden": [

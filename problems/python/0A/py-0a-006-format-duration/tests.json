@@ -1,12 +1,12 @@
 {
   "examples": [
-    {"args": [125], "expected": "2小时5分钟"},
-    {"args": [60], "expected": "1小时0分钟"}
+    {"args": [125], "expected": "2h5min"},
+    {"args": [60], "expected": "1h0min"}
   ],
   "hidden": [
-    {"args": [59], "expected": "0小时59分钟"},
-    {"args": [0], "expected": "0小时0分钟"},
-    {"args": [1440], "expected": "24小时0分钟"},
-    {"args": [61], "expected": "1小时1分钟"}
+    {"args": [59], "expected": "0h59min"},
+    {"args": [0], "expected": "0h0min"},
+    {"args": [1440], "expected": "24h0min"},
+    {"args": [61], "expected": "1h1min"}
   ]
 }

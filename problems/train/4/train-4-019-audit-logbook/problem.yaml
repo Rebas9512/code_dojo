@@ -1,0 +1,105 @@
+id: train-4-019-audit-logbook
+title: 综合修复：配对、步长与日志
+track: train
+stage: '4'
+order: 190
+format: combine
+mode: function
+difficulty: 37
+skills:
+  requires:
+    - train.replay
+    - train.shuffle
+    - train.momentum
+    - py.list-append
+  introduces: null
+source: original
+unit: 2
+entry: train
+signature: 'def train(model, data, optimizer, steps):'
+compare: checker
+wrong_examples:
+  - why: 只打乱特征，把学习率放大百倍，并保留了损失张量。
+    code: |
+      import torch
+
+
+      def train(model, data, optimizer, steps):
+          history = []
+          for group in optimizer.param_groups:
+              group["lr"] = 25.0
+          generator = torch.Generator().manual_seed(0)
+          x, y = data.train
+          for _ in range(steps):
+              order = torch.randperm(len(x), generator=generator)
+              features, labels = x[order], y
+              scores = model(features)
+              loss = data.loss(scores, labels)
+              optimizer.zero_grad()
+              loss.backward()
+              optimizer.step()
+              history.append(loss)
+          return history
+  - why: 单独打乱特征。
+    code: |
+      import torch
+
+
+      def train(model, data, optimizer, steps):
+          history = []
+          for group in optimizer.param_groups:
+              group["lr"] = 0.25
+          generator = torch.Generator().manual_seed(0)
+          x, y = data.train
+          for _ in range(steps):
+              order = torch.randperm(len(x), generator=generator)
+              features, labels = x[order], y
+              scores = model(features)
+              loss = data.loss(scores, labels)
+              optimizer.zero_grad()
+              loss.backward()
+              optimizer.step()
+              history.append(loss.item())
+          return history
+  - why: 单独放大学习率。
+    code: |
+      import torch
+
+
+      def train(model, data, optimizer, steps):
+          history = []
+          for group in optimizer.param_groups:
+              group["lr"] = 25.0
+          generator = torch.Generator().manual_seed(0)
+          x, y = data.train
+          for _ in range(steps):
+              order = torch.randperm(len(x), generator=generator)
+              features, labels = x[order], y[order]
+              scores = model(features)
+              loss = data.loss(scores, labels)
+              optimizer.zero_grad()
+              loss.backward()
+              optimizer.step()
+              history.append(loss.item())
+          return history
+  - why: 日志单独保留了张量。
+    code: |
+      import torch
+
+
+      def train(model, data, optimizer, steps):
+          history = []
+          for group in optimizer.param_groups:
+              group["lr"] = 0.25
+          generator = torch.Generator().manual_seed(0)
+          x, y = data.train
+          for _ in range(steps):
+              order = torch.randperm(len(x), generator=generator)
+              features, labels = x[order], y[order]
+              scores = model(features)
+              loss = data.loss(scores, labels)
+              optimizer.zero_grad()
+              loss.backward()
+              optimizer.step()
+              history.append(loss)
+          return history

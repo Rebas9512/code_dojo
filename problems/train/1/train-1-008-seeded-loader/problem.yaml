@@ -1,0 +1,26 @@
+id: train-1-008-seeded-loader
+title: 接上点名用的生成器
+track: train
+stage: '1'
+order: 80
+format: complete
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - train.shuffle
+  introduces: null
+source: original
+entry: shuffled
+signature: 'def shuffled(values, width, seed):'
+compare: checker
+wrong_examples:
+  - why: 只传种子但未打开洗牌。
+    code: |
+      import torch
+      from torch.utils.data import DataLoader
+
+
+      def shuffled(values, width, seed):
+          generator = torch.Generator().manual_seed(seed)
+          return DataLoader(values, batch_size=width, shuffle=False, generator=generator)

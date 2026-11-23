@@ -1,0 +1,19 @@
+id: train-3-019-curve-gap
+title: 读训练和验证的末段变化
+track: train
+stage: '3'
+order: 190
+format: predict
+mode: predict
+difficulty: 33
+skills:
+  requires:
+    - train.metric
+    - train.patience
+    - ml.trajectory
+  introduces: train.curves
+source: original
+wrong_examples:
+  - why: 训练的末段趋势不能直接替代验证趋势。
+    code: |
+      print('True\nTrue')

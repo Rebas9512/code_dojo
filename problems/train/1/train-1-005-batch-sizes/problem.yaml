@@ -1,0 +1,26 @@
+id: train-1-005-batch-sizes
+title: 补出每批实际人数
+track: train
+stage: '1'
+order: 50
+format: complete
+mode: function
+difficulty: 20
+skills:
+  requires:
+    - train.batch
+    - py.list-comp
+  introduces: null
+source: original
+entry: sizes
+signature: 'def sizes(values, width):'
+compare: exact
+wrong_examples:
+  - why: 把末批也记成满批。
+    code: |
+      from torch.utils.data import DataLoader
+
+
+      def sizes(values, width):
+          loader = DataLoader(values, batch_size=width)
+          return [width for batch in loader]

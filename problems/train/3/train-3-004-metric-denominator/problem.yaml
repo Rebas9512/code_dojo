@@ -1,0 +1,18 @@
+id: train-3-004-metric-denominator
+title: 两个验证批怎样合并
+track: train
+stage: '3'
+order: 40
+format: predict
+mode: predict
+difficulty: 28
+skills:
+  requires:
+    - train.evaluate
+    - ml.metrics
+  introduces: train.metric
+source: original
+wrong_examples:
+  - why: 把每批准确率同等加权。
+    code: |
+      print('0.6666666666666666')

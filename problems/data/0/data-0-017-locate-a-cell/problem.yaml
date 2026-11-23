@@ -17,9 +17,8 @@ data:
 answer:
   type: short
   accept:
-    - '2'
-    - 二
-    - 两个
+    - "2"
+    - "two"
   misconceptions:
     '1': DM08
 explain: 在表中先指定哪一行，再指定这一行的哪一列。一列有三个格子时，只报列仍不知道要哪本书。

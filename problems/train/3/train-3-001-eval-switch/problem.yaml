@@ -1,0 +1,19 @@
+id: train-3-001-eval-switch
+title: 验证的两个开关
+track: train
+stage: '3'
+order: 10
+format: predict
+mode: predict
+difficulty: 27
+skills:
+  requires:
+    - train.loop
+    - train.holdout
+    - tensor.boundary
+  introduces: train.evaluate
+source: original
+wrong_examples:
+  - why: 退出 no_grad 不会恢复模型的训练模式。
+    code: |
+      print('False False\nTrue True')

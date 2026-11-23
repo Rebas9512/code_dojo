@@ -1,0 +1,27 @@
+id: train-1-011-collate-rows
+title: 在句子右侧补齐空位
+track: train
+stage: '1'
+order: 110
+format: complete
+mode: function
+difficulty: 22
+skills:
+  requires:
+    - train.pad
+    - py.list-comp
+  introduces: null
+source: original
+entry: collate
+signature: 'def collate(rows, pad):'
+compare: allclose
+wrong_examples:
+  - why: 默认的时间轴在前，行列颠倒。
+    code: |
+      import torch
+      from torch.nn.utils.rnn import pad_sequence
+
+
+      def collate(rows, pad):
+          seqs = [torch.tensor(row, dtype=torch.long) for row in rows]
+          return pad_sequence(seqs, batch_first=False, padding_value=pad)

@@ -39,7 +39,7 @@ steps:
     options:
       - '1'
       - '4'
-      - 没有值
+      - "None"
     answer: 1
     explain: 小函数里的参数是本次调用的局部名字。外面的名字仍指向 4。
   - type: read
@@ -47,7 +47,7 @@ steps:
     md: |
       有些参数几乎每次都填同一个值。写函数时给它约定一个默认值，调用者就可以省下这个参数；遇到例外，再用参数名明确指定。
 
-      例如 `def label(word, times=2)` 允许写 `label('鱼')` 或 `label('鱼', times=3)`。带默认值的普通参数放在必填参数后。
+      例如 `def label(word, times=2)` 允许写 `label('fish')` 或 `label('fish', times=3)`。带默认值的普通参数放在必填参数后。
 
       **“每次省略参数都会新建默认列表”（PM40）**。默认值在定义函数时就准备好了；如果默认值是列表，一次调用追加的内容会留给另一次省略参数的调用。
   - type: example
@@ -59,8 +59,8 @@ steps:
 
 
       # ② 只按名字更换分隔线
-      print(labels("云"))            # 云/云
-      print(labels("云", sep="-"))   # 云-云
+      print(labels("cloud"))            # cloud/cloud
+      print(labels("cloud", sep="-"))   # cloud-cloud
     md: 把第二次调用加上 times=3，再观察分隔线出现几次。
   - type: quiz
     skill: py.default-args
@@ -86,12 +86,12 @@ steps:
       def reading(n):
           if n >= 0:
               return n
-          print("缺一条")
+          print("missing")
 
 
       # ② 单独检查是否得到 None
       print(reading(0) is None)   # False
-      print(reading(-1) is None)  # 先显示 缺一条，再显示 True
+      print(reading(-1) is None)  # 先显示 missing，再显示 True
     md: 把负数改成 2，观察提示和判断结果。
   - type: quiz
     skill: py.none

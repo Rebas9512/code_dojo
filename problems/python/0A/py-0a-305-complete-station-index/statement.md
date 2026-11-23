@@ -7,14 +7,14 @@
 **示例 1**
 
 ```text
-输入：rows = [['东', 'A'], ['东', 'B']], station = '东'
+输入：rows = [['East', 'A'], ['East', 'B']], station = 'East'
 输出：'B'
 ```
 
 **示例 2**
 
 ```text
-输入：rows = [['南', 'C']], station = '北'
+输入：rows = [['South', 'C']], station = 'North'
 输出：''
 ```
 

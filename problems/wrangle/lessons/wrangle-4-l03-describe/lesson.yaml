@@ -36,7 +36,7 @@ steps:
   - type: read
     skill: wrangle.frequency
     md: |-
-      频数是某个值出现了几次。三单的状态分别是“待取、待取、已取”，就有待取 2 次、已取 1 次。只知道有两种状态，还不足以安排人手；每种有多少单才是这份报表要的数。
+      频数是某个值出现了几次。待取记为 pending，已取记为 collected。三单中有两单待取、一单已取，频数就是 pending 有 2 个、collected 有 1 个。只知道有两种状态，还不足以安排人手；每种有多少单才是这份报表要的数。
 
       对一列调用 value_counts()，不同值变成结果的索引，次数是内容。默认跳过缺失。要把缺失也作为一类，可指定 dropna=False。若约定将缺失归到一个已有状态，则先填补再计数。
 
@@ -46,11 +46,11 @@ steps:
     code: |
       import pandas as pd
       # ① 收件情况，有一单没登记
-      s = pd.Series(["待取", "已取", "待取", None])
+      s = pd.Series(["pending", "collected", "pending", None])
       # ② 取出待取的频数，再数包含空值时有几类
-      print(s.value_counts()["待取"])  # 输出 2
+      print(s.value_counts()["pending"])  # 输出 2
       print(len(s.value_counts(dropna=False)))  # 输出 3
-    md: 把最后一项改成“已取”，观察第二行。
+    md: 把最后一项改成 "collected"（已取），观察第二行。
   - type: quiz
     skill: wrangle.frequency
     q: 一列是 A、A、空，默认 value_counts 中 A 的次数是多少？

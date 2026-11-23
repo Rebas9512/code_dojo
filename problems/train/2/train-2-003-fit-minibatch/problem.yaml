@@ -1,0 +1,26 @@
+id: train-2-003-fit-minibatch
+title: 用五步循环拟合四个点
+track: train
+stage: '2'
+order: 30
+format: write
+mode: function
+difficulty: 24
+skills:
+  requires:
+    - train.loop
+  introduces: null
+source: original
+entry: train
+signature: 'def train(model, data, optimizer, steps):'
+compare: checker
+wrong_examples:
+  - why: 忘了在每次反向前清梯度。
+    code: |
+      def train(model, data, optimizer, steps):
+          features, labels = data.train
+          for _ in range(steps):
+              scores = model(features)
+              loss = data.loss(scores, labels)
+              loss.backward()
+              optimizer.step()

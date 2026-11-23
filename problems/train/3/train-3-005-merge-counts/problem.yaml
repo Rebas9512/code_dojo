@@ -1,0 +1,24 @@
+id: train-3-005-merge-counts
+title: 补全验证汇总表
+track: train
+stage: '3'
+order: 50
+format: complete
+mode: function
+difficulty: 28
+skills:
+  requires:
+    - train.metric
+  introduces: null
+source: original
+entry: combined_accuracy
+signature: 'def combined_accuracy(correct, sizes):'
+compare: float
+wrong_examples:
+  - why: 分母用了批数。
+    code: |
+      def combined_accuracy(correct, sizes):
+          total = sum(sizes)
+          if total == 0:
+              return 0.0
+          return sum(correct) / len(sizes)

@@ -1,0 +1,20 @@
+id: train-4-015-first-drift
+title: 两次运行在哪一步分开
+track: train
+stage: '4'
+order: 150
+format: predict
+mode: predict
+difficulty: 36
+skills:
+  requires:
+    - train.history
+    - train.evaluate
+    - ml.trajectory
+    - py.list-comp
+  introduces: train.replay
+source: original
+wrong_examples:
+  - why: 等于容差仍在允许范围之内。
+    code: |
+      print('[2, 3]')

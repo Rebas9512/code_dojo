@@ -17,8 +17,8 @@ data:
 answer:
   type: short
   accept:
-    - '2'
-    - 二
+    - "2"
+    - "two"
   misconceptions:
     '3': DM03
 explain: Chen Yu 和 Tom Becker 有年份，分母用 2。把三行都算进分母，等于给缺失的年份补了一个 0。

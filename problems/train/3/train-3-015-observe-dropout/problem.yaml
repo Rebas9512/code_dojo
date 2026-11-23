@@ -1,0 +1,29 @@
+id: train-3-015-observe-dropout
+title: 采集同一个层的两次输出
+track: train
+stage: '3'
+order: 150
+format: write
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - train.dropout
+  introduces: null
+source: original
+entry: compare_modes
+signature: 'def compare_modes(layer, x, seed):'
+compare: checker
+wrong_examples:
+  - why: 同一个随机层两次都在训练模式。
+    code: |
+      import torch
+
+
+      def compare_modes(layer, x, seed):
+          torch.manual_seed(seed)
+          layer.train()
+          training = layer(x)
+          with torch.no_grad():
+              validation = layer(x)
+          return training, validation

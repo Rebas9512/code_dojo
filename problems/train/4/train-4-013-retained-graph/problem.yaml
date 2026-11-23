@@ -1,0 +1,31 @@
+id: train-4-013-retained-graph
+title: 损失日志一直留着旧图
+track: train
+stage: '4'
+order: 130
+format: fix
+mode: function
+difficulty: 35
+skills:
+  requires:
+    - train.history
+    - py.list-append
+  introduces: null
+source: original
+entry: train
+signature: 'def train(model, data, optimizer, steps):'
+compare: checker
+wrong_examples:
+  - why: 日志保存了张量而非数值。
+    code: |
+      def train(model, data, optimizer, steps):
+          history = []
+          features, labels = data.train
+          for _ in range(steps):
+              scores = model(features)
+              loss = data.loss(scores, labels)
+              optimizer.zero_grad()
+              loss.backward()
+              optimizer.step()
+              history.append(loss)
+          return history

@@ -39,8 +39,8 @@ steps:
   skill: algo.hash-seen
   q: 把 add 挪到 print 上面，第一行的判断会怎样？
   options:
-  - 仍为 False
-  - 变为 True
+  - "False"
+  - "True"
   - 集合里出现两个 8
   answer: 1
   explain: 先登记后查询时，自己刚放进去的号码一定能找到。
@@ -85,21 +85,21 @@ steps:
     把右袋改成 baa，再看最后一行。
 - type: quiz
   skill: algo.counter
-  q: Counter("书书笔")["纸"] 的结果是什么？
+  q: Counter("aab")["c"] 的结果是什么？
   options:
   - None
   - '0'
-  - 抛出 KeyError
+  - "KeyError"
   answer: 1
   explain: 计数表把从未见过的元素按零次读出。
 - type: quiz
   skill: algo.counter
-  q: 想检查“书书笔”和“书笔笔”能否互相重排，哪份记录足够？
+  q: 想检查“aab”和“abb”能否互相重排，哪份记录足够？
   options:
   - 各自出现过的字
   - 每个字的数量
   answer: 1
-  explain: 两个集合都只有书和笔，数量却不同。
+  explain: 两个集合都只有 a 和 b，数量却不同。
 - type: read
   skill: algo.hash-index-map
   md: |
@@ -135,9 +135,9 @@ steps:
   skill: algo.hash-index-map
   q: '字典已经是 {9: 0, 4: 1}，数字 4 位于哪里？'
   options:
-  - 下标 4
-  - 下标 1
-  - 下标 0
+  - "4"
+  - "1"
+  - "0"
   answer: 1
   explain: 以数为键，读 positions[4] 得到位置 1。
 - type: quiz

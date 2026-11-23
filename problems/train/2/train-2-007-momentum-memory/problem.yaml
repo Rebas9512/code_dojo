@@ -1,0 +1,17 @@
+id: train-2-007-momentum-memory
+title: 没有新推力还会滑动吗
+track: train
+stage: '2'
+order: 70
+format: predict
+mode: predict
+difficulty: 25
+skills:
+  requires:
+    - train.loop
+  introduces: train.momentum
+source: original
+wrong_examples:
+  - why: 第二步仍保留上一步的一半缓冲。
+    code: |
+      print('-2.0')

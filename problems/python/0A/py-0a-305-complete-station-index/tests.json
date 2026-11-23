@@ -1,10 +1,10 @@
 {
   "examples": [
-    {"args": [[["东", "A"], ["东", "B"]], "东"], "expected": "B"},
-    {"args": [[["南", "C"]], "北"], "expected": ""}
+    {"args": [[["East", "A"], ["East", "B"]], "East"], "expected": "B"},
+    {"args": [[["South", "C"]], "North"], "expected": ""}
   ],
   "hidden": [
-    {"args": [[], "西"], "expected": ""},
+    {"args": [[], "West"], "expected": ""},
     {"args": [[["a", "b"]], "a"], "expected": "b"},
     {"args": [[["a", "b"], ["c", "b"]], "c"], "expected": "b"}
   ]

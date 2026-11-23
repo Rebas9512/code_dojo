@@ -14,7 +14,7 @@
     },
     {
       "args": [
-        "shelf;stock\n\"北;东\";5\n"
+        "shelf;stock\n\"North;East\";5\n"
       ],
       "expected": {
         "name": "stock",

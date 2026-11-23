@@ -1,2 +1,2 @@
 def trend(old: int, new: int) -> str:
-    return "升" if new > old else "平或降"
+    return "up" if new > old else "flat or down"

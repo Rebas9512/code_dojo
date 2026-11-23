@@ -1,0 +1,18 @@
+id: train-1-001-sample-index
+title: 第四条记录在哪里
+track: train
+stage: '1'
+order: 10
+format: predict
+mode: predict
+difficulty: 19
+skills:
+  requires:
+    - py.class-methods
+    - py.index-len
+  introduces: train.dataset
+source: original
+wrong_examples:
+  - why: 把下标 3 当作第三条。
+    code: |
+      print('4 9')

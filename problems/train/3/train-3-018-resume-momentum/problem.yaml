@@ -1,0 +1,27 @@
+id: train-3-018-resume-momentum
+title: 让暂停前后的下一步相同
+track: train
+stage: '3'
+order: 180
+format: write
+mode: function
+difficulty: 33
+skills:
+  requires:
+    - train.checkpoint
+  introduces: null
+source: original
+entry: restore
+signature: 'def restore(buf, model, optimizer):'
+compare: checker
+wrong_examples:
+  - why: 只还原权重，动量缓冲和学习率丢失。
+    code: |
+      import torch
+
+
+      def restore(buf, model, optimizer):
+          buf.seek(0)
+          state = torch.load(buf, weights_only=True)
+          model.load_state_dict(state["model"])
+          return state["epoch"]

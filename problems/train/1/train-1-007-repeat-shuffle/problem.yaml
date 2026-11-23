@@ -1,0 +1,19 @@
+id: train-1-007-repeat-shuffle
+title: 两次点名顺序相同吗
+track: train
+stage: '1'
+order: 70
+format: predict
+mode: predict
+difficulty: 21
+skills:
+  requires:
+    - train.batch
+    - ml.split
+    - py.list-comp
+  introduces: train.shuffle
+source: original
+wrong_examples:
+  - why: 相同起点能重复生成顺序。
+    code: |
+      print('False\n2')

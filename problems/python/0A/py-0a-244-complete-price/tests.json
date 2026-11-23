@@ -1,11 +1,11 @@
 {
   "examples": [
-    {"args": [{"梨": 4}, "梨"], "expected": 4},
-    {"args": [{"梨": 4}, "茶"], "expected": 0}
+    {"args": [{"pear": 4}, "pear"], "expected": 4},
+    {"args": [{"pear": 4}, "tea"], "expected": 0}
   ],
   "hidden": [
     {"args": [{}, "A"], "expected": 0},
-    {"args": [{"水": 0}, "水"], "expected": 0},
+    {"args": [{"water": 0}, "water"], "expected": 0},
     {"args": [{"A": 2, "B": 2}, "B"], "expected": 2}
   ]
 }

@@ -1,0 +1,97 @@
+id: train-3-l02-regularize
+title: 早停与正则化
+track: train
+skills:
+  - train.patience
+  - train.decay
+  - train.dropout
+steps:
+  - type: read
+    skill: train.patience
+    md: |-
+      每一轮多花时间训练，验证误差却可能不再下降。早停规定可以再等几轮，这个等待上限叫 patience。我们跟踪迄今最低的验证误差，数它连续多久没有被刷新。
+
+      误差 [5,4,4,6]、patience=2。第 2 轮创下最低的 4，第 3 轮持平算等待 1 轮，第 4 轮变差算第 2 轮，于是停止。若中途出现更低的值，等待数重新从零算。
+
+      **TR14 常见误解**　只和前一轮比较会误判：从 6 回到 5 虽比昨天好，但没有刷新最低的 4。
+  - type: example
+    skill: train.patience
+    code: |
+      # ① 给验证误差设一个起始纪录
+      best = float("inf")
+      wait = 0
+      # ② 每轮跟历史最低值比
+      for loss in [5, 3, 4, 3]:
+          if loss < best:
+              best, wait = loss, 0
+          else:
+              wait += 1
+      print(best, wait)  # 输出 3 2
+    md: 把最后一个 3 改成 2，看看等待轮数。
+  - type: quiz
+    skill: train.patience
+    q: 最低是 3，随后依次为 5、4，已经等几轮？
+    options:
+      - '0'
+      - '1'
+      - '2'
+    answer: 2
+    explain: 两个值都没有小于历史最低值 3。
+  - type: read
+    skill: train.decay
+    md: |-
+      模型有时靠很大的权重去贴合训练数据的小波动。权重衰减给大权重加一道向零的推力。这里使用普通 SGD；数据损失提供的梯度以外，更新方向还多出系数 λ 乘以当前参数。
+
+      参数为 2，数据梯度为 0，学习率 0.1，λ=0.5，本次有效梯度就是 1，参数变成 1.9。在 SGD 构造时设置 weight_decay 即可。即使向零拉，数据梯度仍可能推动参数远离零。
+
+      **TR15 常见误解**　衰减系数与学习率控制不同的量。把学习率变小并不会给零梯度的权重一个向零的推力。
+  - type: example
+    skill: train.decay
+    code: |
+      import torch
+      # ① 给参数一个值和一个确实为零的梯度
+      p = torch.tensor(2., requires_grad=True)
+      p.grad = torch.tensor(0.)
+      # ② 用带衰减的 SGD 更新
+      opt = torch.optim.SGD([p], lr=0.1, weight_decay=0.5)
+      opt.step()
+      print(round(p.item(), 2))  # 输出 1.9
+    md: 把初值换成 −2，看向零的推力如何换向。
+  - type: quiz
+    skill: train.decay
+    q: 数据梯度为零张量，SGD 的 weight_decay 仍能改变非零权重吗？
+    options:
+      - 能
+      - 不能
+    answer: 0
+    explain: 有效梯度中还有 λ 乘以参数这一项。
+  - type: read
+    skill: train.dropout
+    md: |-
+      训练时随机暂时屏蔽一部分激活值，可以减少模型对某个位置的依赖。Dropout 的 p 是丢弃概率。训练时保留下来的值会除以 1−p，以便大量重复后平均输出仍接近原值。
+
+      p=0.5 时，输入 2 的位置在训练时可能是 0 或 4。在验证模式下，同一位置直接输出 2。用 model.train() 和 model.eval() 控制模块，固定种子可复现实验中的训练掩码。
+
+      **TR16 常见误解**　no_grad 只管梯度；只要 Dropout 仍处在训练模式，它仍会随机丢弃位置。
+  - type: example
+    skill: train.dropout
+    code: |
+      import torch
+      # ① 设定种子和一层丢弃概率为一半的 Dropout
+      torch.manual_seed(0)
+      layer = torch.nn.Dropout(0.5)
+      x = torch.tensor([2., 2., 2., 2.])
+      # ② 比较训练值的范围与验证值
+      print(all(v in [0., 4.] for v in layer(x).tolist()))  # 输出 True
+      layer.eval()
+      print(layer(x).tolist())  # 输出 [2.0, 2.0, 2.0, 2.0]
+    md: 把 p 改为 0.75，训练时保留的非零值会变成多少？
+  - type: quiz
+    skill: train.dropout
+    q: p=0.5 时训练中幸存的输入 3 会变成多少？
+    options:
+      - '1.5'
+      - '3'
+      - '6'
+    answer: 2
+    explain: 保留的值按 1/(1−0.5) 放大，得到 6。

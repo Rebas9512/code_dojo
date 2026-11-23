@@ -1,7 +1,7 @@
 {
   "examples": [
-    {"args": [[["林", "面"], ["叶", "粥"], ["林", "面"]]], "expected": {"林": ["面", "面"], "叶": ["粥"]}},
-    {"args": [[["余", "茶"], ["余", "汤"]]], "expected": {"余": ["茶", "汤"]}}
+    {"args": [[["Lin", "noodles"], ["Ye", "porridge"], ["Lin", "noodles"]]], "expected": {"Lin": ["noodles", "noodles"], "Ye": ["porridge"]}},
+    {"args": [[["Yu", "tea"], ["Yu", "soup"]]], "expected": {"Yu": ["tea", "soup"]}}
   ],
   "hidden": [
     {"args": [[]], "expected": {}},

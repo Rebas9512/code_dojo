@@ -17,13 +17,13 @@ steps:
     db: bookstore
     patch: |
       CREATE TABLE tags(id int PRIMARY KEY, aisle text, price int);
-      INSERT INTO tags VALUES (1, '东', 30), (2, '东', 30), (3, '东', 10), (4, '西', 20);
+      INSERT INTO tags VALUES (1, 'east', 30), (2, 'east', 30), (3, 'east', 10), (4, 'west', 20);
     code: |
       -- ① 只按价格累计，并列会一起进入
       -- ② 再加入唯一号码，对照逐笔的结果
       SELECT id, price, SUM(price) OVER (ORDER BY price) AS at_price,
              SUM(price) OVER (ORDER BY price, id) AS at_tag
-      FROM tags WHERE aisle = '东' ORDER BY price, id;
+      FROM tags WHERE aisle = 'east' ORDER BY price, id;
     md: 删掉 WHERE，让西架也加入同一本账。两种累计最后相同吗？
   - type: quiz
     skill: sql.running-total
@@ -45,7 +45,7 @@ steps:
     db: bookstore
     patch: |
       CREATE TABLE tags(id int PRIMARY KEY, aisle text, price int);
-      INSERT INTO tags VALUES (1, '东', 30), (2, '东', 30), (3, '东', 10), (4, '西', 20);
+      INSERT INTO tags VALUES (1, 'east', 30), (2, 'east', 30), (3, 'east', 10), (4, 'west', 20);
     code: |
       -- ① 按货架分区，按签号排序
       -- ② 帧只露出当前签与紧前一签
@@ -57,8 +57,8 @@ steps:
     skill: sql.window-frame
     q: 日表只有周一和周五两行。周五的 ROWS 1 PRECEDING 会取到哪天？
     options:
-      - 周四
-      - 周一
+      - "Thursday"
+      - "Monday"
       - 没有上一行
     answer: 1
     explain: ROWS 沿实际记录移动，缺失的日历日没有占位。

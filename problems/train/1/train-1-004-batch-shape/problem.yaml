@@ -1,0 +1,18 @@
+id: train-1-004-batch-shape
+title: 最后一批的形状
+track: train
+stage: '1'
+order: 40
+format: predict
+mode: predict
+difficulty: 20
+skills:
+  requires:
+    - train.dataset
+    - tensor.create
+  introduces: train.batch
+source: original
+wrong_examples:
+  - why: 默认保留短批。
+    code: |
+      print('(3,)\n(3,)')

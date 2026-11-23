@@ -17,7 +17,7 @@ datasets:
   - datasets/sample.sql + datasets/matching-flags.sql
 ordered: false
 hints:
-  - 逐行检查两个标记，只有两个答案都是“是”时才保留编号。
+  - 逐行检查两个标记，只有两个标记都是大写字母 Y时才保留编号。
 wrong_examples:
   - why: 满足任意一个条件就放进清单。
     sql: |

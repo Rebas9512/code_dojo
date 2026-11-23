@@ -1,0 +1,23 @@
+id: train-3-008-update-patience
+title: 更新一轮等待计数
+track: train
+stage: '3'
+order: 80
+format: complete
+mode: function
+difficulty: 29
+skills:
+  requires:
+    - train.patience
+  introduces: null
+source: original
+entry: update_best
+signature: 'def update_best(best, wait, loss):'
+compare: exact
+wrong_examples:
+  - why: 相等时也把等待数归零。
+    code: |
+      def update_best(best, wait, loss):
+          if loss <= best:
+              return [loss, 0]
+          return [best, wait + 1]

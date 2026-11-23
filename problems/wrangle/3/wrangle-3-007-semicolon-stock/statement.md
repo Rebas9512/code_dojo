@@ -25,7 +25,7 @@ B;0
 
 ```text
 shelf;stock
-"北;东";5
+"North;East";5
 ```
 
 返回

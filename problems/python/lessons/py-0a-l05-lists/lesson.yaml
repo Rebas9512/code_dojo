@@ -57,7 +57,7 @@ steps:
               result.append(x) # ② 符合条件就加到末尾
       return result            # ③ 返回收集好的列表
       ```
-      `append(x)` 把 x 加到列表**末尾**，直接修改这个列表。`extend(另一个列表)` 一次加入多个。
+      `append(x)` 把 x 加到列表**末尾**，直接修改这个列表。`result.extend(more)` 一次加入多个。
 
       常见误解：
       - **"append 会返回新列表"**：append 直接改原列表，自己**没有返回值**（返回 None）。写成 `result = result.append(x)` 会把 result 变成 None，只写 `result.append(x)` 就够了。
@@ -108,7 +108,7 @@ steps:
           low = min(scores)
           average = sum(scores) / len(scores)
           # ② 拼成一句话
-          return f"最高{high} 最低{low} 平均{average:.1f}"
+          return f"max{high} min{low} avg{average:.1f}"
 
       print(score_summary([90, 80, 75]))
     md: "试试 `print(max([]))`，读一读报错信息。"
@@ -152,7 +152,7 @@ steps:
   - type: quiz
     skill: py.enumerate
     q: "`for i, ch in enumerate(\"ab\")` 第一轮的 i 和 ch 是？"
-    options: ["0 和 'a'", "1 和 'a'", "'a' 和 0"]
+    options: ["0, 'a'", "1, 'a'", "'a', 0"]
     answer: 0
     explain: "下标在前、值在后，下标从 0 开始。"
   - type: read
@@ -194,7 +194,7 @@ steps:
   - type: quiz
     skill: py.multi-assign
     q: "`x = 1`、`y = 2` 之后依次执行 `x = y` 和 `y = x`，x 和 y 是？"
-    options: ["2 和 1", "2 和 2", "1 和 1"]
+    options: ["2, 1", "2, 2", "1, 1"]
     answer: 1
     explain: "`x = y` 后 x 是 2，原来的 1 已经没了；`y = x` 又把 y 设成 2。"
   - type: read
@@ -203,7 +203,7 @@ steps:
       字符串和列表之间经常要互相转换：
       - `s.split()`（不带参数）：按任意多个空白切开，得到单词列表，自动丢掉空串：`"a b  c".split()` → `['a', 'b', 'c']`；
       - `s.split(",")`（带参数）：严格按这个分隔符切：`"a,,b".split(",")` → `['a', '', 'b']`；
-      - `"分隔符".join(列表)`：用分隔符把字符串列表连起来：`" ".join(['x', 'y'])` → `'x y'`。
+      - `" ".join(words)`：用分隔符把字符串列表连起来：`" ".join(['x', 'y'])` → `'x y'`。
 
       注意 join 的写法：它是**分隔符**的方法，参数是列表，列表里必须都是字符串。
 

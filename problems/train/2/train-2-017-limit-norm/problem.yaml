@@ -1,0 +1,25 @@
+id: train-2-017-limit-norm
+title: 把上限施加到所有参数
+track: train
+stage: '2'
+order: 170
+format: complete
+mode: function
+difficulty: 28
+skills:
+  requires:
+    - train.clip
+  introduces: null
+source: original
+entry: limit
+signature: 'def limit(params, bound):'
+compare: checker
+wrong_examples:
+  - why: 把每个参数单独裁剪了。
+    code: |
+      import torch
+
+
+      def limit(params, bound):
+          for p in params:
+              torch.nn.utils.clip_grad_norm_([p], bound)

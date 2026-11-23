@@ -1,0 +1,20 @@
+id: train-1-013-disjoint-ids
+title: 划分后还剩多少行
+track: train
+stage: '1'
+order: 130
+format: predict
+mode: predict
+difficulty: 23
+skills:
+  requires:
+    - train.shuffle
+    - ml.leakage
+    - py.set-basics
+    - py.slice
+  introduces: train.holdout
+source: original
+wrong_examples:
+  - why: 同一个排列切出的两段没有重复行号。
+    code: |
+      print('5 2\n2')

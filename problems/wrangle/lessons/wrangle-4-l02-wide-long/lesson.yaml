@@ -8,7 +8,7 @@ steps:
   - type: read
     skill: wrangle.melt
     md: |-
-      宽表把班次写在表头上，适合并排读。想按班次筛选时，班次应该变成一列里的值。一行甲店 am=2、pm=4，可以拆成两行：甲、am、2；甲、pm、4。门店名必须随两笔数量一起带过去。
+      宽表把班次写在表头上，适合并排读。想按班次筛选时，班次应该变成一列里的值。一行A 店 am=2、pm=4，可以拆成两行：A、am、2；A、pm、4。门店名必须随两笔数量一起带过去。
 
       melt 用 id_vars 指定保留的身份列，value_vars 列出要叠起来的列，var_name 给旧列名起名，value_name 给对应的值起名。每个原格子都成为一条记录，包括数值同为零的格子。
 
@@ -18,7 +18,7 @@ steps:
     code: |
       import pandas as pd
       # ① 一行存着两个班次
-      t = pd.DataFrame({"shop": ["甲"], "am": [2], "pm": [4]})
+      t = pd.DataFrame({"shop": ["A"], "am": [2], "pm": [4]})
       # ② 表头里的班次名变成列值
       long = t.melt(id_vars="shop", var_name="shift", value_name="n")
       print(long["shift"].tolist())  # 输出 ['am', 'pm']
@@ -36,7 +36,7 @@ steps:
   - type: read
     skill: wrangle.pivot
     md: |-
-      长表让每次登记占一行，交叉报表让读者沿一行比较同一店的不同班次。甲店早班两笔 2 和 3 本，晚班 4 本，交叉表就写甲、5、4。多个记录可能落进同一格，必须先决定这格取总量还是平均量。
+      长表让每次登记占一行，交叉报表让读者沿一行比较同一店的不同班次。A 店早班两笔 2 和 3 本，晚班 4 本，交叉表就写 A、5、4。多个记录可能落进同一格，必须先决定这格取总量还是平均量。
 
       pivot_table 的 index 指定行键，columns 指定展开的类别，values 是数值列。aggfunc='sum' 加总，fill_value=0 可在报表约定下补空格。reset_index() 将行键放回列。
 

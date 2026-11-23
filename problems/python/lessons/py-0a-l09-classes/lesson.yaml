@@ -34,7 +34,7 @@ steps:
     q: '`__init__` 里只写 self.seat = seat。执行 Ticket(5) 会得到什么？'
     options:
       - None
-      - 座位号 5
+      - "5"
       - 一张 seat 为 5 的票对象
     answer: 2
     explain: 创建实例的表达式交回对象，`__init__` 给这个实例填属性，正常结束即可。

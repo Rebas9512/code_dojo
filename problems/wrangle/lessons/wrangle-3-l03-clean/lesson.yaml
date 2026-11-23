@@ -56,6 +56,6 @@ steps:
     options:
       - float64
       - Int64
-      - 普通 int
+      - "int"
     answer: 1
     explain: pandas 的 Int64 为缺失状态单独留有标记。（WM18）

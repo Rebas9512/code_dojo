@@ -1,0 +1,24 @@
+id: train-2-008-build-sgd
+title: 给更新器装上动量
+track: train
+stage: '2'
+order: 80
+format: complete
+mode: function
+difficulty: 25
+skills:
+  requires:
+    - train.momentum
+  introduces: null
+source: original
+entry: make_sgd
+signature: 'def make_sgd(params, rate, momentum):'
+compare: checker
+wrong_examples:
+  - why: 忽略了动量参数。
+    code: |
+      import torch
+
+
+      def make_sgd(params, rate, momentum):
+          return torch.optim.SGD(params, lr=rate, momentum=0)

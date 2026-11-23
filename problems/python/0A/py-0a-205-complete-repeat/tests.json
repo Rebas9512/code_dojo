@@ -1,10 +1,10 @@
 {
   "examples": [
-    {"args": ["松"], "expected": "松 松"},
-    {"args": ["山", 3, "/"], "expected": "山/山/山"}
+    {"args": ["Pine"], "expected": "Pine Pine"},
+    {"args": ["Hill", 3, "/"], "expected": "Hill/Hill/Hill"}
   ],
   "hidden": [
-    {"args": ["云", 0], "expected": ""},
+    {"args": ["Cloud", 0], "expected": ""},
     {"args": ["", 3, "-"], "expected": "--"},
     {"args": ["A", 1], "expected": "A"}
   ]

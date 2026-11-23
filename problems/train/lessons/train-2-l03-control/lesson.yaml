@@ -1,0 +1,66 @@
+id: train-2-l03-control
+title: 控制步长与梯度
+track: train
+skills:
+  - train.schedule
+  - train.clip
+steps:
+  - type: read
+    skill: train.schedule
+    md: |-
+      一次遍历训练集叫一轮。到了接近目标的位置，过大的步子可能跨过目标。学习率调度器按计划改变后续步长，让最初几轮走得快，后几轮更细。
+
+      初始学习率 0.4，每两轮减半，各轮实际用的是 0.4、0.4、0.2、0.2。用 StepLR(optimizer, step_size=2, gamma=0.5)，先执行本轮的 optimizer.step()，在轮末再 scheduler.step()。
+
+      **TR10 常见误解**　先改学习率再更新会把衰减日期提前；看日志要分清本轮使用的值和给下一轮准备的值。
+  - type: example
+    skill: train.schedule
+    code: |
+      import torch
+      # ① 每两轮将步长减半
+      p = torch.tensor(0., requires_grad=True)
+      opt = torch.optim.SGD([p], lr=0.4)
+      sched = torch.optim.lr_scheduler.StepLR(opt, step_size=2, gamma=0.5)
+      # ② 先记本轮的步长，再结束这一轮
+      rates = []
+      for _ in range(4):
+          rates.append(opt.param_groups[0]["lr"])
+          opt.step()
+          sched.step()
+      print(rates)  # 输出 [0.4, 0.4, 0.2, 0.2]
+    md: 把间隔改为 1，找出两份记录第一次不同的轮次。
+  - type: quiz
+    skill: train.schedule
+    q: 调度间隔为 2，第一次用新学习率是第几轮？
+    options:
+      - 第 2 轮
+      - 第 3 轮
+    answer: 1
+    explain: 前两轮各走完一次，第三轮才读取衰减后的值。
+  - type: read
+    skill: train.clip
+    md: |-
+      梯度偶尔特别长，会让一次更新远远越过目标。梯度裁剪先把各参数的梯度视为一根长向量，超过上限才按同一个比例缩短，从而保留方向。
+
+      梯度 [3,4] 的长度为 5，上限 2.5，对应 [1.5,2]。用 clip_grad_norm_(parameters, max_norm) 原地修改 .grad。应在 backward 得到梯度之后、step 读取梯度之前裁剪。
+
+      **TR11 常见误解**　逐项截断到上限会改变方向；如果原本就比上限短，也不用把梯度放大。
+  - type: example
+    skill: train.clip
+    code: |
+      import torch
+      # ① 给一组参数放入长度为五的梯度
+      p = torch.tensor([0., 0.], requires_grad=True)
+      p.grad = torch.tensor([3., 4.])
+      # ② 把总长度限制到二点五
+      torch.nn.utils.clip_grad_norm_([p], 2.5)
+      print([round(x, 2) for x in p.grad.tolist()])  # 输出 [1.5, 2.0]
+    md: 把上限改为 10，检查短梯度是否被放大。
+  - type: quiz
+    skill: train.clip
+    q: 梯度 [0,2]，总范数上限 3，更新时应使用哪个梯度？
+    options:
+      - '[0,3]'
+      - '[0,2]'
+    answer: 1
+    explain: 长度 2 已在上限内，保留原样。

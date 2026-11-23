@@ -1,4 +1,4 @@
-log = ["林", "叶", "林"]
+log = ["Lin", "Ye", "Lin"]
 members = set(log)
 print(log[2])
 print(len(log))

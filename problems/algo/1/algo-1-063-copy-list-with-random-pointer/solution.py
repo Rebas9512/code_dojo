@@ -34,12 +34,12 @@ def run_case(head: ListNode | None, targets: list[int | None]) -> list:
     snapshot = [(n.val, n.next, n.random) for n in originals]
     node = copy_random_list(head)
     if snapshot != [(n.val, n.next, n.random) for n in originals]:
-        return '原链被修改'
+        return 'original list changed'
     copies = []
     positions = {}
     while node:
         if node in original_set or node in positions or len(copies) >= len(originals):
-            return '副本混入了原节点或多余节点'
+            return 'unexpected node in copy'
         positions[node] = len(copies)
         copies.append(node)
         node = node.next

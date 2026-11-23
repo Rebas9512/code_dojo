@@ -55,9 +55,9 @@ steps:
     skill: wrangle.filter-sort
     q: 要求贵的先看，同价小书号先看。两个排序方向是？
     options:
-      - 降序、升序
-      - 两个都降序
-      - 两个都升序
+      - "descending, ascending"
+      - "descending, descending"
+      - "ascending, ascending"
     answer: 0
     explain: 价格越大越靠前，同价时书号越小越靠前。（WM15）
   - type: read
@@ -65,7 +65,7 @@ steps:
     md: |-
       新列把每条记录的计算结果放回同一行。两单分别买 2 本和 3 本，每本 5 元和 4 元，小计就是 10 元和 12 元。两个同表的列参与运算时，相同标签的值会对齐。
 
-      用 t['新列'] = 整列结果 添加一列。只改选中的行时，一步写 t.loc[条件, 列名] = 值。先筛出子表、再对子表赋值是链式赋值（旧版本常提示 SettingWithCopy）；在这里使用的 pandas 里，这样无法更新原表。
+      用 t['double'] = t['n'] * 2 添加一列。只改选中的行时，一步写 t.loc[t['n'] < 0, 'n'] = 0。先筛出子表、再对子表赋值是链式赋值（旧版本常提示 SettingWithCopy）；在这里使用的 pandas 里，这样无法更新原表。
 
       **WM16 链式赋值会改到原表**。在筛出来的临时表上再改列，原库存可能仍是负数。让 loc 在原表上一次选定行和列。
   - type: example
@@ -84,7 +84,7 @@ steps:
     q: 要改原表中 n 小于 0 的格子，应该把条件放在哪里？
     options:
       - 先取一份筛出的子表
-      - t.loc[条件, 'n'] 的同一次赋值
+      - 用 t.loc[t['n'] < 0, 'n'] 一次赋值
       - 列名拼成字符串
     answer: 1
     explain: 一次定位同时选定原表的行和列。（WM16）

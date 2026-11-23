@@ -1,0 +1,35 @@
+id: train-4-004-stale-gradients
+title: 为什么第一步正确，第二步偏了
+track: train
+stage: '4'
+order: 40
+format: fix
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - train.loop
+    - train.evaluate
+  introduces: null
+source: original
+entry: train
+signature: 'def train(model, data, optimizer, steps):'
+compare: checker
+wrong_examples:
+  - why: 只在循环外清了一次梯度。
+    code: |
+      import torch
+
+
+      def train(model, data, optimizer, steps):
+          features, labels = data.train
+          optimizer.zero_grad()
+          for _ in range(steps):
+              scores = model(features)
+              loss = data.loss(scores, labels)
+              loss.backward()
+              optimizer.step()
+          model.eval()
+          with data.evaluating(), torch.no_grad():
+              model(data.valid[0])
+unit: 1

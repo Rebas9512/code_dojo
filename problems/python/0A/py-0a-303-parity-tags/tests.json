@@ -1,11 +1,11 @@
 {
   "examples": [
-    {"args": [[-3, 0, 2]], "expected": ["奇", "偶", "偶"]},
-    {"args": [[5]], "expected": ["奇"]}
+    {"args": [[-3, 0, 2]], "expected": ["odd", "even", "even"]},
+    {"args": [[5]], "expected": ["odd"]}
   ],
   "hidden": [
     {"args": [[]], "expected": []},
-    {"args": [[-4]], "expected": ["偶"]},
-    {"args": [[1, 1]], "expected": ["奇", "奇"]}
+    {"args": [[-4]], "expected": ["even"]},
+    {"args": [[1, 1]], "expected": ["odd", "odd"]}
   ]
 }

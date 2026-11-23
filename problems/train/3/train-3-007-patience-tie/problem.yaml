@@ -1,0 +1,17 @@
+id: train-3-007-patience-tie
+title: 持平会刷新纪录吗
+track: train
+stage: '3'
+order: 70
+format: predict
+mode: predict
+difficulty: 29
+skills:
+  requires:
+    - train.metric
+  introduces: train.patience
+source: original
+wrong_examples:
+  - why: 持平不算刷新。
+    code: |
+      print('6 0')

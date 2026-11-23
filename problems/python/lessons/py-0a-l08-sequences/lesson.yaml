@@ -127,7 +127,7 @@ steps:
   - type: read
     skill: py.dict-set-comp
     md: |
-      推导式外面换成花括号时，要看里面准备写什么。每次只交一个元素，结果就是集合，能数出不同元素；每次交 `键: 值`，结果就是字典，适合按键回查。
+      推导式外面换成花括号时，要看里面准备写什么。每次只交一个元素，结果就是集合，能数出不同元素；每次交 `key: value`，结果就是字典，适合按键回查。
 
       例如做一张按首字母查词的表，把词逐张读进去，每次写入首字母和对应的整词。两个词若首字母相同，就会写同一个位置。
 
@@ -190,11 +190,11 @@ steps:
     skill: py.zip
     code: |
       # ① 对齐两列的开头
-      names = ["雪", "雨"]
+      names = ["Snow", "Rain"]
       scores = [5]
       # ② 收下能凑齐的配对
       pairs = list(zip(names, scores))
-      print(pairs)  # [('雪', 5)]
+      print(pairs)  # [('Snow', 5)]
     md: 在 scores 末尾追加 0，再看第二个名字有没有搭档。
   - type: quiz
     skill: py.zip
@@ -208,7 +208,7 @@ steps:
   - type: read
     skill: py.ternary
     md: |
-      一条判断有时只为选出一个值，例如温度低于零用“冷”，其余用“常温”。可以把选择放进赋值或返回值里，写成 `'冷' if t < 0 else '常温'`。
+      一条判断有时只为选出一个值，例如温度低于零用“cold”，其余用“normal”。可以把选择放进赋值或返回值里，写成 `'cold' if t < 0 else 'normal'`。
 
       阅读时先找中间的判断。成立就取 if 左边的值，否则取 else 右边的值。每次只求选中的那一边，所以能把需要有效除数的运算留在合适的分支。
 
@@ -248,17 +248,17 @@ steps:
     skill: py.choose-container
     code: |
       # ① 列表留下每次刷卡
-      log = ["林", "叶", "林"]
+      log = ["Lin", "Ye", "Lin"]
       # ② 比较不同人数和最后一个位置
       print(len(set(log)))  # 2
-      print(log[-1])        # 林
+      print(log[-1])        # Lin
     md: 交换前两次打卡，再试着只凭集合回答第一个人是谁。
   - type: quiz
     skill: py.choose-container
     q: 丢掉原始打卡列表，只保留到场者集合，还能回答哪个问题？
     options:
-      - 林刷了几次卡
+      - Lin 刷了几次卡
       - 谁最后打卡
-      - 叶有没有来过
+      - Ye 有没有来过
     answer: 2
-    explain: 集合保留成员身份，能用 in 查叶。不同的打卡顺序和次数可以得到完全相同的集合。
+    explain: 集合保留成员身份，能用 in 查 Ye。不同的打卡顺序和次数可以得到完全相同的集合。

@@ -1,0 +1,26 @@
+id: train-2-005-raw-cross-entropy
+title: 把分数和标签交给损失函数
+track: train
+stage: '2'
+order: 50
+format: complete
+mode: function
+difficulty: 24
+skills:
+  requires:
+    - train.ce
+  introduces: null
+source: original
+entry: class_loss
+signature: 'def class_loss(rows, ids):'
+compare: allclose
+wrong_examples:
+  - why: 提前归一化改变了原始分数。
+    code: |
+      import torch
+
+
+      def class_loss(rows, ids):
+          scores = torch.tensor(rows, dtype=torch.float64)
+          labels = torch.tensor(ids, dtype=torch.long)
+          return torch.nn.CrossEntropyLoss()(scores.softmax(dim=1), labels).item()

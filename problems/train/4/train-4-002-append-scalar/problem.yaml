@@ -1,0 +1,22 @@
+id: train-4-002-append-scalar
+title: 把本步损失加入已有日志
+track: train
+stage: '4'
+order: 20
+format: complete
+mode: function
+difficulty: 31
+skills:
+  requires:
+    - train.history
+    - py.list-append
+  introduces: null
+source: original
+entry: log_value
+signature: 'def log_value(history, loss):'
+compare: checker
+wrong_examples:
+  - why: 日志保留了张量。
+    code: |
+      def log_value(history, loss):
+          history.append(loss)

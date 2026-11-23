@@ -10,8 +10,8 @@ books 给 id、name，lots 给 id、n。按 id 合并，how 由调用方传入�
 
 | id | name |
 | --- | --- |
-| 1 | 甲 |
-| 2 | 乙 |
+| 1 | A |
+| 2 | B |
 
 `lots`
 
@@ -29,9 +29,9 @@ books 给 id、name，lots 给 id、n。按 id 合并，how 由调用方传入�
 
 | id | name | n |
 | --- | --- | --- |
-| 1 | 甲 | 2 |
-| 1 | 甲 | 3 |
-| 2 | 乙 | 缺失 |
+| 1 | A | 2 |
+| 1 | A | 3 |
+| 2 | B | 缺失 |
 | 3 | 缺失 | 4 |
 
 ## 示例 2
@@ -40,7 +40,7 @@ books 给 id、name，lots 给 id、n。按 id 合并，how 由调用方传入�
 
 | id | name |
 | --- | --- |
-| 2 | 乙 |
+| 2 | B |
 
 `lots`
 

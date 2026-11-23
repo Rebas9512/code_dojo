@@ -17,9 +17,9 @@ data:
 answer:
   type: short
   accept:
-    - '3'
-    - 三
-    - 3册
+    - "3"
+    - "three"
+    - "3 copies"
   misconceptions:
     '102': DM04
 explain: 明细中 6 号书买了 2 册，14 号书买了 1 册，加起来是 3 册。订单编号用来查单。

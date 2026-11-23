@@ -1,0 +1,21 @@
+id: train-4-016-allow-roundoff
+title: 容差边界上的一步
+track: train
+stage: '4'
+order: 160
+format: complete
+mode: function
+difficulty: 36
+skills:
+  requires:
+    - train.replay
+  introduces: null
+source: original
+entry: matches
+signature: 'def matches(wanted, actual, tol):'
+compare: exact
+wrong_examples:
+  - why: 把恰等于容差的结果判错。
+    code: |
+      def matches(wanted, actual, tol):
+          return abs(wanted - actual) < tol

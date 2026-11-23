@@ -27,9 +27,9 @@ steps:
     skill: sql.inner-join
     q: 某作者写了三本书，另一位还没有书。按作者编号做 INNER JOIN，这两位作者合计贡献几行？
     options:
-      - 1 行
-      - 2 行
-      - 3 行
+      - "1"
+      - "2"
+      - "3"
     answer: 2
     explain: 三本书分别配上一行作者资料，另一位没有成功配对。
   - type: read

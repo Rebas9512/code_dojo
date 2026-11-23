@@ -110,7 +110,7 @@ steps:
   skill: algo.binary-search-answer
   q: 哪些条件能直接交给“找第一真”的模板？
   options:
-  - 从低到高依次为假、假、真、真
-  - 从低到高依次为假、真、假、真
+  - "False, False, True, True"
+  - "False, True, False, True"
   answer: 0
   explain: 第一次为真后要一直为真，才可以安全丢掉半个范围。

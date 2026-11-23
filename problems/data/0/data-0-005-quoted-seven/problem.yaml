@@ -17,10 +17,13 @@ data:
 answer:
   type: short
   accept:
-    - '2'
-    - 二
-    - 第2格
+    - "2"
+    - "second"
+    - "cell 2"
   misconceptions:
-    都不是: DM01
-    没有: DM01
+    "none": DM01
+    "neither": DM01
+    "0": DM01
+    "7": DM01
+    "\"7\"": DM01
 explain: 中间的引号标出文字的边界。第一格是整数，第三格用小数写法表示七。

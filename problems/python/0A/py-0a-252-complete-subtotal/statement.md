@@ -7,14 +7,14 @@
 **示例 1**
 
 ```text
-输入：entries = {'收入': 8, '退款': -2}
+输入：entries = {'income': 8, 'refund': -2}
 输出：6
 ```
 
 **示例 2**
 
 ```text
-输入：entries = {'茶': 3, '梨': 3}
+输入：entries = {'tea': 3, 'pear': 3}
 输出：6
 ```
 

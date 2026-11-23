@@ -17,4 +17,4 @@ milestones: []
 wrong_examples:
   - why: PM65：以为换容器后仍保留每次刷卡的记录。
     code: |
-      print('林\n3\n3')
+      print('Lin\n3\n3')

@@ -6,7 +6,7 @@ def is_valid_sudoku(board: list[list[str]]) -> bool:
             if digit == '.':
                 continue
             box = r // 3 * 3 + c // 3
-            for key in [('行', r, digit), ('列', c, digit), ('宫', box, digit)]:
+            for key in [('row', r, digit), ('column', c, digit), ('box', box, digit)]:
                 if key in seen:
                     return False
                 seen.add(key)

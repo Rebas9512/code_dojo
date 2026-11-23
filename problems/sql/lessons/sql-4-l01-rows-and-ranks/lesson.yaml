@@ -18,7 +18,7 @@ steps:
     db: bookstore
     patch: |
       CREATE TABLE tags(id int PRIMARY KEY, aisle text, price int);
-      INSERT INTO tags VALUES (1, '东', 30), (2, '东', 30), (3, '东', 10), (4, '西', 20);
+      INSERT INTO tags VALUES (1, 'east', 30), (2, 'east', 30), (3, 'east', 10), (4, 'west', 20);
     code: |
       -- ① 同一批四张价签先按货架汇总
       SELECT aisle, SUM(price) AS shelf_sum FROM tags GROUP BY aisle ORDER BY aisle;
@@ -27,9 +27,9 @@ steps:
     skill: sql.window-agg
     q: 四张价签计算 SUM(price) OVER ()，会交几行？
     options:
-      - 1 行
-      - 2 行
-      - 4 行
+      - "1"
+      - "2"
+      - "4"
     answer: 2
     explain: 每张价签仍占一行，总数 90 被贴回四次。
   - type: example
@@ -37,11 +37,11 @@ steps:
     db: bookstore
     patch: |
       CREATE TABLE tags(id int PRIMARY KEY, aisle text, price int);
-      INSERT INTO tags VALUES (1, '东', 30), (2, '东', 30), (3, '东', 10), (4, '西', 20);
+      INSERT INTO tags VALUES (1, 'east', 30), (2, 'east', 30), (3, 'east', 10), (4, 'west', 20);
     code: |
       -- ② 原样读取四张价签，把统计结果贴回每一行
       SELECT id, aisle, price, SUM(price) OVER () AS all_tags FROM tags ORDER BY id;
-    md: 加上 WHERE aisle='东' 再按编号排序，检查总价和行数。
+    md: 加上 WHERE aisle='east' 再按编号排序，检查总价和行数。
   - type: read
     skill: sql.row-number
     md: |
@@ -53,7 +53,7 @@ steps:
     db: bookstore
     patch: |
       CREATE TABLE tags(id int PRIMARY KEY, aisle text, price int);
-      INSERT INTO tags VALUES (1, '东', 30), (2, '东', 30), (3, '东', 10), (4, '西', 20);
+      INSERT INTO tags VALUES (1, 'east', 30), (2, 'east', 30), (3, 'east', 10), (4, 'west', 20);
     code: |
       -- ① 先按价格，再用价签号打破并列
       -- ② 按发出的号码展示
@@ -80,7 +80,7 @@ steps:
     db: bookstore
     patch: |
       CREATE TABLE tags(id int PRIMARY KEY, aisle text, price int);
-      INSERT INTO tags VALUES (1, '东', 30), (2, '东', 30), (3, '东', 10), (4, '西', 20);
+      INSERT INTO tags VALUES (1, 'east', 30), (2, 'east', 30), (3, 'east', 10), (4, 'west', 20);
     code: |
       -- ① 同架的价签共享小计，仍然一张价签一行
       SELECT id, aisle, price, SUM(price) OVER (PARTITION BY aisle) AS shelf_sum,
@@ -117,20 +117,20 @@ steps:
     db: bookstore
     patch: |
       CREATE TABLE tags(id int PRIMARY KEY, aisle text, price int);
-      INSERT INTO tags VALUES (1, '东', 30), (2, '东', 30), (3, '东', 10), (4, '西', 20);
+      INSERT INTO tags VALUES (1, 'east', 30), (2, 'east', 30), (3, 'east', 10), (4, 'west', 20);
     code: |
       -- ① 排名只比较价格
       -- ② 最后才按编号稳定展示
       SELECT id, price, RANK() OVER (ORDER BY price DESC) AS place,
              DENSE_RANK() OVER (ORDER BY price DESC) AS tier
-      FROM tags WHERE aisle = '东' ORDER BY place, id;
+      FROM tags WHERE aisle = 'east' ORDER BY place, id;
     md: 给两个窗口的排序都加上 id，比较原来同价的两行。
   - type: quiz
     skill: sql.rank
     q: 两件商品并列最高，接下来一种价格的 RANK 与 DENSE_RANK 是？
     options:
-      - 2 和 2
-      - 2 和 3
-      - 3 和 2
+      - "2, 2"
+      - "2, 3"
+      - "3, 2"
     answer: 2
     explain: 前面有两行但只有一个不同价格。

@@ -26,8 +26,8 @@ steps:
     skill: data.column-type-key
     q: 书店会收不同版本的同名书，借书单该保存什么？
     options:
-      - 书名
-      - 图书编号
+      - title
+      - book_id
     answer: 1
     explain: 主键能唯一定位到版本；两行书名相同也要分别借还。
   - type: quiz
@@ -83,7 +83,7 @@ steps:
     skill: data.text-formats
     q: 同一金额写成 CSV 字段 18.50，用默认的 csv.reader 读到什么？
     options:
-      - 文字 "18.50"
-      - 数值 18.5
+      - '"18.50"'
+      - '18.5'
     answer: 0
     explain: CSV 没有指定这一列的小数类型。默认读取器保留小数点和末尾的 0，之后可按用途转换。

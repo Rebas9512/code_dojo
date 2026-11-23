@@ -1,6 +1,6 @@
 {
   "examples": [
-    {"args": [["雨", "风", "风", "雨"]], "expected": "雨"},
+    {"args": [["Rain", "Wind", "Wind", "Rain"]], "expected": "Rain"},
     {"args": [["a", "b", "b"]], "expected": "b"}
   ],
   "hidden": [

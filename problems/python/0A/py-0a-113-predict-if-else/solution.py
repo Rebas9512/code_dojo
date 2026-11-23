@@ -1,12 +1,12 @@
 temp = 30
 if temp > 25:
-    print("热")
+    print("hot")
 else:
-    print("不热")
-print("看完天气")
+    print("not hot")
+print("forecast checked")
 temp = 25
 if temp > 25:
-    print("热")
+    print("hot")
 else:
-    print("不热")
-print("再看一次")
+    print("not hot")
+print("check again")

@@ -1,0 +1,33 @@
+id: train-2-009-sgd-path
+title: 记录动量更新后的位置
+track: train
+stage: '2'
+order: 90
+format: write
+mode: function
+difficulty: 26
+skills:
+  requires:
+    - train.momentum
+    - py.list-append
+    - py.type-convert
+  introduces: null
+source: original
+entry: momentum_path
+signature: 'def momentum_path(start, grads, rate, memory):'
+compare: float
+wrong_examples:
+  - why: 每一步只看当前梯度。
+    code: |
+      import torch
+
+
+      def momentum_path(start, grads, rate, memory):
+          p = torch.tensor(float(start), dtype=torch.float64, requires_grad=True)
+          opt = torch.optim.SGD([p], lr=rate, momentum=0)
+          history = []
+          for g in grads:
+              p.grad = torch.tensor(g, dtype=p.dtype)
+              opt.step()
+              history.append(p.item())
+          return history

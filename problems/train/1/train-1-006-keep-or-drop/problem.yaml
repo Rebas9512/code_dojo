@@ -1,0 +1,26 @@
+id: train-1-006-keep-or-drop
+title: 按约定交付末批
+track: train
+stage: '1'
+order: 60
+format: write
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - train.batch
+    - py.list-comp
+  introduces: null
+source: original
+entry: batches
+signature: 'def batches(values, width, drop):'
+compare: exact
+wrong_examples:
+  - why: 始终保留不足一批的余数。
+    code: |
+      from torch.utils.data import DataLoader
+
+
+      def batches(values, width, drop):
+          loader = DataLoader(values, batch_size=width, drop_last=False)
+          return [batch.tolist() for batch in loader]

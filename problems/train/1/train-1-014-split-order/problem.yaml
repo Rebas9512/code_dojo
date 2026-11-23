@@ -1,0 +1,22 @@
+id: train-1-014-split-order
+title: 切开同一份行号表
+track: train
+stage: '1'
+order: 140
+format: complete
+mode: function
+difficulty: 23
+skills:
+  requires:
+    - train.holdout
+    - py.slice
+  introduces: null
+source: original
+entry: split_order
+signature: 'def split_order(order, count):'
+compare: exact
+wrong_examples:
+  - why: 训练端多取了验证段。
+    code: |
+      def split_order(order, count):
+          return [order[:], order[:count]]

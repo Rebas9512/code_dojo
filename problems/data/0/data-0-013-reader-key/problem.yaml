@@ -19,6 +19,6 @@ answer:
   accept:
     - user_id
   misconceptions:
-    name: DM05
-    姓名: DM05
+    "name": DM05
+    "full name": DM05
 explain: user_id 是分配给用户的编号。姓名重复，城市也可能改变，两者都不能承担主键的职责。

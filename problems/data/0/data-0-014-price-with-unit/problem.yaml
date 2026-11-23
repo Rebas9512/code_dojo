@@ -17,9 +17,9 @@ data:
 answer:
   type: short
   accept:
-    - '1'
-    - 一
+    - "1"
+    - "one"
   misconceptions:
-    没有: DM07
-    都可以直接用: DM07
+    "none": DM07
+    "all numeric": DM07
 explain: 1 号书的金额被抄成了文字 ¥42。其余 price 值都是数，可以按相同规则计算。

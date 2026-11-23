@@ -1,0 +1,47 @@
+id: train-3-026-stop-and-restore
+title: 早停后取回最佳验证轮
+track: train
+stage: '3'
+order: 260
+format: variant
+mode: function
+difficulty: 35
+skills:
+  requires:
+    - train.curves
+    - train.patience
+    - train.checkpoint
+    - py.break-continue
+    - py.enumerate
+    - py.type-convert
+  introduces: null
+source: original
+entry: select_checkpoint
+signature: 'def select_checkpoint(model, epochs, patience):'
+compare: checker
+wrong_examples:
+  - why: 持平覆盖了更早的最佳快照，也延后了停止时机。
+    code: |
+      import torch
+      from io import BytesIO
+
+
+      def select_checkpoint(model, epochs, patience):
+          best = float("inf")
+          wait = 0
+          best_epoch = 0
+          snapshot = BytesIO()
+          for epoch, valid_loss in enumerate(epochs, 1):
+              if valid_loss <= best:
+                  best = valid_loss
+                  best_epoch = epoch
+                  wait = 0
+                  snapshot = BytesIO()
+                  torch.save(model.state_dict(), snapshot)
+              else:
+                  wait += 1
+                  if wait >= patience:
+                      break
+          snapshot.seek(0)
+          model.load_state_dict(torch.load(snapshot, weights_only=True))
+          return best_epoch

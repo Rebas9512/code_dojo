@@ -1,0 +1,35 @@
+id: train-1-002-read-one
+title: 补齐测量记录的读取接口
+track: train
+stage: '1'
+order: 20
+format: complete
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - train.dataset
+  introduces: null
+source: original
+entry: reading_at
+signature: 'def reading_at(values, index):'
+compare: exact
+wrong_examples:
+  - why: 每次都读第一条。
+    code: |
+      from torch.utils.data import Dataset
+
+
+      class Readings(Dataset):
+          def __init__(self, values):
+              self.values = values
+
+          def __len__(self):
+              return len(self.values)
+
+          def __getitem__(self, index):
+              return self.values[0]
+
+
+      def reading_at(values, index):
+          return Readings(values)[index]

@@ -41,9 +41,9 @@ steps:
   skill: algo.prefix-hash
   q: 读 [0,0] 的第二个零之前，已有几次合计为零？
   options:
-  - 1 次
-  - 2 次
-  - 3 次
+  - "1"
+  - "2"
+  - "3"
   answer: 1
   explain: 一次是空前缀，一次是读完第一格，第二格还没登记。
 - type: quiz

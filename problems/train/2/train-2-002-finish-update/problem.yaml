@@ -1,0 +1,26 @@
+id: train-2-002-finish-update
+title: 让梯度作用到参数
+track: train
+stage: '2'
+order: 20
+format: complete
+mode: function
+difficulty: 23
+skills:
+  requires:
+    - train.loop
+  introduces: null
+source: original
+entry: update
+signature: 'def update(model, data, optimizer):'
+compare: checker
+wrong_examples:
+  - why: 反向后又清掉了梯度。
+    code: |
+      def update(model, data, optimizer):
+          x, y = data.train
+          scores = model(x)
+          loss = data.loss(scores, y)
+          optimizer.zero_grad()
+          loss.backward()
+          optimizer.zero_grad()

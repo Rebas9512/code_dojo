@@ -56,9 +56,9 @@ steps:
   skill: algo.memo-cache
   q: 从空缓存算完 fib(4)，再算 fib(3) 会新进入几次函数体？
   options:
-  - 0 次
-  - 1 次
-  - 3 次
+  - "0"
+  - "1"
+  - "3"
   answer: 0
   explain: 第一次算 fib(4) 已经过 fib(3)，第二次查到同一个键。
 - type: quiz

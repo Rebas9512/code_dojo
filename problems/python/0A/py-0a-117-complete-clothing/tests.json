@@ -1,13 +1,13 @@
 {
   "examples": [
-    {"args": [35], "expected": "短袖"},
-    {"args": [20], "expected": "外套"}
+    {"args": [35], "expected": "T-shirt"},
+    {"args": [20], "expected": "jacket"}
   ],
   "hidden": [
-    {"args": [30], "expected": "短袖"},
-    {"args": [15], "expected": "外套"},
-    {"args": [14], "expected": "羽绒服"},
-    {"args": [-10], "expected": "羽绒服"},
-    {"args": [29], "expected": "外套"}
+    {"args": [30], "expected": "T-shirt"},
+    {"args": [15], "expected": "jacket"},
+    {"args": [14], "expected": "down jacket"},
+    {"args": [-10], "expected": "down jacket"},
+    {"args": [29], "expected": "jacket"}
   ]
 }

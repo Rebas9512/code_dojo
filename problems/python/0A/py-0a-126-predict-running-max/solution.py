@@ -6,4 +6,4 @@ while n > 0:
         best = digit
     print(digit, best)
     n = n // 10
-print("最大", best)
+print("max", best)

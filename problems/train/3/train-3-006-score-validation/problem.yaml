@@ -1,0 +1,33 @@
+id: train-3-006-score-validation
+title: 在验证集逐批统计准确率
+track: train
+stage: '3'
+order: 60
+format: write
+mode: function
+difficulty: 29
+skills:
+  requires:
+    - train.metric
+    - py.ternary
+    - tensor.rank
+  introduces: null
+source: original
+entry: accuracy
+signature: 'def accuracy(model, batches):'
+compare: checker
+wrong_examples:
+  - why: 把每批当作一条样本。
+    code: |
+      import torch
+
+
+      def accuracy(model, batches):
+          model.eval()
+          correct = total = 0
+          with torch.no_grad():
+              for x, y in batches:
+                  pred = torch.argmax(model(x), dim=1)
+                  correct += torch.sum(pred == y).item()
+                  total += 1
+          return correct / total if total else 0.0

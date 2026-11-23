@@ -17,10 +17,10 @@ steps:
     code: |
       import pandas as pd
       # ① 同类图书仍有各自的书号
-      books = pd.DataFrame({"id": [1, 2, 3], "category": ["科幻", "科幻", "历史"]})
+      books = pd.DataFrame({"id": [1, 2, 3], "category": ["scifi", "scifi", "history"]})
       # ② 报表只问有哪些类别
       out = books[["category"]].drop_duplicates()
-      print(out["category"].tolist())  # 输出 ['科幻', '历史']
+      print(out["category"].tolist())  # 输出 ['scifi', 'history']
     md: 试试先对整张 books 去重，再选 category，比较剩几行。
   - type: quiz
     skill: wrangle.projection

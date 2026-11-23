@@ -26,9 +26,9 @@ steps:
     skill: sql.count
     q: 三个订单的优惠码依次是 NULL、'NEW'、'NEW'。COUNT(*)、COUNT(coupon_code) 各是多少？
     options:
-      - 3 和 1
-      - 3 和 2
-      - 2 和 2
+      - "3, 1"
+      - "3, 2"
+      - "2, 2"
     answer: 1
     explain: 三个订单都算一行。两个填写过的码各贡献一次，即使内容相同。
   - type: read

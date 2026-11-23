@@ -1,6 +1,6 @@
 {
   "examples": [
-    {"args": [["云", "松", "云"]], "expected": {"云": 2, "松": 1}},
+    {"args": [["Cloud", "Pine", "Cloud"]], "expected": {"Cloud": 2, "Pine": 1}},
     {"args": [[]], "expected": {}}
   ],
   "hidden": [

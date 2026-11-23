@@ -1,0 +1,37 @@
+id: train-1-003-paired-dataset
+title: 做一个可随机访问的样本集
+track: train
+stage: '1'
+order: 30
+format: write
+mode: function
+difficulty: 20
+skills:
+  requires:
+    - train.dataset
+    - py.tuple
+  introduces: null
+source: original
+entry: make_dataset
+signature: 'def make_dataset(values, labels):'
+compare: checker
+wrong_examples:
+  - why: 把第一条标签贴在每条样本上。
+    code: |
+      from torch.utils.data import Dataset
+
+
+      class Pairs(Dataset):
+          def __init__(self, values, labels):
+              self.values = values
+              self.labels = labels
+
+          def __len__(self):
+              return len(self.values)
+
+          def __getitem__(self, index):
+              return self.values[index], self.labels[0]
+
+
+      def make_dataset(values, labels):
+          return Pairs(values, labels)

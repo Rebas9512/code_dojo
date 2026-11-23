@@ -1,0 +1,33 @@
+id: train-2-014-close-epoch
+title: 在轮末推进时间表
+track: train
+stage: '2'
+order: 140
+format: complete
+mode: function
+difficulty: 27
+skills:
+  requires:
+    - train.schedule
+    - py.list-append
+  introduces: null
+source: original
+entry: used_rates
+signature: 'def used_rates(rate, period, factor, epochs):'
+compare: float
+wrong_examples:
+  - why: 日程始终停在起点。
+    code: |
+      import torch
+
+
+      def used_rates(rate, period, factor, epochs):
+          p = torch.tensor(0., requires_grad=True)
+          opt = torch.optim.SGD([p], lr=rate)
+          scheduler = torch.optim.lr_scheduler.StepLR(opt, step_size=period, gamma=factor)
+          rates = []
+          for _ in range(epochs):
+              rates.append(opt.param_groups[0]["lr"])
+              opt.step()
+              pass
+          return rates

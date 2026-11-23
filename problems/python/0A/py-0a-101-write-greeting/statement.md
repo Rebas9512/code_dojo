@@ -1,10 +1,10 @@
 ## 题目
 
-写一个程序，输出下面这三行，一个字都不能差（标点符号也要一样）：
+写一个程序，按以下大小写输出三行，第一行使用全角逗号：
 
 ```
-你好，Python
-我在 code-dojo 练习
+hello，Python
+I practice at code-dojo
 2026
 ```
 
@@ -21,8 +21,8 @@
 输出：
 
 ```
-你好，Python
-我在 code-dojo 练习
+hello，Python
+I practice at code-dojo
 2026
 ```
 
@@ -35,8 +35,8 @@
 输出：
 
 ```
-你好，Python
-我在 code-dojo 练习
+hello，Python
+I practice at code-dojo
 2026
 ```
 

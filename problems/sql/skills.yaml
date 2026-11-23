@@ -50,7 +50,7 @@ skills:
       FROM books;
       ```
       - 算术：`+ - * /` 和取余 `%`。
-      - `AS 名字` 给结果列起名，方便阅读，也能在 ORDER BY 里引用。
+      - `AS label` 给结果列起名，方便阅读，也能在 ORDER BY 里引用。
       常见坑：**整数除法**——`7 / 2` 在 PostgreSQL 里是 `3`。要小数写 `7 / 2.0` 或 `7::numeric / 2`。
 
   - id: sql.where
@@ -264,7 +264,7 @@ skills:
     stage: "0"
     prereqs: [sql.like]
     card: |
-      `s ~ '模式'` 区分大小写，`~*` 不区分，`!~` 取反。
+      `s ~ '^A'` 区分大小写，`~*` 不区分，`!~` 取反。
       ```sql
       WHERE email ~ '^[A-Za-z][A-Za-z0-9_.-]*@example\.com$'
       ```

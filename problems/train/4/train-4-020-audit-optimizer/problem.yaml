@@ -1,0 +1,101 @@
+id: train-4-020-audit-optimizer
+title: 综合修复：还原 Adam 的实验设置
+track: train
+stage: '4'
+order: 200
+format: combine
+mode: function
+difficulty: 37
+skills:
+  requires:
+    - train.replay
+    - train.adam
+    - train.schedule
+    - train.clip
+    - train.decay
+    - train.history
+    - py.list-append
+    - tensor.state
+  introduces: null
+source: original
+unit: 2
+entry: run_trial
+signature: 'def run_trial(model, x, y, steps, rate, decay, bound):'
+compare: checker
+wrong_examples:
+  - why: 漏掉衰减、每轮都调低步长、更新后才裁剪。
+    code: |
+      import torch
+
+
+      def run_trial(model, x, y, steps, rate, decay, bound):
+          optimizer = torch.optim.Adam(model.parameters(), lr=rate, weight_decay=0)
+          scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.5)
+          losses = []
+          for _ in range(steps):
+              prediction = model(x)
+              loss = torch.mean((prediction - y) ** 2)
+              optimizer.zero_grad()
+              loss.backward()
+              optimizer.step()
+              torch.nn.utils.clip_grad_norm_(model.parameters(), bound)
+              scheduler.step()
+              losses.append(loss.item())
+          return losses
+  - why: 单独遗漏权重衰减。
+    code: |
+      import torch
+
+
+      def run_trial(model, x, y, steps, rate, decay, bound):
+          optimizer = torch.optim.Adam(model.parameters(), lr=rate, weight_decay=0)
+          scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=2, gamma=0.5)
+          losses = []
+          for _ in range(steps):
+              prediction = model(x)
+              loss = torch.mean((prediction - y) ** 2)
+              optimizer.zero_grad()
+              loss.backward()
+              torch.nn.utils.clip_grad_norm_(model.parameters(), bound)
+              optimizer.step()
+              scheduler.step()
+              losses.append(loss.item())
+          return losses
+  - why: 单独把衰减间隔缩成一轮。
+    code: |
+      import torch
+
+
+      def run_trial(model, x, y, steps, rate, decay, bound):
+          optimizer = torch.optim.Adam(model.parameters(), lr=rate, weight_decay=decay)
+          scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.5)
+          losses = []
+          for _ in range(steps):
+              prediction = model(x)
+              loss = torch.mean((prediction - y) ** 2)
+              optimizer.zero_grad()
+              loss.backward()
+              torch.nn.utils.clip_grad_norm_(model.parameters(), bound)
+              optimizer.step()
+              scheduler.step()
+              losses.append(loss.item())
+          return losses
+  - why: 单独把裁剪放在更新之后。
+    code: |
+      import torch
+
+
+      def run_trial(model, x, y, steps, rate, decay, bound):
+          optimizer = torch.optim.Adam(model.parameters(), lr=rate, weight_decay=decay)
+          scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=2, gamma=0.5)
+          losses = []
+          for _ in range(steps):
+              prediction = model(x)
+              loss = torch.mean((prediction - y) ** 2)
+              optimizer.zero_grad()
+              loss.backward()
+              optimizer.step()
+              torch.nn.utils.clip_grad_norm_(model.parameters(), bound)
+              scheduler.step()
+              losses.append(loss.item())
+          return losses

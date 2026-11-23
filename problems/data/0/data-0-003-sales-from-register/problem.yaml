@@ -17,9 +17,9 @@ data:
 answer:
   type: choice
   options:
-    - 卖出 5 本
+    - "5"
     - 还要查订单明细
-    - 卖出 0 本
+    - "0"
   correct: 1
   misconceptions:
     '0': DM04

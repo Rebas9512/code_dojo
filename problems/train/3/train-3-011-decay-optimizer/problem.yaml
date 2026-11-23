@@ -1,0 +1,24 @@
+id: train-3-011-decay-optimizer
+title: 给普通 SGD 加权重衰减
+track: train
+stage: '3'
+order: 110
+format: complete
+mode: function
+difficulty: 30
+skills:
+  requires:
+    - train.decay
+  introduces: null
+source: original
+entry: regularized
+signature: 'def regularized(params, rate, decay):'
+compare: checker
+wrong_examples:
+  - why: 没有加上衰减项。
+    code: |
+      import torch
+
+
+      def regularized(params, rate, decay):
+          return torch.optim.SGD(params, lr=rate, weight_decay=0)

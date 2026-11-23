@@ -1,11 +1,11 @@
 {
   "examples": [
-    {"args": [2, 4], "expected": "升"},
-    {"args": [3, 3], "expected": "平或降"}
+    {"args": [2, 4], "expected": "up"},
+    {"args": [3, 3], "expected": "flat or down"}
   ],
   "hidden": [
-    {"args": [0, -1], "expected": "平或降"},
-    {"args": [-2, -1], "expected": "升"},
-    {"args": [0, 0], "expected": "平或降"}
+    {"args": [0, -1], "expected": "flat or down"},
+    {"args": [-2, -1], "expected": "up"},
+    {"args": [0, 0], "expected": "flat or down"}
   ]
 }

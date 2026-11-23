@@ -1,0 +1,30 @@
+id: train-4-007-float-label
+title: 标签看着是整数却无法索引
+track: train
+stage: '4'
+order: 70
+format: fix
+mode: function
+difficulty: 33
+skills:
+  requires:
+    - train.loop
+    - train.ce
+  introduces: null
+source: original
+entry: train
+signature: 'def train(model, data, optimizer, steps):'
+compare: checker
+wrong_examples:
+  - why: 类别编号保留了浮点 dtype。
+    code: |
+      def train(model, data, optimizer, steps):
+          features, labels = data.train
+          labels = labels.reshape(-1)
+          for _ in range(steps):
+              scores = model(features)
+              loss = data.loss(scores, labels)
+              optimizer.zero_grad()
+              loss.backward()
+              optimizer.step()
+unit: 1

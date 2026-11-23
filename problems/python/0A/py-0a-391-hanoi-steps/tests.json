@@ -1,10 +1,10 @@
 {
   "examples": [
     {"args": [2, "A", "B", "C"], "expected": ["A→B", "A→C", "B→C"]},
-    {"args": [1, "东", "中", "西"], "expected": ["东→西"]}
+    {"args": [1, "East", "Middle", "West"], "expected": ["East→West"]}
   ],
   "hidden": [
-    {"args": [0, "甲", "乙", "丙"], "expected": []},
+    {"args": [0, "A", "B", "C"], "expected": []},
     {"args": [3, "A", "B", "C"], "expected": ["A→C", "A→B", "C→B", "A→C", "B→A", "B→C", "A→C"]},
     {"args": [2, "X", "Z", "Y"], "expected": ["X→Z", "X→Y", "Z→Y"]}
   ]

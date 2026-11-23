@@ -7,6 +7,14 @@
 > v1.3 用 `track.yaml` 定义每条学习线、阶段、可选的单元名 `units` 和前置关系，并支持跨线引用技能与课程。
 > 题库内容（problems/）和平台代码（server/、judge/、web/）之间的契约：内容按这个格式写，平台按这个格式读。要改格式先改这里。
 
+## 题目语言约定
+
+题干、课的讲解、知识卡、提示、代码注释和 `explain` 用中文。学习者要输入的文字、程序输出或返回的文字值用英文。题面给出要求的英文拼写和大小写，或说明比较时忽略大小写。数字、标点、分隔符和小数位数按题意保留。
+
+- inspect 短答案及误答映射用英文。类型名接受常见同义写法：整数 `integer/int`，小数 `decimal/float/number`，文字 `text/string/str`，真假 `boolean/bool`，缺失 `missing/null/none/empty/NA`。题目考具体语言或数据库类型时，以该语言的类型为准。
+- 单选及课内小测的值、类型名、输出和代码选项用英文，解释性选项用中文。示例代码、预测题、函数和 stdio 题的输入输出，以及参考解、初始代码和典型错误写法中对应的字面量遵守同一约定。
+- SQL 查询中需要写出的字符串、生成的标签及对应的数据集值用英文。只随查询结果显示、无需学习者输入的原始数据可以保留中文。
+
 ## 目录
 
 ```
@@ -107,7 +115,7 @@ data:
     content: '{"books": [{"id": "B2"}]}'
 answer:
   type: short
-  accept: ["6", "六"]
+  accept: ["6", "six"]
   normalize: [strip, fullwidth, casefold]
   misconceptions:
     "7": {id: CountHeader, name: 把表头也当成记录, line: 表头只写列名，数据从下一行开始。}
@@ -132,7 +140,7 @@ explain: |
 ```yaml
 answer:
   type: choice
-  options: ["书名", "图书编号"]
+  options: ["title", "book_id"]
   correct: 1
   misconceptions: {"0": DM05}
 ```
@@ -288,6 +296,7 @@ hints: []
 
 - SQL 使用 PostgreSQL 18（PGlite）。省略 `mode` 时，学生和参考解各写一条只读的 `SELECT` 或 `WITH ... SELECT`。
 - 期望结果不手写：校验时在每个数据集上运行 `solution.sql` 得到。所以参考解必须真正正确，隐藏数据集要能区分常见错误写法（NULL、并列、重复、空分组）。
+- 桌面更新包在构建时从上述题目文件生成期望表，按内容哈希随包分发。出题者只需维护参考解和数据集。
 - 结果比对：列数相同；值逐个比较（数字容差 1e-6，NULL 等于 NULL，日期转 ISO 字符串）；`ordered: false` 时忽略行序；不比列名。
 
 ### SQL 修改类题

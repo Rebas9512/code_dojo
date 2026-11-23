@@ -31,8 +31,8 @@ steps:
     skill: py.prefix-sum
     q: "只查 nums[0]，应该读哪两块路牌？"
     options:
-      - "pre[0] 与 pre[0]"
-      - "pre[2] 与 pre[1]"
-      - "pre[1] 与 pre[0]"
+      - "pre[0], pre[0]"
+      - "pre[2], pre[1]"
+      - "pre[1], pre[0]"
     answer: 2
     explain: "零号格位于第 0 和第 1 块路牌之间。"

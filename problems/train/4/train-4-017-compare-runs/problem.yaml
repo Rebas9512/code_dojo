@@ -1,0 +1,28 @@
+id: train-4-017-compare-runs
+title: 指出第一处轨迹不一致
+track: train
+stage: '4'
+order: 170
+format: write
+mode: function
+difficulty: 36
+skills:
+  requires:
+    - train.replay
+    - py.enumerate
+    - py.zip
+  introduces: null
+source: original
+entry: first_drift
+signature: 'def first_drift(reference, observed, tol):'
+compare: exact
+wrong_examples:
+  - why: 忽略末尾缺的更新。
+    code: |
+      def first_drift(reference, observed, tol):
+          for i, (wanted, actual) in enumerate(zip(reference, observed), 1):
+              if abs(wanted - actual) > tol:
+                  return i
+          if len(reference) != len(observed):
+              return 0
+          return 0

@@ -34,7 +34,7 @@ steps:
     skill: py.stack-list
     q: "栈从底到顶是 [2, 6]。读 stack[-1] 后再 pop()，最终留下什么？"
     options:
-      - "空栈"
+      - "[]"
       - "[6]"
       - "[2]"
     answer: 2

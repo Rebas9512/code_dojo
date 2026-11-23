@@ -1,0 +1,22 @@
+id: train-3-020-locate-minimum
+title: 圈出第一次最低验证误差
+track: train
+stage: '3'
+order: 200
+format: complete
+mode: function
+difficulty: 33
+skills:
+  requires:
+    - train.curves
+    - py.str-methods
+  introduces: null
+source: original
+entry: best_epoch
+signature: 'def best_epoch(valid):'
+compare: exact
+wrong_examples:
+  - why: 把零起始下标当成轮号。
+    code: |
+      def best_epoch(valid):
+          return valid.index(min(valid))

@@ -1,0 +1,35 @@
+id: train-4-010-tracked-validation
+title: 验证为什么还在记录运算
+track: train
+stage: '4'
+order: 100
+format: fix
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - train.loop
+    - train.evaluate
+  introduces: null
+source: original
+entry: train
+signature: 'def train(model, data, optimizer, steps):'
+compare: checker
+wrong_examples:
+  - why: 只切换了模式，验证前向仍在记录梯度。
+    code: |
+      import torch
+
+
+      def train(model, data, optimizer, steps):
+          features, labels = data.train
+          for _ in range(steps):
+              scores = model(features)
+              loss = data.loss(scores, labels)
+              optimizer.zero_grad()
+              loss.backward()
+              optimizer.step()
+          model.eval()
+          with data.evaluating():
+              model(data.valid[0])
+unit: 1

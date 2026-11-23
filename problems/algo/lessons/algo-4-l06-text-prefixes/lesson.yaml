@@ -50,9 +50,9 @@ steps:
   skill: algo.dp-string
   q: ax 与 ab 的最后两个字不同。公共后缀和公共子序列的长度分别是多少？
   options:
-  - 0 和 1
-  - 1 和 1
-  - 0 和 0
+  - "0, 1"
+  - "1, 1"
+  - "0, 0"
   answer: 0
   explain: 后缀必须包含两个末字，子序列仍可保留开头的 a。
 - type: quiz

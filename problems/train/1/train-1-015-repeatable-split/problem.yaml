@@ -1,0 +1,27 @@
+id: train-1-015-repeatable-split
+title: 生成一次可重现的留出划分
+track: train
+stage: '1'
+order: 150
+format: write
+mode: function
+difficulty: 24
+skills:
+  requires:
+    - train.holdout
+    - py.slice
+  introduces: null
+source: original
+entry: split_ids
+signature: 'def split_ids(n, count, seed):'
+compare: checker
+wrong_examples:
+  - why: 两份都从排列开头取，可能重复行。
+    code: |
+      import torch
+
+
+      def split_ids(n, count, seed):
+          g = torch.Generator().manual_seed(seed)
+          ids = torch.randperm(n, generator=g).tolist()
+          return [ids[:n-count], ids[:count]]

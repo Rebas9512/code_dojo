@@ -16,4 +16,4 @@ milestones: []
 wrong_examples:
   - why: PM48：把调用自己当成跳回开头的循环，漏掉每层等待中的后半段。
     code: |
-      print('到 2\n到 1\n到 0')
+      print('enter 2\nenter 1\nenter 0')

@@ -1,7 +1,7 @@
 {
   "examples": [
-    {"args": [["月"], "风", "雨"], "expected": [["月"], ["月", "风"], ["月", "雨"]]},
-    {"args": [[], "甲", "乙"], "expected": [[], ["甲"], ["乙"]]}
+    {"args": [["Moon"], "Wind", "Rain"], "expected": [["Moon"], ["Moon", "Wind"], ["Moon", "Rain"]]},
+    {"args": [[], "A", "B"], "expected": [[], ["A"], ["B"]]}
   ],
   "hidden": [
     {"args": [["A"], "A", "A"], "expected": [["A"], ["A", "A"], ["A", "A"]]},

@@ -1,0 +1,66 @@
+id: train-2-l02-optimizers
+title: 优化器的记忆
+track: train
+skills:
+  - train.momentum
+  - train.adam
+steps:
+  - type: read
+    skill: train.momentum
+    md: |-
+      普通 SGD 按当前梯度走一小步。动量给反复出现的方向留一点记忆，这样连续的小推力会累积。学习率 0.1，连续两步梯度都为 2，普通 SGD 每次向下走 0.2。
+
+      SGD(..., momentum=0.5) 的缓冲先为 2，再为 0.5×2+2=3。第二步就走 0.3。优化器应在循环外建立，同一个实例才保得住缓冲。
+
+      **TR08 常见误解**　每步重建优化器会丢失方向记忆；第一步通常看不出差别。
+  - type: example
+    skill: train.momentum
+    code: |
+      import torch
+      # ① 参数从零起，速度保留一半
+      p = torch.tensor(0., requires_grad=True)
+      opt = torch.optim.SGD([p], lr=0.1, momentum=0.5)
+      # ② 连续给两次相同的梯度
+      for _ in range(2):
+          p.grad = torch.tensor(2.)
+          opt.step()
+      print(round(p.item(), 2))  # 输出 -0.5
+    md: 把 momentum 改为 0，观察第二步之后的位置。
+  - type: quiz
+    skill: train.momentum
+    q: 梯度 2、2，动量 0.5，第二次缓冲为多少？
+    options:
+      - '2'
+      - '3'
+      - '4'
+    answer: 1
+    explain: 上一缓冲的一半是 1，加本次梯度 2 得 3。
+  - type: read
+    skill: train.adam
+    md: |-
+      不同参数的梯度大小可能相差很多。Adam 为每个参数位置记两份数：梯度的移动平均提供方向，梯度平方的移动平均估计尺度。这样大梯度的方向不会仅仅因单位大而走得特别远。
+
+      第一次梯度为 2，修正起步偏差后的两份数是 2 和 4；前者除以后者的平方根约为 1。学习率 0.1，参数便约减去 0.1。betas 的第一个数控制方向的记忆，第二个数控制尺度的记忆。
+
+      **TR09 常见误解**　Adam 的第二份记忆保留的是平方，不会因为梯度正负交替而抵消。
+  - type: example
+    skill: train.adam
+    code: |
+      import torch
+      # ① 两个参数，梯度相差十倍
+      p = torch.tensor([0., 0.], requires_grad=True)
+      opt = torch.optim.Adam([p], lr=0.1)
+      # ② 观察按各自尺度归一化的第一步
+      p.grad = torch.tensor([1., 10.])
+      opt.step()
+      print([round(x, 2) for x in p.tolist()])  # 输出 [-0.1, -0.1]
+    md: 把第二个梯度改为 −10，比较更新的大小和方向。
+  - type: quiz
+    skill: train.adam
+    q: 第二份移动平均收到梯度 −3 时，纳入什么数？
+    options:
+      - −3
+      - '3'
+      - '9'
+    answer: 2
+    explain: 第二份记录平方，所以即使梯度为负也会增加尺度估计。

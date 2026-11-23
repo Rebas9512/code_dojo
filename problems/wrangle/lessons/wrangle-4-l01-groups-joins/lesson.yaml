@@ -8,9 +8,9 @@ steps:
   - type: read
     skill: wrangle.group
     md: |-
-      分组统计先把同类记录放进一堆，再把每堆缩成一行。甲架有两次到货 2 和 5 本，乙架一次 4 本，按架合计就是甲 7、乙 4。若还要知道到货次数，甲有两笔，乙有一笔。
+      分组统计先把同类记录放进一堆，再把每堆缩成一行。A 架有两次到货 2 和 5 本，B 架一次 4 本，按架合计就是A 架 7 本、B 架 4 本。若还要知道到货次数，A 架有两笔，B 架有一笔。
 
-      groupby 指明用哪列分堆。agg(新列名=('来源列', '统计方法')) 能同时命名多个统计量。默认把组名放在索引里，reset_index() 可把它还原为普通列；也可以在分组时写 as_index=False。
+      groupby 指明用哪列分堆。agg(total=('n', 'sum')) 能同时命名多个统计量。默认把组名放在索引里，reset_index() 可把它还原为普通列；也可以在分组时写 as_index=False。
 
       **WM19 分组键默认一定是结果列**。默认 groupby 后架号在索引里；reset_index() 或 as_index=False 可把架号保留成列。
   - type: example
@@ -18,11 +18,11 @@ steps:
     code: |
       import pandas as pd
       # ① 相同架号归到同一组
-      t = pd.DataFrame({"rack": ["甲", "乙", "甲"], "n": [2, 4, 5]})
+      t = pd.DataFrame({"rack": ["A", "B", "A"], "n": [2, 4, 5]})
       # ② 汇总后让架号成为列
       out = t.groupby("rack").agg(total=("n", "sum")).reset_index()
-      print(out.loc[out["rack"] == "甲", "total"].tolist())  # 输出 [7]
-    md: 把 sum 改成 size，再看看甲架那一格变成多少。
+      print(out.loc[out["rack"] == "A", "total"].tolist())  # 输出 [7]
+    md: 把 sum 改成 size，再看看A 架那一格变成多少。
   - type: quiz
     skill: wrangle.group
     q: 分组结果只有 total 一列，架号显示在最左边的索引区。怎样把架号交成普通列？
@@ -37,7 +37,7 @@ steps:
     md: |-
       连接把两边键相同的记录放到一行。左边一个书号 7，右边有它的两笔到货，就能组成两行。如果两边分别有两条和三条同键记录，该键会得到六行。先想“一行究竟代表什么”，才能判断行数变化是否合理。
 
-      merge(on='键', how=...) 对应 SQL JOIN。inner 只留下配对；left 还留左侧落单行，right 留右侧落单行，outer 两侧都留。缺少的一侧补缺失值。本组连接键都有值。
+      merge(on='id', how='inner') 对应 SQL JOIN。inner 只留下配对；left 还留左侧落单行，right 留右侧落单行，outer 两侧都留。缺少的一侧补缺失值。本组连接键都有值。
 
       **WM20 连接后每个左键最多一行**。同一本书匹配三笔到货就有三行。连接前擅自去重会漏批次。
   - type: example

@@ -23,7 +23,7 @@
     },
     {
       "args": [
-        "id,title\n3,夜\n"
+        "id,title\n3,Night\n"
       ],
       "expected": {
         "columns": [
@@ -33,7 +33,7 @@
         "data": [
           [
             3,
-            "夜"
+            "Night"
           ]
         ]
       }

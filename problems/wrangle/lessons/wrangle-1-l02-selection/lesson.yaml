@@ -82,8 +82,8 @@ steps:
     skill: wrangle.fancy
     q: 同一行的位置在取数单上出现两次，会得到几行？
     options:
-      - 一行
-      - 两行
+      - "1"
+      - "2"
       - 报错
     answer: 1
     explain: 每个整数位置触发一次取数，重复位置对应重复行。（WM04）

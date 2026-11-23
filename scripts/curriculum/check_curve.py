@@ -128,6 +128,7 @@ PY_NODE_SKILLS: dict[str, str | None] = {
 
 # 内置函数调用
 PY_CALLS: dict[str, str | None] = {
+    "model": None, "layer": None,  # 题目传入或示例创建的可调用模型
     "guess": "algo.binary-search",        # 猜数题提供的三向比较函数
     "lower_bound": "algo.binary-search",  # 手写查找第一个达标位置的辅助函数
     "print": "py.print", "input": "py.stdio-input",
@@ -161,6 +162,12 @@ _STR_METHODS = [
 ]
 # 接收者类型未知时按方法名映射（取最先教的那个技能）
 PY_METHODS_DEFAULT: dict[str, str | None] = {
+    "manual_seed": "train.shuffle",  # 生成器实例的抽签起点
+    "SGD": "train.loop", "zero_grad": "train.loop", "step": "train.loop", "loss": "train.loop",
+    "CrossEntropyLoss": "train.ce", "Adam": "train.adam", "StepLR": "train.schedule",
+    "clip_grad_norm_": "train.clip", "Dropout": "train.dropout",
+    "train": "train.evaluate", "eval": "train.evaluate", "evaluating": "train.evaluate",
+    "Identity": None, "seek": None, "long": "tensor.create",
     "default_rng": None,  # 按指定种子创建 NumPy 随机数生成器
     "tanh": None,  # 标量节点或张量的双曲正切
     "permutation": None,  # 取得洗牌后的行号
@@ -220,6 +227,9 @@ PY_METHODS_BY_TYPE: dict[str, dict[str, str | None]] = {
 }
 # import：模块或 模块.名字
 PY_IMPORTS: dict[str, str | None] = {
+    "torch.utils.data.Dataset": "train.dataset", "torch.utils.data.DataLoader": "train.batch",
+    "torch.nn.utils.rnn.pad_sequence": "train.pad", "io.BytesIO": "train.checkpoint",
+    "torch.save": "train.checkpoint", "torch.load": "train.checkpoint",
     "numpy.linalg.solve": "ml.normal",
     "math.tanh": None,  # 纯 Python 的标量激活值
     "random.randrange": None, "random.Random": None, "random.setstate": None,  # 抽签及判题端的可复现抽样

@@ -17,10 +17,9 @@ data:
 answer:
   type: short
   accept:
-    - '1'
-    - 一
-    - 一个
+    - "1"
+    - "one"
   misconceptions:
     '3': DM02
     '2': DM02
-explain: 只有没有引号的 true 是真假值。引号里的 True 和“是”都由字符组成。
+explain: 只有没有引号的 true 是真假值。引号里的 True 和“yes”都由字符组成。

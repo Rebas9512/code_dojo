@@ -17,4 +17,4 @@ milestones: []
 wrong_examples:
   - why: PM67：把最后一张卡的位置当作空后缀的起点。
     code: |
-      print('1\n空')
+      print('1\nempty')

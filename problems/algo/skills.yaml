@@ -46,11 +46,11 @@ skills:
       把每个值当作标签，标签旁记录它出现的次数。打乱顺序后这些次数仍然相同。
       ```python
       from collections import Counter
-      counts = Counter("纸笔纸")
-      print(counts["纸"], counts["墨"])  # 2 0
+      counts = Counter("aba")
+      print(counts["a"], counts["c"])  # 2 0
       ```
       处理 n 个字符平均 O(n)，存储量取决于不同字符数。用 `a == b` 比较两张计数表。
-      常见坑：转成集合会丢失次数，例如“纸纸笔”和“纸笔笔”的集合完全相同。
+      常见坑：转成集合会丢失次数，例如“aab”和“abb”的集合完全相同。
 
   - id: algo.defaultdict
     name: collections.defaultdict
@@ -642,7 +642,7 @@ skills:
     prereqs: [py.helper-func]
     card: |
       **什么时候用**：用户输入的文字可能不合格式，但调用者需要一个可用的默认值。
-      例如 `int("8盏")` 会抛出 ValueError。把转换放进 try，在 except ValueError 中返回默认值。转换成功会跳过 except，包括成功读到 0 的情况。
+      例如 `int("8 lamps")` 会抛出 ValueError。把转换放进 try，在 except ValueError 中返回默认值。转换成功会跳过 except，包括成功读到 0 的情况。
       只包住可能因输入出错的几行。过宽的捕获会把程序自己写错的变量名也当成输入错误。分隔一行长 n 的配置需要 O(n) 时间。
 
   - id: algo.generator

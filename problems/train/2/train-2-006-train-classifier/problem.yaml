@@ -1,0 +1,28 @@
+id: train-2-006-train-classifier
+title: 从原始分数训练分类器
+track: train
+stage: '2'
+order: 60
+format: write
+mode: function
+difficulty: 25
+skills:
+  requires:
+    - train.ce
+    - train.loop
+  introduces: null
+source: original
+entry: train
+signature: 'def train(model, data, optimizer, steps):'
+compare: checker
+wrong_examples:
+  - why: 把概率重新作为 logits。
+    code: |
+      def train(model, data, optimizer, steps):
+          features, labels = data.train
+          for _ in range(steps):
+              scores = model(features)
+              loss = data.loss(scores.softmax(dim=1), labels)
+              optimizer.zero_grad()
+              loss.backward()
+              optimizer.step()

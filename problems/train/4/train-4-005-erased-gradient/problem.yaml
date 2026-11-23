@@ -1,0 +1,35 @@
+id: train-4-005-erased-gradient
+title: 刚算好的梯度去了哪里
+track: train
+stage: '4'
+order: 50
+format: fix
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - train.loop
+    - train.evaluate
+  introduces: null
+source: original
+entry: train
+signature: 'def train(model, data, optimizer, steps):'
+compare: checker
+wrong_examples:
+  - why: 清梯度放在反向与更新之间。
+    code: |
+      import torch
+
+
+      def train(model, data, optimizer, steps):
+          features, labels = data.train
+          for _ in range(steps):
+              scores = model(features)
+              loss = data.loss(scores, labels)
+              loss.backward()
+              optimizer.zero_grad()
+              optimizer.step()
+          model.eval()
+          with data.evaluating(), torch.no_grad():
+              model(data.valid[0])
+unit: 1

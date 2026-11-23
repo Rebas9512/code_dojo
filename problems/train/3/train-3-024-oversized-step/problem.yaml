@@ -1,0 +1,54 @@
+id: train-3-024-oversized-step
+title: 同一起点的两次试跑
+track: train
+stage: '3'
+order: 240
+format: inspect
+mode: inspect
+difficulty: 35
+skills:
+  requires:
+    - train.curves
+  introduces: null
+source: original
+data:
+  - kind: table
+    title: 同次训练的两份记录
+    content: |
+      轮次,训练 loss,验证 loss
+      1,1.0,1.1
+      2,4.0,4.4
+      3,16.0,17.6
+      4,64.0,70.4
+answer:
+  type: choice
+  options:
+    - 过拟合
+    - 欠拟合
+    - 学习率过大
+    - 训练脚本有 bug
+  correct: 2
+  misconceptions:
+    '0':
+      id: TR18-oversized-step-0
+      name: 还要核对对照实验
+      line: 跨过最低点后误差逐轮放大；同起点只缩小步长就稳定下降，支持学习率过大。
+    '1':
+      id: TR18-oversized-step-1
+      name: 还要核对对照实验
+      line: 跨过最低点后误差逐轮放大；同起点只缩小步长就稳定下降，支持学习率过大。
+    '3':
+      id: TR18-oversized-step-3
+      name: 还要核对对照实验
+      line: 跨过最低点后误差逐轮放大；同起点只缩小步长就稳定下降，支持学习率过大。
+explain: 跨过最低点后误差逐轮放大；同起点只缩小步长就稳定下降，支持学习率过大。
+wrong_examples:
+  - answer: 0
+    code: print(0)
+    why: 此判断与对照记录不符。跨过最低点后误差逐轮放大；同起点只缩小步长就稳定下降，支持学习率过大。
+  - answer: 1
+    code: print(1)
+    why: 此判断与对照记录不符。跨过最低点后误差逐轮放大；同起点只缩小步长就稳定下降，支持学习率过大。
+  - answer: 3
+    code: print(3)
+    why: 此判断与对照记录不符。跨过最低点后误差逐轮放大；同起点只缩小步长就稳定下降，支持学习率过大。

@@ -1,0 +1,25 @@
+id: train-3-002-quiet-forward
+title: 补全验证前向
+track: train
+stage: '3'
+order: 20
+format: complete
+mode: function
+difficulty: 27
+skills:
+  requires:
+    - train.evaluate
+  introduces: null
+source: original
+entry: measure
+signature: 'def measure(model, x):'
+compare: checker
+wrong_examples:
+  - why: 只关闭梯度，模型仍处于训练模式。
+    code: |
+      import torch
+
+
+      def measure(model, x):
+          with torch.no_grad():
+              return model(x)

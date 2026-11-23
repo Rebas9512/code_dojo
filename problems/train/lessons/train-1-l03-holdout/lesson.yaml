@@ -1,0 +1,32 @@
+id: train-1-l03-holdout
+title: 分开训练与验证
+track: train
+skills:
+  - train.holdout
+steps:
+  - type: read
+    skill: train.holdout
+    md: |-
+      训练集用来更新参数，验证集用来检查模型遇到新记录时的表现。五条样本留两条验证，哪怕两条数值相同，它们仍是两个行号。重复抽行可能让同一行两头都用。
+
+      torch.randperm(n, generator=g) 给出 0 到 n−1 的一个排列。按约定先切出验证段，剩下的交给训练；两端应互不重叠，拼起来能覆盖全部行号。
+
+      **TR05 常见误解**　从两个独立排列各取一段，数量可以正确，行号却可能相交。
+  - type: example
+    skill: train.holdout
+    code: |
+      import torch
+      # ① 用一个排列给四行排队
+      ids = torch.randperm(4, generator=torch.Generator().manual_seed(0)).tolist()
+      # ② 留第一行验证，检查剩余数量与交集
+      valid, train = ids[:1], ids[1:]
+      print(len(train), len(valid), len(set(train).intersection(valid)))  # 输出 3 1 0
+    md: 留两行验证，两份的长度与交集各会怎样？
+  - type: quiz
+    skill: train.holdout
+    q: 把同一条验证记录拿去更新权重，哪个结论失去依据？
+    options:
+      - 模型能拟合这条记录
+      - 验证成绩反映未见记录的表现
+    answer: 1
+    explain: 模型更新时已经接触过它，验证变成了重复测量。

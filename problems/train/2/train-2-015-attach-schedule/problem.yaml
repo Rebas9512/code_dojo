@@ -1,0 +1,24 @@
+id: train-2-015-attach-schedule
+title: 为已有的优化器配置调度
+track: train
+stage: '2'
+order: 150
+format: write
+mode: function
+difficulty: 28
+skills:
+  requires:
+    - train.schedule
+  introduces: null
+source: original
+entry: make_schedule
+signature: 'def make_schedule(optimizer, period, factor):'
+compare: checker
+wrong_examples:
+  - why: 每轮都衰减，忽略约定的间隔。
+    code: |
+      import torch
+
+
+      def make_schedule(optimizer, period, factor):
+          return torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=factor)

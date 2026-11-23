@@ -1,0 +1,29 @@
+id: train-1-012-collate-lengths
+title: 写一个带原长的拼批函数
+track: train
+stage: '1'
+order: 120
+format: write
+mode: function
+difficulty: 23
+skills:
+  requires:
+    - train.pad
+    - py.list-comp
+  introduces: null
+source: original
+entry: collate_fn
+signature: 'def collate_fn(rows):'
+compare: checker
+wrong_examples:
+  - why: 用非零元素个数作为长度。
+    code: |
+      import torch
+      from torch.nn.utils.rnn import pad_sequence
+
+
+      def collate_fn(rows):
+          lengths = [len([v for v in row if v != 0]) for row in rows]
+          seqs = [torch.tensor(row, dtype=torch.long) for row in rows]
+          padded = pad_sequence(seqs, batch_first=True, padding_value=0)
+          return padded, lengths

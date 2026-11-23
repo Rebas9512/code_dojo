@@ -1,7 +1,7 @@
 stack = []
-stack.append("青")
-stack.append("白")
+stack.append("teal")
+stack.append("white")
 print(stack[-1])
 print(stack.pop())
-stack.append("黄")
+stack.append("yellow")
 print("".join(stack))

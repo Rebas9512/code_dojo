@@ -16,10 +16,10 @@ steps:
     db: bookstore
     code: |
       -- ① 两个柜台各交一份取书姓名
-      SELECT '小夏' AS name
+      SELECT 'Xia' AS name
       UNION ALL
       -- ② 第二张收条即使同名也保留
-      SELECT '小夏';
+      SELECT 'Xia';
     md: 去掉 ALL，记录数从几行变成几行？
   - type: quiz
     skill: sql.set-ops
@@ -54,8 +54,8 @@ steps:
     q: 同一邮箱的编号为 2、5、8，保留最小号时应删哪些？
     options:
       - '2'
-      - 5 和 8
-      - 只删 8
+      - "5, 8"
+      - "8"
     answer: 1
     explain: 5 和 8 都有一个比自己更早的同邮箱记录。
   - type: example

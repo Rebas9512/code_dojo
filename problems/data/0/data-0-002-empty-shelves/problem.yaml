@@ -17,9 +17,8 @@ data:
 answer:
   type: short
   accept:
-    - '2'
-    - 两
-    - 二
+    - "2"
+    - "two"
   misconceptions:
     '29':
       id: DM04

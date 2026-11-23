@@ -16,4 +16,4 @@ milestones: []
 wrong_examples:
   - why: PM64：以为比较条件之前先计算两边候选值。
     code: |
-      print('检查\n3')
+      print('check\n3')

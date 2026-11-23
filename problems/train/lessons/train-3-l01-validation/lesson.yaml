@@ -1,0 +1,63 @@
+id: train-3-l01-validation
+title: 验证模式与指标
+track: train
+skills:
+  - train.evaluate
+  - train.metric
+steps:
+  - type: read
+    skill: train.evaluate
+    md: |-
+      验证是在留出的样本上测量当前模型。某些层在训练时会使用随机数，验证时应使用稳定的规则；同时验证只做测量，记录反向传播路径会额外占内存。
+
+      两个开关各管一件事：model.eval() 让各层进入验证模式，with torch.no_grad() 暂停记录新运算的梯度。比如一层有两个权重，预测一次同样只要两个权重，不需要额外保存中间结果给 backward。
+
+      **TR12 常见误解**　只写 eval() 仍可能得到有计算图的输出。退出 no_grad 会恢复之前的梯度开关，模型模式需要显式切回 train()。
+  - type: example
+    skill: train.evaluate
+    code: |
+      import torch
+      # ① 建一个可以求导的输入并切换模式
+      model = torch.nn.Identity()
+      x = torch.tensor([2.], requires_grad=True)
+      model.eval()
+      # ② 比较同一个乘法是否被记录
+      print(model.training, (model(x) * 2).requires_grad)  # 输出 False True
+      with torch.no_grad():
+          print((model(x) * 2).requires_grad)  # 输出 False
+    md: 去掉 eval()，保留 no_grad，看看哪项输出改变。
+  - type: quiz
+    skill: train.evaluate
+    q: eval() 之后，用带梯度的参数做一次乘法，梯度记录会自动关闭吗？
+    options:
+      - 会
+      - 还需 no_grad
+    answer: 1
+    explain: 层的模式与梯度记录由不同的开关控制。
+  - type: read
+    skill: train.metric
+    md: |-
+      准确率是答对的样本数占全部样本的比例。验证集常分成多批，最后一批可能很短。第一批 4 条全对，第二批 1 条答错，全场有 4 条答对、共 5 条，准确率是 0.8。
+
+      先在每批数出预测等于标签的样本，加到总正确数；分母累加实际样本数，最后只除一次。模型若输出每类分数，沿类别轴取最大值的位置作为预测。
+
+      **TR13 常见误解**　直接平均各批准确率会让短批占过多分量。上面的两批直接平均会得到 0.5。
+  - type: example
+    skill: train.metric
+    code: |
+      # ① 每批记正确数与实际人数
+      counts = [(4, 4), (0, 1)]
+      # ② 汇总人数后才求比例
+      correct = sum(k for k, n in counts)
+      total = sum(n for k, n in counts)
+      print(correct / total)  # 输出 0.8
+    md: 把第二批人数从 1 改成 4，比较两种平均法何时相同。
+  - type: quiz
+    skill: train.metric
+    q: 10 条对 9 条，另 1 条对 0 条，总准确率是多少？
+    options:
+      - '0.45'
+      - 9/11
+      - 9/10
+    answer: 1
+    explain: 11 条各投一票，共 9 条答对。

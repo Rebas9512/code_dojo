@@ -27,9 +27,9 @@ steps:
     skill: wrangle.broadcast
     q: (4, 3) 与 (4,) 相加，哪两个长度最先比较？
     options:
-      - 4 与 4
-      - 3 与 4
-      - 1 与 4
+      - "4, 4"
+      - "3, 4"
+      - "1, 4"
     answer: 1
     explain: 先对齐最右一轴。3 和 4 不相等且都大于 1，不能广播。（WM07）
   - type: read
@@ -56,8 +56,8 @@ steps:
       end = time.perf_counter()
       # ③ 先核对答案，再比较这一轮的毫秒数
       print(np.array_equal(by_hand, by_array))  # 输出 True
-      print("循环毫秒", round((middle - start) * 1000, 3))
-      print("数组毫秒", round((end - middle) * 1000, 3))
+      print("loop ms", round((middle - start) * 1000, 3))
+      print("array ms", round((end - middle) * 1000, 3))
     md: 把 50000 改成 50，再改回去。各运行两次，比较末两行的实测时间。
   - type: quiz
     skill: wrangle.vectorize

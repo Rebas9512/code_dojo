@@ -21,7 +21,7 @@ def run_case(a: ListNode | None, b: ListNode | None, shared: ListNode | None):
             node = node.next
     result = intersection(a, b)
     if any(node.next is not following for node, following in links.items()):
-        return '输入链的连接发生了变化'
+        return 'input links changed'
     if result is not shared:
-        return '返回的节点不是第一个共用节点'
+        return 'wrong shared node'
     return result.val if result else None

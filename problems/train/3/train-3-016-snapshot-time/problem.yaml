@@ -1,0 +1,18 @@
+id: train-3-016-snapshot-time
+title: 缓冲区里存的是哪个时刻
+track: train
+stage: '3'
+order: 160
+format: predict
+mode: predict
+difficulty: 32
+skills:
+  requires:
+    - tensor.state
+    - train.momentum
+  introduces: train.checkpoint
+source: original
+wrong_examples:
+  - why: 序列化时已经把旧数值写入缓冲区。
+    code: |
+      print('7.0 7.0')

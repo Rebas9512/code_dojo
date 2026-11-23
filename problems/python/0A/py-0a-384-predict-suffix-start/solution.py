@@ -1,6 +1,6 @@
 def read(cards, i):
     if i == len(cards):
-        print("空")
+        print("empty")
         return
     print(cards[i])
     read(cards, i + 1)

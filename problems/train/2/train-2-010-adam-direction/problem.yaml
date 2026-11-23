@@ -1,0 +1,19 @@
+id: train-2-010-adam-direction
+title: 正负梯度的第一次 Adam 更新
+track: train
+stage: '2'
+order: 100
+format: predict
+mode: predict
+difficulty: 26
+skills:
+  requires:
+    - train.momentum
+    - py.list-comp
+    - py.minmax-abs
+  introduces: train.adam
+source: original
+wrong_examples:
+  - why: 按普通 SGD 直接乘了梯度。
+    code: |
+      print('[1.5, 4.0]')

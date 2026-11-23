@@ -17,8 +17,39 @@ data:
 answer:
   type: short
   accept:
-    - 整数 文字 文字
-    - 整数 字符串 字符串
+    - "integer text text"
+    - "integer text string"
+    - "integer text str"
+    - "integer string text"
+    - "integer string string"
+    - "integer string str"
+    - "integer str text"
+    - "integer str string"
+    - "integer str str"
+    - "int text text"
+    - "int text string"
+    - "int text str"
+    - "int string text"
+    - "int string string"
+    - "int string str"
+    - "int str text"
+    - "int str string"
+    - "int str str"
   misconceptions:
-    整数 文字 整数: DM01
+    "integer text integer": DM01
+    "integer text int": DM01
+    "integer string integer": DM01
+    "integer string int": DM01
+    "integer str integer": DM01
+    "integer str int": DM01
+    "int text integer": DM01
+    "int text int": DM01
+    "int string integer": DM01
+    "int string int": DM01
+    "int str integer": DM01
+    "int str int": DM01
+    "7": DM01
+    "\"7\"": DM01
+    "integer": DM01
+    "int": DM01
 explain: 1 没有引号，是整数。姓名和手机号各用引号括起，都是文字；电话里的字符恰好全是数字。

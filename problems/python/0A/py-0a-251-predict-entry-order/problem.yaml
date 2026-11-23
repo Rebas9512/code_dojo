@@ -17,4 +17,4 @@ milestones: []
 wrong_examples:
   - why: PM56：以为给已有键赋新值会把它排到最后。
     code: |
-      print('林 7\n松 9')
+      print('Lin 7\nPine 9')

@@ -1,7 +1,7 @@
 counts = {}
-for name in ["林", "苏", "林"]:
+for name in ["Lin", "Su", "Lin"]:
     if name not in counts:
-        print("建格")
+        print("new entry")
         counts[name] = 0
     counts[name] += 1
     print(counts[name])

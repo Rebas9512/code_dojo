@@ -1,0 +1,41 @@
+id: train-3-l03-restore
+title: 保存与恢复
+track: train
+skills:
+  - train.checkpoint
+steps:
+  - type: read
+    skill: train.checkpoint
+    md: |-
+      检查点是一份可以恢复的训练现场。比如参数从 2 更新到 3，想保留在 2 的时刻，就要在更新前把数值写成独立快照。要沿动量方向继续走，还要带上优化器的缓冲和轮数。
+
+      state_dict() 列出模型或优化器的状态。torch.save 把这些状态写入 BytesIO，像写一份内存里的文件。读取前用 seek(0) 回到开头，再用 torch.load 和 load_state_dict 填回同结构的对象。
+
+      **TR17 常见误解**　只把 state_dict 存进一个变量，其中张量仍可能与模型共享存储。之后的更新会影响想留住的旧值。
+  - type: example
+    skill: train.checkpoint
+    code: |
+      import torch
+      from io import BytesIO
+      # ① 把带权重的状态写进内存
+      torch.manual_seed(0)
+      model = torch.nn.Linear(1, 1, bias=False)
+      with torch.no_grad():
+          model.weight.fill_(2.)
+      buf = BytesIO()
+      torch.save(model.state_dict(), buf)
+      # ② 修改活模型，再从快照恢复
+      with torch.no_grad():
+          model.weight.fill_(3.)
+      buf.seek(0)
+      model.load_state_dict(torch.load(buf, weights_only=True))
+      print(model.weight.item())  # 输出 2.0
+    md: 把保存前的值改为 7，保留保存后的修改，再看恢复值。
+  - type: quiz
+    skill: train.checkpoint
+    q: 要精确续跑带动量的 SGD，还需要恢复哪份状态？
+    options:
+      - 优化器缓冲
+      - 上一次打印的字符串
+    answer: 0
+    explain: 下一步的方向依赖优化器此前积累的缓冲。

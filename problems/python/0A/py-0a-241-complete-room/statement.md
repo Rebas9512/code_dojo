@@ -7,15 +7,15 @@ locations 按书名记录架号。补全赋值，将指定书移到 shelf，返�
 **示例 1**
 
 ```text
-输入：locations = {'风': 2}, title = '风', shelf = 0
-输出：{'风': 0}
+输入：locations = {'Wind': 2}, title = 'Wind', shelf = 0
+输出：{'Wind': 0}
 ```
 
 **示例 2**
 
 ```text
-输入：locations = {}, title = '雨', shelf = 3
-输出：{'雨': 3}
+输入：locations = {}, title = 'Rain', shelf = 3
+输出：{'Rain': 3}
 ```
 
 ## 约束

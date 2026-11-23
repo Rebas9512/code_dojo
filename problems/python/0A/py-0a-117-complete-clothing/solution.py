@@ -1,7 +1,7 @@
 def clothing(temp: int) -> str:
     if temp >= 30:
-        return "短袖"
+        return "T-shirt"
     elif temp >= 15:
-        return "外套"
+        return "jacket"
     else:
-        return "羽绒服"
+        return "down jacket"

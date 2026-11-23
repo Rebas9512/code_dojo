@@ -51,9 +51,9 @@ steps:
     skill: sql.exists
     q: EXISTS (SELECT NULL FROM books) 对非空书目得到什么？
     options:
-      - 未知
-      - 真
-      - 假
+      - "UNKNOWN"
+      - "TRUE"
+      - "FALSE"
     answer: 1
     explain: 只检查有没有行，SELECT 那一格里即使是 NULL 也算一行。
   - type: read

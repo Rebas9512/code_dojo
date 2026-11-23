@@ -35,7 +35,7 @@ steps:
   - type: quiz
     skill: sql.select-basic
     q: "`SELECT title FROM books;` 的结果有几列？"
-    options: ["1 列", "书有几本就有几列", "books 表有几列就有几列"]
+    options: ["1", "书有几本就有几列", "books 表有几列就有几列"]
     answer: 0
     explain: "SELECT 后面写了几列，结果就有几列；行数才和书的本数有关。"
   - type: read
@@ -48,7 +48,7 @@ steps:
       FROM books;
       ```
       - 算术：`+ - * /` 和取余 `%`；
-      - `AS 名字` 给结果列起名（叫**别名**），方便阅读。别名可以在之后的 ORDER BY 里使用。
+      - `AS label` 给结果列起名（叫**别名**），方便阅读。别名可以在之后的 ORDER BY 里使用。
 
       为什么有用？很多问题问的不是原始数据，而是"算出来的值"：打折价、库存总值、两个日期差几天……
 
@@ -146,7 +146,7 @@ steps:
   - type: quiz
     skill: sql.and-or
     q: "`WHERE city = 'Shanghai' AND city = 'Beijing'` 返回几行？"
-    options: ["0 行", "两个城市的用户都返回", "会报错"]
+    options: ["0", "两个城市的用户都返回", "会报错"]
     answer: 0
     explain: "一行的 city 只有一个值，不可能同时等于两个城市。要用 OR 或 IN。"
   - type: read
@@ -242,6 +242,6 @@ steps:
   - type: quiz
     skill: sql.like
     q: "`'Theory of Tides' LIKE 'The%'` 成立吗？"
-    options: ["成立", "不成立"]
+    options: ["TRUE", "FALSE"]
     answer: 0
     explain: "'The%' 只要求以 The 三个字母开头，后面任意。要求是单词 The，就写 'The %'。"

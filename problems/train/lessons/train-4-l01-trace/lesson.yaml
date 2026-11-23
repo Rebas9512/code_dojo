@@ -1,0 +1,33 @@
+id: train-4-l01-trace
+title: 逐步排查训练脚本
+track: train
+skills:
+  - train.history
+steps:
+  - type: read
+    skill: train.history
+    md: |-
+      每步的 loss 是一个张量，其中可能带着通往这一次运算的节点。训练几千步时，若列表一直保留这些张量，也会留住本可释放的图节点。日志要用于画曲线，只需记下数字。
+
+      若第一步损失是张量 4.0、第二步是张量 1.0，曲线只需要 [4.0,1.0]。用 history.append(loss.item()) 在每次更新时留下 Python 数值。反向仍应在原 loss 上调用。
+
+      **TR19 常见误解**　loss.item 没有括号是方法本身，直接 append(loss) 则会留下张量；两种写法都没有得到所需的数值。
+  - type: example
+    skill: train.history
+    code: |
+      import torch
+      # ① 产生带有梯度记录的标量损失
+      p = torch.tensor(2., requires_grad=True)
+      loss = p ** 2
+      # ② 从当前损失中取一个数
+      history = [loss.item()]
+      print(loss.requires_grad, history)  # 输出 True [4.0]
+    md: 把 p 改成 −3，观察日志里的数值及梯度开关。
+  - type: quiz
+    skill: train.history
+    q: 要留数值并能在本步反向，应该怎样分工？
+    options:
+      - 对 loss.item() 反向
+      - 用 loss.backward()，把 loss.item() 存入列表
+    answer: 1
+    explain: loss 负责梯度，取出的 Python 数只负责记录。

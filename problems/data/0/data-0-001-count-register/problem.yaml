@@ -16,9 +16,8 @@ data:
 answer:
   type: short
   accept:
-    - 4 3
-    - 4行3列
-    - 4 行 3 列
+    - "4 3"
+    - "4 rows 3 columns"
   misconceptions:
     3 3: DM05
 explain: 四个图书编号各占一行。同名的两个版本也各算一行。横着看，每行都有编号、书名、库存三格。

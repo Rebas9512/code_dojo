@@ -1,0 +1,25 @@
+id: train-3-021-locate-divergence
+title: 定位第一次背向变化
+track: train
+stage: '3'
+order: 210
+format: write
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - train.curves
+    - py.bool-ops
+  introduces: null
+source: original
+entry: first_divergence
+signature: 'def first_divergence(train, valid):'
+compare: exact
+wrong_examples:
+  - why: 验证持平也报告背向变化。
+    code: |
+      def first_divergence(train, valid):
+          for i in range(1, len(train)):
+              if train[i] < train[i-1] and valid[i] >= valid[i-1]:
+                  return i + 1
+          return 0

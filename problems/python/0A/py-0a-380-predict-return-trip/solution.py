@@ -1,9 +1,9 @@
 def visit(floor):
-    print("到", floor)
+    print("enter", floor)
     if floor == 0:
         return
     visit(floor - 1)
-    print("回", floor)
+    print("return", floor)
 
 
 visit(2)

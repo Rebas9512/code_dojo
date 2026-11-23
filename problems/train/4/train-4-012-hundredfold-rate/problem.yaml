@@ -1,0 +1,31 @@
+id: train-4-012-hundredfold-rate
+title: 小数点把更新放大了几倍
+track: train
+stage: '4'
+order: 120
+format: fix
+mode: function
+difficulty: 35
+skills:
+  requires:
+    - train.loop
+    - train.momentum
+  introduces: null
+source: original
+entry: train
+signature: 'def train(model, data, optimizer, steps):'
+compare: checker
+wrong_examples:
+  - why: 步长比实验单大 100 倍。
+    code: |
+      def train(model, data, optimizer, steps):
+          for group in optimizer.param_groups:
+              group["lr"] = 25.0
+          features, labels = data.train
+          for _ in range(steps):
+              scores = model(features)
+              loss = data.loss(scores, labels)
+              optimizer.zero_grad()
+              loss.backward()
+              optimizer.step()
+unit: 1

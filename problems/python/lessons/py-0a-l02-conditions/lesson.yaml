@@ -47,14 +47,14 @@ steps:
       x = 3 时，下面的代码打印几行？
       ```python
       if x > 5:
-          print("大")
+          print("large")
       else:
-          print("小")
-      print("完")
+          print("small")
+      print("done")
       ```
-    options: ["1 行", "2 行", "3 行"]
+    options: ["1", "2", "3"]
     answer: 1
-    explain: "if / else 只走一边（打印\"小\"）；最后一行没有缩进，总会执行。一共 2 行。"
+    explain: "if / else 只走一边（打印\"small\"）；最后一行没有缩进，总会执行。一共 2 行。"
   - type: read
     skill: py.early-return
     md: |
@@ -80,21 +80,21 @@ steps:
       def describe(n):
           # ① 先处理特殊情况，处理完立刻返回
           if n == 0:
-              return "零"
+              return "zero"
           # ② 走到这里说明 n 不是 0
           if n > 0:
-              return "正数"
+              return "positive"
           # ③ 前面都没返回，只剩负数
-          return "负数"
+          return "negative"
 
       print(describe(0))
       print(describe(5))
       print(describe(-2))
-    md: "在第 ① 步的 return 下面加一行 `print(\"看得到我吗\")`，运行看看它会不会出现。"
+    md: "在第 ① 步的 return 下面加一行 `print(\"visible?\")`，运行看看它会不会出现。"
   - type: quiz
     skill: py.early-return
     q: "`describe(0)` 一共执行了几个 return？"
-    options: ["1 个", "2 个", "3 个"]
+    options: ["1", "2", "3"]
     answer: 0
     explain: "第一个 return 执行后函数就结束了，后面的代码根本不会运行。"
   - type: read
@@ -144,7 +144,7 @@ steps:
       if score >= 80:
           print("B")
       ```
-    options: ["1 行", "2 行", "0 行"]
+    options: ["1", "2", "0"]
     answer: 1
     explain: "两个独立的 if 都会检查，95 两个都满足，打印 A 和 B。第二个换成 elif 才只打印 A。"
   - type: read
@@ -157,7 +157,7 @@ steps:
 
       ```python
       age >= 6 and height >= 120      # 两个条件都要满足
-      day == "六" or day == "日"        # 满足一个就行
+      day == "Sat" or day == "Sun"        # 满足一个就行
       ```
       优先级：`not` 先算，然后 `and`，最后 `or`。混着用时加括号最清楚：`(a and b) or c`。
 

@@ -8,7 +8,7 @@ steps:
   - type: read
     skill: wrangle.table
     md: |-
-      Series 是带行标签的一列值，适合单独记录一批价格。DataFrame 把若干列并排成表，同一行的几列描述同一条记录。例如两行分别是甲架有 3 本、乙架有 7 本，就可以同时比较位置和数量。
+      Series 是带行标签的一列值，适合单独记录一批价格。DataFrame 把若干列并排成表，同一行的几列描述同一条记录。例如两行分别是A 架有 3 本、B 架有 7 本，就可以同时比较位置和数量。
 
       pd.Series([3, 7], name='stock') 建立具名的一列。pd.DataFrame 可以接收列名到各列数值的字典，也能接收一行一行的数据并另给 columns。表用一个列名取出 Series，用列名列表保留 DataFrame。
 
@@ -18,7 +18,7 @@ steps:
     code: |
       import pandas as pd
       # ① 把位置和册数并排
-      t = pd.DataFrame({"shelf": ["甲", "乙"], "stock": [3, 7]})
+      t = pd.DataFrame({"shelf": ["A", "B"], "stock": [3, 7]})
       # ② 分别取一列、取只有一列的表
       print(t["stock"].shape)  # 输出 (2,)
       print(t[["stock"]].shape)  # 输出 (2, 1)
@@ -47,10 +47,10 @@ steps:
 
       import pandas as pd
       # ① 第二个字段内含逗号，用双引号包住
-      text = 'id,title\n1,"海,风"\n'
+      text = 'id,title\n1,"Sea, Wind"\n'
       # ② 按 CSV 规则读出书名
       books = pd.read_csv(StringIO(text))
-      print(books["title"].tolist())  # 输出 ['海,风']
+      print(books["title"].tolist())  # 输出 ['Sea, Wind']
     md: 删掉书名中的逗号，再加一行新书。
   - type: quiz
     skill: wrangle.csv

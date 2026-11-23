@@ -1,0 +1,71 @@
+id: train-1-l01-samples
+title: 样本与批次
+track: train
+skills:
+  - train.dataset
+  - train.batch
+steps:
+  - type: read
+    skill: train.dataset
+    md: |-
+      数据集是可以一条条取用的样本集合。训练程序希望用同一套办法读三条测量值或三万条测量值。温度记录 [12, 18, 15] 有三条，编号从 0 起，编号 1 对应 18。
+
+      把记录保存在 Dataset 子类的实例上。len(ds) 会调用 __len__，ds[i] 会调用 __getitem__。一条记录还能同时带读数和标签，两个字段共用同一个下标。
+
+      **TR01 常见误解**　把一条记录的字段数当成数据集长度，会让加载器漏掉一些样本。
+  - type: example
+    skill: train.dataset
+    code: |
+      # ① 给测量记录装上两个读取接口
+      from torch.utils.data import Dataset
+
+
+      class Readings(Dataset):
+          def __init__(self, values):
+              self.values = values
+
+          def __len__(self):
+              return len(self.values)
+
+          def __getitem__(self, index):
+              return self.values[index]
+
+      # ② 数记录，再取第二条
+      r = Readings([12, 18, 15])
+      print(len(r), r[1])  # 输出 3 18
+    md: 再加一个读数，保留原来的下标，观察哪一个输出变化。
+  - type: quiz
+    skill: train.dataset
+    q: 7 条样本，每条有 2 个字段，len 应返回多少？
+    options:
+      - '2'
+      - '7'
+      - '14'
+    answer: 1
+    explain: len 数的是可按下标提取的完整记录。
+  - type: read
+    skill: train.batch
+    md: |-
+      一批是模型一次处理的几条样本。批大小定为 2，五条记录会分成 2、2、1 三批。模型看到的第一维表示这一次拿了几条，最后一次可能不同。
+
+      DataLoader 接收数据集和 batch_size。遍历一次会依次交出各批，drop_last=True 会舍掉不足一批的余数，整除时两种设置所得批数相同。
+
+      **TR02 常见误解**　批大小并不保证每次都取到这么多条。估算样本总数时要看最后一批的实际长度。
+  - type: example
+    skill: train.batch
+    code: |
+      from torch.utils.data import DataLoader
+      # ① 给五条记录每两条分一批
+      loader = DataLoader([8, 3, 4, 5, 1], batch_size=2)
+      # ② 读每批的实际长度
+      print([len(batch) for batch in loader])  # 输出 [2, 2, 1]
+    md: 加上 drop_last=True，观察最后一个长度。
+  - type: quiz
+    skill: train.batch
+    q: 三条记录按四条一批，drop_last=True，能拿到几批？
+    options:
+      - '0'
+      - '1'
+      - '4'
+    answer: 0
+    explain: 唯一的候选批不足四条，会被整个丢掉。

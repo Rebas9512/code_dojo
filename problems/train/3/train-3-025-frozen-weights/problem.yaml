@@ -1,0 +1,54 @@
+id: train-3-025-frozen-weights
+title: 日志声称更新了四次
+track: train
+stage: '3'
+order: 250
+format: inspect
+mode: inspect
+difficulty: 35
+skills:
+  requires:
+    - train.curves
+  introduces: null
+source: original
+data:
+  - kind: table
+    title: 同次训练的两份记录
+    content: |
+      轮次,训练 loss,验证 loss
+      1,1.5,1.6
+      2,1.5,1.6
+      3,1.5,1.6
+      4,1.5,1.6
+answer:
+  type: choice
+  options:
+    - 过拟合
+    - 欠拟合
+    - 学习率过大
+    - 训练脚本有 bug
+  correct: 3
+  misconceptions:
+    '0':
+      id: TR18-frozen-weights-0
+      name: 还要核对对照实验
+      line: 非零梯度已经计算，更新调用次数却为零；脚本漏掉了实际更新。
+    '1':
+      id: TR18-frozen-weights-1
+      name: 还要核对对照实验
+      line: 非零梯度已经计算，更新调用次数却为零；脚本漏掉了实际更新。
+    '2':
+      id: TR18-frozen-weights-2
+      name: 还要核对对照实验
+      line: 非零梯度已经计算，更新调用次数却为零；脚本漏掉了实际更新。
+explain: 非零梯度已经计算，更新调用次数却为零；脚本漏掉了实际更新。
+wrong_examples:
+  - answer: 0
+    code: print(0)
+    why: 此判断与对照记录不符。非零梯度已经计算，更新调用次数却为零；脚本漏掉了实际更新。
+  - answer: 1
+    code: print(1)
+    why: 此判断与对照记录不符。非零梯度已经计算，更新调用次数却为零；脚本漏掉了实际更新。
+  - answer: 2
+    code: print(2)
+    why: 此判断与对照记录不符。非零梯度已经计算，更新调用次数却为零；脚本漏掉了实际更新。

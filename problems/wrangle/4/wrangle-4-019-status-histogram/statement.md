@@ -1,6 +1,6 @@
 ## 题目
 
-同一年的订单各有 day 和 status 两列。只统计指定月份 month 的订单，把 status 缺失的订单归为“未登记”，已有的同名状态和它一起计数。返回 status、orders 两列。
+同一年的订单各有 day 和 status 两列。只统计指定月份 month 的订单，把 status 缺失的订单归为小写的 `unrecorded`，已有的同名状态和它一起计数。返回 status、orders 两列。
 
 `t` 已经是 DataFrame。
 
@@ -26,7 +26,7 @@
 | --- | --- |
 | A | 2 |
 | B | 1 |
-| 未登记 | 1 |
+| unrecorded | 1 |
 
 ## 示例 2
 

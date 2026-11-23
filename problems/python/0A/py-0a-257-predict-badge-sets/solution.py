@@ -1,5 +1,5 @@
-a = set(["林", "林", "叶"])
-b = set(["林", "周"])
+a = set(["Lin", "Lin", "Ye"])
+b = set(["Lin", "Zhou"])
 print(len(a))
 print(len(a.intersection(b)))
 print(len(a.union(b)))

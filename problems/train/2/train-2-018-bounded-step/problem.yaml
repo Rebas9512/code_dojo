@@ -1,0 +1,28 @@
+id: train-2-018-bounded-step
+title: 用裁剪过的梯度走一步
+track: train
+stage: '2'
+order: 180
+format: write
+mode: function
+difficulty: 29
+skills:
+  requires:
+    - train.clip
+    - tensor.state
+  introduces: null
+source: original
+entry: bounded_step
+signature: 'def bounded_step(model, loss, optimizer, bound):'
+compare: checker
+wrong_examples:
+  - why: 在更新之后才裁剪。
+    code: |
+      import torch
+
+
+      def bounded_step(model, loss, optimizer, bound):
+          optimizer.zero_grad()
+          loss.backward()
+          optimizer.step()
+          torch.nn.utils.clip_grad_norm_(model.parameters(), bound)

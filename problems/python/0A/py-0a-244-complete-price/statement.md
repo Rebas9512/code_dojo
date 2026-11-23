@@ -7,14 +7,14 @@
 **示例 1**
 
 ```text
-输入：prices = {'梨': 4}, item = '梨'
+输入：prices = {'pear': 4}, item = 'pear'
 输出：4
 ```
 
 **示例 2**
 
 ```text
-输入：prices = {'梨': 4}, item = '茶'
+输入：prices = {'pear': 4}, item = 'tea'
 输出：0
 ```
 
