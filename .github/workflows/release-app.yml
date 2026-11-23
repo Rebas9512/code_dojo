@@ -28,9 +28,13 @@ jobs:
         run: python -c "import os; from bootstrap import VERSION; assert os.environ['GITHUB_REF_NAME'] == 'app-v' + VERSION"
       - name: 构建并检查独立 Python 安装包
         if: runner.os != 'Linux'
+        env:
+          CODE_DOJO_SEALED_TOKENS: ${{ secrets.CODE_DOJO_SEALED_TOKENS }}
         run: python scripts/desktop/build.py --output dist app
       - name: 在虚拟显示器中检查 Linux Tk 和判题子进程
         if: runner.os == 'Linux'
+        env:
+          CODE_DOJO_SEALED_TOKENS: ${{ secrets.CODE_DOJO_SEALED_TOKENS }}
         run: xvfb-run -a python scripts/desktop/build.py --output dist app
       - uses: actions/upload-artifact@v4
         with:

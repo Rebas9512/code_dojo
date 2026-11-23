@@ -102,6 +102,7 @@ export interface ProblemSummary {
   track: Track
   stage: string
   order: number
+  week?: number | null
   format: Format
   mode: Mode
   difficulty: number

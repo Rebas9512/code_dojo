@@ -43,6 +43,7 @@ class ProblemMeta(BaseModel):
     track: str
     stage: str
     order: int
+    week: int | None = None
     format: Format
     difficulty: int = Field(ge=1, le=100)
     skills: SkillRef = Field(default_factory=SkillRef)
@@ -71,6 +72,13 @@ class ProblemMeta(BaseModel):
     datasets: list[str] = Field(default_factory=list)
     ordered: bool = False
     check_query: str | None = None
+
+    @field_validator("week", mode="before")
+    @classmethod
+    def _positive_week(cls, value: Any) -> int:
+        if type(value) is not int or value < 1:
+            raise ValueError("week 应为正整数")
+        return value
 
     @field_validator("stage", mode="before")
     @classmethod

@@ -9,5 +9,6 @@ if sys.argv[1:2] == ["--serve"]:
     from bootstrap.service import serve
     serve()
 else:
+    sys.path.insert(1, str(bundle / "libraries"))
     from bootstrap.window import main
     main(bundle)

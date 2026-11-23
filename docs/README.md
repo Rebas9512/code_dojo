@@ -5,7 +5,7 @@
 
 ## 这个项目是什么
 - **目标**：长时间没手写代码，手很生。做一个类似 LeetCode 的网页，从 beginner 开始一步步把手写能力练回来，同时覆盖求职常用的标准题单。
-- **学习线**（2026-11-22）：根线"认识数据"（20 题）是 Python 基础与 SQL 的共同起点。已开放：Python 基础（第 0 组 + 0A 第 1–10 组 + 0B，238 题）、算法与数据结构（NeetCode 250 骨架 + 阶梯题，阶段 1–3 共 244 题，阶段 4–5 在写）、SQL（阶段 0–5，142 题，SQL 50 实际覆盖 50/50）、数学（用代码学，80 题）。数据处理、张量、机器学习、训练、手搓 LLM 五条进阶线在写（判题平台 M6 已就绪）。
+- **学习线**：10 条线全部开放，共 1320 题。认识数据（20）是 Python 基础（238）与 SQL（142）的共同起点。其余为算法与数据结构（403）、数学（80）、数据处理（100）、张量（90）、机器学习（87）、训练（80）、手搓 LLM（80）。
 - **使用方式**：每台机器运行自己的本机网页，代码和题库共用一个私有仓库，个人学习记录可用另一个私有仓库同步。助教使用个人订阅。也可以在自己的服务器启用登录后远程访问。
 - **当前成果**：地图和知识点页展示技能掌握度，今日计划安排到期复习和新题，手感统计按周展示练习趋势。Python 可用本机解释器或 Docker 判题，SQL 在浏览器中判题，两者都支持可运行的课、AI 助教和附加题。
 
@@ -30,18 +30,20 @@ code-dojo/
 ├── server/               后端：FastAPI（uv）；Python 判题（本地或 Docker）、题库、掌握度、复习日程与 AI 服务
 ├── problems/             固定题库（文件，git 管理）
 │   ├── <track>/track.yaml     名称、顺序、语言、运行环境、前置线、阶段和单元名
-│   ├── <track>/skills.yaml    本线技能、前置技能、知识卡（规划中的线可省略）
+│   ├── <track>/skills.yaml    本线技能、前置技能、知识卡
 │   ├── <track>/lessons/       按技能编排的课
 │   ├── python/、algo/         Python 基础（0A/0B）与算法（1–5），题在 <阶段>/<题目 id>/
 │   ├── sql/                  SQL 题与 _db/ 下的共享练习库
 │   ├── data/                 认识数据，看数据作答
-│   └── math/、wrangle/、tensor/、ml/、train/、llm/   进阶线配置
-└── scripts/              题库校验；desktop/ 构建独立安装包和含 SQL 期望表的更新包
+│   └── math/、wrangle/、tensor/、ml/、train/、llm/   进阶线题库与配置
+└── scripts/              题库校验；desktop/ 加密发布令牌、构建独立安装包和含 SQL 期望表的更新包
 ```
 
 ## 桌面应用
 
 新电脑可从私有代码仓库的 Releases 下载对应安装包。Linux x86-64 使用 tar.gz，Apple Silicon macOS 使用内含 .app 的 zip，Windows x64 使用内含可双击 exe 的 zip。安装包内有 python-build-standalone 的 CPython 3.14 install_only、Tk、pip、按 `server/uv.lock` 锁定的后端依赖和启动器。使用端只需系统图形桌面和浏览器。[首次安装和令牌设置](../deploy/README.md#在一台新电脑上用)
+
+启动器 1.0.1 依次查找本机保存的令牌、能读两个仓库的 GitHub CLI 登录凭据、安装包内的加密令牌。首次解锁后保存到系统钥匙串或受保护的本机文件。没有可用来源时，窗口提供手动输入；“设置”可更新令牌。
 
 每次打开时，启动器从 `CODE_DOJO_REPO`（默认 `Rebas9512/code_dojo`）的 `payload-latest` Release 获取清单。更新包包含 FastAPI 代码、网页、固定题库、判题程序、技能识别规则和预先计算的 SQL 期望表。清单记录版本、提交 SHA、生成时间、最低启动器版本、题库格式版本和依赖锁 SHA-256。外部清单还记录整个 zip 的 SHA-256。
 
@@ -51,7 +53,7 @@ code-dojo/
 
 普通 Python 题直接用随包解释器运行独立的 harness 子进程。数据科学题首次使用时在数据目录的 `judge-envs/` 创建专用环境并安装 NumPy、pandas 和 CPU 版 PyTorch。固定 SQL 题从更新包读取期望表，用户 SQL 在浏览器运行。SQL 附加题的动态校验也由已打开的网页交给 PGlite Worker。助教使用 PATH 中已登录的 Claude Code，缺少时可在控制窗口的“设置”查看安装和登录步骤。
 
-**发布**。推送到 main 后，`ci.yml` 的三系统测试通过才触发 `release-payload.yml`。固定 Release 提供桌面更新，另保留最近五个带版本号的 `payload-v*` Release。需要回退时将目标版本的一对 `payload.zip` 和 `manifest.json` 依次覆盖固定 Release 的同名资产。修改启动器时更新 `bootstrap.VERSION`，发布对应的 `app-vX.Y.Z` 标签。`release-app.yml` 在三个系统构建、自检解释器和 Tk，全部成功后发布安装包。有不兼容更新时先发布新版安装包，再提高 `bootstrap.MIN_BOOTSTRAP` 并发布更新包。
+**发布**。推送到 main 后，`ci.yml` 的三系统测试通过才触发 `release-payload.yml`。固定 Release 提供桌面更新，另保留最近五个带版本号的 `payload-v*` Release。需要回退时将目标版本的一对 `payload.zip` 和 `manifest.json` 依次覆盖固定 Release 的同名资产。修改启动器时更新 `bootstrap.VERSION`，发布对应的 `app-vX.Y.Z` 标签。`release-app.yml` 在三个系统构建、自检解释器和 Tk，全部成功后发布安装包。可选的 Actions 密钥 `CODE_DOJO_SEALED_TOKENS` 由发布者在本机加密后上传，打包时写入 `sealed-tokens.json`。本版更新包的最低启动器版本是 1.0.0。有不兼容更新时先发布新版安装包，再提高 `bootstrap.MIN_BOOTSTRAP` 并发布更新包。
 
 ## 怎么跑
 
@@ -96,7 +98,7 @@ cd web && npm run build                                # 类型检查 + 打包
 开发后端默认 `CODE_DOJO_AUTH=off`，记录保存在 `server/data/`。生产脚本启用登录，默认在用户的 Linux 数据目录保存个人记录，前端与 API 共用一个端口。后端测试使用独立数据目录和样例题库。[全部环境变量](../deploy/.env.example) · [部署步骤](../deploy/README.md)
 
 ## 代码结构
-- `bootstrap/update.py` 管理不可变版本目录和活动版本指针。`window.py` 持有桌面窗口，在服务就绪后打开浏览器。`service.py` 从选定更新包加载后端。`scripts/desktop/build.py` 在发布机器上导出锁定依赖和预计算数据。
+- `bootstrap/update.py` 管理不可变版本目录和活动版本指针。`window.py` 持有桌面窗口，在服务就绪后打开浏览器。`service.py` 从选定更新包加载后端。`credentials.py` 选择凭据来源，`sealed.py` 与发布者的 `scripts/desktop/seal_tokens.py` 共用加解密格式。`scripts/desktop/build.py` 在发布机器上导出锁定依赖和预计算数据。
 - `server/app/github_sync.py` 通过 Contents API 读写与 Git 后端兼容的 JSONL。`desktop_sql.py` 将动态 SQL 验证交给网页，网页与 Node 共用 `web/src/sql/validate.ts`。
 - `server/app/events.py` 给学习记录分配跨机器标识、导出按月分隔的 JSONL。写记录和登记待导出的事件共用一个 SQLite 事务。`sync.py` 管理独立 Git 克隆、重试和定时同步。`GET /api/sync` 返回状态，`POST /api/sync` 立即交换进度，顶栏入口在 `web/src/components/SyncStatus.tsx`。
 - `server/app/auth.py` 管理密码校验、登录限流和签名会话，`server/scripts/set_password.py` 交互设密。`web/src/pages/LoginPage.tsx` 提供登录页，`web/src/api.ts` 统一处理 401。`server/app/frontend.py` 托管静态文件并支持直接打开前端路由。
@@ -183,7 +185,7 @@ SQL 题按"用到的最高概念"归阶段，不照搬 SQL 50 的分节。阶段
 └─ SQL
 ```
 
-机器学习手写还直接以数学为前置。数据处理线规划与 SQL 共用书店数据，练习同一题的 pandas 和 SQL 写法。
+机器学习手写还直接以数学为前置。数据处理线用 `sql_twin` 关联 SQL 题，便于对照练习同一查询的 pandas 和 SQL 写法。
 
 | track | 知识点（按顺序） | 判题环境 | 参考来源（题面全部自己写） |
 | --- | --- | --- | --- |
@@ -202,8 +204,8 @@ SQL 题按"用到的最高概念"归阶段，不照搬 SQL 50 的分节。阶段
 - 每条线的 `problems/<track>/track.yaml` 定义名称、顺序、语言、判题环境、阶段和前置线。新增阶段只需修改该配置。数学使用 Python 沙箱，另五条进阶线使用数据科学沙箱。
 - 技能按线保存、全局检索。例如 `algo.hash-seen` 使用 `py.set-basics` 的知识卡。曲线检查按前置线的拓扑顺序进行，直接和间接前置线的技能都算已学。
 - 首页有 Python 和 SQL 两个标签。URL 的 `tab` 优先于浏览器保存的标签，首次打开选 Python。两页共用无语言的根线，按配置顺序排列兄弟线，第一条前置决定缩进，其余前置列在行首。SQL 页也可跳到数据处理线。
-- 每条线上横排单元。圆点上的绿色弧长表示通过比例，全部通过后填实；角上的小点表示含 AI 协助通过。虚线表示规划中的阶段。当前标签的推荐单元带外圈，优先标记有到期复习的单元。学习线与单元详情均列出掌握数。点击或回车查看详情，左右键沿单元移动，上下键切线。窄屏可以横滑单条线，详情在树下方。
-- `GET /api/tracks` 的每个阶段返回 `units`。每个单元包含题量、进度、技能和下一题。技能的小点取引入该技能的题目里最好的提交状态。题目列表的 `unit` 字段与地图共用归属，题目列表和知识点页均支持 `#u-<阶段>-<单元>` 定位，包括空单元。展开知识点可读知识卡、打开引入该技能的题。
+- 每条线按阶段横排单元，宽屏空间不足时在阶段之间换行。圆点上的绿色弧长表示通过比例，全部通过后填实；角上的小点表示含 AI 协助通过。当前标签的推荐单元带外圈，优先标记有到期复习的单元。学习线与单元详情均列出掌握数。点击或回车查看详情，左右键沿单元移动，上下键切线。窄屏可以横滑单条线，仍有隐藏单元的一侧显示渐隐提示，详情在树下方。
+- `GET /api/tracks` 的每个阶段返回 `units`。每个单元包含题量、进度、技能和下一题。技能的小点取引入该技能的题目里最好的提交状态。题目列表的 `unit` 字段与地图共用归属。阶段内含 `week` 时按周列题，算法阶段 5 的 76 道周练按十周排列，其余 3 道在“未分周”中。没有周次的阶段沿用单元分组。题目列表和知识点页均支持 `#u-<阶段>-<单元>` 定位，包括空单元。展开知识点可读知识卡、打开引入该技能的题。
 
 **数据科学题怎么判（M6）**
 

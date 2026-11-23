@@ -45,3 +45,27 @@ class GitHub:
     def json(self, path: str, data: dict | None = None):
         with self.open(path, "application/vnd.github+json", data) as response:
             return json.load(response)
+
+
+def verify_tokens(values: dict, repo: str, sync_repo: str) -> None:
+    """只检查两个仓库的读取权限；不发送写请求，也不显示响应正文。"""
+    from http.client import HTTPException
+    from urllib.error import HTTPError
+
+    for label, name, key, path in (("代码", repo, "code", "/releases?per_page=1"),
+                                   ("同步", sync_repo, "sync", "/readme")):
+        try:
+            with GitHub(name, values[key]).open(path, "application/vnd.github+json"):
+                pass
+        except HTTPError as exc:
+            if exc.code == 401:
+                reason = "令牌无效或已过期"
+            elif exc.code in (403, 404):
+                reason = "请检查仓库选择和 Contents 读权限"
+                if key == "sync":
+                    reason += "，并确认仓库中有 README"
+            else:
+                reason = "GitHub 暂时无法处理请求"
+            raise ValueError(f"{label}仓库校验失败（HTTP {exc.code}），{reason}") from None
+        except (OSError, HTTPException, ValueError):
+            raise ValueError(f"无法校验{label}仓库，请检查网络与令牌格式") from None

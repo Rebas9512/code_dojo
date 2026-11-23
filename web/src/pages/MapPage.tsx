@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { practicePath, type MapUnit, type TrackInfo } from '../api'
 import { ProblemStatus } from '../components/ProblemStatus'
@@ -84,6 +84,27 @@ function moveStation(event: KeyboardEvent<HTMLButtonElement>, onSelect: TreeProp
   }
 }
 
+function UnitChain({ name, children }: { name: string; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const chain = ref.current!
+    function edges() {
+      chain.toggleAttribute('data-more-left', chain.scrollLeft > 1)
+      chain.toggleAttribute('data-more-right', chain.scrollLeft + chain.clientWidth < chain.scrollWidth - 1)
+    }
+    const observer = new ResizeObserver(edges)
+    observer.observe(chain)
+    for (const stage of chain.children) observer.observe(stage)
+    chain.addEventListener('scroll', edges, { passive: true })
+    edges()
+    return () => {
+      observer.disconnect()
+      chain.removeEventListener('scroll', edges)
+    }
+  }, [children])
+  return <div ref={ref} className="unit-chain" role="group" aria-label={name + '单元'}>{children}</div>
+}
+
 function BranchList(props: TreeProps) {
   const { branches, tracks, next, selected, onSelect } = props
   const navigate = useNavigate()
@@ -100,27 +121,30 @@ function BranchList(props: TreeProps) {
             <span key={id}>{i > 0 && '、'}<Link to={'/t/' + id}>{tracks.find((t) => t.id === id)?.name ?? id}</Link></span>)}</div>}
         </div>
         <div className="route-path">
-          <div className="unit-chain" role="group" aria-label={track.name + '单元'}>{stations.map((s, i) => {
-            const { unit } = s
-            const upcoming = s.key === next
-            const stageStart = i > 0 && stations[i - 1].stage.id !== s.stage.id
-            const fill = unit.total ? unit.solved / unit.total : 0
-            const label = [s.stage.name, unit.name, planned ? '规划中' : `已通过 ${unit.solved} / ${unit.total}`,
-              unit.assisted ? '含 AI 协助' : '', upcoming ? '下一步' : ''].filter(Boolean).join('，')
-            return <button key={s.key} type="button" className={'station' + (stageStart ? ' stage-start' : '')}
-              data-key={s.key} aria-pressed={selected === s.key} aria-controls="unit-detail" aria-label={label}
-              title={label + '（双击进入题目）'} onClick={() => onSelect(s.key, true)}
-              onDoubleClick={() => navigate(`/t/${track.id}#${unitAnchor(s.stage.id, unit.id)}`)}
-              onKeyDown={(e) => moveStation(e, onSelect)}>
-              <span className={'station-dot' + (upcoming ? ' is-next' : '') + (fill === 1 ? ' is-complete' : '')}>
-                {fill > 0 && fill < 1 && <svg className="station-arc" viewBox="0 0 16 16" aria-hidden="true">
-                  <circle cx="8" cy="8" r="6" pathLength="100" strokeDasharray={`${100 * fill} 100`} />
-                </svg>}
-                {unit.assisted > 0 && <i className="assist-mark" />}
-              </span>
-              <span className="station-name">{shortName(unit.name)}</span>
-            </button>
-          })}</div>
+          <UnitChain name={track.name}>
+            {track.stages.map(stage => <div className="station-stage" key={stage.id} role="group" aria-label={stage.name}>
+              {stations.filter(s => s.stage.id === stage.id).map(s => {
+                const { unit } = s
+                const upcoming = s.key === next
+                const fill = unit.total ? unit.solved / unit.total : 0
+                const label = [s.stage.name, unit.name, planned ? '规划中' : `已通过 ${unit.solved} / ${unit.total}`,
+                  unit.assisted ? '含 AI 协助' : '', upcoming ? '下一步' : ''].filter(Boolean).join('，')
+                return <button key={s.key} type="button" className="station"
+                  data-key={s.key} aria-pressed={selected === s.key} aria-controls="unit-detail" aria-label={label}
+                  title={label + '（双击进入题目）'} onClick={() => onSelect(s.key, true)}
+                  onDoubleClick={() => navigate(`/t/${track.id}#${unitAnchor(s.stage.id, unit.id)}`)}
+                  onKeyDown={(e) => moveStation(e, onSelect)}>
+                  <span className={'station-dot' + (upcoming ? ' is-next' : '') + (fill === 1 ? ' is-complete' : '')}>
+                    {fill > 0 && fill < 1 && <svg className="station-arc" viewBox="0 0 16 16" aria-hidden="true">
+                      <circle cx="8" cy="8" r="6" pathLength="100" strokeDasharray={`${100 * fill} 100`} />
+                    </svg>}
+                    {unit.assisted > 0 && <i className="assist-mark" />}
+                  </span>
+                  <span className="station-name">{shortName(unit.name)}</span>
+                </button>
+              })}
+            </div>)}
+          </UnitChain>
           {track.id === 'sql' && wrangle && <div className="pandas-note">pandas 互通：
             <Link to={'/t/' + wrangle.id}>{wrangle.name}{wrangle.status === 'planned' && '（规划中）'}</Link>
           </div>}
@@ -139,7 +163,7 @@ function TabTree({ tracks, tab }: { tracks: TrackInfo[]; tab: MapTab }) {
   const selectedKey = selected?.key
   useEffect(() => {
     const button = tree.current?.querySelector<HTMLButtonElement>('[aria-pressed="true"]')
-    const chain = button?.parentElement
+    const chain = button?.closest<HTMLElement>('.unit-chain')
     if (!button || !chain) return
     const rect = button.getBoundingClientRect()
     const bounds = chain.getBoundingClientRect()

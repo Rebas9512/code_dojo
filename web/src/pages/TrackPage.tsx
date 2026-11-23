@@ -1,10 +1,54 @@
 import { Link, useLoaderData, useParams } from 'react-router-dom'
-import { practicePath, type ServerStatus, type TrackProblem, type Skill } from '../api'
+import { practicePath, type ServerStatus, type TrackProblem, type TrackStage, type Skill } from '../api'
 import { FORMAT_GLYPH, FORMAT_NAME } from '../labels'
 import { useTracks } from '../tracks'
 import { ProblemStatus } from '../components/ProblemStatus'
 import { StageList } from '../components/StageList'
 import { unitAnchor, useUnitAnchor } from './unitAnchor'
+
+interface ProblemRow {
+  problem: TrackProblem
+  index: number
+  anchor?: string
+}
+
+interface ProblemGroup {
+  key: string
+  title?: string
+  anchor?: string
+  rows: ProblemRow[]
+}
+
+function stageGroups(stage: TrackStage, problems: TrackProblem[]): ProblemGroup[] {
+  const rows = problems.filter(p => p.stage === stage.id).map((problem, i) => ({ problem, index: i + 1 }))
+  const units = stage.units.map(unit => ({
+    key: unit.id, anchor: unitAnchor(stage.id, unit.id),
+    title: stage.units.length > 1 || unit.name !== stage.name ? unit.name : undefined,
+    rows: rows.filter(row => row.problem.unit === unit.id),
+  }))
+  if (!rows.some(row => row.problem.week != null)) return units
+
+  const byWeek = new Map<number, ProblemRow[]>()
+  for (const row of rows) {
+    const week = row.problem.week ?? Infinity
+    if (!byWeek.has(week)) byWeek.set(week, [])
+    byWeek.get(week)!.push(row)
+  }
+  // 地图仍按单元链接；周次混排时，定位到该单元第一次出现的位置。
+  const seen = new Set<string>()
+  const weeks = Array.from(byWeek).sort(([a], [b]) => a - b).map(([week, list]) => {
+    const group: ProblemGroup = { key: 'week-' + week, title: Number.isFinite(week) ? `第 ${week} 周` : '未分周', rows: list }
+    for (const [i, row] of list.entries()) {
+      const unit = row.problem.unit
+      if (seen.has(unit)) continue
+      seen.add(unit)
+      if (i === 0) group.anchor = unitAnchor(stage.id, unit)
+      else row.anchor = unitAnchor(stage.id, unit)
+    }
+    return group
+  })
+  return [...weeks, ...units.filter(unit => !unit.rows.length)]
+}
 
 export function TrackPage() {
   const { track } = useParams()
@@ -12,16 +56,6 @@ export function TrackPage() {
   const [problems, skillList, health] = useLoaderData() as [TrackProblem[], Skill[], ServerStatus]
   const skills = new Map(skillList.map((s) => [s.id, s]))
   useUnitAnchor()
-  const lists = new Map<string, { problem: TrackProblem; index: number }[]>()
-  const counts = new Map<string, number>()
-  for (const problem of problems) {
-    const key = unitAnchor(problem.stage, problem.unit)
-    const index = (counts.get(problem.stage) ?? 0) + 1
-    counts.set(problem.stage, index)
-    if (!lists.has(key)) lists.set(key, [])
-    lists.get(key)!.push({ problem, index })
-  }
-
   const next = current.next
 
   return (
@@ -51,24 +85,22 @@ export function TrackPage() {
         </Link>
       )}
 
-      {current.status === 'active' && current.stages.map(({ id: stage, name, solved, total, units }) => (
-        <section key={stage} className="stage">
+      {current.status === 'active' && current.stages.map(stage => (
+        <section key={stage.id} className="stage">
           <header className="stage-head">
-            <span className="stage-code">{stage}</span>
-            <span className="stage-name">{name}</span>
-            <span className="faint">{solved}/{total}</span>
+            <span className="stage-code">{stage.id}</span>
+            <span className="stage-name">{stage.name}</span>
+            <span className="faint">{stage.solved}/{stage.total}</span>
           </header>
           <div className="skill-groups">
-            {units.map((unit) => {
-              const anchor = unitAnchor(stage, unit.id)
-              const list = lists.get(anchor) ?? []
-              return <div key={unit.id} id={anchor} className="skill-group">
-                {(units.length > 1 || unit.name !== name) && <h2>{unit.name}</h2>}
-                {!list.length && <p className="muted">暂无题目</p>}
+            {stageGroups(stage, problems).map(group => (
+              <div key={group.key} id={group.anchor} className="skill-group">
+                {group.title && <h2>{group.title}</h2>}
+                {!group.rows.length && <p className="muted">暂无题目</p>}
                 <ol className="problem-list">
-                  {list.map(({ problem: p, index }) => {
+                  {group.rows.map(({ problem: p, index, anchor }) => {
                     const intro = p.skills.introduces
-                    return <li key={p.id}>
+                    return <li key={p.id} id={anchor}>
                       <Link to={`/p/${p.id}`} className={`problem-row ${p.status ?? 'todo'}`}>
                         <ProblemStatus status={p.status} />
                         <span className="idx faint">{index}</span>
@@ -81,7 +113,7 @@ export function TrackPage() {
                   })}
                 </ol>
               </div>
-            })}
+            ))}
           </div>
         </section>
       ))}

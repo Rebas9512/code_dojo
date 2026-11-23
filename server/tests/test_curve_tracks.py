@@ -78,3 +78,18 @@ def test_inspect_needs_data_instead_of_solution(curriculum, language):
     assert errors() == []
     (directory / "solution.py").write_text("不是一段合法的 Python 代码。", encoding="utf-8")
     assert errors() == []
+
+@pytest.mark.parametrize(("week", "valid"), [(1, True), (10, True), (0, False), (-1, False),
+                                              (True, False), (2.5, False), ("1", False), (None, False)])
+def test_week_is_positive_integer(curriculum, week, valid):
+    from app.problems import ProblemMeta
+    path = curriculum / "leaf/3/leaf-3-001-print/problem.yaml"
+    meta = yaml.safe_load(path.read_text(encoding="utf-8")) | {"title": "输出", "week": week}
+    path.write_text(yaml.safe_dump(meta), encoding="utf-8")
+    if valid:
+        assert errors() == []
+        assert ProblemMeta(**meta).week == week
+    else:
+        assert any("week 应为正整数" in e for e in errors())
+        with pytest.raises(ValueError, match="week 应为正整数"):
+            ProblemMeta(**meta)

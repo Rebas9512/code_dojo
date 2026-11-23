@@ -91,6 +91,7 @@ def shell_launcher(path: Path, app: bool) -> None:
 
 
 def installer(args, work: Path) -> None:
+    sealed = os.environ.pop("CODE_DOJO_SEALED_TOKENS", "")
     system = platform.system()
     target, expected = TARGETS[system, platform.machine().lower()]
     title = f"code-dojo-{VERSION}-{target}"
@@ -123,6 +124,13 @@ def installer(args, work: Path) -> None:
     (bundle / "lock.sha256").write_text(digest(ROOT / "server/uv.lock"), encoding="ascii")
     shutil.copytree(ROOT / "bootstrap", bundle / "bootstrap", ignore=shutil.ignore_patterns("__pycache__"))
     shutil.copy(Path(__file__).with_name("start.py"), bundle)
+    if sealed:
+        (bundle / "sealed-tokens.json").write_text(sealed, encoding="utf-8")
+    # 用独立解释器实测当前平台的加密库，以及可选信封的版本与结构。
+    subprocess.run([str(python), "-I", "-B", "-c",
+                    "import json, sys; from pathlib import Path; sys.path[:0] = ['.', 'libraries']; "
+                    "from bootstrap.sealed import unpack; p = Path('sealed-tokens.json'); "
+                    "unpack(json.loads(p.read_bytes())) if p.exists() else None"], cwd=bundle, check=True)
     if system == "Windows":
         native = work / "native"
         subprocess.run(["cmake", "-S", str(Path(__file__).parent), "-B", str(native), "-A", "x64"], check=True)

@@ -117,8 +117,9 @@
 }
 .station:first-child::before { left: 50%; }
 .station:last-child::before { right: 50%; }
-.station.stage-start { margin-left: 10px; }
-.station.stage-start::after {
+.station-stage { display: flex; position: relative; flex: none; }
+.station-stage + .station-stage { margin-left: 10px; }
+.station-stage + .station-stage::before {
   content: '';
   position: absolute;
   top: 10px;
@@ -151,8 +152,8 @@
 .is-planned .station-dot, .is-planned .station::before { border-style: dashed; border-color: var(--branch-line); }
 .is-planned .station::before { border-width: 1px 0 0; }
 .is-planned .station-dot { border-color: var(--faint); }
-.is-planned .stage-start { margin-left: 0; }
-.is-planned .stage-start::after { display: none; }
+.is-planned .station-stage + .station-stage { margin-left: 0; }
+.is-planned .station-stage + .station-stage::before { display: none; }
 .pandas-note { margin-left: 16px; }
 .pandas-note::before { content: ''; width: 20px; display: inline-block; border-top: 1px dashed var(--branch-line); vertical-align: middle; margin-right: 7px; }
 
@@ -190,11 +191,23 @@
 .unit-links a { color: var(--muted); text-underline-offset: 4px; text-decoration-color: var(--branch-line); }
 .map-return { display: none; }
 
+@media (min-width: 801px) {
+  .unit-chain { flex-wrap: wrap; row-gap: 4px; }
+  .station-stage { flex-wrap: wrap; max-width: calc(100% - 10px); }
+}
+
 @media (max-width: 1100px) {
   .learning-map { --indent: 13px; }
   .track-line { grid-template-columns: 148px minmax(0, 1fr); }
 }
 @media (max-width: 800px) {
+  .unit-chain { --fade-left: 0px; --fade-right: 0px; }
+  .unit-chain[data-more-left] { --fade-left: 22px; }
+  .unit-chain[data-more-right] { --fade-right: 22px; }
+  .unit-chain[data-more-left], .unit-chain[data-more-right] {
+    mask-image: linear-gradient(to right, transparent, black var(--fade-left),
+      black calc(100% - var(--fade-right)), transparent);
+  }
   .map-layout { display: block; }
   .unit-detail { position: static; margin-top: 20px; padding: 22px 0 0; border-left: 0; border-top: 1px solid var(--line); }
   .map-return { display: block; margin: 18px 0 0; padding: 4px 0; color: var(--muted); font-size: 12px; }

@@ -1111,6 +1111,8 @@ def load_problems(track: Track, rep: Report) -> list[dict]:
                 rep.err(f"{pid}：SQL 查询题省略 mode 和 check_query")
         if not (d / "statement.md").exists():
             rep.err(f"{pid}：缺少 statement.md")
+        if "week" in meta and (type(meta["week"]) is not int or meta["week"] < 1):
+            rep.err(f"{pid}：week 应为正整数")
         diff = meta.get("difficulty")
         if not isinstance(diff, int) or not 1 <= diff <= 100:
             rep.err(f"{pid}：difficulty 应为 1–100 的整数")

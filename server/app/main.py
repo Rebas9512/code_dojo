@@ -136,6 +136,7 @@ def summary(p: Problem, status: str | None = None) -> dict[str, Any]:
         "track": m.track,
         "stage": m.stage,
         "order": m.order,
+        "week": m.week,
         "format": m.format,
         "mode": m.mode,
         "difficulty": m.difficulty,
