@@ -18,7 +18,11 @@ export interface Branch {
 export function mapTree(tracks: TrackInfo[], tab: MapTab) {
   const visible = tracks.filter((t) => t.language === tab || t.language === 'none')
   const branches = new Map<string, Branch>()
+  let latest: TrackInfo | undefined
   for (const track of visible) {
+    if (track.status === 'active' && track.last_active && track.last_active > (latest?.last_active ?? '')) {
+      latest = track
+    }
     const stations = track.stages.flatMap((stage) => {
       const units: MapUnit[] = track.status === 'planned'
         ? [{ id: stage.id, name: stage.name, solved: 0, total: 0, assisted: 0, attempted: 0, mastered: 0, skills: [], next: null }]
@@ -41,5 +45,5 @@ export function mapTree(tracks: TrackInfo[], tab: MapTab) {
     s.unit.next.source === s.track.next.source)
   const next = upcoming.filter(s => s.unit.next?.due).sort((a, b) =>
     a.unit.next!.due!.localeCompare(b.unit.next!.due!))[0] ?? upcoming[0]
-  return { roots, stations, next }
+  return { roots, stations, next, resumeTrack: latest ?? roots[0]?.track }
 }

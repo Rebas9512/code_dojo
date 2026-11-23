@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import {
   createBrowserRouter, Link, Navigate, NavLink, Outlet, RouterProvider,
   useLoaderData, useMatches, useNavigation, useParams, useRouteError,
@@ -7,7 +7,6 @@ import { api, invalidate, loadWorkspace, trackRows, type WorkspaceData } from '.
 import { TodayPage, StatsPage } from './pages/PlanPages'
 import { LoginPage, loginLoader } from './pages/LoginPage'
 import { MapPage } from './pages/MapPage'
-import { SkillsPage } from './pages/SkillsPage'
 import { TrackPage } from './pages/TrackPage'
 import { readPref, writePref, useTheme } from './theme'
 import { useTracks } from './tracks'
@@ -16,8 +15,22 @@ import { SyncStatus } from './components/SyncStatus'
 
 import { QuickOpen, usePickerShortcut } from './components/Picker'
 
-// 做题页带 Monaco，单独打包。
+// 做题页带 Monaco，单独打包。知识点页带 Markdown（约 160 KB），也不放进首页的包。
 const ProblemPage = lazy(() => import('./pages/ProblemPage').then((m) => ({ default: m.ProblemPage })))
+const SkillsPage = lazy(() => import('./pages/SkillsPage').then((m) => ({ default: m.SkillsPage })))
+
+// 页面画好后趁空闲先载入做题页和 Monaco（约 4 MB，执行约 0.3 秒），第一次点开题目不用再等。
+// Safari 没有 requestIdleCallback，改为稍等一会儿。
+let warmed = false
+function warmEditor() {
+  if (warmed) return
+  warmed = true
+  const idle = window.requestIdleCallback ?? ((run: () => void) => window.setTimeout(run, 1000))
+  idle(() => {
+    void import('./pages/ProblemPage')
+    void import('./components/CodeEditor')
+  }, { timeout: 3000 })
+}
 
 function Shell() {
   const { session } = useLoaderData<typeof loadMap>()
@@ -29,6 +42,7 @@ function Shell() {
     setQuick(false)
   }
   usePickerShortcut(false, () => setQuick(true))
+  useEffect(warmEditor, [])
   const { track } = useParams()
   const problem = useMatches().find((m) => m.id === 'problem')?.data as WorkspaceData | undefined
   const current = tracks.find((t) => t.id === (problem?.parent.track ?? track))
@@ -90,6 +104,9 @@ const router = createBrowserRouter([{
   hydrateFallbackElement: <main />,
 }, {
   id: 'map', path: '/', loader: loadMap, element: <Shell />, errorElement: <RouteError />,
+  // 只运行样例也会改变最近练习的线，返回地图时读取最新进度。
+  shouldRevalidate: ({ currentUrl, nextUrl, defaultShouldRevalidate }) =>
+    defaultShouldRevalidate || (nextUrl.pathname === '/' && currentUrl.pathname !== '/'),
   hydrateFallbackElement: <main />,
   children: [
     { index: true, element: <MapPage /> },

@@ -34,8 +34,13 @@ class LoadError:
     message: str
 
 
+def read_yaml(path: Path) -> Any:
+    """题库的 YAML 都走 libyaml（三个平台的 PyYAML 轮子都带），比纯 Python 的 safe_load 快约 8 倍，结果相同。"""
+    return yaml.load(path.read_text(encoding="utf-8"), Loader=yaml.CSafeLoader)
+
+
 def load_track(path: Path) -> Track:
-    raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    raw = read_yaml(path)
     if not isinstance(raw, dict) or raw.get("id") != path.parent.name:
         raise ValueError(f"学习线 id 应和目录名 {path.parent.name} 相同")
     for key in ("name", "summary", "skill_prefix"):

@@ -41,7 +41,7 @@ function show(state) {
     el('code').focus()
     if (state.type === 'settings') {
       el('ai').hidden = false
-      el('ai').textContent = state.ai ? 'AI 助教已启用' : 'AI 助教已关闭。需要时请安装并登录 Claude Code，再重新打开应用。'
+      el('ai').textContent = state.ai ? 'AI 助教已启用' : 'AI 助教已关闭。需要时请安装并登录 Claude Code 或 Codex，再重新打开应用。'
     }
   } else if (state.type === 'error') {
     el('recovery').hidden = false

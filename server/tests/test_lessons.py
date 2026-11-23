@@ -33,11 +33,9 @@ def test_playground_run(client):
     assert syntax["status"] == "compile_error"
 
 
-def test_tutor_sees_the_lesson(client, monkeypatch):
-    import app.main as main
-
+def test_tutor_sees_the_lesson(client, fake_agents):
     fake = FakeProvider([{"reply": "看课里 double 那个例子", "edits": []}])
-    monkeypatch.setattr(main, "ai", fake)
+    fake_agents(claude=fake)
     client.delete("/api/problems/py-0a-001-add/chat")
     client.post("/api/problems/py-0a-001-add/chat", json={"message": "return 是什么", "code": ""})
     prompt, system = fake.calls[0]["prompt"], fake.calls[0]["system"]

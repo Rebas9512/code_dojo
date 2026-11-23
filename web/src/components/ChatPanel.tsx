@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { api, type ChatMessage, type ExtraSummary, type TutorEdit, type ReviewContext } from '../api'
+import { api, preferredAgent, serverStatus, type Agent, type ChatMessage, type ExtraSummary, type TutorEdit, type ReviewContext } from '../api'
+import { writePref } from '../theme'
 import { Icon } from './WorkbenchLayout'
 import { Markdown } from './Markdown'
 
@@ -66,6 +67,14 @@ function EditsView({ msg, result }: { msg: ChatMessage; result?: ApplyResult }) 
 }
 
 export function ChatPanel({ aiOn, close, problemId, currentId, review, choice, getCode, getAnswer, onEdits, lastFailed, onExtras }: Props) {
+  const [agents, setAgents] = useState<Agent[]>([])
+  const [selected, setSelected] = useState('')
+  useEffect(() => {
+    serverStatus().then(({ ai_agents }) => {
+      setAgents(ai_agents)
+      setSelected(preferredAgent(ai_agents)?.id ?? '')
+    })
+  }, [])
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
@@ -97,6 +106,7 @@ export function ChatPanel({ aiOn, close, problemId, currentId, review, choice, g
     const pending: ChatMessage = {
       id: -Date.now(),
       role: 'user',
+      agent: null,
       content: message,
       edits: [],
       applied: false,
@@ -148,8 +158,18 @@ export function ChatPanel({ aiOn, close, problemId, currentId, review, choice, g
         <button className="icon-btn" onClick={close} title="收起助教（Ctrl+Alt+I）"><Icon name="close" /></button>
       </header>
 
+      {agents.length > 0 && (
+        <select className="chat-agent" aria-label="选择助教" value={selected} disabled={agents.length === 1}
+          onChange={event => {
+            writePref('dojo-ai-agent', event.target.value)
+            setSelected(event.target.value)
+          }}>
+          {agents.map(agent => <option key={agent.id} value={agent.id}>{agent.name} · {agent.model}</option>)}
+        </select>
+      )}
+
       <div className="chat-list" ref={listRef}>
-        {!aiOn && <p className="faint chat-empty">AI 助教没有开启。</p>}
+        {!aiOn && <p className="faint chat-empty">AI 助教没有开启。安装并登录 Claude Code 或 Codex 后重新打开应用。</p>}
         {aiOn && messages.length === 0 && (
           <p className="faint chat-empty">
             {choice ? '可以问助教怎么看数据，或让它出一道相似的题。' :
@@ -160,6 +180,7 @@ export function ChatPanel({ aiOn, close, problemId, currentId, review, choice, g
           <div key={m.id} className={`msg msg-${m.role}`}>
             {m.role === 'user' ? <p>{m.content}</p> : <Markdown>{m.content}</Markdown>}
             {m.edits.length > 0 && <EditsView msg={m} result={results[m.id]} />}
+            {m.agent && <small className="chat-author">{m.agent === 'codex' ? 'Codex' : 'Claude'}</small>}
           </div>
         ))}
         {sending && <p className="msg msg-assistant faint">……</p>}

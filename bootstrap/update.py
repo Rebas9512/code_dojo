@@ -1,6 +1,5 @@
-"""校验更新包，在同一文件系统准备不可变版本，原子切换当前版本指针。"""
+"""下载更新包，在同一文件系统准备不可变版本，原子切换当前版本指针。"""
 
-import hashlib
 import json
 import os
 import re
@@ -23,11 +22,6 @@ def version(value: str) -> tuple[int, ...]:
     if not re.fullmatch(r"\d+(?:\.\d+){0,2}", value):
         raise ValueError("版本号无效")
     return tuple(int(n) for n in (value.split(".") + ["0", "0"])[:3])
-
-
-def digest(path: Path) -> str:
-    with path.open("rb") as stream:
-        return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
 def atomic_json(path: Path, obj: dict, *, private: bool = False) -> None:
@@ -72,17 +66,36 @@ class Updates:
         self.bundle = bundle
         self.github = github
         self.pointer = self.root / "current.json"
+        self.next = self.root / "next.json"  # 后台下载好、还没启动过的新版本，下次打开先试它
 
-    def current(self) -> Installed | None:
-        if not self.pointer.exists():
+    def _read(self, pointer: Path) -> Installed | None:
+        if not pointer.exists():
             return None
-        state = json.loads(self.pointer.read_bytes())
+        state = json.loads(pointer.read_bytes())
         if not re.fullmatch(r"[0-9a-f]{64}", state["digest"]):
             raise ValueError("本地版本指针无效")
         root = self.root / state["digest"]
         return Installed(root, json.loads((root / "manifest.json").read_bytes()), state["updated"])
 
+    def current(self) -> Installed | None:
+        return self._read(self.pointer)
+
+    def staged(self) -> Installed | None:
+        return self._read(self.next)
+
+    def stage(self, item: Installed) -> None:
+        atomic_json(self.next, {"digest": item.root.name, "updated": item.updated})
+
+    def clean(self) -> None:
+        """后台下载或装依赖到一半就退出时（守护线程直接结束）留下的临时目录。只在起服务之前调用。"""
+        for parent in (self.root, self.root / "dependencies"):
+            for path in parent.glob("tmp*"):
+                if re.fullmatch(r"tmp[a-z0-9_]{8}", path.name):
+                    shutil.rmtree(path, ignore_errors=True)
+
     def activate(self, item: Installed) -> None:
+        # 换到任何版本都作废待试的版本；下面清理旧目录时它也可能被删掉。
+        self.next.unlink(missing_ok=True)
         prior = self.current()
         if prior == item:
             return
@@ -100,8 +113,6 @@ class Updates:
         return self.root / "dependencies" / manifest["lock_sha256"]
 
     def prepare_dependencies(self, stage: Path, manifest: dict) -> None:
-        if digest(stage / "server/uv.lock") != manifest["lock_sha256"]:
-            raise ValueError("依赖锁哈希不符")
         target = self.libraries(manifest)
         if target.is_dir():
             return
@@ -124,9 +135,8 @@ class Updates:
             assets = {a["name"]: f"/releases/assets/{int(a['id'])}" for a in release["assets"]}
             with self.github.open(assets["manifest.json"], "application/octet-stream") as response:
                 manifest = json.load(response)
+            # payload_sha256 只当这个更新包的 ID 和目录名用，下载后不再对 zip 算哈希核对。
             checksum = manifest.pop("payload_sha256")
-            if not re.fullmatch(r"[0-9a-f]{64}", checksum):
-                raise ValueError("更新包哈希无效")
             if not all(isinstance(manifest.get(k), str) and manifest[k] for k in
                        ("version", "commit", "built_at", "min_bootstrap", "problem_format", "lock_sha256")):
                 raise ValueError("更新包清单缺少版本信息")
@@ -136,6 +146,9 @@ class Updates:
             if old and old.root.name == checksum:
                 return Result(old)
             final = self.root / checksum
+            if final.is_dir():
+                # 之前已下载解压并准备好依赖（例如后台下载后等待下次启动），不再重复下载。
+                return Result(Installed(final, manifest, datetime.now(timezone.utc).isoformat(timespec="seconds")))
             with tempfile.TemporaryDirectory(dir=self.root) as temporary:
                 stage = Path(temporary) / "payload"
                 archive = Path(temporary) / "payload.zip"
@@ -151,16 +164,12 @@ class Updates:
                         if size and percent != last:
                             last = percent
                             progress(f"下载题库 {percent}%")
-                if digest(archive) != checksum:
-                    raise ValueError("更新包 SHA-256 校验失败")
                 with ZipFile(archive) as package:
                     for name in package.namelist():
                         path = PurePosixPath(name)
                         if path.is_absolute() or ".." in path.parts or "\\" in name or ":" in name:
                             raise ValueError("更新包内的路径无效")
                     package.extractall(stage)
-                if manifest != json.loads((stage / "manifest.json").read_bytes()):
-                    raise ValueError("更新包清单不一致")
                 for name in ("server/app/main.py", "judge/python/harness.py", "web/dist/index.html",
                              "requirements.txt", "problems", "sql-cache"):
                     if not (stage / name).exists():

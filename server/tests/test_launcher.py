@@ -26,6 +26,7 @@ def test_data_directory(tmp_path, monkeypatch, platform, suffix):
 
 def test_dependencies_and_doctor(tmp_path, monkeypatch, capsys):
     monkeypatch.setenv("CODE_DOJO_DATA", str(tmp_path))
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setattr(dojo.shutil, "which", lambda name: None)
     assert dojo.main(["doctor"]) == 1
     out = capsys.readouterr().out
@@ -82,11 +83,14 @@ def test_build_cache(tmp_path, monkeypatch):
     assert dojo.needs_build(tmp_path)
 
 
-def test_launch_uses_single_local_backend(tmp_path, monkeypatch):
+@pytest.mark.parametrize("installed,expected", [({}, "off"), ({"codex": "/codex"}, "codex")])
+def test_launch_uses_single_local_backend(tmp_path, monkeypatch, installed, expected):
     monkeypatch.setattr(dojo, "dependencies", lambda: True)
-    monkeypatch.setattr(dojo.shutil, "which", lambda _: None)
+    monkeypatch.setattr(dojo.shutil, "which", installed.get)
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("CODE_DOJO_DATA", str(tmp_path))
     monkeypatch.setenv("CODE_DOJO_AUTH", "on")
+    monkeypatch.setenv("CODE_DOJO_AI_PROVIDER", "codex")
     pull, backend, prepare = Mock(), Mock(return_value=0), Mock()
     monkeypatch.setattr(dojo, "pull_bank", pull)
     monkeypatch.setattr(dojo, "backend", backend)
@@ -97,7 +101,8 @@ def test_launch_uses_single_local_backend(tmp_path, monkeypatch):
     pull.assert_called_once_with(True)
     backend.assert_called_once_with(["--serve"])
     assert prepare.call_count == 2
-    assert dojo.os.environ["CODE_DOJO_AUTH"] == dojo.os.environ["CODE_DOJO_AI_PROVIDER"] == "off"
+    assert dojo.os.environ["CODE_DOJO_AUTH"] == "off"
+    assert dojo.os.environ["CODE_DOJO_AI_PROVIDER"] == expected
 
 
 def test_legacy_rejects_same_directory_before_opening(tmp_path, monkeypatch):

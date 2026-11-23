@@ -18,6 +18,8 @@ import time
 import webbrowser
 from pathlib import Path
 
+from bootstrap.agents import has_agent
+
 ROOT = Path(__file__).resolve().parent
 SERVER = ROOT / "server"
 BACKEND_PYTHON = SERVER / (".venv/Scripts/python.exe" if os.name == "nt" else ".venv/bin/python")
@@ -63,13 +65,12 @@ def dependencies() -> bool:
         if not value:
             for platform, command in zip(("Linux（Ubuntu）", "macOS（Homebrew）", "Windows"), INSTALL[name]):
                 say(f"  {platform}　{command}")
-    claude = shutil.which(os.environ.get("CODE_DOJO_CLAUDE_BIN", "claude"))
-    if not claude:
-        say("未找到 Claude Code，AI 助教会关闭")
+    if not has_agent():
+        say("未找到 Claude Code 或 Codex，AI 助教会关闭")
     elif os.environ.get("CODE_DOJO_AI_PROVIDER") == "off":
         say("AI 助教已关闭")
     else:
-        say("Claude Code 已安装")
+        say("已找到本机 AI 助教")
     return all(checks.values())
 
 
@@ -229,7 +230,7 @@ def main(argv: list[str] | None = None) -> int:
     os.environ["CODE_DOJO_DATA"] = str(directory)
     os.environ["CODE_DOJO_AUTH"] = "off"
     os.environ["CODE_DOJO_WEB_DIST"] = str(WEB / "dist")
-    if not shutil.which(os.environ.get("CODE_DOJO_CLAUDE_BIN", "claude")):
+    if not has_agent():
         os.environ["CODE_DOJO_AI_PROVIDER"] = "off"
     if not args.command:
         pull_bank(args.no_pull)

@@ -257,7 +257,8 @@ if (!app.requestSingleInstanceLock()) {
     protect(win)
     menu()
     win.on('close', event => { event.preventDefault(); shutdown() })
-    await win.loadURL(startup)
+    // 启动器和启动页同时开始载入；启动页打开后会读一次当前状态，早到的事件不会丢。
     start()
+    await win.loadURL(startup).catch(() => {})
   })
 }

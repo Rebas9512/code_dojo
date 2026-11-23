@@ -73,9 +73,8 @@ def fresh(client, monkeypatch, tmp_path):
     return client
 
 
-def test_extra_api_flow(fresh, monkeypatch):
-    import app.main as main
-    monkeypatch.setattr(main, "ai", FakeProvider([spec()]))
+def test_extra_api_flow(fresh, fake_agents):
+    fake_agents(claude=FakeProvider([spec()]))
     created = fresh.post("/api/problems/py-0a-001-add/extras", json={"request": "换成乘法"}).json()
     assert created["seq"] == 1 and created["status"] == "generating"
     ready = wait_ready(fresh, "py-0a-001-add", 1)
@@ -91,24 +90,21 @@ def test_extra_api_flow(fresh, monkeypatch):
     assert fresh.get("/api/problems/py-0a-001-add/extras").json() == []
     assert fresh.get(f"/api/problems/{xid}").status_code == 404
     # 编号不复用
-    monkeypatch.setattr(main, "ai", FakeProvider([spec()]))
+    fake_agents(claude=FakeProvider([spec()]))
     assert fresh.post("/api/problems/py-0a-001-add/extras", json={}).json()["seq"] == 2
     wait_ready(fresh, "py-0a-001-add", 2)
 
 
-def test_failed_extra_is_reported(fresh, monkeypatch):
-    import app.main as main
+def test_failed_extra_is_reported(fresh, fake_agents):
     broken = spec(solution="def multiply(a, b):\n    return a - b\n")
-    monkeypatch.setattr(main, "ai", FakeProvider([dict(broken), dict(broken), dict(broken)]))
+    fake_agents(claude=FakeProvider([dict(broken), dict(broken), dict(broken)]))
     fresh.post("/api/problems/py-0a-001-add/extras", json={})
     row = wait_ready(fresh, "py-0a-001-add", 1)
     assert row["status"] == "failed" and "没通过验证" in row["error"]
     assert fresh.get(f"/api/problems/{row['id']}").status_code == 409
 
 
-def test_tutor_can_make_and_delete_extras(fresh, monkeypatch):
-    import app.main as main
-
+def test_tutor_can_make_and_delete_extras(fresh, fake_agents):
     def respond(system, prompt):
         if "出题助手" in system:
             return spec()
@@ -121,7 +117,7 @@ def test_tutor_can_make_and_delete_extras(fresh, monkeypatch):
         return {"reply": "先想想乘法怎么写", "edits": [], "make_extra": "", "delete_extras": []}
 
     fake = FakeProvider(respond)
-    monkeypatch.setattr(main, "ai", fake)
+    fake_agents(claude=fake)
     r = fresh.post("/api/problems/py-0a-001-add/chat", json={"message": "再来一道类似的", "code": ""}).json()
     assert r["new_extra"]["seq"] == 1 and r["deleted_extras"] == []
     ready = wait_ready(fresh, "py-0a-001-add", 1)
@@ -137,22 +133,19 @@ def test_tutor_can_make_and_delete_extras(fresh, monkeypatch):
     assert len(fresh.get("/api/problems/py-0a-001-add/chat").json()) == 6
 
 
-def test_current_must_belong_to_parent(fresh, monkeypatch):
-    import app.main as main
-    monkeypatch.setattr(main, "ai", FakeProvider([spec()]))
+def test_current_must_belong_to_parent(fresh, fake_agents):
+    fake_agents(claude=FakeProvider([spec()]))
     fresh.post("/api/problems/py-0a-001-add/extras", json={})
     xid = wait_ready(fresh, "py-0a-001-add", 1)["id"]
-    monkeypatch.setattr(main, "ai", FakeProvider([]))
+    fake_agents(claude=FakeProvider([]))
     bad = fresh.post("/api/problems/py-0a-002-print-sum/chat", json={"message": "hi", "current": xid})
     assert bad.status_code == 400
     assert fresh.post(f"/api/problems/{xid}/extras", json={}).status_code == 400   # 附加题不能再出附加题
 
 
-def test_algo_extra_uses_python_and_cross_track_skills(fresh, monkeypatch):
-    import app.main as main
-
+def test_algo_extra_uses_python_and_cross_track_skills(fresh, fake_agents):
     fake = FakeProvider([spec()])
-    monkeypatch.setattr(main, "ai", fake)
+    fake_agents(claude=fake)
     pid = "algo-1-001-reverse-list"
     assert fresh.post(f"/api/problems/{pid}/extras", json={}).status_code == 200
     ready = wait_ready(fresh, pid, 1)

@@ -10,14 +10,14 @@ import os
 import threading
 import time
 from dataclasses import dataclass, field
+from functools import cached_property
 from pathlib import Path
 from typing import Any, Literal
 
-import yaml
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .inspect_data import InspectExercise, data_block
-from .tracks import LoadError, Track, load_track, load_tracks, normalize_stage
+from .tracks import LoadError, Track, load_track, load_tracks, normalize_stage, read_yaml
 
 Format = Literal["predict", "complete", "fix", "write", "variant", "combine", "inspect"]
 
@@ -139,12 +139,17 @@ class Problem:
     path: Path
     statement: str
     starter: str
-    tests: dict[str, Any] = field(default_factory=dict)
     inspect: InspectExercise | None = None
 
     @property
     def id(self) -> str:
         return self.meta.id
+
+    @cached_property
+    def tests(self) -> dict[str, Any]:
+        """tests.json 第一次用到时才读：全题库约 46 MB，启动时全解析要 0.4 秒、占两百多 MB 内存。"""
+        raw = self.read("tests.json")
+        return json.loads(raw) if raw else {}
 
     @property
     def sort_key(self) -> tuple[int, int, str]:
@@ -272,10 +277,12 @@ def build_extra(parent: Problem, row_id: int, seq: int, spec: dict[str, Any]) ->
         return ExtraProblem(meta=meta, track=parent.track, path=parent.path, statement=spec["statement"],
                             starter="", inspect=InspectExercise.load(spec), parent_id=parent.id, seq=seq)
     starter = spec.get("starter") or default_starter(meta, parent.track.language)
-    return ExtraProblem(
+    extra = ExtraProblem(
         meta=meta, track=parent.track, path=parent.path, statement=spec.get("statement", ""), starter=starter,
-        tests=spec.get("tests", {}), files=sql_files | {("solution.sql" if is_sql else "solution.py"): spec["solution"]}, parent_id=parent.id, seq=seq,
+        files=sql_files | {("solution.sql" if is_sql else "solution.py"): spec["solution"]}, parent_id=parent.id, seq=seq,
     )
+    extra.tests = spec.get("tests", {})
+    return extra
 
 
 @dataclass
@@ -306,7 +313,7 @@ def default_starter(meta: ProblemMeta, language: str) -> str:
 
 
 def load_problem(problem_dir: Path, track: Track | None = None) -> Problem:
-    meta = ProblemMeta.model_validate(yaml.safe_load((problem_dir / "problem.yaml").read_text(encoding="utf-8")))
+    meta = ProblemMeta.model_validate(read_yaml(problem_dir / "problem.yaml"))
     if track is None:
         track = load_track(problem_dir.parents[1] / "track.yaml")
     if meta.track != track.id:
@@ -330,19 +337,15 @@ def load_problem(problem_dir: Path, track: Track | None = None) -> Problem:
     starter_name = "starter.sql" if track.language == "sql" else "starter.py"
     starter_path = problem_dir / starter_name
     starter = starter_path.read_text(encoding="utf-8") if starter_path.exists() else default_starter(meta, track.language)
-    tests: dict[str, Any] = {}
-    tests_path = problem_dir / "tests.json"
-    if tests_path.exists():
-        tests = json.loads(tests_path.read_text(encoding="utf-8"))
-    elif track.language == "python" and meta.mode != "predict":
+    if track.language == "python" and meta.mode != "predict" and not (problem_dir / "tests.json").exists():
         raise ValueError("缺少 tests.json")
-    return Problem(meta=meta, track=track, path=problem_dir, statement=statement, starter=starter, tests=tests)
+    return Problem(meta=meta, track=track, path=problem_dir, statement=statement, starter=starter)
 
 
 def load_skills(path: Path, track: Track) -> dict[str, Skill]:
     if not path.exists():
         return {}
-    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    data = read_yaml(path) or {}
     if data.get("track") != track.id:
         raise ValueError(f"技能文件的学习线应为 {track.id}")
     skills = {}
@@ -376,7 +379,7 @@ class ProblemBank:
 
     查"题库有没有改"要 stat 上万个文件（NTFS / fuseblk 盘上约 0.8 秒），不能放在每个请求里。
     请求路径只调 ensure_fresh()：已加载就直接返回；改动由后台线程按间隔发现并重载。
-    CODE_DOJO_BANK_WATCH：秒数（默认 3）= 后台检查间隔；off = 只加载一次（桌面应用，题库随更新包整体替换）；
+    CODE_DOJO_BANK_WATCH：秒数（默认 3）= 后台检查间隔；off = 只加载一次，连修改时间也不查（桌面应用，题库随更新包整体替换）；
     sync = 每次请求都检查（旧行为，测试用）。显式调用 refresh() 永远会检查。
     """
 
@@ -406,8 +409,8 @@ class ProblemBank:
                 continue
         return newest
 
-    def refresh(self, force: bool = False) -> None:
-        stamp = self._current_stamp()
+    def refresh(self, force: bool = False, stamp: float | None = None) -> None:
+        stamp = self._current_stamp() if stamp is None else stamp
         with self._lock:
             if not force and stamp == self._stamp:
                 return
@@ -443,7 +446,7 @@ class ProblemBank:
                         errors.append(LoadError(str(yaml_path.parent), str(exc)))
                 for yaml_path in sorted(track_dir.glob("lessons/*/lesson.yaml")):
                     try:
-                        meta = LessonMeta.model_validate(yaml.safe_load(yaml_path.read_text(encoding="utf-8")))
+                        meta = LessonMeta.model_validate(read_yaml(yaml_path))
                         if meta.track != track:
                             raise ValueError(f"课的学习线应为 {track}")
                         if meta.id != yaml_path.parent.name:
@@ -481,7 +484,7 @@ class ProblemBank:
             self.refresh()
             return
         if self._stamp is None:
-            self.refresh()
+            self.refresh(stamp=0.0 if mode == "off" else None)
         if mode != "off" and not self._watching:
             self._start_watch(float(mode))
 

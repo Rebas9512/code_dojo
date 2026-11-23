@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     content     TEXT NOT NULL,
     edit_json   TEXT,                     -- 助教对共享编辑框的修改 [{old, new, why}, ...]
     applied     INTEGER NOT NULL DEFAULT 0,
-    notes       TEXT,                     -- 重试等记录
+    notes       TEXT,                     -- 回复来源与重试记录（旧版仅存重试列表）
     created_at  TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_chat_problem ON chat_messages(problem_id, id);
@@ -370,6 +370,11 @@ class Store:
             ).fetchone()
         return json.loads(row["result_json"]) if row else None
 
+    def last_active_by_track(self) -> dict[str, str]:
+        """附加题的运行和提交也使用原题的 track。"""
+        with self._lock:
+            return dict(self._conn.execute("SELECT track, MAX(created_at) FROM submissions GROUP BY track"))
+
     def status_by_problem(self, track: str) -> dict[str, str]:
         """solved：有不靠 AI 修改的通过；assisted：只有用过 AI 修改的通过；attempted：提交过没通过。"""
         with self._lock:
@@ -392,9 +397,14 @@ class Store:
         edits = json.loads(r["edit_json"]) if r["edit_json"] else []
         if isinstance(edits, dict):  # 早期单条修改建议的存法
             edits = [edits]
+        agent = None
+        if r["role"] == "assistant":
+            notes = json.loads(r["notes"]) if r["notes"] else None
+            agent = notes["agent"] if isinstance(notes, dict) else "claude"
         return {
             "id": r["id"],
             "role": r["role"],
+            "agent": agent,
             "content": r["content"],
             "edits": edits,
             "applied": bool(r["applied"]),
@@ -403,8 +413,9 @@ class Store:
 
     def add_chat(
         self, problem_id: str, role: str, content: str, edits: list[dict[str, Any]] | None = None,
-        notes: list[str] | None = None,
+        notes: list[str] | None = None, *, agent: str | None = None,
     ) -> dict[str, Any]:
+        metadata = {"agent": agent, "notes": notes or []} if agent else notes
         with self._write():
             cur = self._conn.execute(
                 "INSERT INTO chat_messages (problem_id, role, content, edit_json, notes, created_at)"
@@ -412,7 +423,7 @@ class Store:
                 (
                     problem_id, role, content,
                     json.dumps(edits, ensure_ascii=False) if edits else None,
-                    json.dumps(notes, ensure_ascii=False) if notes else None,
+                    json.dumps(metadata, ensure_ascii=False) if metadata else None,
                     now(),
                 ),
             )

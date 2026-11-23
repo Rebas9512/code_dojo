@@ -1,3 +1,4 @@
+import { readPref } from './theme'
 import type { SqlTable, Difference, SqlCheck, CheckValue } from './sql/compare'
 
 // 和后端 server/app/main.py 对应的类型与请求
@@ -85,6 +86,8 @@ export interface TrackInfo {
   skills: number
   mastered: number
   next: PracticeLink | null
+  frontier: PracticeLink | null
+  last_active: string | null
 }
 export type Format = 'predict' | 'complete' | 'fix' | 'write' | 'variant' | 'combine' | 'inspect'
 export type Mode = 'function' | 'class' | 'stdio' | 'predict' | 'inspect' | 'dml' | 'script' | null
@@ -250,6 +253,19 @@ export interface JudgeResult {
   submission_id?: number
 }
 
+export type AgentId = 'claude' | 'codex'
+
+export interface Agent {
+  id: AgentId
+  name: string
+  model: string
+}
+
+export function preferredAgent(agents: Agent[]) {
+  const saved = readPref('dojo-ai-agent', '')
+  return agents.find(agent => agent.id === saved) ?? agents[0]
+}
+
 export interface ServerStatus {
   judge_mode: 'local' | 'docker'
   judge_backends: { python: 'local' | 'docker'; ds: 'local' | 'docker' }
@@ -257,7 +273,8 @@ export interface ServerStatus {
   problems: number
   load_errors: { path: string; message: string }[]
   judge_image_present: boolean | null
-  ai: string
+  ai: AgentId | 'off'
+  ai_agents: Agent[]
   ai_model: string | null
 }
 
@@ -351,19 +368,19 @@ export const api = {
     request<PlaygroundResult>('/api/playground/run', { method: 'POST', body: JSON.stringify({ code, stdin, problem_id: problemId }) }),
   chat: (id: string) => request<ChatMessage[]>(`/api/problems/${encodeURIComponent(id)}/chat`),
   extras: (id: string) => request<ExtraSummary[]>(`/api/problems/${encodeURIComponent(id)}/extras`),
-  createExtra: (id: string, req = '', practice_skill?: string, review: ReviewContext = {}) =>
+  createExtra: async (id: string, req = '', practice_skill?: string, review: ReviewContext = {}) =>
     request<ExtraSummary>(`/api/problems/${encodeURIComponent(id)}/extras`, {
       method: 'POST',
-      body: JSON.stringify({ request: req, practice_skill, ...review }),
+      body: JSON.stringify({ request: req, practice_skill, ...review, agent: await requestAgent() }),
     }),
   deleteExtra: (id: string, seq: number) =>
     request<{ ok: boolean }>(`/api/problems/${encodeURIComponent(id)}/extras/${seq}`, { method: 'DELETE' }),
-  chatSend: (id: string, body: ReviewContext & { message: string; code?: string; answer?: string | null; current?: string }) =>
+  chatSend: async (id: string, body: ReviewContext & { message: string; code?: string; answer?: string | null; current?: string }) =>
     request<{ user: ChatMessage; assistant: ChatMessage; new_extra: ExtraSummary | null; deleted_extras: number[] }>(
       `/api/problems/${encodeURIComponent(id)}/chat`,
       {
         method: 'POST',
-        body: JSON.stringify(body),
+        body: JSON.stringify({ ...body, agent: await requestAgent() }),
       },
     ),
   chatApplied: (id: string, messageId: number) =>
@@ -381,6 +398,7 @@ export interface TutorEdit {
 export interface ChatMessage {
   id: number
   role: 'user' | 'assistant'
+  agent: AgentId | null
   content: string
   edits: TutorEdit[]
   applied: boolean
@@ -399,9 +417,13 @@ export interface JudgeRequest extends ReviewContext {
 export const problemDetail = (id: string) => cached('problem:' + id, () => api.problem(id))
 export const trackRows = (track: Track) => cached('rows:' + track, () => api.problems(track))
 
-// 判题方式和助教开关只在后端重启时变化，一个页面会话只读一次。
+// 做题页和助教共用页面会话的状态快照，刷新后重新探测。
 let status: Promise<ServerStatus> | undefined
-const serverStatus = () => status ??= api.status().catch((e) => { status = undefined; throw e })
+export const serverStatus = (): Promise<ServerStatus> => status ??= api.status().catch((e) => { status = undefined; throw e })
+
+async function requestAgent() {
+  return preferredAgent((await serverStatus()).ai_agents)?.id
+}
 
 export async function loadWorkspace(id: string) {
   const parent = await problemDetail(id)

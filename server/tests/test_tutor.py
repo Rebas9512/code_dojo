@@ -86,14 +86,12 @@ def test_empty_old_means_append():
 
 
 @pytest.fixture
-def chat_client(client, monkeypatch):
-    import app.main as main
-
+def chat_client(client, fake_agents):
     fake = FakeProvider(lambda system, prompt: (
         {"reply": "我把 pass 换成了 return", "edits": [edit("    pass", "    return a + b", "要返回结果")]}
         if "帮我补" in prompt.split("学生现在说")[-1] else {"reply": "先想想 pass 会返回什么？", "edits": []}
     ))
-    monkeypatch.setattr(main, "ai", fake)
+    fake_agents(claude=fake)
     client.delete("/api/problems/py-0a-001-add/chat")
     return client
 

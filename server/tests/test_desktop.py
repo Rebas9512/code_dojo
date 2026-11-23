@@ -86,14 +86,38 @@ def test_switch_after_ready_and_rollback(updates, monkeypatch):
     assert updates.check().active == two
 
 
-@pytest.mark.parametrize("failure", ["download", "hash", "launcher", "pip", "internal_manifest"])
+def test_staged_version_waits_for_next_launch(updates):
+    one = updates.check().active
+    updates.activate(one)
+    updates.github.publish("2")
+    two = updates.check().active
+    updates.stage(two)
+    assert updates.staged() == two and updates.current() == one
+    downloads = []
+    original = updates.github.open
+    updates.github.open = lambda path, accept: (downloads.append(path), original(path, accept))[1]
+    assert updates.check().active.root == two.root and not any(p.endswith("/2") for p in downloads)
+    updates.activate(two)
+    assert updates.staged() is None and updates.current() == two
+
+
+def test_clean_removes_interrupted_downloads_only(updates):
+    leftovers = [updates.root / "tmpab_cd123", updates.root / "dependencies/tmp0z9y8x7w"]
+    kept = [updates.root / "tmp", updates.root / ("a" * 64)]  # 后端的临时目录和已装好的版本
+    for path in leftovers + kept:
+        path.mkdir(parents=True)
+    updates.clean()
+    assert not any(p.exists() for p in leftovers) and all(p.is_dir() for p in kept)
+
+
+@pytest.mark.parametrize("failure", ["download", "corrupt", "launcher", "pip"])
 def test_update_preserves_previous(updates, monkeypatch, failure):
     one = updates.check().active
     updates.activate(one)
     updates.github.publish("2", minimum=str(version(VERSION)[0] + 1) if failure == "launcher" else "1",
                            lock=b"new" if failure == "pip" else b"lock")
-    if failure == "hash":
-        updates.github.archive += b"broken"
+    if failure == "corrupt":
+        updates.github.archive = updates.github.archive[:100]  # 下载不完整：不再算哈希，由 zip 本身读不出来拒绝
     if failure == "download":
         original = updates.github.open
         def fail(path, accept):
@@ -103,8 +127,6 @@ def test_update_preserves_previous(updates, monkeypatch, failure):
         monkeypatch.setattr(updates.github, "open", fail)
     if failure == "pip":
         monkeypatch.setattr(subprocess, "run", Mock(side_effect=subprocess.CalledProcessError(1, "pip")))
-    if failure == "internal_manifest":
-        updates.github.manifest["version"] = "3"
     result = updates.check()
     assert result.active == updates.current() == one and result.message
     if failure == "launcher":

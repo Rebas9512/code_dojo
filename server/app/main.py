@@ -19,7 +19,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from .ai import extra as extra_gen
 from .ai import tutor
-from .ai.provider import AIError, AIProvider, ClaudeCodeProvider
+from .ai.provider import AIError, AIProvider, AgentId, ClaudeCodeProvider, CodexProvider, available_agents
 from .auth import install_auth
 from .config import load_settings
 from .db import Store, ReviewConflict
@@ -31,22 +31,32 @@ from .problems import ExtraProblem, Problem, ProblemBank, build_extra
 from .sql_judge import sql_cases
 from .sync import ProgressSync
 from .tracks import Track
-from .units import group_units, introduction_status, stage_progress
+from .units import group_units, introduction_status, progress_frontier, stage_progress
 
 settings = load_settings()
 bank = ProblemBank(settings.problems_dir)
 judge = Judge.from_settings(settings)
-ai: AIProvider | None = (
-    ClaudeCodeProvider(binary=settings.claude_bin, model=settings.ai_model, workdir=settings.ai_workdir)
-    if settings.ai_provider == "claude"
-    else None
-)
+ai_slots = threading.BoundedSemaphore(2)
+providers: dict[str, AIProvider] = {
+    "claude": ClaudeCodeProvider(settings.claude_bin, settings.ai_model, settings.ai_workdir, slots=ai_slots),
+    "codex": CodexProvider(settings.codex_bin, settings.codex_model, settings.ai_workdir, slots=ai_slots),
+}
+
+
+def select_agent(requested: AgentId | None) -> tuple[str, AIProvider]:
+    for agent in available_agents(settings):
+        if requested is None or agent["id"] == requested:
+            return agent["id"], providers[agent["id"]]
+    if requested:
+        raise HTTPException(400, f"本机未启用 {requested.title()} 助教，请重新选择")
+    raise HTTPException(503, "AI 助教没有开启")
+
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    progress_sync.start()
+    progress_sync.start()  # 第一次同步在后台跑，合并进来的记录会让 learning() 的缓存按版本号失效
     try:
-        learning()  # 合并其他机器的记录后，再给旧库补齐日程。
+        learning()  # 就绪前载入题库并算好进度，首页第一个请求不用等
         yield
     finally:
         progress_sync.close()
@@ -117,6 +127,7 @@ class PlaygroundRequest(BaseModel):
 
 
 class ChatRequest(ReviewRequest):
+    agent: AgentId | None = None
     message: str = Field(min_length=1, max_length=4000)
     code: str = Field(default="", max_length=100_000)
     answer: str | None = Field(default=None, max_length=20_000)
@@ -124,6 +135,7 @@ class ChatRequest(ReviewRequest):
 
 
 class ExtraRequest(ReviewRequest):
+    agent: AgentId | None = None
     practice_skill: str | None = None
     request: str = Field(default="", max_length=1000)
 
@@ -209,6 +221,7 @@ def judge_status() -> dict[str, Any]:
 @app.get("/api/status")
 def status() -> dict[str, Any]:
     bank.ensure_fresh()
+    agents = available_agents(settings)
     return {
         "ok": True,
         "problems": len(bank.problems),
@@ -216,8 +229,9 @@ def status() -> dict[str, Any]:
         "judge_image": settings.judge_image,
         "judge_image_present": judge.image_present() if judge.backends["python"] == "docker" else None,
         **judge_status(),
-        "ai": settings.ai_provider if ai is not None else "off",
-        "ai_model": settings.ai_model if ai is not None else None,
+        "ai": agents[0]["id"] if agents else "off",
+        "ai_model": agents[0]["model"] if agents else None,
+        "ai_agents": agents,
     }
 
 
@@ -306,6 +320,7 @@ def tracks() -> list[dict[str, Any]]:
     ordered = bank.ordered()
     state = learning()
     statuses = {tid: store.status_by_problem(tid) for tid in bank.tracks}
+    last_active = store.last_active_by_track()
     skill_status = introduction_status(ordered, statuses)
     rows = {}
     for track in bank.tracks.values():
@@ -323,6 +338,8 @@ def tracks() -> list[dict[str, Any]]:
             "solved": counts["solved"] + counts["assisted"], "assisted": counts["assisted"],
             "attempted": counts["attempted"],
             "next": upcoming,
+            "frontier": progress_frontier(stages, status),
+            "last_active": last_active.get(track.id),
         }
     completed = {tid for tid, row in rows.items() if row["total"] > 0 and row["solved"] == row["total"]}
     for row in rows.values():
@@ -545,7 +562,7 @@ def playground_run(req: PlaygroundRequest) -> dict[str, Any]:
 
 # ---------- 附加题 ----------
 
-def run_extra_job(row_id: int, parent_id: str, request: str, practice_skill: str | None = None,
+def run_extra_job(provider: AIProvider, row_id: int, parent_id: str, request: str, practice_skill: str | None = None,
                   review_source: str = "") -> None:
     """后台线程：出题 + 验证，结果写回数据库。"""
     try:
@@ -561,7 +578,7 @@ def run_extra_job(row_id: int, parent_id: str, request: str, practice_skill: str
             allowed = {sid for sid in bank.skill_index if state.state(sid) == "mastered"} | {practice_skill}
             refs = parent.meta.skills.model_copy(update={"introduces": None, "requires": [practice_skill]})
             parent = replace(parent, meta=parent.meta.model_copy(update={"skills": refs}))
-        spec, notes = extra_gen.generate(ai, judge, parent, request=request, skill_names=skill_names, existing=existing,
+        spec, notes = extra_gen.generate(provider, judge, parent, request=request, skill_names=skill_names, existing=existing,
                                         allowed=allowed, review=bool(review_source))
         if review_source:
             spec["review_format"] = "inspect" if parent.inspect else "variant"
@@ -573,11 +590,10 @@ def run_extra_job(row_id: int, parent_id: str, request: str, practice_skill: str
         store.fail_extra(row_id, str(exc))
 
 
-def start_extra(parent: Problem, request: str, practice_skill: str | None = None, review_source: str = "") -> dict[str, Any]:
-    if ai is None:
-        raise HTTPException(503, "AI 没有开启，不能出附加题")
+def start_extra(provider: AIProvider, parent: Problem, request: str, practice_skill: str | None = None,
+                review_source: str = "") -> dict[str, Any]:
     row = store.create_extra(parent.id, request, practice_skill)
-    threading.Thread(target=run_extra_job, args=(row["row_id"], parent.id, request, practice_skill, review_source),
+    threading.Thread(target=run_extra_job, args=(provider, row["row_id"], parent.id, request, practice_skill, review_source),
                      daemon=True).start()
     return extra_summary(row)
 
@@ -601,7 +617,8 @@ def create_extra(problem_id: str, req: ExtraRequest) -> dict[str, Any]:
             for r in state.queue
         ):
             raise ReviewConflict("复习计划已更新，请返回今日计划。")
-    return start_extra(parent, req.request, req.practice_skill, req.review_source)
+    _, provider = select_agent(req.agent)
+    return start_extra(provider, parent, req.request, req.practice_skill, req.review_source)
 
 
 @app.delete("/api/problems/{problem_id}/extras/{seq}")
@@ -624,8 +641,7 @@ def chat_history(problem_id: str) -> list[dict[str, Any]]:
 def chat_send(problem_id: str, req: ChatRequest) -> dict[str, Any]:
     """一道原题和它的附加题共用一段对话（记在原题 id 下）；current 指明学生正在看哪一道。"""
     parent = require_parent(problem_id)
-    if ai is None:
-        raise HTTPException(503, "AI 助教没有开启（CODE_DOJO_AI_PROVIDER=off）")
+    agent, provider = select_agent(req.agent)
     cur: Problem = parent
     label = "题目（原题）"
     if req.current and req.current != parent.id:
@@ -639,7 +655,7 @@ def chat_send(problem_id: str, req: ChatRequest) -> dict[str, Any]:
     skill_names = {s.id: s.name for s in bank.skill_index.values()}
     try:
         reply = tutor.ask(
-            ai, cur,
+            provider, cur,
             code=req.code, answer=req.answer,
             last_result=store.latest_result(cur.id),
             history=history, message=req.message,
@@ -654,13 +670,13 @@ def chat_send(problem_id: str, req: ChatRequest) -> dict[str, Any]:
         raise HTTPException(502, f"AI 助教出错：{exc}") from exc
     new_extra = None
     if reply.make_extra:
-        new_extra = start_extra(parent, reply.make_extra)
+        new_extra = start_extra(provider, parent, reply.make_extra)
     deleted = [seq for seq in reply.delete_extras if store.delete_extra(parent.id, seq)]
     notes = reply.notes + ([f"出附加题：{reply.make_extra}"] if new_extra else []) + (
         [f"删掉附加题：{deleted}"] if deleted else [])
     if not (new_extra or deleted):
         store.record_help(cur.id, solution=False, source=req.review_source, due=req.review_due)
-    assistant_msg = store.add_chat(parent.id, "assistant", reply.reply, edits=reply.edits, notes=notes)
+    assistant_msg = store.add_chat(parent.id, "assistant", reply.reply, edits=reply.edits, notes=notes, agent=agent)
     return {"user": user_msg, "assistant": assistant_msg, "new_extra": new_extra, "deleted_extras": deleted}
 
 

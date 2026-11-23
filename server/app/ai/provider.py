@@ -1,20 +1,23 @@
-"""AI 接入层：统一成"系统提示 + 内容 + JSON schema → 结构化结果"。
-
-默认实现走 Claude Code 的无交互模式（`claude -p`），用本机登录的 Claude 订阅，不需要 API key。
-固定参数：关掉所有工具、不读用户 / 项目设置、不加载 MCP、不保存会话，在专用空目录里运行，
-环境变量只留平台所需的用户目录、命令路径、语言设置和可选的订阅登录令牌。
-"""
+"""本机订阅 CLI 的结构化调用、命令发现和测试替身。"""
 
 from __future__ import annotations
 
 import json
 import os
+import platform
+import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import threading
 from pathlib import Path
-from typing import Any, Callable, Protocol
+from typing import Any, Callable, Literal, Protocol
+
+from ..config import Settings
+from .codex_schema import restore_result, strict_schema
+
+AgentId = Literal["claude", "codex"]
 
 
 class AIError(RuntimeError):
@@ -26,20 +29,78 @@ class AIProvider(Protocol):
         ...
 
 
-class ClaudeCodeProvider:
+def find_codex(binary: str) -> str | None:
+    if path := shutil.which(binary):
+        return path
+    system = {"darwin": "macos", "win32": "windows"}.get(sys.platform, sys.platform)
+    machine = platform.machine().lower()
+    arch = {"amd64": "x86_64", "arm64": "aarch64"}.get(machine, machine)
+    exe = "codex.exe" if sys.platform == "win32" else "codex"
+    extensions = Path.home() / ".vscode/extensions"
+    candidates = []
+    for folder in extensions.glob("openai.chatgpt-*"):
+        match = re.match(r"openai\.chatgpt-(\d+(?:\.\d+)*)", folder.name)
+        path = folder / "bin" / f"{system}-{arch}" / exe
+        if match and path.is_file() and os.access(path, os.X_OK):
+            candidates.append((tuple(map(int, match[1].split("."))), str(path)))
+    return max(candidates)[1] if candidates else None
+
+
+def available_agents(settings: Settings) -> list[dict[str, str]]:
+    if settings.ai_provider == "off":
+        return []
+    agents = []
+    if shutil.which(settings.claude_bin):
+        agents.append({"id": "claude", "name": "Claude", "model": settings.ai_model})
+    if find_codex(settings.codex_bin):
+        agents.append({"id": "codex", "name": "Codex", "model": settings.codex_model})
+    return sorted(agents, key=lambda agent: agent["id"] != settings.ai_provider)
+
+
+class CliProvider:
+    command: str
+    default_model: str
+    name: str
+    login_env: str
+
     def __init__(
         self,
-        binary: str = "claude",
-        model: str = "claude-opus-5-5",
+        binary: str | None = None,
+        model: str | None = None,
         workdir: Path | None = None,
         timeout_s: float = 180,
         concurrency: int = 2,
+        slots: threading.BoundedSemaphore | None = None,
     ):
-        self.binary = binary
-        self.model = model
+        self.binary = binary or self.command
+        self.model = model or self.default_model
         self.workdir = workdir or Path(tempfile.gettempdir()) / "code-dojo-ai"
         self.timeout_s = timeout_s
-        self._slots = threading.BoundedSemaphore(concurrency)
+        self._slots = slots or threading.BoundedSemaphore(concurrency)
+
+    def _run(self, cmd: list[str], prompt: str, cwd: Path) -> subprocess.CompletedProcess[str]:
+        keys = ("HOME", "PATH", "LANG", self.login_env)
+        if os.name == "nt":
+            keys += ("USERPROFILE", "APPDATA", "LOCALAPPDATA", "SystemRoot", "TEMP", "TMP", "ComSpec", "PATHEXT")
+        env = {k: os.environ[k] for k in keys if k in os.environ}
+        env.setdefault("LANG", "C.UTF-8")
+        try:
+            with self._slots:
+                return subprocess.run(
+                    cmd, input=prompt, capture_output=True, encoding="utf-8",
+                    cwd=cwd, env=env, timeout=self.timeout_s,
+                )
+        except FileNotFoundError as exc:
+            raise AIError(f"找不到 {self.name} 命令 {self.binary}") from exc
+        except subprocess.TimeoutExpired as exc:
+            raise AIError(f"AI 超过 {self.timeout_s:.0f} 秒没有回复") from exc
+
+
+class ClaudeCodeProvider(CliProvider):
+    command = "claude"
+    default_model = "claude-opus-5-5"
+    name = "Claude Code"
+    login_env = "CLAUDE_CODE_OAUTH_TOKEN"
 
     def complete(self, *, system: str, prompt: str, schema: dict[str, Any], effort: str = "low") -> dict[str, Any]:
         self.workdir.mkdir(parents=True, exist_ok=True)
@@ -58,21 +119,8 @@ class ClaudeCodeProvider:
             "--model", self.model,
             "--effort", effort,
         ]
-        keys = ("HOME", "PATH", "LANG", "CLAUDE_CODE_OAUTH_TOKEN")
-        if os.name == "nt":
-            keys += ("USERPROFILE", "APPDATA", "LOCALAPPDATA", "SystemRoot", "TEMP", "TMP", "ComSpec", "PATHEXT")
-        env = {k: os.environ[k] for k in keys if k in os.environ}
-        env.setdefault("LANG", "C.UTF-8")
         try:
-            with self._slots:
-                proc = subprocess.run(
-                    cmd, input=prompt, capture_output=True, encoding="utf-8",
-                    cwd=self.workdir, env=env, timeout=self.timeout_s,
-                )
-        except FileNotFoundError as exc:
-            raise AIError(f"找不到 Claude Code 命令 {self.binary}") from exc
-        except subprocess.TimeoutExpired as exc:
-            raise AIError(f"AI 超过 {self.timeout_s:.0f} 秒没有回复") from exc
+            proc = self._run(cmd, prompt, self.workdir)
         finally:
             Path(system_path).unlink(missing_ok=True)
         try:
@@ -86,6 +134,44 @@ class ClaudeCodeProvider:
         if not isinstance(out, dict):
             raise AIError("AI 没有按格式返回结构化结果")
         return out
+
+
+class CodexProvider(CliProvider):
+    command = "codex"
+    default_model = "gpt-6.2-astra"
+    name = "Codex"
+    login_env = "CODEX_HOME"
+
+    def complete(self, *, system: str, prompt: str, schema: dict[str, Any], effort: str = "low") -> dict[str, Any]:
+        binary = find_codex(self.binary)
+        if binary is None:
+            raise AIError(f"找不到 Codex 命令 {self.binary}")
+        self.workdir.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=self.workdir) as tmp:
+            directory = Path(tmp).resolve()
+            cwd = directory / "work"
+            cwd.mkdir()
+            schema_path = directory / "schema.json"
+            output = directory / "reply.json"
+            schema_path.write_text(json.dumps(strict_schema(schema), ensure_ascii=False), encoding="utf-8")
+            cmd = [
+                os.path.abspath(binary), "exec", "--ephemeral", "--skip-git-repo-check",
+                "--sandbox", "read-only", "--ignore-user-config", "--ignore-rules", "-C", str(cwd),
+                "-m", self.model, "-c", 'forced_login_method="chatgpt"',
+                "-c", "developer_instructions=" + json.dumps(system, ensure_ascii=False),
+                "-c", "model_reasoning_effort=" + json.dumps("xhigh" if effort == "max" else effort),
+                "--output-schema", str(schema_path), "-o", str(output), "-",
+            ]
+            proc = self._run(cmd, prompt, cwd)
+            if proc.returncode:
+                raise AIError(f"Codex 调用失败（退出码 {proc.returncode}），请检查 ChatGPT 登录和模型设置")
+            try:
+                data = json.loads(output.read_bytes())
+            except (FileNotFoundError, json.JSONDecodeError, UnicodeDecodeError) as exc:
+                raise AIError("Codex 没有返回有效的 JSON 回复") from exc
+            if not isinstance(data, dict):
+                raise AIError("Codex 没有按格式返回结构化结果")
+            return restore_result(data, schema)
 
 
 class FakeProvider:

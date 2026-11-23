@@ -53,17 +53,18 @@
   min-width: 0; height: 100%; display: flex; align-items: stretch; flex-wrap: nowrap;
   gap: 0; margin: 0; border: 0; overflow-x: auto; scrollbar-width: thin;
 }
-.workbench .left-tabs > button, .workbench .extra-tab, .active-file {
+.workbench .left-tabs > button, .workbench .extra-tab, .workbench .file-tab {
   display: inline-flex; align-items: center; gap: 7px; padding: 0 11px; margin: 0;
   border: 0; border-right: 1px solid var(--line); border-top: 2px solid transparent; border-radius: 0;
   color: var(--muted); font-size: 12px;
 }
 .workbench .left-tabs [hidden] { display: none; }
-.workbench .left-tabs > .is-active, .active-file { border-top-color: var(--action); color: var(--text); background: var(--bg); }
+.workbench .left-tabs > .is-active, .workbench .file-tab[aria-pressed=true] { border-top-color: var(--action); color: var(--text); background: var(--bg); }
 .workbench .tab-new { margin-left: -4px; font-size: 10px; }
-.workbench .left-tabs .codicon, .active-file .codicon { color: var(--accent); }
+.workbench .left-tabs .codicon, .file-tab .codicon { color: var(--accent); }
 .workbench .extra-tab { padding-inline: 7px; }
-.active-file { height: 100%; font: 12px var(--font-code); }
+.code-files { display: flex; min-width: 0; height: 100%; overflow-x: auto; scrollbar-width: thin; }
+.workbench .file-tab { font-family: var(--font-code); }
 .file-tabs { gap: 4px; padding-right: 4px; overflow-x: auto; scrollbar-width: thin; }
 .file-tabs .run-action { display: flex; align-items: center; gap: 3px; padding: 1px 5px; font-size: 12px; }
 .run-action .codicon { color: var(--pass); }
@@ -130,6 +131,7 @@
 /* 题目标题旁的上一题 / 下一题 */
 .title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .title-row h1 { min-width: 0; }
+.title-status { margin-left: 10px; font-size: 12px; font-weight: 400; white-space: nowrap; vertical-align: 3px; }
 .title-nav { display: flex; gap: 2px; flex-shrink: 0; margin-top: 4px; }
 .title-nav button { display: inline-flex; align-items: center; gap: 2px; height: 26px; padding: 0 8px; border: 1px solid transparent;
   border-radius: 4px; background: transparent; color: var(--muted); font: 12px var(--font-ui); cursor: pointer; }

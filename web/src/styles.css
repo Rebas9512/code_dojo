@@ -807,6 +807,28 @@ details.lesson-section[open] > summary {
   font-size: 13px;
   color: var(--muted);
 }
+.chat-agent {
+  flex: none;
+  min-width: 0;
+  margin: 8px 12px 0;
+  padding: 3px 6px;
+  font: 12px var(--font-ui);
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+}
+.chat-agent:disabled, .chat-author {
+  color: var(--faint);
+}
+.chat-agent:focus-visible {
+  outline: 1px solid var(--accent);
+}
+.chat-author {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+}
 .chat-list {
   flex: 1 1 auto;
   overflow: auto;

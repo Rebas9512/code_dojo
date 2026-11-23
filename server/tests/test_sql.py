@@ -133,9 +133,7 @@ def test_dml_extra_validates_then_grades_from_fresh_data(site):
     assert [c["expected"]["rows"] for c in plan["datasets"]] == [[[2], [8]], [[3], [8]], [[4], [8]]]
 
 
-def test_sql_records_and_tutor(site, monkeypatch):
-    import app.main as main
-
+def test_sql_records_and_tutor(site, fake_agents):
     client, _, _ = site
     expected = {"columns": ["copies"], "types": [23], "rows": [[5], [8]], "rowCount": 2}
     case = {"status": "passed", "actual": expected, "expected": expected, "time_ms": 8}
@@ -153,7 +151,7 @@ def test_sql_records_and_tutor(site, monkeypatch):
     bad = case | {"status": "runtime_error", "error": "column missing does not exist\n列不存在"}
     client.post(URL + "/run", json={"code": "SELECT missing", "sql_result": {"verdict": "runtime_error", "cases": [bad]}})
     fake = FakeProvider([{"reply": "看一下列名", "edits": []}])
-    monkeypatch.setattr(main, "ai", fake)
+    fake_agents(claude=fake)
     assert client.post(URL + "/chat", json={"code": "SELECT missing", "message": "哪里错了"}).status_code == 200
     prompt = fake.calls[0]["prompt"]
     assert all(text in prompt for text in [SOLUTION, "SELECT missing", "列不存在", '"books"', '"integer"', "[8]"])
@@ -201,14 +199,13 @@ def test_curriculum_comparison_examples(monkeypatch):
         assert same_result(a, b, c["ordered"]) == c["equal"], c["name"]
 
 
-def test_sql_extra_through_chat_and_api(site, monkeypatch):
-    import app.main as main
+def test_sql_extra_through_chat_and_api(site, fake_agents):
     import time
 
     client, _, _ = site
     fake = FakeProvider([{"reply": "正在出题", "edits": [], "make_extra": "再练一次"}, extra_spec()])
-    monkeypatch.setattr(main, "ai", fake)
-    row = client.post(URL + "/chat", json={"message": "再来一道"}).json()["new_extra"]
+    fake_agents(claude=FakeProvider([]), codex=fake)
+    row = client.post(URL + "/chat", json={"message": "再来一道", "agent": "codex"}).json()["new_extra"]
     endpoint = f"/api/problems/{row['id']}"
     deadline = time.monotonic() + 20
     while time.monotonic() < deadline and client.get(URL + "/extras").json()[0]["status"] == "generating":

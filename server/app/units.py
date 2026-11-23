@@ -54,6 +54,26 @@ def group_units(track: Track, skills: dict[str, Skill], ordered: list[Problem]) 
     return stages
 
 
+def progress_frontier(stages: dict[str, list[Unit]], status: dict[str, str]) -> dict[str, str] | None:
+    """按地图顺序，从最靠后的已做题开始找下一道未做的必修题。"""
+    units = [unit for stage in stages.values() for unit in stage]
+    start_unit, after_last = 0, 0
+    for i, unit in enumerate(units):
+        for j, problem in enumerate(unit.problems):
+            if problem.id in status:
+                start_unit, after_last = i, j + 1
+
+    for i in range(start_unit, len(units)):
+        problems = units[i].problems
+        if i == start_unit and after_last:
+            # 当前单元先往后走，再从头补漏；后续单元直接从头找。
+            problems = problems[after_last:] + problems[:after_last]
+        for problem in problems:
+            if problem.id not in status and not problem.meta.optional:
+                return {"id": problem.id, "title": problem.meta.title}
+    return None
+
+
 def introduction_status(ordered: list[Problem], statuses: dict[str, dict[str, str]]) -> dict[str, str]:
     """技能小点取引入它的题中最好的提交状态。"""
     rank = {"attempted": 1, "assisted": 2, "solved": 3}

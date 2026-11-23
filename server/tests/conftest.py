@@ -48,3 +48,16 @@ def client(judging):
     from fastapi.testclient import TestClient
     from app.main import app
     return TestClient(app, headers={"Content-Type": "application/json"})
+
+
+@pytest.fixture
+def fake_agents(monkeypatch):
+    from app import main
+
+    def install(**agents):
+        monkeypatch.setattr(main, "providers", agents)
+        monkeypatch.setattr(main, "available_agents", lambda _: [
+            {"id": key, "name": key.title(), "model": "测试模型"} for key in agents
+        ])
+
+    return install

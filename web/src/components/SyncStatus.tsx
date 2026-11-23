@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useRevalidator } from 'react-router-dom'
-import { api, type SyncState } from '../api'
+import { api, invalidate, type SyncState } from '../api'
 
 // 做题页切题时状态栏会重新挂载，先显示上次读到的状态，不闪空。
 let known: SyncState | null = null
+// 服务启动时的第一次同步在后台进行，地图不等它。页面打开后才完成的那次可能合并了别的机器的记录，完成时刷新一次数据。
+let startup = true
 
 export function SyncStatus() {
   const [state, setState] = useState<SyncState | null>(known)
@@ -14,12 +16,22 @@ export function SyncStatus() {
   useEffect(() => {
     if (busy) return
     let active = true
+    let soon = 0
     async function refresh() {
       try {
         const next = known = await api.syncStatus()
-        if (active) {
-          setState(next)
-          setError('')
+        if (!active) return
+        setState(next)
+        setError('')
+        if (startup && next.syncing) {
+          window.clearTimeout(soon)
+          soon = window.setTimeout(refresh, 1000)
+        } else if (startup) {
+          startup = false
+          if (next.last_sync && Date.parse(next.last_sync) >= performance.timeOrigin) {
+            invalidate()
+            void revalidate()
+          }
         }
       } catch {
         if (active) setError('无法读取同步状态')
@@ -31,6 +43,7 @@ export function SyncStatus() {
     return () => {
       active = false
       window.clearInterval(timer)
+      window.clearTimeout(soon)
       window.removeEventListener('focus', refresh)
     }
   }, [busy])

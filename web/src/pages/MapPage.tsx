@@ -155,8 +155,8 @@ function BranchList(props: TreeProps) {
   })}</ul>
 }
 
-function TabTree({ tracks, tab }: { tracks: TrackInfo[]; tab: MapTab }) {
-  const { roots, stations, next } = mapTree(tracks, tab)
+function TabTree({ tracks, tab, map }: { tracks: TrackInfo[]; tab: MapTab; map: ReturnType<typeof mapTree> }) {
+  const { roots, stations, next } = map
   const [chosen, setChosen] = useState<string | null>(null)
   const tree = useRef<HTMLDivElement>(null)
   const selected = stations.find((s) => s.key === chosen) ?? next ?? stations[0]
@@ -191,6 +191,9 @@ export function MapPage() {
   const [params, setParams] = useSearchParams()
   const query = params.get('tab')
   const tab: MapTab = (query ?? readPref('dojo-map-tab', 'python')) === 'sql' ? 'sql' : 'python'
+  const map = mapTree(tracks, tab)
+  const resume = map.resumeTrack
+  const resumeLabel = resume?.frontier && `继续 · ${resume.name} · ${resume.frontier.title}`
   useEffect(() => {
     writePref('dojo-map-tab', tab)
     if (!query && tab === 'sql') setParams({ tab }, { replace: true })
@@ -209,8 +212,11 @@ export function MapPage() {
             }
           }}>{tabNames[key]}</button>)}
       </div>
+      {resume?.frontier && <Link className="map-resume" to={practicePath(resume.frontier)} title={resumeLabel + ' →'}>
+        <span>{resumeLabel}</span> <span aria-hidden="true">→</span>
+      </Link>}
       <div className="map-legend"><span><i className="legend-next" />下一步</span><span><i className="legend-assist" />AI 协助</span></div>
     </header>
-    <TabTree key={tab} tracks={tracks} tab={tab} />
+    <TabTree key={tab} tracks={tracks} tab={tab} map={map} />
   </main>
 }

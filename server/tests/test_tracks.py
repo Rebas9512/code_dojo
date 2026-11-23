@@ -73,7 +73,7 @@ def test_track_map_progress(tracks_api):
     assert (root["name"], root["total"], root["language"]) == ("认识数据", 2, "none")
     assert first.keys() == {
         "id", "name", "summary", "order", "language", "runtime", "status", "requires", "stages", "total",
-        "solved", "assisted", "attempted", "skills", "next", "requires_done", "mastered",
+        "solved", "assisted", "attempted", "skills", "next", "requires_done", "mastered", "frontier", "last_active",
     }
     assert [first["name"], first["language"], first["order"], first["skills"]] == ["Python 基础", "python", 1, 2]
     problems = client.get("/api/tracks/python/problems").json()
@@ -90,6 +90,9 @@ def test_track_map_progress(tracks_api):
         {"id": "0B", "name": "算法入门", "total": 0, "solved": 0, "units": [unstarted("0B", "算法入门")]},
     ]
     assert [p["unit"] for p in problems] == ["6", "1", "6", "1"]
+    assert all(row["last_active"] is None for row in rows)
+    assert first["frontier"] == {"id": problems[1]["id"], "title": problems[1]["title"]}
+    assert planned["frontier"] is None
     assert not algo["requires_done"] and algo["requires"] == ["python"]
     assert sql["requires"] == ["data"] and sql["runtime"] == "pglite" and not sql["requires_done"]
     assert planned["status"] == "planned" and planned["total"] == planned["skills"] == 0 and planned["next"] is None
@@ -104,6 +107,7 @@ def test_track_map_progress(tracks_api):
     submit(1, "accepted")
     submit(2, "wrong_answer")
     first = client.get("/api/tracks").json()[1]
+    assert first["last_active"] == store.submissions(problems[2]["id"])[0]["created_at"]
     assert (first["solved"], first["assisted"], first["attempted"], first["total"]) == (2, 1, 1, 4)
     assert first["stages"][0]["solved"] == 2
     unit = first["stages"][0]["units"][1]
@@ -114,6 +118,26 @@ def test_track_map_progress(tracks_api):
     submit(3, "accepted")
     _, first, algo, *_ = client.get("/api/tracks").json()
     assert first["next"] is None and algo["requires_done"]
+    assert first["frontier"] is None
+
+
+def test_track_activity_includes_extra_runs(tracks_api, monkeypatch):
+    client, store = tracks_api
+    parent = "data-0-001-book-key"
+    extra = store.create_extra(parent, "")
+    store.finish_extra(extra["row_id"], {
+        "title": "找编号", "mode": "inspect", "statement": "编号是什么？", "explain": "读第一列。",
+        "data": [{"kind": "csv", "content": "id\nABC"}], "answer": {"type": "short", "accept": ["ABC"]},
+    }, [])
+    latest = "2026-11-23T09:00:00.123456+00:00"
+    monkeypatch.setattr("app.db.now", lambda: latest)
+    assert client.post(f"/api/problems/{extra['id']}/run", json={"answer": "ABC"}).json()["verdict"] == "accepted"
+    # 模拟一条时间较早、较晚入库的记录，按时间取最大值。
+    monkeypatch.setattr("app.db.now", lambda: "2026-11-22T09:00:00.000000+00:00")
+    assert client.post(f"/api/problems/{parent}/run", json={"answer": 1}).json()["verdict"] == "accepted"
+    data, *others = client.get("/api/tracks").json()
+    assert data["last_active"] == latest and data["frontier"]["id"] == parent
+    assert all(row["last_active"] is None for row in others)
 
 
 def test_requires_empty_track_is_unfinished(tracks_api, monkeypatch):

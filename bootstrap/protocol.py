@@ -1,10 +1,9 @@
-"""Electron 与启动器的逐行 JSON 协议。只有主线程操作子进程或写事件。"""
+"""Electron 与启动器的逐行 JSON 协议。只有主线程操作子进程或写事件；后台查更新的结果经收件箱交回主线程。"""
 
 import json
 import math
 import os
 import queue
-import shutil
 import sqlite3
 import subprocess
 import sys
@@ -14,6 +13,7 @@ from pathlib import Path
 from cryptography.exceptions import InvalidTag
 
 from . import DEFAULT_REPO, DEFAULT_SYNC, VERSION
+from .agents import has_agent
 from .credentials import credential_source, tokens
 from .github import GitHub, repository
 from .sealed import unseal
@@ -50,6 +50,7 @@ class Controller:
         self.api = os.environ.get("CODE_DOJO_GITHUB_API", "https://api.github.com")
         self.attempts = UnlockAttempts(data)
         self.inbox = queue.Queue()
+        self.checking = threading.Lock()  # 后台和手动查更新不同时下载
         self.child = None
         self.values = {}
         self.item = None
@@ -65,7 +66,7 @@ class Controller:
         elif source == "manual" and not (self.data / "desktop/current.json").is_file():
             self.send("need_tokens")
         else:
-            self.update()
+            self.launch()
 
     def status(self, message):
         self.send("status", message=message)
@@ -117,11 +118,53 @@ class Controller:
         else:
             self.send("error", message="无法识别该桌面指令")
 
+    def updates(self):
+        return Updates(self.data, self.bundle, GitHub(self.repo, self.values.get("code", ""), self.api))
+
+    def launch(self):
+        """装过更新包时直接用它起服务，同时在后台查更新（网络往返不挡启动）。新版本下载好后下次打开生效。"""
+        updates = self.updates()
+        updates.clean()
+        current = updates.current()
+        if not current:
+            self.update()
+            return
+        self.status("正在启动本机服务…")
+        staged = updates.staged()
+        detail = ""
+        if staged and not self.start(updates, staged):
+            detail = "新版服务启动失败，已恢复上一版本"
+            staged = None
+        if not staged and not self.start(updates, current):
+            self.send("error", message="本机服务启动失败，请重试")
+            return
+        self.ready(detail)
+        threading.Thread(target=self.check_later, args=(updates,), daemon=True).start()
+
+    def check_later(self, updates):
+        with self.checking:
+            result = updates.check()
+        self.inbox.put(("update", (updates, result)))
+
+    def checked(self, updates, result):
+        # 手动更新清理旧目录时，后台刚下载完的目录可能已被删掉，那就不记。
+        if result.active and self.item and result.active.root != self.item.root and result.active.root.is_dir():
+            updates.stage(result.active)
+        if result.message or result.installer:
+            self.send("status", message=result.message, installer=result.installer, checked=True)
+
+    def ready(self, message="", installer=""):
+        enabled = os.environ.get("CODE_DOJO_AI_PROVIDER") != "off" and has_agent()
+        self.send("ready", port=self.port, version=VERSION, payload_version=self.item.manifest["version"],
+                  ai=enabled, message=message, installer=installer)
+        self.write("status")
+
     def update(self, restart=False):
         self.status("正在检查更新…")
-        updates = Updates(self.data, self.bundle, GitHub(self.repo, self.values.get("code", ""), self.api))
+        updates = self.updates()
         previous = updates.current()
-        result = updates.check(self.status)
+        with self.checking:
+            result = updates.check(self.status)
         detail = "；".join(filter(None, (result.message, self.notice)))
         if not result.active:
             self.send("error", message=detail or "尚未安装题库", installer=result.installer)
@@ -136,11 +179,7 @@ class Controller:
                 self.send("error", message="本机服务启动失败，请重试")
                 return
             detail = "新版服务启动失败，已恢复上一版本"
-        enabled = os.environ.get("CODE_DOJO_AI_PROVIDER", "claude") == "claude" and bool(
-            shutil.which(os.environ.get("CODE_DOJO_CLAUDE_BIN", "claude")))
-        self.send("ready", port=self.port, version=VERSION, payload_version=self.item.manifest["version"],
-                  ai=enabled, message=detail, installer=result.installer)
-        self.write("status")
+        self.ready(detail, result.installer)
 
     def start(self, updates, item):
         config = dict(payload=str(item.root), libraries=str(updates.libraries(item.manifest)), data=str(self.data),
@@ -202,6 +241,8 @@ class Controller:
                     if msg is None or msg.get("command") == "quit":
                         break
                     self.command(msg)
+                elif source == "update":
+                    self.checked(*msg)
                 elif source is self.child:
                     if msg is None:
                         self.stop()

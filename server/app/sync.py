@@ -271,19 +271,18 @@ class ProgressSync:
         self._wake.set()
 
     def start(self) -> None:
+        """启动时的第一次同步也在后台线程里做，不让网络往返挡住服务就绪；网页在这次同步完成后刷新一次数据。"""
         if not self.repo:
             return
-        self.sync()
         self._stop.clear()
         self._worker = threading.Thread(target=self._run, name="dojo-sync", daemon=True)
         self._worker.start()
 
     def _run(self) -> None:
         while not self._stop.is_set():
+            self.sync()
             self._wake.wait(INTERVAL)
             self._wake.clear()
-            if not self._stop.is_set():
-                self.sync()
 
     def close(self) -> None:
         if self._worker:

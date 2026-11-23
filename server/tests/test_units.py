@@ -2,9 +2,11 @@
 
 from pathlib import Path
 
+import pytest
+
 from app.problems import Problem, ProblemMeta, Skill, SkillRef
 from app.tracks import load_track
-from app.units import group_units
+from app.units import Unit, group_units, progress_frontier
 
 
 def test_group_assignment(tmp_path: Path):
@@ -82,3 +84,30 @@ stages:
                problem("follow", 3, ["py.list"]), problem("stack", 4, introduces="algo.stack")]
     stages = group_units(track, {s.id: s for s in skills}, ordered)
     assert [[p.id for p in u.problems] for u in stages["1"]] == [["hash"], ["pinned", "follow", "stack"]]
+
+
+@pytest.mark.parametrize(("status", "expected"), [
+    ({}, "a"),
+    ({"b": "attempted"}, "c"),
+    ({"c": "assisted"}, "a"),
+    ({"a": "solved", "b": "assisted", "c": "attempted"}, "d"),
+    ({"d": "solved"}, "e"),
+    ({"a": "solved", "b": "solved", "c": "solved", "d": "solved", "e": "solved"}, None),
+    ({"选修二": "attempted"}, "d"),
+    ({"e": "attempted"}, None),
+])
+def test_progress_frontier(status, expected):
+    path = Path(__file__).parent / "fixtures/problems/python/track.yaml"
+    track = load_track(path)
+
+    def unit(stage, uid, ids):
+        problems = []
+        for order, pid in enumerate(ids):
+            meta = ProblemMeta(id=pid, title=f"题 {pid}", track="python", stage=stage, order=order,
+                               format="write", difficulty=1, skills=SkillRef(), optional=pid.startswith("选修"))
+            problems.append(Problem(meta, track, path.parent, "", ""))
+        return Unit(uid, uid, problems=problems)
+
+    stages = {"0A": [unit("0A", "1", ["选修一", "a", "b", "c"]), unit("0A", "2", ["选修二", "d"])],
+              "0B": [unit("0B", "1", ["e", "选修三"])]}
+    assert progress_frontier(stages, status) == ({"id": expected, "title": f"题 {expected}"} if expected else None)

@@ -10,6 +10,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import { flushSync } from 'react-dom'
 import { Link, useNavigate, useRevalidator, useSearchParams } from 'react-router-dom'
 import {
   api,
@@ -35,10 +36,11 @@ import { CodeEditor } from './LazyCodeEditor'
 import { InspectData } from './InspectData'
 import { Markdown } from './Markdown'
 import { Picker, usePickerShortcut, type PickerItem } from './Picker'
+import { STATUS_NAME } from './ProblemStatus'
 import { DesktopBridge } from './DesktopBridge'
 import { SyncStatus } from './SyncStatus'
 import { Explorer, Icon, Separator, useWorkbenchLayout, type WorkbenchLayout } from './WorkbenchLayout'
-import { WorkbenchPanel, diagnostics, type Attempt, type ExampleOutput, type PanelTab } from './WorkbenchPanel'
+import { WorkbenchPanel, diagnostics, type Attempt, type ExampleOutput, type PanelOutput, type PanelTab } from './WorkbenchPanel'
 
 const LessonView = lazy(() => import('./LessonView').then(m => ({ default: m.LessonView })))
 
@@ -120,13 +122,21 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   const [loadError, setLoadError] = useState<string | null>(null)
   const [code, setCode] = useState('')
   const [answer, setAnswer] = useState('')
+  const scratchKey = `dojo-scratch:${id}`
+  const [scratch, setScratch] = useState(() => readPref(scratchKey, ''))
+  const scratchText = useRef(scratch)
+  const [inScratch, setInScratch] = useState(false)
+  const [scratchBusy, setScratchBusy] = useState(false)
   const [busy, setBusy] = useState<'run' | 'submit' | null>(null)
   const [result, setResult] = useState<Attempt | null>(null)
   const [requestError, setRequestError] = useState<string | null>(null)
   const [panelTab, setPanelTab] = useState<PanelTab>('测试结果')
-  const [output, setOutput] = useState<ExampleOutput | null>(null)
+  const [output, setOutput] = useState<PanelOutput | null>(null)
+  const scratchRun = useRef(0)
   const [commandsOpen, setCommandsOpen] = useState(false)
-  const [cursor, setCursor] = useState({ line: 1, col: 1 })
+  const [answerCursor, setAnswerCursor] = useState({ line: 1, col: 1 })
+  const [scratchCursor, setScratchCursor] = useState({ line: 1, col: 1 })
+  const cursor = inScratch ? scratchCursor : answerCursor
   const problems = diagnostics(result, requestError)
   const { setPanel } = layout
   usePickerShortcut(true, () => setCommandsOpen(true))
@@ -139,6 +149,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   const [loadingHelp, setLoadingHelp] = useState(false)
   const [finished, setFinished] = useState(false)
   const editorRef = useRef<CodeEditorHandle>(null)
+  const scratchRef = useRef<CodeEditorHandle>(null)
   const latest = useRef({ code: '', answer: '' })
   latest.current = { code, answer }
   const elapsed = useElapsed(id)
@@ -166,6 +177,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   const isInspect = p?.format === 'inspect' || p?.language === 'none'
   const textAnswer = p?.answer?.type === 'short'
   const isSql = p?.language === 'sql' && !isInspect
+  const hasScratch = !!p && !isInspect && !isPredict
   const [preparing, setPreparing] = useState(false)
   useEffect(() => {
     if (!isSql) return
@@ -177,10 +189,23 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
     return () => { current = false }
   }, [isSql])
   const judgeable = !!p && !preparing && !waiting && !finished && !loadingHelp
+  const canRun = inScratch ? hasScratch && !preparing && !waiting && !scratchBusy : judgeable && !busy
+
+  const switchFile = (scratch: boolean) => {
+    flushSync(() => setInScratch(scratch))
+    document.getElementById(scratch ? 'scratch-editor' : 'answer-editor')
+      ?.querySelector<HTMLElement>('[role="textbox"]')?.focus()
+  }
 
   const updateCode = (v: string) => {
     setCode(v)
     if (!isReview) writePref(draftKey, v)
+  }
+  const updateScratch = (v: string) => {
+    // 输入后可以立刻按 Ctrl+Enter，运行时取 Monaco 刚写入的内容。
+    scratchText.current = v
+    setScratch(v)
+    writePref(scratchKey, v)
   }
   const updateAnswer = useCallback((v: string) => {
     setAnswer(v)
@@ -236,6 +261,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   const judge = useCallback(
     async (kind: 'run' | 'submit') => {
       if (!p || !judgeable || busy || (isInspect && !answer.trim())) return
+      const previousScratchRun = scratchRun.current
       setPanel(true)
       setPanelTab('测试结果')
       setBusy(kind)
@@ -259,13 +285,42 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
       } catch (e) {
         setRequestError((e as Error).message)
       } finally {
-        setPanel(true)
-        setPanelTab('测试结果')
+        if (previousScratchRun === scratchRun.current) {
+          setPanel(true)
+          setPanelTab('测试结果')
+        }
         setBusy(null)
       }
     },
     [p, judgeable, busy, id, parent.id, review, isReview, isSql, isPredict, isInspect, answer, code, elapsed.ms, hintsShown, aiLines, onResult, revalidate, setPanel],
   )
+
+  async function runCurrent() {
+    if (!inScratch) return judge('run')
+    if (!canRun) return
+    const text = scratchText.current
+    const pending: PanelOutput = { source: '草稿' }
+    scratchRun.current++
+    setOutput(pending)
+    setPanel(true)
+    setPanelTab('输出')
+    setScratchBusy(true)
+    let result: ExampleOutput
+    try {
+      if (isSql) {
+        const plan = await api.sqlCases(id, 'sample')
+        const table = await (await import('../sql/client')).runExample(plan.datasets[0].setup, text)
+        result = { stdout: '', table }
+      } else {
+        result = await api.playground(text, '', id)
+      }
+    } catch (e) {
+      result = { stdout: '', error: (e as Error).message }
+    } finally {
+      setScratchBusy(false)
+    }
+    setOutput(current => current === pending ? { source: '草稿', result } : current)
+  }
 
   // 编辑器外的快捷键（编辑器内的由 CodeEditor 注册）
   useEffect(() => {
@@ -283,7 +338,11 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
         }
       } else if (mod && e.key === 'Enter') {
         e.preventDefault()
-        judge(isInspect || e.shiftKey ? 'submit' : 'run')
+        if (isInspect || e.shiftKey) void judge('submit')
+        else void runCurrent()
+      } else if (hasScratch && e.altKey && !mod && !e.shiftKey && e.code === 'KeyS') {
+        e.preventDefault()
+        switchFile(!inScratch)
       } else if (e.altKey && e.key === 'ArrowLeft' && nav.prev) {
         e.preventDefault()
         navigate(itemPath(nav.prev))
@@ -297,12 +356,14 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [judge, navigate, nav, next, setBare, isInspect, p?.answer, updateAnswer])
+  }, [judge, runCurrent, inScratch, hasScratch, navigate, nav, next, setBare, isInspect, p?.answer, updateAnswer])
 
   const names = useMemo(() => paramNames(p?.signature ?? null), [p])
   const newSkill = p?.skill_cards.find((s) => s.new)
 
   const stuck = id === parent.id ? parent.stuck : p?.stuck
+  // 原题的状态跟着路由数据刷新（提交后 revalidate），附加题提交后重新取详情
+  const done = id === parent.id ? parent.status : p?.status ?? null
   async function showHelp(full: boolean) {
     if (!p || loadingHelp) return
     setLoadingHelp(true)
@@ -330,8 +391,15 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   const nextTitle = (isReview ? next : parent.next)?.title ?? ''
   let leftBody: ReactNode
   if (left === 'lesson') {
+    // 示例保留点击运行时的回调；晚返回的旧示例不能覆盖随后启动的草稿。
+    const version = scratchRun.current
     leftBody = <Suspense fallback={null}><LessonView problemId={id} theme={theme} runStatus={runStatus}
-      onOutput={value => { setOutput(value); setPanelTab('输出'); setPanel(true) }} /></Suspense>
+      onOutput={result => {
+        if (version !== scratchRun.current) return
+        setOutput({ source: '课 · 示例', result })
+        setPanelTab('输出')
+        setPanel(true)
+      }} /></Suspense>
   } else if (left !== 'statement') {
     leftBody = left
   } else if (loadError) {
@@ -340,7 +408,8 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
     leftBody = (
       <>
         <div className="title-row">
-          <h1>{p.title}</h1>
+          <h1>{p.title}{done && <span className={'title-status status ' + done}>
+            {done === 'attempted' ? '◐' : '●'} {STATUS_NAME[done]}</span>}</h1>
           <nav className="title-nav" aria-label="切换题目">
             <button title={'上一题 · ' + (nav.prev?.title ?? '') + '（Alt+←）'} disabled={!prevPath}
               onClick={() => prevPath && navigate(prevPath)}><Icon name="chevron-left" />上一题</button>
@@ -405,12 +474,14 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   }
 
   const filename = isInspect ? 'answer' : isPredict ? 'answer.txt' : isSql ? 'query.sql' : 'solution.py'
+  const runLabel = inScratch ? '运行草稿' : '运行样例'
   const crumbs = [track.name, nav.stage, unit, p?.title].filter(Boolean).join('  ›  ')
   const togglePanel = () => setPanel(!layout.panel)
   const showIssues = () => { setPanelTab('问题'); setPanel(true) }
   const commands: PickerItem[] = [
-    { id: 'run', title: '运行样例', shortcut: 'Ctrl+Enter', disabled: !judgeable || !!busy || isInspect, run: () => judge('run') },
+    { id: 'run', title: runLabel, shortcut: 'Ctrl+Enter', disabled: !canRun || isInspect, run: runCurrent },
     { id: 'submit', title: '提交', shortcut: 'Ctrl+Shift+Enter', disabled: !judgeable || !!busy || (isInspect && !answer.trim()), run: () => judge('submit') },
+    ...(hasScratch ? [{ id: 'scratch', title: '切换答案 / 草稿', shortcut: 'Alt+S', run: () => switchFile(!inScratch) }] : []),
     { id: 'bare', title: '切换裸写模式', shortcut: 'Alt+B', disabled: isInspect, run: () => setBare(b => !b) },
     { id: 'chat', title: '开关助教', shortcut: 'Ctrl+Alt+I', run: layout.toggleChat },
     { id: 'reset', title: isInspect ? '清空答案' : '重置代码', run: resetCode },
@@ -437,16 +508,22 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
         </section>
         <section className="wb-code">
           <div className="editor-tabs file-tabs">
-            <span className="active-file"><Icon name={isInspect ? 'table' : isPredict ? 'file-text' : isSql ? 'database' : 'code'} />{filename}</span>
+            <nav className="code-files" aria-label="编辑文件">
+              <button className="file-tab" aria-pressed={!inScratch} aria-controls="answer-editor"
+                onClick={() => switchFile(false)}><Icon name={isInspect ? 'table' : isPredict ? 'file-text' : isSql ? 'database' : 'code'} />{filename}</button>
+              {hasScratch && <button className="file-tab" aria-pressed={inScratch} aria-controls="scratch-editor"
+                title="切换答案 / 草稿（Alt+S）" onClick={() => switchFile(true)}>
+                <Icon name="beaker" />{isSql ? 'scratch.sql' : 'scratch.py'}</button>}
+            </nav>
             <span className="bar-spacer" />
-            {!isInspect && <button className="run-action" disabled={!judgeable || !!busy} title="运行样例（Ctrl+Enter）"
-              onClick={() => judge('run')}><Icon name="play" />{busy === 'run' ? '运行中' : '运行'}</button>}
+            {!isInspect && <button className="run-action" disabled={!canRun} title={runLabel + '（Ctrl+Enter）'}
+              onClick={runCurrent}><Icon name="play" />{(inScratch ? scratchBusy : busy === 'run') ? '运行中' : '运行'}</button>}
             <button className="submit-action" disabled={!judgeable || !!busy || (isInspect && !answer.trim())}
               onClick={() => judge('submit')} title="提交（Ctrl+Shift+Enter）">{busy === 'submit' ? '判题中' : '提交'}</button>
             <button className="icon-btn" title="命令面板（Ctrl+Shift+P）" onClick={() => setCommandsOpen(true)}><Icon name="ellipsis" /></button>
           </div>
           <div className="breadcrumbs" title={crumbs}>{crumbs}</div>
-          <div className={isInspect ? 'inspect-answer' : 'editor-wrap'}>
+          <div id="answer-editor" hidden={inScratch} className={isInspect ? 'inspect-answer' : 'editor-wrap'}>
           {!p ? null : isInspect ? (
             <fieldset><legend>你的答案</legend>
               {p.answer?.type === 'choice' ? p.answer.options.map((option, i) =>
@@ -456,7 +533,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
                   <span className="option-number">{i + 1}</span><span>{option}</span>
                 </label>) :
                 <input className="short-answer" aria-label="短答案" autoComplete="off" spellCheck={false}
-                  onSelect={e => setCursor({ line: 1, col: (e.currentTarget.selectionStart ?? 0) + 1 })}
+                  onSelect={e => setAnswerCursor({ line: 1, col: (e.currentTarget.selectionStart ?? 0) + 1 })}
                   maxLength={20000} value={answer} onChange={(e) => updateAnswer(e.target.value)} />}
             </fieldset>
           ) : (
@@ -464,7 +541,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
               ref={editorRef}
               value={isPredict ? answer : code}
               onChange={isPredict ? updateAnswer : updateCode}
-              onCursor={(line, col) => setCursor({ line, col })}
+              onCursor={(line, col) => setAnswerCursor({ line, col })}
               language={isPredict ? 'plaintext' : isSql ? 'pgsql' : 'python'}
               placeholder={isPredict ? '写出程序的输出' : undefined}
               theme={theme}
@@ -474,8 +551,14 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
             />
           )}
           </div>
-          {(preparing || aiLines > 0 || requestError || ((busy || generating) && runStatus)) && <div className="editor-notice" role="status">
-            {(busy || generating) && runStatus}
+          {hasScratch && <div id="scratch-editor" hidden={!inScratch} className="editor-wrap">
+            <CodeEditor ref={scratchRef} value={scratch} language={isSql ? 'pgsql' : 'python'}
+              onChange={updateScratch}
+              onCursor={(line, col) => setScratchCursor({ line, col })} theme={theme} bare={bare}
+              placeholder="随手试代码，不判题" onRun={runCurrent} onSubmit={() => judge('submit')} />
+          </div>}
+          {(preparing || aiLines > 0 || requestError || ((busy || scratchBusy || generating) && runStatus)) && <div className="editor-notice" role="status">
+            {(busy || scratchBusy || generating) && runStatus}
             {preparing && '正在准备数据库…'}
             {aiLines > 0 && <span className="ai-badge">AI 协助 {aiLines} 行</span>}
             {requestError && <span className="tone-fail">{requestError}</span>}
@@ -484,7 +567,10 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
       </div>
       {layout.panel && <WorkbenchPanel layout={layout} tab={panelTab} setTab={setPanelTab}
         attempt={result} problems={problems} sql={isSql} mode={p?.mode ?? null} names={names}
-        jump={isInspect || isPredict ? undefined : n => editorRef.current?.jumpTo(n)} output={output} busy={!!busy} />}
+        jump={isInspect || isPredict ? undefined : n => {
+          flushSync(() => setInScratch(false))
+          editorRef.current?.jumpTo(n)
+        }} output={output} busy={!!busy} />}
     </div>
     <footer className="wb-status">
       <div className="status-items">
@@ -630,6 +716,7 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
     await api.deleteExtra(id, e.seq)
     setConfirmDelete(null)
     writePref(`dojo-draft:${e.id}`, null)
+    writePref(`dojo-scratch:${e.id}`, null)
     writePref(`dojo-ai-lines:${e.id}`, null)
     if (activeId === e.id) setActiveId(id)
     if (tab === e.id || activeId === e.id) setTab('problem')
@@ -643,6 +730,7 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
     }
     if (deleted.length > 0) {
       const gone = extras.filter((e) => deleted.includes(e.seq)).map((e) => e.id)
+      for (const extraId of gone) writePref(`dojo-scratch:${extraId}`, null)
       if (gone.includes(activeId)) setActiveId(id)
       if (gone.includes(tab)) setTab('problem')
     }

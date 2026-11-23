@@ -22,8 +22,10 @@ class Settings:
     ds_image: str
     ds_memory: str
     ds_time_limit_ms: int
-    ai_provider: str          # claude | off
+    ai_provider: str          # claude | codex | off
     claude_bin: str
+    codex_bin: str
+    codex_model: str
     ai_model: str
     ai_effort: str
     ai_workdir: Path
@@ -58,6 +60,8 @@ def load_settings() -> Settings:
         ds_time_limit_ms=int(env("CODE_DOJO_DS_TIME_LIMIT_MS", "10000")),
         ai_provider=env("CODE_DOJO_AI_PROVIDER", "claude"),
         claude_bin=env("CODE_DOJO_CLAUDE_BIN", "claude"),
+        codex_bin=env("CODE_DOJO_CODEX_BIN", "codex"),
+        codex_model=env("CODE_DOJO_CODEX_MODEL", "gpt-6.2-astra"),
         ai_model=env("CODE_DOJO_AI_MODEL", "claude-opus-5-5"),
         ai_effort=env("CODE_DOJO_AI_EFFORT", "low"),
         ai_workdir=Path(env("CODE_DOJO_AI_WORKDIR", Path(tempfile.gettempdir()) / "code-dojo-ai")),

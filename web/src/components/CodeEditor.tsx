@@ -29,7 +29,8 @@ const ASSISTED: EditorOptions = {
   wordBasedSuggestions: 'currentDocument',
   parameterHints: { enabled: true },
   autoClosingBrackets: 'languageDefined',
-  autoClosingQuotes: 'languageDefined',
+  // 'always'：字母后面也补引号（f"、r"、b"）；字符串和注释里照旧不补
+  autoClosingQuotes: 'always',
   autoClosingOvertype: 'auto',
   autoSurround: 'languageDefined',
   hover: { enabled: 'on' },
@@ -101,6 +102,11 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEdito
   const handlers = useRef({ onRun, onSubmit, onCursor })
   handlers.current = { onRun, onSubmit, onCursor }
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
+  // 编辑器自己发出、React 还没回写完的内容。快速连按时 React 的回写可能落后一两个字，
+  // 不能拿旧值覆盖编辑器（以前间隔 < 20 ms 的按键会丢字）。只有外部改动（重置、载入草稿）才写回编辑器。
+  const emitted = useRef(new Set<string>())
+  const latestValue = useRef(value)
+  latestValue.current = value
   const aiMarks = useRef<monaco.editor.IEditorDecorationsCollection | null>(null)
 
   useImperativeHandle(ref, () => ({
@@ -151,6 +157,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEdito
 
   const onMount: OnMount = (editor) => {
     editorRef.current = editor
+    if (editor.getValue() !== latestValue.current) editor.setValue(latestValue.current)
     editor.onDidChangeCursorPosition(({ position }) => handlers.current.onCursor?.(position.lineNumber, position.column))
     void document.fonts.load('14px "JetBrains Mono Variable"').then(() => monaco.editor.remeasureFonts())
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => handlers.current.onRun?.())
@@ -161,13 +168,33 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEdito
   }
 
   useEffect(() => {
+    const editor = editorRef.current
+    const model = editor?.getModel()
+    if (!editor || !model) return
+    const current = model.getValue()
+    if (emitted.current.has(value)) {
+      if (value === current) emitted.current.clear()  // 已经追上
+      return
+    }
+    if (value === current) return
+    editor.pushUndoStop()
+    editor.executeEdits('external', [{ range: model.getFullModelRange(), text: value, forceMoveMarkers: true }])
+    editor.pushUndoStop()
+    emitted.current.clear()
+  }, [value])
+
+  useEffect(() => {
     editorRef.current?.updateOptions({ ...(bare ? BARE : ASSISTED), readOnly: !!readOnly })
   }, [bare, readOnly])
 
   return (
     <Editor
-      value={value}
-      onChange={(v) => onChange(v ?? '')}
+      defaultValue={value}
+      onChange={(v) => {
+        const text = v ?? ''
+        emitted.current.add(text)
+        onChange(text)
+      }}
       language={language}
       theme={`dojo-${theme}`}
       options={{ ...BASE, placeholder, ...(compact ? COMPACT : {}), ...(bare ? BARE : ASSISTED), readOnly: !!readOnly }}

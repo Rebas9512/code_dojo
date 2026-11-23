@@ -80,7 +80,7 @@ def test_daily_limit_and_concurrent_retry(site, monkeypatch):
     assert client.get("/api/today").json()["first_rate"] == 1
 
 
-def test_solution_ai_author_hints_and_rewrite(site, monkeypatch):
+def test_solution_ai_author_hints_and_rewrite(site, monkeypatch, fake_agents):
     import app.main as main
     from app import db
     client, store = site
@@ -93,7 +93,7 @@ def test_solution_ai_author_hints_and_rewrite(site, monkeypatch):
         client.post(f"/api/problems/{A}/submit", json={"answer": 1})
         main.bank.problems[B].meta.hints = ["看编号"]
         client.post(f"/api/problems/{B}/hints/1", json={}).raise_for_status()
-        clock.setattr(main, "ai", FakeProvider([{"reply": "再对照一下编号。", "edits": []}]))
+        fake_agents(claude=FakeProvider([{"reply": "再对照一下编号。", "edits": []}]))
         client.post(f"/api/problems/{B}/chat", json={"message": "给我一点提示"}).raise_for_status()
         assert send(client, B, {"answer": "A6", "hints_used": 1}).status_code == 200
     assert store.submissions(B)[0]["hints_used"] == 2
@@ -107,7 +107,7 @@ def test_solution_ai_author_hints_and_rewrite(site, monkeypatch):
     assert client.get("/api/tracks/data/skills").json()[0]["counted_solves"] == 1
 
 
-def test_second_review_changes_target_and_records_source(site, monkeypatch):
+def test_second_review_changes_target_and_records_source(site, monkeypatch, fake_agents):
     from app import db
     client, store = site
     # 将调度时钟和展示日历一起推进，走普通交卷、原题复习、变式复习三个入口。
@@ -138,7 +138,7 @@ def test_second_review_changes_target_and_records_source(site, monkeypatch):
     assert fallback["generate"] and fallback["source"] == A
     spec = {"title":"练习编号", "mode":"inspect", "statement":"读编号", "explain":"看第一列。",
             "data":[{"kind":"csv", "content":"编号\nABC"}], "answer":{"type":"short", "accept":["ABC"]}}
-    monkeypatch.setattr("app.main.ai", FakeProvider([spec]))
+    fake_agents(claude=FakeProvider([spec]))
     import time
     extra = client.post(f"/api/problems/{A}/extras", json={"request":"同套路", "review_source": A, "review_due": fallback["due"]}).json()
     for _ in range(100):

@@ -22,7 +22,15 @@
 }
 .map-tabs button[aria-selected="true"] { border-bottom-color: var(--accent); color: var(--text); }
 .map-tabs button:hover { color: var(--text); }
-.map-legend { gap: 18px; color: var(--muted); font-size: 12px; }
+.map-resume {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-width: 0; max-width: 100%; margin-left: auto; padding: 6px 12px; border-radius: 4px;
+  background: var(--action); color: var(--accent-ink);
+  font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap;
+}
+.map-resume > span:first-child { overflow: hidden; text-overflow: ellipsis; }
+.map-resume:hover { background: color-mix(in srgb, var(--action) 90%, black); }
+.map-legend { flex: none; gap: 18px; color: var(--muted); font-size: 12px; }
 .map-legend > span { gap: 8px; }
 .legend-next, .legend-assist {
   display: inline-block;
@@ -215,7 +223,9 @@
 }
 @media (max-width: 560px) {
   .learning-map { --indent: 10px; --junction: 21px; padding-top: 25px; }
-  .map-legend { gap: 12px; font-size: 11px; }
+  .map-bar { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; }
+  .map-resume { grid-column: 1 / -1; grid-row: 2; justify-self: start; margin: 0 0 10px; }
+  .map-legend { grid-column: 2; grid-row: 1; justify-self: end; gap: 12px; font-size: 11px; }
   .map-legend > span { gap: 6px; }
   .track-line { display: block; min-height: 0; padding: 8px 0 12px; }
   .route-heading { display: flex; align-items: baseline; gap: 0 10px; flex-wrap: wrap; }

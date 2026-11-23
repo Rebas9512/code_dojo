@@ -99,26 +99,24 @@ def test_extra_validation_and_retry(api, invalid):
 
 
 @pytest.mark.parametrize(("pid", "answer", "expected"), [(CHOICE, "0", "书名 title"), (SHORT, "A", "学生当前的短答案：A")])
-def test_tutor_context_and_edit_target(api, monkeypatch, pid, answer, expected):
-    import app.main as main
+def test_tutor_context_and_edit_target(api, fake_agents, pid, answer, expected):
     edit = {"old": answer, "new": "B", "why": "看清编号"}
     fake = FakeProvider([{"reply": "再看一眼编号。", "edits": [edit]}])
-    monkeypatch.setattr(main, "ai", fake)
+    fake_agents(claude=fake)
     r = api.post(f"/api/problems/{pid}/chat", json={"message": "讲讲思路", "answer": answer}).json()
     prompt = fake.calls[0]["prompt"]
     assert expected in prompt and "正确答案（只供判断，不要透露）" in prompt and "B2" in prompt
     assert r["assistant"]["edits"] == ([] if pid == CHOICE else [edit])
 
 
-def test_extra_api_uses_inspect_branch(api, monkeypatch):
-    import app.main as main
+def test_extra_api_uses_inspect_branch(api, fake_agents):
     from test_extras import wait_ready
 
     spec = {"mode": "inspect", "title": "看书名", "statement": "第二本书叫什么？", "explain": "沿第二条记录读书名。",
             "data": [{"kind": "table", "content": "id,name\n1,夜航\n2,远山"}],
             "answer": {"type": "choice", "options": ["夜航", "远山"], "correct": 1}}
-    monkeypatch.setattr(main, "ai", FakeProvider([spec]))
-    r = api.post(f"/api/problems/{SHORT}/extras", json={"request": "换成单选"})
+    fake_agents(claude=FakeProvider([]), codex=FakeProvider([spec]))
+    r = api.post(f"/api/problems/{SHORT}/extras", json={"request": "换成单选", "agent": "codex"})
     assert r.status_code == 200 and r.json()["status"] == "generating"
     ready = wait_ready(api, SHORT, r.json()["seq"])
     assert ready["status"] == "ready"

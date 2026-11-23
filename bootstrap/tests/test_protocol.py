@@ -86,3 +86,63 @@ def test_module_entry_quits_with_stdin_open(tmp_path):
         finally:
             if proc.poll() is None:
                 proc.kill()
+
+
+@pytest.mark.parametrize("preference,enabled", [("claude", True), ("codex", True), ("off", False)])
+def test_codex_alone_in_extension(controller, capsys, monkeypatch, tmp_path, preference, enabled):
+    from bootstrap import agents
+
+    monkeypatch.setattr(agents.shutil, "which", lambda _: None)
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    monkeypatch.setattr(agents.sys, "platform", "darwin")
+    monkeypatch.setattr(agents.platform, "machine", lambda: "arm64")
+    monkeypatch.setenv("CODE_DOJO_AI_PROVIDER", preference)
+    codex = tmp_path / ".vscode/extensions/openai.chatgpt-26.10.1/bin/macos-aarch64/codex"
+    codex.parent.mkdir(parents=True)
+    codex.touch(mode=0o755)
+    assert agents.has_agent()
+    events, _ = exchange(controller, [{"command": "set_tokens", "code": "test-token"}], capsys)
+    assert events[-1]["type"] == "ready" and events[-1]["ai"] is enabled
+
+
+def test_launch_starts_installed_then_stages_update(controller, capsys, tmp_path):
+    installed = Installed(tmp_path / "a", {"version": "test.1"}, "then")
+    newer = Installed(tmp_path / "b", {"version": "test.2"}, "now")
+    newer.root.mkdir()
+    updates = protocol.Updates()
+    updates.current.return_value = installed
+    updates.staged.return_value = None
+    updates.check.return_value = Result(newer)
+    controller.launch()
+    events = [json.loads(line) for line in capsys.readouterr().out.splitlines()]
+    assert [e["type"] for e in events] == ["status", "ready"] and events[-1]["payload_version"] == "test.1"
+    source, message = controller.inbox.get(timeout=5)
+    assert source == "update"
+    controller.checked(*message)
+    updates.stage.assert_called_once_with(newer)
+    assert capsys.readouterr().out == ""
+
+
+def test_launch_tries_staged_then_falls_back(controller, capsys, monkeypatch, tmp_path):
+    installed = Installed(tmp_path / "a", {"version": "test.1"}, "then")
+    staged = Installed(tmp_path / "b", {"version": "test.2"}, "now")
+    updates = protocol.Updates()
+    updates.current.return_value = installed
+    updates.staged.return_value = staged
+    updates.check.return_value = Result(installed, "更新失败：无法连接 GitHub，请检查网络")
+    started = []
+    def start(_, item):
+        started.append(item)
+        if item is staged:
+            return False
+        controller.item, controller.port = item, 43210
+        return True
+    monkeypatch.setattr(controller, "start", start)
+    controller.launch()
+    events = [json.loads(line) for line in capsys.readouterr().out.splitlines()]
+    assert started == [staged, installed]
+    assert events[-1]["type"] == "ready" and events[-1]["payload_version"] == "test.1" and "恢复" in events[-1]["message"]
+    controller.checked(*controller.inbox.get(timeout=5)[1])
+    updates.stage.assert_not_called()
+    event = json.loads(capsys.readouterr().out)
+    assert event["type"] == "status" and event["checked"] and "GitHub" in event["message"]

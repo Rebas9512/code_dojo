@@ -1,12 +1,20 @@
 import { lazy, Suspense, type ReactNode } from 'react'
-import type { JudgeResult, Mode } from '../api'
+import type { JudgeResult, Mode, PlaygroundResult } from '../api'
+import { VERDICT_NAME } from '../labels'
 import type { TablePreview } from '../sql/client'
 import { Icon, Separator, type WorkbenchLayout } from './WorkbenchLayout'
 import { ResultPanel } from './ResultPanel'
 
 const SqlTableView = lazy(() => import('../sql/SqlTableView'))
 export type PanelTab = '测试结果' | '输出' | '问题'
-export type ExampleOutput = { stdout: string; error?: string | null; table?: TablePreview }
+export interface ExampleOutput {
+  stdout: string
+  error?: string | null
+  table?: TablePreview
+  status?: PlaygroundResult['status']
+  time_ms?: number
+}
+export type PanelOutput = { source: '课 · 示例' | '草稿'; result?: ExampleOutput }
 export type Attempt = { r: JudgeResult; kind: 'run' | 'submit'; source: string }
 
 export function diagnostics(attempt: Attempt | null, error: string | null) {
@@ -30,7 +38,7 @@ function Trace({ message, source, sql, jump }: {
 
 export function WorkbenchPanel({ layout, tab, setTab, attempt, problems, sql, mode, names, output, jump, busy }: {
   layout: WorkbenchLayout; tab: PanelTab; setTab: (t: PanelTab) => void; attempt: Attempt | null
-  problems: string[]; sql: boolean; mode: Mode; names: string[]; output: ExampleOutput | null
+  problems: string[]; sql: boolean; mode: Mode; names: string[]; output: PanelOutput | null
   jump?: (line: number) => void; busy: boolean
 }) {
   let body: ReactNode
@@ -46,10 +54,15 @@ export function WorkbenchPanel({ layout, tab, setTab, attempt, problems, sql, mo
       const text = c.stdout || (mode === 'stdio' && typeof c.actual === 'string' ? c.actual : '')
       return text ? [<div key={i}><small>用例 {i + 1}</small><pre>{text}</pre></div>] : []
     }) ?? []
-    body = <div className="panel-output">{logs}
-      {output && <div><small>课 · 示例</small>{output.table
-        ? <Suspense fallback={null}><SqlTableView label="运行结果" table={output.table} /></Suspense>
-        : <pre>{[output.stdout, output.error].filter(Boolean).join('\n') || '（没有输出）'}</pre>}</div>}
+    const status = output?.source === '草稿' && output.result?.status
+    const result = output?.result
+    body = <div className="panel-output">
+      {output && <div><small>{output.source}</small>
+        {status && <small> · {status === 'ok' ? '运行完成' : VERDICT_NAME[status]} · {output.result?.time_ms} ms</small>}
+        {!result ? <p role="status">运行中…</p> : result.table
+          ? <Suspense fallback={null}><SqlTableView label="运行结果" table={result.table} /></Suspense>
+          : <pre>{[result.stdout, result.error].filter(Boolean).join('\n') || '（没有输出）'}</pre>}</div>}
+      {logs}
       {!logs.length && !output && <p className="panel-empty">暂无输出。</p>}
     </div>
   }

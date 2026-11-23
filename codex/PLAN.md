@@ -108,3 +108,24 @@
 - 1.1.2：.gitattributes 让 server/uv.lock 在 Windows 检出时不转 CRLF（之前 Windows 首次启动去 PyPI 现装依赖）；锁一致时直接用随包 libraries，不复制。
 - CI：推送 main 只跑 Linux；三系统测试 `gh workflow run ci.yml` 手动触发（私有仓库 Actions 额度，macOS 10 倍计费）。发版前先在本机跑 server pytest + bootstrap tests。
 - 用户："如果这次构筑没什么问题就先这样吧 如果后续要发新版再说好了"——暂停发版。
+
+## 做题页草稿标签（用户 2026-11-23："在answer这个写代码的tab旁边加一个scratch pad 这样我可以中途运行一些和答案无关的测试内容或者中间内容什么的看结果"）
+- ✓ 35-scratch-pad：编辑区加 `scratch.py` / `scratch.sql` 标签，草稿走 playground / PGlite runExample，只看输出不判题；预测题、看数据题不加。只改前端（ProblemWorkspace、WorkbenchPanel、workbench.css、docs/README.md）。
+- 发布不走 Actions（额度 12-01 重置）：提交带 `[skip ci]`，更新包在本机用 `scripts/desktop/build.py payload` 构建，`gh release` 上传到 `payload-latest`。
+
+## 助教支持 Codex（用户 2026-11-23："助教的话帮我也支持一下codex吧 就是做个下拉选项选择本机有的agent这样 有Claude就可以选claude 有codex可以选codex，如果都有就都可以选这样"）
+- ✓ 36-tutor-agent-picker：后端加 CodexProvider（`codex exec --output-schema`，走 ChatGPT 订阅；严格 schema 转换），按本机实际有的 agent 列出；助教顶部下拉框选 agent，请求带 `agent`。和 35 并行：不碰 ProblemWorkspace / WorkbenchPanel / workbench.css，测试端口 8002 / 5175。
+- bootstrap / desktop 的改动（只有 codex 时不关 AI）随下一版安装包生效；这次只发更新包。
+
+## 主页"继续最新进度"（用户 2026-11-23："在主页还想加一个直接进入最新进度的一个按钮 就是直接进到track的最远一个未完成node里最新的还没做过的题这样"）
+- ✓ 37-map-resume-frontier：后端每条线加 `frontier`（做过的最靠后那题所在单元里下一道没做过的题，规则见任务文件）和 `last_active`；主页顶栏按钮进当前标签页最近练过的那条线的前沿。测试端口 8004 / 5177。
+
+## 主控小改（2026-11-23）
+- 做题页标题旁显示本题状态（● 已通过 / ● AI 协助通过 / ◐ 做过没通过）：ProblemWorkspace.tsx、ProblemStatus.tsx 导出 STATUS_NAME、workbench.css。用户："在做题页面 题目本身上如果已完成可以有个标记"。
+- 辅助模式的引号配对改 `autoClosingQuotes: 'always'`（CodeEditor.tsx）：Monaco 默认在字母后不补引号，f"、r"、b" 补不上。用户："现在这个只补括号系列不补引号"。
+- 36 验收：codex_schema.py 保留数组的 minItems / maxItems（严格模式支持）；之前全丢，真实 Codex 出 SQL 附加题给了 4 条错误写法，超过 SqlExtra 的上限 2。
+- 主控验收时发现并修复：编辑器受控写法的竞态（@monaco-editor/react 的 value 回写在 useEffect 里，按键间隔 < 20 ms 时拿旧值覆盖编辑器，丢字；答案编辑器原来就有）。CodeEditor.tsx 改为 defaultValue + 忽略自己发出的旧值，只把外部改动（重置、载入草稿）写回编辑器；5 ms 间隔 0/3 丢字。
+
+## 启动性能（用户 2026-11-23："顺便可以做一下性能优化最好把启动流程之类的能够提速多点之类的"）
+- ✓ Opus 子代理：先实测启动各阶段（Electron → 启动器 → 查更新 → 后端 import / 题库 / lifespan → ready → 地图首屏 → 首次开题），优先做更新包能发的优化；bootstrap / desktop 的改动随下一版安装包。和 37 并行：不碰 tracks()、units.py、MapPage、mapTree、map.css、TrackInfo；端口 8005 / 5178。报告在主控 scratchpad 的 perf-report.md。
+- 结果：热启动地图可用 4.00 → 0.97 s、冷启动 4.47 → 1.26 s（只发更新包为 2.47 / 2.83 s）。更新包：题库 YAML 走 libyaml、tests.json 用到才读（内存 427 → 72 MB）、启动同步放后台、地图空闲预载做题页和 Monaco、知识点页懒加载。随下一版安装包：先用已装版本起服务后台查更新、安装包 .pyc 预编译、去掉更新包 / 依赖锁 / 清单三处校验（用户："除了那种对齐进度必须要的点 其他没必要的哈希感觉可以优化"）。

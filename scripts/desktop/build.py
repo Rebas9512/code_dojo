@@ -1,9 +1,12 @@
 """从受控文件清单生成运行时安装包和可独立发布的更新包。"""
 
 import argparse
+import hashlib
+import importlib.util
 import json
 import os
 import platform
+import py_compile
 import re
 import shutil
 import subprocess
@@ -18,7 +21,6 @@ from zipfile import ZIP_DEFLATED, ZipFile
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from bootstrap import MIN_BOOTSTRAP, VERSION
-from bootstrap.update import digest
 
 PBS = "20261026"
 PYTHON = "3.14.10"
@@ -30,6 +32,11 @@ TARGETS = {
 
 APPIMAGETOOL_SHA256 = "ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0"
 TYPE2_RUNTIME_SHA256 = "2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d"
+
+
+def digest(path: Path) -> str:
+    with path.open("rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
 def download(url: str, path: Path) -> None:
@@ -78,6 +85,13 @@ def payload(args, work: Path) -> None:
                     zipfile.write(path, path.relative_to(ROOT))
         if "web/dist/index.html" not in zipfile.namelist():
             raise ValueError("缺少 web/dist，请先构建网页")
+        # 后端以 -B 运行、不写字节码；附上不查源码的 .pyc，启动时不用再编译（更新包目录内容不会变）。
+        for path in sorted((ROOT / "server/app").rglob("*.py")):
+            rel = path.relative_to(ROOT)
+            cfile = work / "pyc" / rel
+            py_compile.compile(str(path), cfile=str(cfile), dfile=str(rel), doraise=True,
+                               invalidation_mode=py_compile.PycInvalidationMode.UNCHECKED_HASH)
+            zipfile.write(cfile, importlib.util.cache_from_source(str(rel)))
         for rel in ("scripts/curriculum/check_curve.py", "scripts/curriculum/track_files.py", "server/uv.lock"):
             zipfile.write(ROOT / rel, rel)
         for path in sorted((work / "sql-cache").glob("*.json")):
@@ -164,6 +178,10 @@ def installer(args, work: Path) -> None:
     (bundle / "lock.sha256").write_text(digest(ROOT / "server/uv.lock"), encoding="ascii")
     shutil.copytree(ROOT / "bootstrap", bundle / "bootstrap", ignore=shutil.ignore_patterns("__pycache__", "tests"))
     shutil.copy(Path(__file__).with_name("start.py"), bundle)
+    # electron-builder 复制文件会改修改时间，按时间戳校验的 .pyc 全部失效，启动器和后端每次启动都在重新编译
+    # 标准库和依赖。安装包只读、源码不变，统一改成不查源码的哈希式 .pyc（实测导入共省约 0.5 秒）。
+    subprocess.run([str(python), "-I", "-m", "compileall", "-q", "-f", "-j0", "--invalidation-mode", "unchecked-hash",
+                    str(bundle / "python"), str(bundle / "libraries"), str(bundle / "bootstrap")], check=True)
     if sealed:
         (bundle / "sealed-tokens.json").write_text(sealed, encoding="utf-8")
     # 用独立解释器实测当前平台的加密库，以及可选信封的版本与结构。
