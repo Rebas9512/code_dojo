@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react'
 import { useRevalidator } from 'react-router-dom'
 import { api, type SyncState } from '../api'
 
+// 做题页切题时状态栏会重新挂载，先显示上次读到的状态，不闪空。
+let known: SyncState | null = null
+
 export function SyncStatus() {
-  const [state, setState] = useState<SyncState | null>(null)
+  const [state, setState] = useState<SyncState | null>(known)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const { revalidate } = useRevalidator()
@@ -13,7 +16,7 @@ export function SyncStatus() {
     let active = true
     async function refresh() {
       try {
-        const next = await api.syncStatus()
+        const next = known = await api.syncStatus()
         if (active) {
           setState(next)
           setError('')
@@ -36,7 +39,7 @@ export function SyncStatus() {
     setBusy(true)
     setError('')
     try {
-      const next = await api.syncNow()
+      const next = known = await api.syncNow()
       setState(next)
       if (!next.error) await revalidate()
     } catch {

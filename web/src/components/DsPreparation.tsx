@@ -8,14 +8,10 @@ export function DsPreparation() {
     let active = true
     let timer: ReturnType<typeof setTimeout>
     const check = async () => {
-      try {
-        const { ds_state } = await api.judgeStatus()
-        if (!active) return
-        setPreparing(ds_state === 'preparing')
-        if (ds_state === 'unprepared' || ds_state === 'preparing') timer = setTimeout(check, 1000)
-      } catch {
-        if (active) setPreparing(false)
-      }
+      const { ds_state } = await api.judgeStatus()
+      if (!active) return
+      setPreparing(ds_state === 'preparing')
+      if (ds_state === 'unprepared' || ds_state === 'preparing') timer = setTimeout(check, 1000)
     }
     void check()
     return () => { active = false; clearTimeout(timer) }

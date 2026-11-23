@@ -15,6 +15,7 @@ import {
   api,
   itemPath,
   practicePath,
+  prefetchProblem,
   type ReviewContext,
   type ExtraSummary,
   type ItemRef,
@@ -132,8 +133,8 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   const scope = review.review_source ? `review:${review.review_source}:${review.review_due}:${id}` : id
   const hintKey = `dojo-hints:${scope}`
   const aiKey = `dojo-ai-lines:${scope}`
-  const [hintsShown, setHintsShown] = useState(() => Number(readPref(hintKey, '0')) || 0)
-  const [aiLines, setAiLines] = useState(() => Number(readPref(aiKey, '0')) || 0)
+  const [hintsShown, setHintsShown] = useState(() => Number(readPref(hintKey, '0')))
+  const [aiLines, setAiLines] = useState(() => Number(readPref(aiKey, '0')))
   const [solution, setSolution] = useState('')
   const [loadingHelp, setLoadingHelp] = useState(false)
   const [finished, setFinished] = useState(false)
@@ -527,7 +528,7 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
   const due = new Set(reviews.map(item => item.source || item.id))
   const layout = useWorkbenchLayout()
   const backend = track.runtime === 'pglite' || track.runtime === 'none' ? '本地' :
-    (status.judge_backends?.[track.runtime] ?? status.judge_mode) === 'docker' ? 'Docker' : '本地'
+    status.judge_backends[track.runtime] === 'docker' ? 'Docker' : '本地'
   const id = parent.id
   const [params] = useSearchParams()
   const navigate = useNavigate()
@@ -557,8 +558,13 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
         else if (target?.status === 'generating') autoOpen.current.add(target.id)
         else if (requestedExtra && !target) setExtraError('这道附加题已删除。')
       })
-      .catch(() => {})
   }, [id, requestedExtra])
+
+  // 上一题、下一题和"继续"大概率是下一步，先取好，点击后路由立即就绪。
+  useEffect(() => {
+    const next = parent.continue_with
+    for (const pid of [parent.prev?.id, parent.next?.id, next?.parent ?? next?.id]) if (pid) prefetchProblem(pid)
+  }, [parent])
 
   useEffect(() => writePref('dojo-bare', bare ? '1' : '0'), [bare])
   useEffect(() => {
@@ -590,7 +596,6 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
           }
         }
       })
-      .catch(() => {})
   }, [id])
 
   // 有附加题在出题时，每 2.5 秒刷新一次
@@ -622,7 +627,7 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
   }
 
   const removeExtra = async (e: ExtraSummary) => {
-    await api.deleteExtra(id, e.seq).catch(() => {})
+    await api.deleteExtra(id, e.seq)
     setConfirmDelete(null)
     writePref(`dojo-draft:${e.id}`, null)
     writePref(`dojo-ai-lines:${e.id}`, null)
@@ -783,9 +788,9 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
           problemId={id}
           currentId={activeId}
           choice={currentProblem.answer?.type === 'choice'}
-          getCode={() => active.current?.getCode() ?? ''}
-          getAnswer={() => active.current?.getAnswer() ?? null}
-          onEdits={(edits) => active.current?.applyEdits(edits) ?? { applied: 0, failed: edits.length }}
+          getCode={() => active.current!.getCode()}
+          getAnswer={() => active.current!.getAnswer()}
+          onEdits={(edits) => active.current!.applyEdits(edits)}
           lastFailed={lastFailed}
           onExtras={onChatExtras}
         />

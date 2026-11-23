@@ -233,8 +233,18 @@ async def review_conflict(_request: Request, exc: ReviewConflict) -> JSONRespons
     return JSONResponse(status_code=409, content={"detail": str(exc)})
 
 
-def learning(ordered: list[Problem] | None = None) -> Progress:
-    catalog = [Exercise.from_problem(p) for p in (bank.ordered() if ordered is None else ordered)]
+_learning: tuple[tuple, Progress] | None = None
+
+
+def learning() -> Progress:
+    """全部学习进度。按（题库版本、数据库写入次数、日期）缓存，没有新提交时各接口直接复用。"""
+    global _learning
+    bank.ensure_fresh()
+    # 先取版本号再读数据：并发的重载或写入只会让缓存比版本号新，不会更旧。
+    key = (bank, bank._stamp, store, store.version, date.today())
+    if _learning is not None and _learning[0] == key:
+        return _learning[1]
+    catalog = [Exercise.from_problem(p) for p in bank.ordered()]
     parents = {p.id: p for p in catalog}
     for e in store.extra_catalog():
         if p := parents.get(e["parent_id"]):
@@ -246,8 +256,11 @@ def learning(ordered: list[Problem] | None = None) -> Progress:
             if target := e["practice_skill"]:
                 extra = replace(extra, introduces=None, requires=(target,))
             catalog.append(extra)
-    store.initialize_reviews({p.id for p in catalog if p.counted})
-    return Progress(catalog, bank.skill_index, store.study_rows(), store.review_rows(), store.daily_limit(), date.today())
+    store.initialize_reviews({p.id for p in catalog if p.counted})  # 只在首次读取时补排日程，写库后版本号会变
+    key = key[:3] + (store.version, key[4])
+    state = Progress(catalog, bank.skill_index, store.study_rows(), store.review_rows(), store.daily_limit(), key[4])
+    _learning = (key, state)
+    return state
 
 
 def validate_review(req: ReviewRequest, p: Problem) -> None:
@@ -265,7 +278,7 @@ def validate_review(req: ReviewRequest, p: Problem) -> None:
 @app.get("/api/today")
 def today_plan() -> dict:
     ordered = bank.ordered()
-    state = learning(ordered)
+    state = learning()
     return {"date": date.today(), "daily_limit": store.daily_limit(), "first_rate": state.rate,
             "first_count": len(state.recent), "reviews": [state.review_item(r) for r in state.queue],
             "tracks": [{"id": t.id, "name": t.name, "next": state.next_new(
@@ -291,15 +304,12 @@ def stats() -> dict:
 @app.get("/api/tracks")
 def tracks() -> list[dict[str, Any]]:
     ordered = bank.ordered()
-    state = learning(ordered)
-    by_track: dict[str, list[Problem]] = defaultdict(list)
-    for p in ordered:
-        by_track[p.meta.track].append(p)
-    statuses = {tid: store.status_by_problem(tid) for tid in by_track}
+    state = learning()
+    statuses = {tid: store.status_by_problem(tid) for tid in bank.tracks}
     skill_status = introduction_status(ordered, statuses)
     rows = {}
     for track in bank.tracks.values():
-        problems = by_track[track.id]
+        problems = bank.ordered(track.id)
         status = statuses.get(track.id, {})
         counts = Counter(status.get(p.id) for p in problems)
         stages = group_units(track, bank.skills[track.id], problems)
@@ -340,7 +350,7 @@ def track_skills(track: str) -> list[dict[str, Any]]:
     used_by: Counter[str] = Counter()
     statuses: dict[str, dict[str, str]] = {}
     ordered = bank.ordered()
-    state = learning(ordered)
+    state = learning()
     for p in ordered:
         intro = p.meta.skills.introduces
         used_by.update(set(p.meta.skills.requires) - {intro})
@@ -444,7 +454,7 @@ def judge_problem(p: Problem, req: RunRequest, which: str) -> dict[str, Any]:
         **p.judge_options(),
     )
     n_examples = len(p.cases("examples"))
-    for i, case in enumerate(result.get("cases", [])):
+    for i, case in enumerate(result["cases"]):
         case["hidden"] = i >= n_examples
     return result
 
@@ -526,11 +536,11 @@ def playground_run(req: PlaygroundRequest) -> dict[str, Any]:
     runtime = "ds" if req.problem_id and require(req.problem_id).track.runtime == "ds" else "python"
     r = judge.run(mode="stdio", code=req.code, cases=[{"stdin": req.stdin, "expected": ""}],
                   runtime=runtime, time_limit_ms=3000 if runtime == "python" else None)
-    if r.get("verdict") in ("compile_error", "system_error", "timeout") and not r.get("cases"):
-        return {"status": r["verdict"], "stdout": "", "error": r.get("error"), "time_ms": 0}
-    c = (r.get("cases") or [{}])[0]
-    status = "ok" if c.get("status") in ("passed", "wrong_answer") else c.get("status", "system_error")
-    return {"status": status, "stdout": c.get("actual") or "", "error": c.get("error"), "time_ms": c.get("time_ms", 0)}
+    if not r["cases"]:  # 语法错误、判题环境出错或整体超时
+        return {"status": r["verdict"], "stdout": "", "error": r["error"], "time_ms": 0}
+    c = r["cases"][0]
+    status = "ok" if c["status"] in ("passed", "wrong_answer") else c["status"]
+    return {"status": status, "stdout": c["actual"], "error": c["error"], "time_ms": c["time_ms"]}
 
 
 # ---------- 附加题 ----------
@@ -540,8 +550,6 @@ def run_extra_job(row_id: int, parent_id: str, request: str, practice_skill: str
     """后台线程：出题 + 验证，结果写回数据库。"""
     try:
         parent = bank.get(parent_id)
-        if parent is None or ai is None:
-            raise AIError("原题不存在或 AI 没开")
         existing = [e["title"] for e in store.extras(parent_id) if e["status"] == "ready" and e["title"]]
         skill_names = {sk.id: sk.name for sk in bank.skill_index.values()}
         allowed = None

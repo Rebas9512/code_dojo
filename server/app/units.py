@@ -42,9 +42,8 @@ def group_units(track: Track, skills: dict[str, Skill], ordered: list[Problem]) 
             refs = problem.meta.skills
             # problem.yaml 可以写 unit: N 直接指定单元（推算不对时用，例如只用到前置线技能的练习题）；
             # 指定后，后面没有本阶段技能的题也跟着它走
-            pinned = getattr(problem.meta, "unit", None)
-            if isinstance(pinned, int) and pinned in units:
-                previous = pinned
+            if problem.meta.unit in units:
+                previous = problem.meta.unit
             else:
                 previous = max(
                     (groups[sk] for sk in [*refs.requires, refs.introduces] if sk is not None and sk in groups),

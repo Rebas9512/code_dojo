@@ -54,6 +54,7 @@ class ProblemMeta(BaseModel):
     milestones: list[str] = Field(default_factory=list)
     hints: list[str] = Field(default_factory=list)
     optional: bool = False                # 选修
+    unit: int | None = None               # 直接指定单元（见 units.group_units）
     replaces_premium: str | None = None   # 替代的 LeetCode 会员题 slug
 
     mode: Literal["function", "class", "stdio", "predict", "inspect", "dml"] | None = None
@@ -369,10 +370,10 @@ class ProblemBank:
         self.skill_lesson: dict[str, Lesson] = {}   # 技能 id → 讲它的 lesson 文件
         self.skills: dict[str, dict[str, Skill]] = {}
         self.errors: list[LoadError] = []
+        self._ordered: list[Problem] = []                  # 学习顺序，加载时排好
+        self._by_track: dict[str, list[Problem]] = {}
 
     def _current_stamp(self) -> float:
-        if not self.root.exists():
-            return 0.0
         newest = self.root.stat().st_mtime
         for p in self.root.rglob("*"):
             if "node_modules" in p.parts:
@@ -442,7 +443,11 @@ class ProblemBank:
                             skill_lesson[sk] = lesson
                     except Exception as exc:  # noqa: BLE001
                         errors.append(LoadError(str(yaml_path.parent), str(exc)))
-            self.tracks, self.skill_index = tracks, skill_index
+            ordered = sorted(problems.values(), key=lambda p: (p.track.order, p.track.id, p.sort_key))
+            by_track: dict[str, list[Problem]] = {t: [] for t in tracks}
+            for p in ordered:
+                by_track[p.meta.track].append(p)
+            self.tracks, self.skill_index, self._ordered, self._by_track = tracks, skill_index, ordered, by_track
             self.problems, self.lessons, self.skill_lesson, self.skills, self.errors, self._stamp = (
                 problems, lessons, skill_lesson, skills, errors, stamp,
             )
@@ -456,11 +461,7 @@ class ProblemBank:
         if self._stamp is None:
             self.refresh()
         if mode != "off" and not self._watching:
-            try:
-                interval = max(0.5, float(mode))
-            except ValueError:
-                interval = 3.0
-            self._start_watch(interval)
+            self._start_watch(float(mode))
 
     def _start_watch(self, interval: float) -> None:
         with self._lock:
@@ -471,17 +472,14 @@ class ProblemBank:
         def loop() -> None:
             while True:
                 time.sleep(interval)
-                try:
-                    self.refresh()
-                except Exception:  # noqa: BLE001 - 后台线程不能死；坏文件会进 errors
-                    pass
+                self.refresh()  # 坏文件在 refresh 里记进 errors，不会抛出
 
         threading.Thread(target=loop, name="problem-bank-watch", daemon=True).start()
 
     def ordered(self, track: str | None = None) -> list[Problem]:
+        """按学习顺序排好的题（共享列表，调用方不要修改）。"""
         self.ensure_fresh()
-        items = (p for p in self.problems.values() if track is None or p.meta.track == track)
-        return sorted(items, key=lambda p: (p.track.order, p.track.id, p.sort_key))
+        return self._ordered if track is None else self._by_track[track]
 
     def get(self, problem_id: str) -> Problem | None:
         self.ensure_fresh()

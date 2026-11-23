@@ -1,9 +1,9 @@
 import { lazy, Suspense, useState } from 'react'
 import {
   createBrowserRouter, Link, Navigate, NavLink, Outlet, RouterProvider,
-  useLoaderData, useMatches, useParams, useRouteError,
+  useLoaderData, useMatches, useNavigation, useParams, useRouteError,
 } from 'react-router-dom'
-import { api, loadWorkspace, type WorkspaceData } from './api'
+import { api, invalidate, loadWorkspace, trackRows, type WorkspaceData } from './api'
 import { TodayPage, StatsPage } from './pages/PlanPages'
 import { LoginPage, loginLoader } from './pages/LoginPage'
 import { MapPage } from './pages/MapPage'
@@ -33,6 +33,7 @@ function Shell() {
   const problem = useMatches().find((m) => m.id === 'problem')?.data as WorkspaceData | undefined
   const current = tracks.find((t) => t.id === (problem?.parent.track ?? track))
   const [theme, toggleTheme] = useTheme()
+  const navigating = useNavigation().state !== 'idle'
   const themeLabel = theme === 'dark' ? '切到浅色' : '切到深色'
   async function logout() {
     try {
@@ -44,6 +45,7 @@ function Shell() {
   }
   return (
     <div className="shell">
+      {navigating && <div className="nav-progress" aria-hidden="true" />}
       <header className={problem ? "topbar wb-titlebar" : "topbar"}>
         <Link to="/" className="wordmark">code-dojo</Link>
         {current && !problem && <>
@@ -96,7 +98,7 @@ const router = createBrowserRouter([{
     { path: 'sql', element: <Navigate to="/t/sql" replace /> },
     {
       path: 't/:track', element: <TrackPage />, errorElement: <RouteError />,
-      loader: ({ params }) => Promise.all([api.problems(params.track!), api.skills(params.track!), api.status()]),
+      loader: ({ params }) => Promise.all([trackRows(params.track!), api.skills(params.track!), api.status()]),
     },
     {
       path: 't/:track/skills', element: <SkillsPage />, errorElement: <RouteError />,
@@ -115,7 +117,9 @@ window.addEventListener('dojo-login-required', () => {
 })
 
 window.addEventListener('pageshow', (event) => {
-  if (event.persisted) void router.revalidate()
+  if (!event.persisted) return
+  invalidate()
+  void router.revalidate()
 })
 
 export function App() {

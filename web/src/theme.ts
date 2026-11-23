@@ -11,29 +11,17 @@ export function useTheme(): [Theme, () => void] {
   const [theme, setTheme] = useState<Theme>(readTheme)
   useEffect(() => {
     document.documentElement.dataset.theme = theme
-    try {
-      localStorage.setItem('dojo-theme', theme)
-    } catch {
-      /* 隐私模式等情况下存不了，不影响使用 */
-    }
+    localStorage.setItem('dojo-theme', theme)
   }, [theme])
   const toggle = useCallback(() => setTheme((t) => (t === 'dark' ? 'light' : 'dark')), [])
   return [theme, toggle]
 }
 
 export function readPref(key: string, fallback: string): string {
-  try {
-    return localStorage.getItem(key) ?? fallback
-  } catch {
-    return fallback
-  }
+  return localStorage.getItem(key) ?? fallback
 }
 
 export function writePref(key: string, value: string | null): void {
-  try {
-    if (value === null) localStorage.removeItem(key)
-    else localStorage.setItem(key, value)
-  } catch {
-    /* 同上 */
-  }
+  if (value === null) localStorage.removeItem(key)
+  else localStorage.setItem(key, value)
 }

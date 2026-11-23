@@ -106,7 +106,7 @@ cd web && npm run build                                # 类型检查 + 打包
 - `server/app/events.py` 给学习记录分配跨机器标识、导出按月分隔的 JSONL。写记录和登记待导出的事件共用一个 SQLite 事务。`sync.py` 管理独立 Git 克隆、重试和定时同步。`GET /api/sync` 返回状态，`POST /api/sync` 立即交换进度，外部页面顶栏和做题页状态栏共用 `web/src/components/SyncStatus.tsx`。
 - `server/app/auth.py` 管理密码校验、登录限流和签名会话，`server/scripts/set_password.py` 交互设密。`web/src/pages/LoginPage.tsx` 提供登录页，`web/src/api.ts` 统一处理 401。`server/app/frontend.py` 托管静态文件并支持直接打开前端路由。
 - 首页的 `pages/MapPage.tsx` 用 `pages/mapTree.ts` 组装学习线树，样式在 `pages/map.css`。`server/app/units.py` 按本阶段技能分组归题，供地图和题目列表共用。
-- `server/app/mastery.py` 根据正式提交和复习日程计算技能状态、下一题、卡住提示和周统计。`db.py` 以 SQLite 事务保存提交与复习日程，并记录提示、题解和每日上限。启动时升级旧表，首次读取学习进度时按历史通过日期补排到期日。
+- `server/app/mastery.py` 根据正式提交和复习日程计算技能状态、下一题、卡住提示和周统计。`main.learning()` 按题库版本、数据库写入次数（`Store.version`）和日期缓存这份进度，没有新提交时各接口直接复用。`db.py` 以 SQLite 事务保存提交与复习日程，并记录提示、题解和每日上限。启动时升级旧表，首次读取学习进度时按历史通过日期补排到期日。
 - `pages/PlanPages.tsx` 提供 `/today` 今日计划和 `/stats` 手感统计，对应 `GET /api/today`、`GET /api/stats`。页面通过 `PUT /api/today/settings` 保存每日上限。复习链接携带原题与到期日，运行和提交分别向已有接口传 `review_source`、`review_due`。过期或重复交卷返回 409，可回到今日计划取当前题目。统计展示最近八个周一开始的自然周，日期按服务器本地时间划分。
 - `server/app/result_preview.py` 在判题结束后生成摘要。样例的单个输入、期望、实际等字段超过约 2 KB 时保存前缀和总字符数，隐藏用例使用更短的预览。SQLite 保存这份摘要。SQL 的即时结果面板使用 Worker 的表格预览，Python 和数据题显示服务器返回的摘要。
 - `judge/python/harness.py` 在工作目录读 `job.json`，逐个执行用例，以 `@@CODE_DOJO_RESULT@@` 前缀输出一行 JSON。checker 需要检查学生源码时，从当前工作目录读取 UTF-8 的 `user.py`。工作线程使用 256 MiB 栈和 20 万层递归上限。主线程负责计时，超时后保留已完成的用例，把剩余用例标为跳过。
@@ -115,7 +115,7 @@ cd web && npm run build                                # 类型检查 + 打包
 - `server/app/inspect_data.py` 是题库加载、内容检查和 AI 附加题共用的数据块与答案校验。前端 `components/InspectData.tsx` 显示五种题面数据和课里的 CSV 编辑视图。
 - `server/app/ai/`：`provider.py` 调 `claude -p`（走 Claude 订阅；测试用 `FakeProvider`）；`tutor.py` 是助教——提示词设定、上下文组装（题面、参考解、带行号的当前代码、最近一次判题、对话历史）、修改建议的定位检查。
 - `web/src/pages/` 的学习地图、题目列表、知识点、今日计划、统计和登录页共用深浅两套 VS Code Modern 色板。界面使用本地 TeX Gyre Heros 和按需加载的 Noto Sans SC 分片，代码和数值使用 JetBrains Mono。字体和图标的署名及许可证随前端发布到 `/licenses/`。
-- `pages/ProblemPage.tsx` 打开做题工作区。`components/WorkbenchLayout.tsx` 管理本单元题目列表、分隔线和布局偏好。`ProblemWorkspace.tsx` 在两个编辑器组中显示题面、课、附加题和作答区；每题独立保存草稿。`LessonView.tsx` 显示讲解、可运行的示例和小测。`ChatPanel.tsx` 提供共享编辑框和快捷提问。宽度小于 900px 时，编辑器组上下排列，题目列表和助教从两侧呼出。
+- `pages/ProblemPage.tsx` 打开做题工作区。`api.ts` 给题目详情、学习线题目列表和今日计划留 60 秒读缓存，任何写请求完成后全部作废；判题状态一个页面会话只读一次。做题页提前取好上一题、下一题、继续和单元列表里悬停的题，切题时路由不等网络。路由等数据超过 120ms 时顶边出现一条蓝线。`components/WorkbenchLayout.tsx` 管理本单元题目列表、分隔线和布局偏好。`ProblemWorkspace.tsx` 在两个编辑器组中显示题面、课、附加题和作答区；每题独立保存草稿。`LessonView.tsx` 显示讲解、可运行的示例和小测。`ChatPanel.tsx` 提供共享编辑框和快捷提问。宽度小于 900px 时，编辑器组上下排列，题目列表和助教从两侧呼出。
 - `WorkbenchPanel.tsx` 的测试结果页使用 `ResultPanel.tsx` 展示用例和结果表，输出页汇集 stdout 和课示例，问题页的源代码行可跳回编辑器。运行和提交会展开面板。22px 状态栏显示行列、用时、判题方式、同步状态和上下题，桌面菜单位于最右。布局尺寸和开关由浏览器保存。
 - 导航与接口：`/` 展示地图，`/t/:track` 展示题目，`/t/:track/skills` 展示知识点，`/p/:id` 是做题页，旧地址 `/sql` 跳转到 `/t/sql`。根路由共享 `GET /api/tracks` 的名称、阶段、题量、下一题和前置完成状态，提交后刷新进度。`GET /api/tracks/{track}/skills` 返回技能卡、带所属线的前置、课和引入它的题，`used_by` 统计全题库中只用到它的题数。
 - Ctrl+P 在各页按题名、题号或 LeetCode slug 快速打开题目；受保护的题库需要先登录。做题页 Ctrl+Shift+P 打开命令面板。Ctrl+B 开关单元列表，Ctrl+J 开关底部面板，Ctrl+Alt+I 或 Alt+I 开关助教。Ctrl+Enter 运行，Ctrl+Shift+Enter 提交；看数据作答还支持数字 1–9 选项和 Ctrl+Enter 提交。Alt+L 切换课，Alt+B 切换裸写。状态栏箭头按题库顺序切题；Alt+← 返回上一题，Alt+→ 继续推荐练习。

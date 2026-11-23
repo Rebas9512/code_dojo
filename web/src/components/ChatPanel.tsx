@@ -80,10 +80,7 @@ export function ChatPanel({ aiOn, close, problemId, currentId, review, choice, g
     setMessages([])
     setError(null)
     setResults({})
-    if (!review.review_source) api
-      .chat(problemId)
-      .then(setMessages)
-      .catch(() => {})
+    if (!review.review_source) api.chat(problemId).then(setMessages)
   }, [problemId, review.review_source])
 
   useEffect(() => {
@@ -116,7 +113,7 @@ export function ChatPanel({ aiOn, close, problemId, currentId, review, choice, g
         setResults((x) => ({ ...x, [reply.id]: res }))
         if (res.applied > 0) {
           reply.applied = true
-          api.chatApplied(problemId, reply.id).catch(() => {})
+          void api.chatApplied(problemId, reply.id)
         }
       }
       setMessages((m) => [...m.filter((x) => x.id !== pending.id), r.user, reply])
@@ -131,7 +128,7 @@ export function ChatPanel({ aiOn, close, problemId, currentId, review, choice, g
   }
 
   const clear = async () => {
-    await api.chatClear(problemId).catch(() => {})
+    await api.chatClear(problemId)
     setMessages([])
     setResults({})
   }

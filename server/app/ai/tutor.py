@@ -306,5 +306,5 @@ def ask(
         notes.append("丢掉了定位不了的修改：" + "；".join(still))
         edits = [edits[i] for i in ok]
     make_extra = str(out.get("make_extra") or "").strip()
-    delete_extras = [int(x) for x in (out.get("delete_extras") or []) if isinstance(x, int) or str(x).isdigit()]
+    delete_extras = list(out.get("delete_extras") or [])  # JSON schema 已限定为整数
     return TutorReply(reply=reply, edits=edits, notes=notes, make_extra=make_extra, delete_extras=delete_extras)

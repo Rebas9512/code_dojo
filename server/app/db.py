@@ -134,6 +134,7 @@ class Store:
             self._flush_locked(recover=True)
         self.path = path
         self._reviews_ready = False
+        self.version = 0  # 每次写入后加一，供 main.learning() 判断缓存是否过期
 
     @contextmanager
     def _write(self):
@@ -143,6 +144,7 @@ class Store:
                 self._conn.execute("INSERT INTO capture_enabled VALUES (1)")
                 yield
                 self.journal.finish_capture()
+            self.version += 1
             self._flush_locked()
 
     def _flush_locked(self, *, recover: bool = False) -> None:
@@ -159,6 +161,7 @@ class Store:
         with self._lock, self._conn:
             self._conn.execute("BEGIN IMMEDIATE")
             ordered = sorted(records, key=lambda e: (e["type"] != "extra_problems", e["timestamp"], e["id"]))
+            self.version += 1
             return sum(self.journal.apply(e) for e in ordered)
 
     def import_legacy(self, directory: Path) -> int:
@@ -180,6 +183,7 @@ class Store:
                     count = sum(self.journal.apply(e, local=True)
                                 for e in events.legacy_events(snapshot, self.journal.machine))
                     events.set_meta(self._conn, marker, "1")
+                    self.version += 1
                     # 让旧库里只有通过提交的题也能按历史日期补排。已有日程由事件保留。
                     if count:
                         self._conn.execute("DELETE FROM settings WHERE key='reviews_initialized'")
@@ -322,7 +326,7 @@ class Store:
             solution = bool(help_row and help_row["solution_seen"])
             if help_row:
                 hints_used = max(hints_used, help_row["author_hints"]) + help_row["ai_hints"]
-            verdict = result.get("verdict", "unknown")
+            verdict = result["verdict"]
             first = not self._conn.execute("SELECT 1 FROM submissions WHERE problem_id=? AND kind='submit' LIMIT 1",
                                            (problem_id,)).fetchone()
             cur = self._conn.execute(

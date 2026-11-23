@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { api, type TrackInfo, type TrackProblem } from '../api'
+import { trackRows, type TrackInfo, type TrackProblem } from '../api'
 import './picker.css'
 
 export interface PickerItem {
@@ -81,16 +81,9 @@ export function Picker({ label, items, close, message }: {
   </dialog>
 }
 
-// 全站共用题名索引。切题时复用进行中的请求，题量变化后重新读取。
-let catalog: { signature: string; rows: Promise<TrackProblem[]> } | null = null
+// 全站共用题名索引，和做题页的题目列表共用缓存。
 function problemCatalog(tracks: TrackInfo[]) {
-  const active = tracks.filter(track => track.total)
-  const signature = active.map(track => track.id + ':' + track.total).join(',')
-  if (catalog?.signature === signature) return catalog.rows
-  const rows = Promise.all(active.map(track => api.problems(track.id))).then(groups => groups.flat())
-  catalog = { signature, rows }
-  rows.catch(() => { if (catalog?.rows === rows) catalog = null })
-  return rows
+  return Promise.all(tracks.filter(track => track.total).map(track => trackRows(track.id))).then(groups => groups.flat())
 }
 
 export function QuickOpen({ tracks, close }: { tracks: TrackInfo[]; close: () => void }) {

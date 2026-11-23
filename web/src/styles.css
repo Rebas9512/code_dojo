@@ -155,6 +155,20 @@ button.toggle.is-on {
   display: flex;
   flex-direction: column;
 }
+/* 路由在等数据时顶边出现一条蓝线；预取命中时不到 120ms 就切完，不会出现。硬切，不做动画。 */
+.nav-progress {
+  position: fixed;
+  inset: 0 0 auto;
+  height: 2px;
+  z-index: 100;
+  background: var(--accent);
+  pointer-events: none;
+  animation: nav-progress-show 0s 120ms both;
+}
+@keyframes nav-progress-show {
+  from { visibility: hidden; }
+  to { visibility: visible; }
+}
 
 .topbar {
   height: var(--topbar-h);

@@ -268,14 +268,30 @@ export interface SyncState {
   syncing: boolean
 }
 
-async function request<T>(path: string, init?: RequestInit, legacyDev?: () => Promise<T>): Promise<T> {
+// 读接口的短期缓存：切题时直接用预取的结果。任何写请求完成后，已有缓存全部作废。
+let generation = 0
+const cache = new Map<string, { generation: number; at: number; value: Promise<unknown> }>()
+
+export function invalidate() {
+  generation++
+}
+
+function cached<T>(key: string, load: () => Promise<T>, ttl = 60_000): Promise<T> {
+  const hit = cache.get(key)
+  if (hit && hit.generation === generation && Date.now() - hit.at < ttl) return hit.value as Promise<T>
+  const value = load()
+  cache.set(key, { generation, at: Date.now(), value })
+  value.catch(() => { if (cache.get(key)?.value === value) cache.delete(key) })  // 失败的请求不留在缓存里
+  return value
+}
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     ...init,
     headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
   })
+  if (init?.method) generation++
   if (!res.ok) {
-    // 仍在运行的旧版开发后端没有登录和诊断新路由。
-    if (import.meta.env.DEV && res.status === 404 && legacyDev) return legacyDev()
     if (res.status === 401 && path !== '/api/auth/login') {
       window.dispatchEvent(new Event('dojo-login-required'))
     }
@@ -292,11 +308,9 @@ async function request<T>(path: string, init?: RequestInit, legacyDev?: () => Pr
 }
 
 export const api = {
-  syncStatus: () => request<SyncState>('/api/sync', undefined, async () =>
-    ({ enabled: false, last_sync: null, pending: 0, error: '', syncing: false })),
+  syncStatus: () => request<SyncState>('/api/sync'),
   syncNow: () => request<SyncState>('/api/sync', { method: 'POST', body: '{}' }),
-  session: () => request<Session>('/api/auth/session', undefined,
-    async () => ({ enabled: false, authenticated: true })),
+  session: () => request<Session>('/api/auth/session'),
   login: (password: string) => request('/api/auth/login', {
     method: 'POST', body: JSON.stringify({ password }),
   }),
@@ -313,7 +327,7 @@ export const api = {
     method: 'POST', body: JSON.stringify(review),
   }),
   tracks: () => request<TrackInfo[]>('/api/tracks'),
-  status: () => request<ServerStatus>('/api/status', undefined, () => request<ServerStatus>('/api/health')),
+  status: () => request<ServerStatus>('/api/status'),
   judgeStatus: () => request<{ ds_state: 'docker' | 'unprepared' | 'preparing' | 'ready' }>('/api/judge/status'),
   problems: (track: Track) => request<TrackProblem[]>(`/api/tracks/${track}/problems`),
   skills: (track: Track) => request<Skill[]>(`/api/tracks/${track}/skills`),
@@ -379,9 +393,22 @@ export interface JudgeRequest extends ReviewContext {
   ai_lines?: number
 }
 
+export const problemDetail = (id: string) => cached('problem:' + id, () => api.problem(id))
+export const trackRows = (track: Track) => cached('rows:' + track, () => api.problems(track))
+
+// 判题方式和助教开关只在后端重启时变化，一个页面会话只读一次。
+let status: Promise<ServerStatus> | undefined
+const serverStatus = () => status ??= api.status().catch((e) => { status = undefined; throw e })
+
 export async function loadWorkspace(id: string) {
-  const parent = await api.problem(id)
-  const [rows, plan, status] = await Promise.all([api.problems(parent.track), api.today(), api.status()])
-  return { parent, rows, reviews: plan.reviews, status }
+  const parent = await problemDetail(id)
+  // 同一学习线里切题时，题目列表、今日计划和判题状态都来自缓存，只等题目详情。
+  const [rows, plan, server] = await Promise.all([trackRows(parent.track), cached('today', api.today), serverStatus()])
+  return { parent, rows, reviews: plan.reviews, status: server }
+}
+
+/** 预取一道题的详情和所在学习线的列表，点过去时路由不用再等网络。失败不用管，真正打开时会重试并报错。 */
+export function prefetchProblem(id: string) {
+  problemDetail(id).then(p => trackRows(p.track)).catch(() => {})
 }
 export type WorkspaceData = Awaited<ReturnType<typeof loadWorkspace>>

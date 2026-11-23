@@ -92,3 +92,11 @@
 - ✓ 主控已发 app-v1.0.1（含 AppImage 和加密令牌），并放进用户的 ~/Applications，AppImageLauncher 已经自动集成进菜单。
 - ✓ 30（Electron 外壳，界面嵌进应用窗口）和 31 同时跑。31 原本是"Helvetica 风格字体 + 界面打磨"，用户又说要往 VS Code 靠，主控停掉它，改派 31-vscode-workbench。用户随后又收窄了范围，所以再停一次，最终派 31-workspace-vscode：只有做题页按 VS Code 布局（本单元题目列表、题面和代码拆分编辑区、底部面板、右侧助教、状态栏、命令面板 / Ctrl+P）；首页树状地图和外部页面保留结构，只统一配色（VS Code Modern）和字体（Heros + Noto Sans SC + JetBrains Mono，打包进应用）。前端文件归 31；30 只新建 DesktopBridge.tsx 并在 App.tsx 挂载，31 重构布局时保留它的挂载，放进状态栏。用户 2026-11-23 定。
 - ✓ 31-workspace-vscode 已验收提交（ae66fdd）。主控补了一处：桌面启动页换成 VS Code 配色和打包的 Heros 字体，CSP 加 font-src 'self'。
+
+## SQL 扩充（用户 2026-11-23："话说sql的题库是不是挺少的 … 看看sql题库有没有什么可以扩充的track之类的"，选了"123"）
+
+- 32-sql-analytics：新线「产品分析 SQL」（`problems/analytics/`，约 90 题，自带 App 行为库）。
+- 33-sql-deepen：SQL 主线阶段 1–5 加厚（约 +70 题：补阶梯、SQL 50 以外的免费题、改错题）。新题号每阶段从 101 起，已有 id 不改。
+- 34-sql-modeling：平台加 `mode: script`（多语句脚本 + 多条检查 / 探针），再写新线「建模与写数据」（`problems/modeling/`，约 70 题）。要改 server/app、web，等 Opus 清理子代理结束再派。
+- 32、33 并行：留存、漏斗、会话切分的深入练习归 32，33 在阶段 5 只补到各一道补全 / 独立写 / 改错。两者都会给 check_curve 的 SQL 识别表加行，只加不改。
+- 第 4 条「PostgreSQL 进阶与性能」用户暂不做。

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
-import { type ProblemDetail, type TrackProblem } from '../api'
+import { prefetchProblem, type ProblemDetail, type TrackProblem } from '../api'
 import { FORMAT_NAME } from '../labels'
 import { readPref, writePref } from '../theme'
 import { ProblemStatus } from './ProblemStatus'
@@ -25,10 +25,7 @@ function useFlag(key: string, fallback: boolean) {
 
 function useSize(key: string, fallback: number, min: number, max: number) {
   const clamp = (n: number) => Math.max(min, Math.min(max, n))
-  const [value, set] = useState(() => {
-    const n = Number(readPref(key, String(fallback)))
-    return Number.isFinite(n) ? clamp(n) : fallback
-  })
+  const [value, set] = useState(() => clamp(Number(readPref(key, String(fallback)))))
   useEffect(() => writePref(key, String(value)), [key, value])
   return { value, min, max, set: (n: number) => set(clamp(n)) }
 }
@@ -105,7 +102,7 @@ export function Explorer({ rows, parent, unit, due, layout }: {
       <Link to={parent.language === 'sql' ? '/?tab=sql' : '/'} title="返回地图">返回地图</Link></header>
     <nav>{rows.map(p => <Link key={p.id} ref={p.id === parent.id ? current : undefined}
       to={'/p/' + p.id} aria-current={p.id === parent.id ? 'page' : undefined}
-      title={p.title + ' · ' + FORMAT_NAME[p.format]} onClick={() => { if (layout.narrow) layout.closeDrawer() }}>
+      title={p.title + ' · ' + FORMAT_NAME[p.format]} onPointerEnter={() => prefetchProblem(p.id)} onClick={() => { if (layout.narrow) layout.closeDrawer() }}>
       <Icon name={icons[p.format]} /><span className="file-title">{p.title}</span>
       {due.has(p.id) && <span className="review-dot" aria-label="复习到期" title="复习到期" />}
       <ProblemStatus status={p.status} />
