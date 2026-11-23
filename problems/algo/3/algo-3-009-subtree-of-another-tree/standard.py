@@ -1,0 +1,9 @@
+def same(a: TreeNode | None, b: TreeNode | None) -> bool:
+    if a is None or b is None:
+        return a is b
+    return a.val == b.val and same(a.left, b.left) and same(a.right, b.right)
+
+def contains_tree(root: TreeNode | None, sub: TreeNode) -> bool:
+    if root is None:
+        return False
+    return same(root, sub) or contains_tree(root.left, sub) or contains_tree(root.right, sub)
