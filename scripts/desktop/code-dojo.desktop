@@ -2,7 +2,7 @@
 Type=Application
 Name=code-dojo
 Comment=在本机练习手写代码并记录学习进度。
-Exec=code-dojo
+Exec=code-dojo --no-sandbox %U
 Icon=code-dojo
 Terminal=false
 Categories=Education;Development;
