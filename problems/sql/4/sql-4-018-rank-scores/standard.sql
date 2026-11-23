@@ -1,0 +1,3 @@
+SELECT score, DENSE_RANK() OVER (ORDER BY score DESC NULLS LAST) AS tier
+FROM scores
+ORDER BY tier;

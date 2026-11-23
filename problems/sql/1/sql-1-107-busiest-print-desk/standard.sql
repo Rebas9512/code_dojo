@@ -1,0 +1,5 @@
+SELECT desk
+FROM desk_tickets
+GROUP BY desk
+ORDER BY COUNT(*) DESC
+LIMIT 1;
