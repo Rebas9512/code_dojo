@@ -1,6 +1,11 @@
 name: 跨平台判题
 
-'on': [push, pull_request]
+# 私有仓库每月 2000 分钟，macOS 按 10 倍、Windows 按 2 倍计费（2026-11-23 一周就用掉 90%）。
+# 推送 main 只跑 Linux；三系统完整测试手动触发（gh workflow run ci.yml），改判题、启动器或发版前跑一次。
+'on':
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -10,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: ${{ fromJSON(github.event_name == 'workflow_dispatch' && '["ubuntu-latest", "macos-latest", "windows-latest"]' || '["ubuntu-latest"]') }}
     runs-on: ${{ matrix.os }}
     env:
       CODE_DOJO_AI_PROVIDER: 'off'

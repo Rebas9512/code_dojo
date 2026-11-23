@@ -15,7 +15,7 @@ code-dojo/
 ├── dojo.py、dojo、dojo.ps1  本机启动、环境诊断和旧记录导入
 ├── desktop/              Electron 主进程、受限 preload、本地启动页与打包配置
 ├── bootstrap/            JSONL 控制协议、令牌、更新包校验与本机服务启动
-├── .github/workflows/    三系统测试、更新包发布、桌面安装包发布
+├── .github/workflows/    测试（推送跑 Linux，手动触发跑三系统）、更新包发布、桌面安装包发布
 ├── docs/
 │   ├── README.md         本文件
 │   ├── problem-format.md 题目 / 技能 / 课 / track 的文件格式（合同）
@@ -57,7 +57,7 @@ Electron 主进程先载入随包启动页，再通过标准输入输出驱动 `
 
 普通 Python 题直接用随包解释器运行独立的 harness 子进程。数据科学题首次使用时在数据目录的 `judge-envs/` 创建专用环境并安装 NumPy、pandas 和 CPU 版 PyTorch。AppImage 启动时会将 `desktop/python-<解释器版本>` 链接到当前挂载的运行时，使同一 Python 版本的判题环境在重开后仍然可用。固定 SQL 题从更新包读取期望表，用户 SQL 和附加题的动态校验都在应用窗口内的 PGlite Worker 中运行。助教使用 PATH 中已登录的 Claude Code，缺少时可在应用的“设置”查看安装和登录提示。
 
-**发布**。推送到 main 后，`ci.yml` 的三系统测试通过才触发 `release-payload.yml`。固定 Release 提供桌面更新，另保留最近五个带版本号的 `payload-v*` Release。需要回退时将目标版本的一对 `payload.zip` 和 `manifest.json` 依次覆盖固定 Release 的同名资产。修改启动器时同步更新 `bootstrap.VERSION` 和 `desktop/package.json` 中的版本与 npm 锁文件，发布对应的 `app-vX.Y.Z` 标签。`release-app.yml` 用 electron-builder 在三系统构建，在 Linux 上用 xvfb 和 Playwright 实际解锁、交卷并检查退出推送，全部成功后发布安装包。可选的 Actions 密钥 `CODE_DOJO_SEALED_TOKENS` 由发布者在本机加密后上传，打包时写入 `sealed-tokens.json`。本版更新包的最低启动器版本是 1.0.0。有不兼容更新时先发布新版安装包，再提高 `bootstrap.MIN_BOOTSTRAP` 并发布更新包。
+**发布**。推送到 main 后，`ci.yml` 在 Linux 上测试，通过才触发 `release-payload.yml`。私有仓库的 Actions 额度按 macOS 10 倍、Windows 2 倍计费，所以三系统测试改为手动触发（`gh workflow run ci.yml`），改了判题、启动器或发版前跑一次。固定 Release 提供桌面更新，另保留最近五个带版本号的 `payload-v*` Release。需要回退时将目标版本的一对 `payload.zip` 和 `manifest.json` 依次覆盖固定 Release 的同名资产。修改启动器时同步更新 `bootstrap.VERSION` 和 `desktop/package.json` 中的版本与 npm 锁文件，发布对应的 `app-vX.Y.Z` 标签。`release-app.yml` 用 electron-builder 在三系统构建，在 Linux 上用 xvfb 和 Playwright 实际解锁、交卷并检查退出推送，全部成功后发布安装包。可选的 Actions 密钥 `CODE_DOJO_SEALED_TOKENS` 由发布者在本机加密后上传，打包时写入 `sealed-tokens.json`。本版更新包的最低启动器版本是 1.0.0。有不兼容更新时先发布新版安装包，再提高 `bootstrap.MIN_BOOTSTRAP` 并发布更新包。
 
 ## 怎么跑
 
