@@ -1,0 +1,11 @@
+id: py-0a-001-add
+title: 两数相加
+track: python
+stage: 0A
+order: 10
+format: write
+mode: function
+difficulty: 1
+skills: {requires: [py.var-arith], introduces: py.function-return}
+entry: add
+signature: "def add(a: int, b: int) -> int:"

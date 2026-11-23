@@ -1,0 +1,26 @@
+id: py-0a-382-fix-countdown
+title: 修好回程丢失的倒数
+track: python
+stage: 0A
+order: 5020
+format: fix
+mode: function
+difficulty: 22
+skills:
+  requires:
+    - py.list-concat-repeat
+    - py.recursion
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: count_from
+signature: 'def count_from(n: int) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: PM50：递归分支算出了列表，却忘了把它交回调用者。
+    code: |
+      def count_from(n: int) -> list[int]:
+          if n == 0:
+              return []
+          [n] + count_from(n - 1)

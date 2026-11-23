@@ -1,0 +1,26 @@
+id: sql-0-108-complete-newest-users
+title: 补全：最新注册的在前
+track: sql
+stage: "0"
+order: 230
+format: complete
+difficulty: 9
+skills: {requires: [sql.select-basic], introduces: sql.order-by}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/same-day.sql
+ordered: true
+hints:
+  - "DESC 表示从大到小（日期从新到旧）。"
+  - "第二个排序键用逗号接在后面。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "排成了最早注册的在前"
+    sql: |
+      SELECT name, signup_date FROM users ORDER BY signup_date, user_id;
+  - why: "同一天时 user_id 排反了"
+    sql: |
+      SELECT name, signup_date FROM users ORDER BY signup_date DESC, user_id DESC;

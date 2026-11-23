@@ -1,0 +1,62 @@
+id: algo-4-l01-prefixes
+title: 给词留一个结束的位置
+track: algo
+skills:
+- algo.trie
+steps:
+- type: read
+  skill: algo.trie
+  md: |
+    查一个完整词可以用集合。若还要反复查“有没有以这几字开头的词”，可以让同一开头的词共用一段路，这棵按字母分支的树叫字典树。空字典是入口，读一个字母就沿对应的键走一层。插入时缺哪层就建哪层。只有走完整个词，才在当前节点留下结束标记。这样一个节点既能标记词尾，也能继续通往更长的词。
+
+    一次普通查询只沿一条路，查询长 L 个字符，平均用时 O(L)。空间随不同前缀的总数增长。遇到通配符时需要尝试同层多个分支，网格找词还要记住当前路径用了哪些格子。
+- type: example
+  skill: algo.trie
+  code: |
+    # ① 共享开头，单独标记词尾
+    root = {}
+    for word in ["pear", "pea", "pen"]:
+        node = root
+        for ch in word:
+            node = node.setdefault(ch, {})
+        node["#"] = True
+
+    # ② 沿查询文字移动，分别读出“有前缀”和“有整词”
+    for query in ["pe", "pea", "pet"]:
+        node = root
+        for ch in query:
+            node = node.get(ch)
+            if node is None:
+                break
+        prefix = node is not None
+        print(query, prefix, prefix and "#" in node)
+
+    # 输出
+    # pe True False
+    # pea True True
+    # pet False False
+  md: |
+    | 走过的字母 | 当前节点还能走向 | 有词尾标记 |
+    |---|---|---|
+    | p | e | 否 |
+    | pe | a、n | 否 |
+    | pea | r | 是 |
+
+    删掉词表中的 pea，再运行，观察第二行的两个布尔值。
+- type: quiz
+  skill: algo.trie
+  q: 只插过 moss，查询 mo 时刚好走完两层。哪项成立？
+  options:
+  - 完整词已收录
+  - 有这个前缀，未收录这个完整词
+  - 两项都不成立
+  answer: 1
+  explain: 只有 moss 的最后一个 s 所在节点有结束标记。
+- type: quiz
+  skill: algo.trie
+  q: 收录 pea、pear 后，查 pea 时还要看它有没有孩子吗？
+  options:
+  - 有孩子就不算完整词
+  - 检查此处是否标着词尾即可
+  answer: 1
+  explain: 较短词可以结束在分叉中途，孩子与词尾标记可以共存。

@@ -1,0 +1,37 @@
+id: algo-4-026-partition-labels
+title: 让相同字母都留在同一段
+track: algo
+stage: '4'
+order: 260
+format: write
+mode: function
+difficulty: 68
+skills:
+  requires:
+  - algo.greedy
+  - algo.hash-index-map
+  - py.dict-set-comp
+  introduces: null
+source: neetcode250
+leetcode: partition-labels
+milestones:
+- nc150
+- top100
+entry: partition_sizes
+signature: 'def partition_sizes(s: str) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 遇到较短的字母范围，把当前段提前截断。
+  code: |
+    def partition_sizes(s: str) -> list[int]:
+        last = {letter: i for i, letter in enumerate(s)}
+        start = end = 0
+        sizes = []
+        for i, letter in enumerate(s):
+            end = last[letter]
+            if i == end:
+                sizes.append(end - start + 1)
+                start = i + 1
+        return sizes
+hints:
+- 第一次遇到一个字母时，整段至少要延伸到它的最后出现位置。中途遇到的新字母也有自己的最后位置。

@@ -1,0 +1,11 @@
+{
+  "examples": [
+    {"args": [[["zoe", 3], ["amy", 3], ["lee", 7]]], "expected": [["lee", 7], ["amy", 3], ["zoe", 3]]},
+    {"args": [[["a", 0], ["b", -1]]], "expected": [["a", 0], ["b", -1]]}
+  ],
+  "hidden": [
+    {"args": [[]], "expected": []},
+    {"args": [[["q", -3]]], "expected": [["q", -3]]},
+    {"args": [[["t", 4], ["t", 4]]], "expected": [["t", 4], ["t", 4]]}
+  ]
+}

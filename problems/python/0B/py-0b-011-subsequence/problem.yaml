@@ -1,0 +1,22 @@
+id: py-0b-011-subsequence
+title: 保留顺序能否拼出目标词
+track: python
+stage: 0B
+order: 110
+format: write
+mode: function
+difficulty: 26
+skills:
+  requires: [py.two-index, py.bool-ops, py.if-else]
+  introduces: null
+source: leetcode75
+leetcode: is-subsequence
+milestones: []
+entry: is_subsequence
+signature: 'def is_subsequence(word: str, text: str) -> bool:'
+compare: exact
+wrong_examples:
+  - why: "把可以跳过字符的子序列当作连续的一段。"
+    code: |
+      def is_subsequence(word: str, text: str) -> bool:
+          return word in text

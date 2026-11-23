@@ -1,0 +1,29 @@
+id: sql-4-019-department-highest-salary
+title: 部门薪资榜首
+track: sql
+stage: '4'
+order: 190
+format: write
+difficulty: 62
+skills:
+  requires:
+    - sql.top-n-per-group
+  introduces: null
+source: leetcode-db
+leetcode: department-highest-salary
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/extra-ties.sql
+  - datasets/sample.sql + datasets/null-only.sql
+ordered: false
+hints:
+  - 只取第一档也可能有多个人。
+wrong_examples:
+  - why: 每部门只出一位
+    sql: |
+      WITH ranked AS (
+          SELECT dept, worker, salary, ROW_NUMBER() OVER (PARTITION BY dept ORDER BY salary DESC) AS place
+          FROM wages WHERE salary IS NOT NULL
+      )
+      SELECT dept, worker, salary FROM ranked WHERE place = 1;

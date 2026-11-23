@@ -1,0 +1,157 @@
+id: algo-1-l02-hash-groups
+title: 有状态的对象、分组与分桶
+track: algo
+skills:
+- algo.class-design
+- algo.defaultdict
+- algo.bucket
+steps:
+- type: read
+  skill: algo.class-design
+  md: |
+    设计题给出的是一连串调用。构造函数先为这个对象准备空状态，每个方法既要给出当次的返回值，也要让下一次调用看到正确的状态。先用一句话写下约定：例如小集合的列表里，每个已加入的值恰好有一份。查询只读列表，添加前先查询。
+
+    列表末尾追加通常很快，不过用列表来查询一个值最坏要走遍 n 项，所以这个小集合只适合较小规模。**在 add 中重新创建空列表**会把原有记录清掉。各对象的状态要放在各自的 self 上，建立第二个对象时应从空状态开始。
+- type: example
+  skill: algo.class-design
+  code: |
+    # ① 初始化每个对象自己的记录
+    class Tags:
+        def __init__(self):
+            self.values = []
+
+        # ② 跳过已经登记的值
+        def add(self, value):
+            if value not in self.values:
+                self.values.append(value)
+
+    # ③ 连续调用，检查两个实例
+    a = Tags()
+    b = Tags()
+    a.add(4)
+    a.add(4)
+    print(a.values)
+    print(b.values)
+
+    # 输出
+    # [4]
+    # []
+  md: |-
+    | 操作 | a 的记录 | b 的记录 |
+    |---|---|---|
+    | 构造 | [] | [] |
+    | a 加 4 两次 | [4] | [] |
+
+    在最后一行前给 b 加入 9，再运行。
+- type: quiz
+  skill: algo.class-design
+  q: 把 self.values = [] 移到每次 add 的开头，先加 2 再加 3 后会得到什么？
+  options:
+  - '[2, 3]'
+  - '[3]'
+  - '[]'
+  answer: 1
+  explain: 第二次调用会替换掉第一次存下的列表。
+- type: quiz
+  skill: algo.class-design
+  q: 要求按值查询平均 O(1)，一张可能很长的无序列表能保证吗？
+  options:
+  - 能，知道长度就够了
+  - 不能，可能要逐项比对
+  answer: 1
+  explain: 下标读取得快，前提是已知下标。按值查询需要搜索或另建索引。
+- type: read
+  skill: algo.defaultdict
+  md: |
+    把词装进不同组之前，要先找到一个稳定的组名。可以将字母排序，再拼成字符串：词的顺序打乱后，组名仍然相同。defaultdict(list) 会在第一次用方括号读一个新组名时为它创建空列表。之后再读同一组名，拿到的还是先前的列表。
+
+    每处理一个词，就把它追加到对应的组，已处理的每个词恰好有一个去处。长 m 的词排序用 O(m log m)，找到组后追加平均 O(1)。**直接拿 sorted(word) 当键**会报错，因为它是可修改的列表。如果只想看某组是否存在，用 in 可以避免意外建组。
+- type: example
+  skill: algo.defaultdict
+  code: |
+    from collections import defaultdict
+
+    # ① 为新组准备创建列表的规则
+    groups = defaultdict(list)
+    for word in ["rat", "ink", "art"]:
+        # ② 算出稳定的组名
+        key = "".join(sorted(word))
+        # ③ 放进该组
+        groups[key].append(word)
+    print(groups["art"])
+    print("xyz" in groups)
+
+    # 输出
+    # ['rat', 'art']
+    # False
+  md: |-
+    | 词 | 组名 | 追加后该组 |
+    |---|---|---|
+    | rat | art | rat |
+    | ink | ikn | ink |
+    | art | art | rat、art |
+
+    把最后一行改成先读取 groups["xyz"] 再检查成员关系。
+- type: quiz
+  skill: algo.defaultdict
+  q: 哪个表达式能直接作为字典键？
+  options:
+  - sorted("tea")
+  - '"".join(sorted("tea"))'
+  answer: 1
+  explain: 拼成的字符串不可变，列表不能作为字典键。
+- type: quiz
+  skill: algo.defaultdict
+  q: 新建 groups 后直接读 groups["x"]，再查 "x" in groups 会怎样？
+  options:
+  - 'True'
+  - 'False'
+  - KeyError
+  answer: 0
+  explain: 方括号已经触发 list() 并保存了新键。
+- type: read
+  skill: algo.bucket
+  md: |
+    假设有 n 个号码。每个出现过的号码的频率最少为 1，最多为 n。用频率给一排小列表编号，每个不同的号码只进一次桶：读出它的总次数 c，就放进下标 c。这样从右向左看桶，先拿到的就是出现次数高的号码。空的 0 号桶可以留下，省去换算下标。
+
+    清点、分桶和从高到低收集，加起来平均 O(n)，最多要开 n+1 个桶。**用乘法重复一个空列表**会让所有位置共用同一个桶。若用未经约束的大整数本身当下标，则可能为了几个值开出海量空桶；此处能用的是受限的频率。
+- type: example
+  skill: algo.bucket
+  code: |
+    from collections import Counter
+
+    # ① 清点每个值
+    nums = [4, 9, 4]
+    counts = Counter(nums)
+    # ② 每种次数建一个独立的桶
+    bins = [[] for _ in range(len(nums) + 1)]
+    # ③ 用次数定位
+    for value, frequency in counts.items():
+        bins[frequency].append(value)
+    print(bins)
+
+    # 输出
+    # [[], [9], [4], []]
+  md: |-
+    | 值 | 频率 | 去哪个桶 |
+    |---|---:|---:|
+    | 4 | 2 | 2 |
+    | 9 | 1 | 1 |
+
+    把 nums 改为 [4, 9, 9, 4]，看哪个桶装有两个值。
+- type: quiz
+  skill: algo.bucket
+  q: 用 [[]] * 3 建桶，给第 1 桶追加 8，其他桶会怎样？
+  options:
+  - 保持空
+  - 也都出现 8
+  answer: 1
+  explain: 乘法复制了引用，三个位置指向同一个列表。
+- type: quiz
+  skill: algo.bucket
+  q: 输入只有 [900000000, 4, 4]，开多少个频率桶就够？
+  options:
+  - 4 个
+  - 900000001 个
+  answer: 0
+  explain: 桶号是频率，最大不超过输入长度 3。

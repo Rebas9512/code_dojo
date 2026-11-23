@@ -1,0 +1,33 @@
+id: sql-4-004-two-price-ranks
+title: 修一修：并排看两种价格排名
+track: sql
+stage: '4'
+order: 40
+format: fix
+difficulty: 55
+skills:
+  requires: []
+  introduces: sql.rank
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/ties-and-null.sql
+  - db:bookstore + datasets/sample.sql + datasets/singletons.sql
+ordered: false
+hints:
+  - 在 45、45、39 中，第三本分别是第几个位置和第几个价格？
+wrong_examples:
+  - why: 竞赛名次也逐档加一
+    sql: |
+      SELECT category, book_id,
+             DENSE_RANK() OVER (PARTITION BY category ORDER BY price DESC NULLS LAST) AS place,
+             DENSE_RANK() OVER (PARTITION BY category ORDER BY price DESC NULLS LAST) AS tier
+      FROM shelf;
+  - why: 把同价的书拆成不同名次
+    sql: |
+      SELECT category, book_id,
+             ROW_NUMBER() OVER (PARTITION BY category ORDER BY price DESC NULLS LAST) AS place,
+             DENSE_RANK() OVER (PARTITION BY category ORDER BY price DESC NULLS LAST) AS tier
+      FROM shelf;

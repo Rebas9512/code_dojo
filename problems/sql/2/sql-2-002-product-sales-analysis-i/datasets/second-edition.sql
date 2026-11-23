@@ -1,0 +1,2 @@
+INSERT INTO goods VALUES (18,'墨盒');
+INSERT INTO sales VALUES (14,18,2025,16);

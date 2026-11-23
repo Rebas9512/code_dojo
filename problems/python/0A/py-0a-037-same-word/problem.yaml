@@ -1,0 +1,20 @@
+id: py-0a-037-same-word
+title: 是同一个词吗
+track: python
+stage: 0A
+order: 740
+format: write
+mode: function
+difficulty: 12
+skills:
+  requires: [py.compare-bool, py.func-return, py.str-methods]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: same_word
+signature: "def same_word(a: str, b: str) -> bool:"
+compare: exact
+hints:
+  - "两边都先 strip() 再 lower()，然后比较。"
+  - "strip 只去首尾，中间的空格保留。"

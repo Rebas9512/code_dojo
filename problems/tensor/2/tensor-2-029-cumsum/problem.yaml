@@ -1,0 +1,50 @@
+id: tensor-2-029-cumsum
+title: 每个时刻都留下小计
+track: tensor
+stage: '2'
+order: 290
+format: write
+mode: function
+difficulty: 36
+skills:
+  requires:
+    - tensor.coordinates
+  introduces: null
+source: original
+entry: cumsum
+signature: 'def cumsum(x):'
+compare: checker
+wrong_examples:
+  - why: 直接调用现成运算，跳过了坐标构造。
+    code: |
+      import torch
+
+
+      def cumsum(x):
+          return torch.cumsum(x, dim=0)
+  - why: 只合并到四格，长度超过四时漏掉早期读数。
+    code: |
+      import torch
+
+
+      def cumsum(x):
+          i = torch.arange(len(x))
+          # 每轮合并两个相邻区间，左边越界的位置贡献为零。
+          s2 = x + (i >= 1) * x[(i - 1) % len(x)]
+          s4 = s2 + (i >= 2) * s2[(i - 2) % len(x)]
+          s8 = s4 + (i >= 4) * s4[(i - 4) % len(x)]
+          return s4
+constraints:
+  no_loops: true
+  forbid_calls:
+    - torch.cumsum
+    - torch.sum
+    - torch.matmul
+    - torch.Tensor.cumsum
+    - torch.Tensor.sum
+    - torch.Tensor.matmul
+  forbid_imports:
+    - numpy
+    - pandas
+hints:
+  - 先覆盖自己与左邻，再合并长度 2、4 的相邻小计；每轮都读上一轮的结果。

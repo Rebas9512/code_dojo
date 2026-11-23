@@ -1,0 +1,23 @@
+id: py-0a-287-complete-word-order
+title: 补全按长度排词
+track: python
+stage: 0A
+order: 4070
+format: complete
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - py.sort-key
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: short_first
+signature: 'def short_first(words: list[str]) -> list[str]:'
+compare: exact
+wrong_examples:
+  - why: 省略 key，改成按拼写排列。
+    code: |
+      def short_first(words: list[str]) -> list[str]:
+          return sorted(words)

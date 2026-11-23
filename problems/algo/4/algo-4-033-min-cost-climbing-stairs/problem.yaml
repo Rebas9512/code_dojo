@@ -1,0 +1,29 @@
+id: algo-4-033-min-cost-climbing-stairs
+title: 登上楼顶最少付多少
+track: algo
+stage: '4'
+order: 330
+format: write
+mode: function
+difficulty: 68
+skills:
+  requires:
+  - algo.dp-1d
+  - py.minmax-abs
+  - py.multi-assign
+  introduces: null
+source: neetcode250
+leetcode: min-cost-climbing-stairs
+milestones:
+- nc150
+entry: min_fee
+signature: 'def min_fee(cost: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 默认必须先从第 0 级付费出发。
+  code: |
+    def min_fee(cost: list[int]) -> int:
+        two, one = 0, cost[0]
+        for top in range(2, len(cost) + 1):
+            two, one = one, min(one + cost[top - 1], two + cost[top - 2])
+        return one

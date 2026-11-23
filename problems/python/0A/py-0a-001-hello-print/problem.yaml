@@ -1,0 +1,17 @@
+id: py-0a-001-hello-print
+title: 第一行输出
+track: python
+stage: 0A
+order: 5
+format: predict
+mode: predict
+difficulty: 1
+skills:
+  requires: [data.value-kinds]
+  introduces: py.print
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "每个 print 输出一行，一共 7 行。"
+  - "第 4 行是空行。"

@@ -1,0 +1,7 @@
+print("早上好")
+print(2026)
+print("code", "dojo")
+print()
+print("结束")
+print(7)
+print("7")

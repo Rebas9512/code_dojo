@@ -1,0 +1,24 @@
+id: math-2-018-partial-y
+title: 固定横坐标测纵向
+track: math
+stage: '2'
+order: 180
+format: complete
+mode: function
+difficulty: 30
+skills:
+  requires:
+    - math.gradient
+  introduces: null
+source: original
+entry: partial_y
+signature: 'def partial_y(x: float, y: float, h: float) -> float:'
+compare: float
+wrong_examples:
+  - why: 让两个坐标一起移动。
+    code: |
+      def partial_y(x: float, y: float, h: float) -> float:
+          base = x*y + y**2
+          new_y = y + h
+          after = (x+h)*new_y + new_y**2
+          return (after - base)/h

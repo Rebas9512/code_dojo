@@ -1,0 +1,24 @@
+id: tensor-1-002-float-readings
+title: 给读数留出小数位
+track: tensor
+stage: '1'
+order: 20
+format: complete
+mode: function
+difficulty: 18
+skills:
+  requires:
+    - tensor.create
+  introduces: null
+source: original
+entry: readings
+signature: 'def readings(values):'
+compare: allclose
+wrong_examples:
+  - why: 整数类型无法保存半格刻度。
+    code: |
+      import torch
+
+
+      def readings(values):
+          return torch.tensor(values, dtype=torch.int64)

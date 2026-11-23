@@ -1,0 +1,65 @@
+id: algo-4-l06-text-prefixes
+title: 两个前缀相遇时保留什么
+track: algo
+skills:
+- algo.dp-string
+steps:
+- type: read
+  skill: algo.dp-string
+  md: |
+    **状态**：L(i,j) 为第一串的前 i 字和第二串的前 j 字能留下的最长公共子序列长度。**转移**：末字相同时可以接在两个较短前缀的答案后面，加 1。不同时分别跳过两边的末字，保留较大者。**初值**：任一前缀为空时长度为 0。**顺序**：自顶向下缩短前缀，或自底向上先填短前缀。表格比两串各多一格，i 个字符的末字是下标 i−1。
+
+    看到“两个字符串能否对齐、编辑或选出相同顺序”，就试着把两个已读长度当坐标。两个长度为 m、n 的串有 O(mn) 对前缀，每格只看相邻格。先分清题意中的连续性：若只问公共后缀，末字不同就归零，因为结尾不能绕开。公共子序列允许跳字。
+- type: example
+  skill: algo.dp-string
+  code: |
+    from functools import cache
+
+    # ① 自顶向下，按末字是否相同拆分
+    a, b = "axc", "abc"
+    @cache
+    def length(i, j):
+        if i == 0 or j == 0:
+            return 0
+        if a[i - 1] == b[j - 1]:
+            return 1 + length(i - 1, j - 1)
+        return max(length(i - 1, j), length(i, j - 1))
+
+    # ② 自底向上，保留空前缀的零行零列
+    table = [[0] * (len(b) + 1) for _ in range(len(a) + 1)]
+    for i, x in enumerate(a, 1):
+        for j, y in enumerate(b, 1):
+            if x == y:
+                table[i][j] = table[i - 1][j - 1] + 1
+            else:
+                table[i][j] = max(table[i - 1][j], table[i][j - 1])
+    print(length(len(a), len(b)))
+    print(table[-1])
+
+    # 输出
+    # 2
+    # [0, 1, 1, 2]
+  md: |
+    | 前缀对 | 公共后缀长度 | 公共子序列长度 |
+    |---|---|---|
+    | ax 与 ab | 0 | 1 |
+    | axc 与 abc | 1 | 2 |
+
+    把 x 改成 b，比对最后一行。
+- type: quiz
+  skill: algo.dp-string
+  q: ax 与 ab 的最后两个字不同。公共后缀和公共子序列的长度分别是多少？
+  options:
+  - 0 和 1
+  - 1 和 1
+  - 0 和 0
+  answer: 0
+  explain: 后缀必须包含两个末字，子序列仍可保留开头的 a。
+- type: quiz
+  skill: algo.dp-string
+  q: 表中 i=2 表示已取左串前两个字符，其末字下标是多少？
+  options:
+  - '2'
+  - '1'
+  answer: 1
+  explain: 第一个字符下标是 0，前两个的末字下标是 1。

@@ -1,0 +1,27 @@
+id: sql-3-008-biggest-single-number
+title: 只出现一次的最大票号
+track: sql
+stage: '3'
+order: 80
+format: write
+difficulty: 45
+skills:
+  requires:
+    - sql.derived-table
+    - sql.having
+    - sql.sum-avg
+  introduces: null
+source: sql50
+leetcode: biggest-single-number
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/all-twice.sql
+  - datasets/sample.sql + datasets/three-copies.sql
+ordered: false
+hints:
+  - 先给每种号数票，再从合格的号里求最大。
+wrong_examples:
+  - why: 不先检查重复
+    sql: |
+      SELECT MAX(num) AS num FROM tickets;

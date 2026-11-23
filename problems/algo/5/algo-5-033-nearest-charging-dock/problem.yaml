@@ -1,0 +1,52 @@
+id: algo-5-033-nearest-charging-dock
+title: 仓库里最近的充电座
+track: algo
+stage: '5'
+order: 330
+format: write
+mode: function
+difficulty: 76
+week: 4
+skills:
+  requires:
+  - algo.graph-bfs
+  - py.bool-ops
+  - py.early-return
+  - py.enumerate
+  - py.nested-loop
+  - py.set-basics
+  - py.str-methods
+  - py.tuple
+  - py.while
+  introduces: null
+source: original
+leetcode: shortest-path-to-get-food
+milestones: []
+entry: dock
+signature: 'def dock(grid: list[str]) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 把目的地当成障碍，充电座无法入队。
+  code: |
+    from collections import deque
+
+
+    def dock(grid: list[str]) -> int:
+        rows, cols = len(grid), len(grid[0])
+        queue = deque()
+        seen = set()
+        for r, row in enumerate(grid):
+            if "@" in row:
+                start = (r, row.index("@"))
+                queue.append((*start, 0))
+                seen.add(start)
+        while queue:
+            r, c, steps = queue.popleft()
+            if grid[r][c] == "+":
+                return steps
+            for i, j in ((r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)):
+                if 0 <= i < rows and 0 <= j < cols and grid[i][j] != "+" and (i, j) not in seen:
+                    seen.add((i, j))
+                    queue.append((i, j, steps + 1))
+        return -1

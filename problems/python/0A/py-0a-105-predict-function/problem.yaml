@@ -1,0 +1,17 @@
+id: py-0a-105-predict-function
+title: 函数调用了几次
+track: python
+stage: 0A
+order: 105
+format: predict
+mode: predict
+difficulty: 3
+skills:
+  requires: [py.var-arith]
+  introduces: py.func-return
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "double(double(1)) 先算里面的 double(1)。"
+  - "return 不会在屏幕上显示任何东西。"

@@ -1,0 +1,16 @@
+id: wrangle-1-014-infer-width
+title: 装成两排后每排几件
+track: wrangle
+stage: '1'
+order: 140
+format: predict
+mode: predict
+difficulty: 20
+skills:
+  requires: []
+  introduces: wrangle.reshape
+source: original
+wrong_examples:
+  - why: 把指定的行数当作列数。
+    code: |
+      print('(3, 2)')

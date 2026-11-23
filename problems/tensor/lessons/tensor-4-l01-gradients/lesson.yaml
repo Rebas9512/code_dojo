@@ -1,0 +1,62 @@
+id: tensor-4-l01-gradients
+title: 从损失读出梯度
+track: tensor
+skills:
+  - tensor.backward
+  - tensor.accumulate
+steps:
+  - type: read
+    skill: tensor.backward
+    md: |-
+      梯度说明某个输入微微增加时，结果会往哪里变、变化多快。把旋钮设为 3，能耗是旋钮值的平方，此时能耗为 9，斜率为 6。要让程序自动算出这个 6，就需要记住能耗怎样从旋钮一步步算来。
+
+      创建浮点输入时设 `requires_grad=True`，PyTorch 会记录后续可微运算的依赖，这些依赖构成计算图。从标量结果调用 `backward()` 后，在原始输入的 `.grad` 读取梯度。若传入的浮点叶子尚未记录梯度，调用 `x.requires_grad_(True)` 可就地打开开关。`.item()` 可把单格张量读成 Python 数。整数张量不能开启梯度。
+
+      **TM18 常见误解：把整数输入直接设成可求导**。整数列表 [2, 4] 直接建张量无法开启求导；指定浮点存储后，平方和的梯度是 [4.0, 8.0]。
+  - type: example
+    skill: tensor.backward
+    code: |
+      import torch
+      # ① 用浮点旋钮记录从输入到能耗的步骤
+      x = torch.tensor(3., requires_grad=True)
+      loss = x * x
+      loss.backward()
+      print(loss.item(), x.grad.item())  # 输出 9.0 6.0
+    md: 把 3. 改成 -3.，看能耗和梯度各自怎样变化。
+  - type: quiz
+    skill: tensor.backward
+    q: 输入列表 [2, 4] 是整数，要计算平方和梯度应怎样建张量？
+    options:
+      - 只设 requires_grad=True
+      - 明确用浮点 dtype 并开启梯度
+      - 先转成布尔数
+    answer: 1
+    explain: 自动求导要沿连续数值变化，先建立浮点输入，才能记录它的梯度。（TM18）
+  - type: read
+    skill: tensor.accumulate
+    md: |-
+      同一旋钮影响两笔损失时，可能想把两笔影响相加，也可能想分开看。若第一笔的斜率是 2、第二笔是 5，一起汇报应得 7；单报第二笔就应得 5。两次测量的目标决定何时清空记录。
+
+      每次 backward 都往叶子张量（直接创建、用来求导的输入）的 .grad 里加。计算另一笔损失时重新用 x 写前向式子，得到新图。需要独立读数就在两次反向之间写 `x.grad = None`；保存早先结果时用 .item() 取数或 .clone() 留副本。
+
+      **TM19 常见误解：以为第二次反向会自动覆盖第一次**。先对 2x 反向，再对 5x 反向，未清空时读到 7；中间设 x.grad = None，第二笔就单独得到 5。
+  - type: example
+    skill: tensor.accumulate
+    code: |
+      import torch
+      # ① 用同一个旋钮分别构建两笔损失
+      x = torch.tensor(3., requires_grad=True)
+      (2 * x).backward()
+      print(x.grad.item())  # 输出 2.0
+      (5 * x).backward()
+      print(x.grad.item())  # 输出 7.0
+    md: 在第二笔损失之前插入 x.grad = None，再读末行。
+  - type: quiz
+    skill: tensor.accumulate
+    q: 先对 3x 反向，再对 −x 反向，中间没清空，.grad 是多少？
+    options:
+      - '-1'
+      - '2'
+      - '3'
+    answer: 1
+    explain: 两笔斜率都会加进去，3 加上 −1 等于 2。（TM19）

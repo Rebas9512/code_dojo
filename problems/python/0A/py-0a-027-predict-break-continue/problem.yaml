@@ -1,0 +1,17 @@
+id: py-0a-027-predict-break-continue
+title: break 和 continue
+track: python
+stage: 0A
+order: 550
+format: predict
+mode: predict
+difficulty: 10
+skills:
+  requires: [py.for-range, py.if-else, py.floordiv-mod]
+  introduces: py.break-continue
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "3 和 6 被 continue 跳过。"
+  - "i = 8 时会发生什么？"

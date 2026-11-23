@@ -1,0 +1,20 @@
+id: py-0a-023-count-multiples
+title: 3 或 5 的倍数有几个
+track: python
+stage: 0A
+order: 470
+format: fix
+mode: function
+difficulty: 9
+skills:
+  requires: [py.accumulator, py.if-else, py.bool-ops, py.floordiv-mod]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: count_multiples
+signature: "def count_multiples(n: int) -> int:"
+compare: exact
+hints:
+  - "少数的那一个是哪个数？"
+  - "range(1, n) 包含 n 吗？"

@@ -1,0 +1,320 @@
+track: wrangle
+skills:
+  - id: wrangle.array
+    name: 创建数组并读出类型和形状
+    stage: '1'
+    group: 1
+    prereqs:
+      - py.list-basics
+      - py.func-return
+      - data.value-kinds
+      - data.shapes
+    card: |-
+      数组把同种类型的数放进有规则的格子，方便按同一种方法处理一批读数。两个柜台各记三天销量，一共有六格，排列方式是两行三列。整数可以用来数册，小数可以记录重量。
+
+      用 np.array 把列表放入格子。dtype 表示每格的存储类型；指定 float 会将 2 存成 2.0。shape 按轴列出长度，ndim 数轴的个数。一行三列和单独三个数有不同的形状。
+  - id: wrangle.slice
+    name: 数组的位置和切片
+    stage: '1'
+    group: 2
+    prereqs:
+      - wrangle.array
+      - py.slice
+      - py.tuple
+    card: |-
+      下标给一个格子定位，切片沿一个轴取一段相邻的格子。一天记录 [4, 8, 5, 9]，取位置 1 到 3 之前的读数，得到 8 和 5。起点计入，终点留给下一段。
+
+      二维表写成 a[行, 列]，冒号单独出现时表示这个轴全部保留。a[:, 0] 会取走列轴，得到一维数组；a[:, 0:1] 仍是一张单列表。用形状可以分辨这两种结果。
+  - id: wrangle.mask
+    name: 用布尔掩码筛选
+    stage: '1'
+    group: 2
+    prereqs:
+      - wrangle.array
+      - py.compare-bool
+      - py.index-len
+    card: |-
+      掩码是一串与原数据对齐的真假值，表示哪些格子要留下。库存在 [3, 0, 7] 时，挑正库存得到 [真, 假, 真]，抽出相同位置就是 [3, 7]。这种做法可以一次表达整批记录的条件。
+
+      比较数组得到布尔数组。返回掩码能回答每一格是否合格，用方括号套上掩码则只留下合格的值。筛选保留原来的先后顺序，重复值也会保留。
+  - id: wrangle.fancy
+    name: 按位置清单取值
+    stage: '1'
+    group: 2
+    prereqs:
+      - wrangle.slice
+    card: |-
+      花式索引用一张位置清单安排取数顺序。架上三册的价格依次为 8、4、6 元，要依次查最后一册、第一册、最后一册，位置单写作 [2, 0, 2]，查到 6、8、6。
+
+      把整数列表放到数组的方括号里。清单的长度决定返回几项，位置允许重复。用于二维表的第一轴时，每个位置会取出整行。
+  - id: wrangle.reshape
+    name: 保留元素重排形状
+    stage: '1'
+    group: 3
+    prereqs:
+      - wrangle.array
+    card: |-
+      一串标签可以按固定宽度排成多行，便于每行交给一个货架。六张标签每行三张，可以排成两行；每行两张，就有三行。无论选哪种排列，一张都不能凭空增加或丢失。
+
+      reshape(行数, 列数) 按原先的读取顺序依次填行。可以把一个长度写成 -1 让 NumPy 算出它。总数必须能被给定宽度整除。
+  - id: wrangle.axis
+    name: 指定轴做聚合
+    stage: '1'
+    group: 3
+    prereqs:
+      - wrangle.array
+    card: |-
+      聚合把一组数缩成一个数。甲店三天卖了 2、4、6 本，乙店卖了 1、3、5 本。想知道每天两店共卖几本，就沿行向下加，得到 3、7、11；想看各店总数，就沿各行横向加。
+
+      轴号指出被压缩的维度。二维数组 axis=0 压掉行轴、保留每列一个结果，axis=1 压掉列轴、保留每行一个结果。求和、平均值和最值都可以这样指定方向。
+  - id: wrangle.broadcast
+    name: 从右向左对齐形状
+    stage: '2'
+    group: 1
+    prereqs:
+      - wrangle.array
+      - wrangle.reshape
+    card: |-
+      广播让不同形状的读数共享同一套修正值。两天各有早中晚三次测量，每个时段都要加自己的偏差 [1, 0, 2]。把这三个偏差与每一天对齐，就能同时校正两行。
+
+      比较形状时从最右端开始。两边相等，或者有一边是 1，就能配对；缺少的前导轴当作 1。比如 (2, 3) 加 (3,) 得到 (2, 3)。若两个偏差分别属于两天，要先把它们排成 (2, 1)，让每行沿列展开。
+  - id: wrangle.vectorize
+    name: 用数组运算改写循环并计时
+    stage: '2'
+    group: 1
+    prereqs:
+      - wrangle.array
+      - py.big-o
+      - py.list-comp
+    card: |-
+      向量化是把同一条计算规则交给数组一次执行。三份重量 [1, 3, 2] 都要翻倍，手算会一个个写出 2、6、4，数组乘 2 也会逐格得到相同的数。Python 循环每次都要进入循环体，大数组上的数值运算可以交给底层批量完成。
+
+      比较耗时，要用同一份输入，先确认结果一致，再量各段结束和开始时刻的差。机器负载会改变秒数；计时结果只用于观察。
+  - id: wrangle.where
+    name: 按条件逐格选择
+    stage: '2'
+    group: 2
+    prereqs:
+      - wrangle.mask
+      - wrangle.array
+    card: |-
+      逐格选择会给每个位置安排一个值，适合修正无效读数。温度记录为 [3, -2, 0]，仪表约定负数都替换为零，修正后仍有三次记录 [3, 0, 0]。
+
+      np.where(条件, 成立时取值, 否则取值) 会把三个部分按形状对齐，再在对应位置选择。条件筛选会让不合格的行消失，而这里每次记录都要占原来的位置。
+  - id: wrangle.cumsum
+    name: 累计至当前位置
+    stage: '2'
+    group: 2
+    prereqs:
+      - wrangle.array
+    card: |-
+      累计值回答“从开头到这里总共多少”。若前三笔入账依次为 2、5、1，第一笔后是 2，第二笔后是 7，第三笔后是 8。每天保留一个小计，就能读出任一天结束时的余额。
+
+      np.cumsum 沿给定轴依次相加，每个中途结果都存下来。二维表若省略 axis，会先摊成一维。按店看每天的累计需要在每店的一行内前进。
+  - id: wrangle.rank-index
+    name: 找到最大值位置和排序位置
+    stage: '2'
+    group: 2
+    prereqs:
+      - wrangle.array
+      - py.type-convert
+    card: |-
+      排队单关心的是“哪一个”，所以要返回位置。读数 [8, 3, 5] 中最大的是 8，所在位置为 0；从小到大依次来自位置 1、2、0。保存这些位置，就能用同一顺序排列旁边的姓名列。
+
+      np.argmax 找第一个最大值的位置。np.argsort 给出由小到大的全部位置；指定 kind='stable'，相等时仍让原先靠前的人先排。
+  - id: wrangle.table
+    name: 从 Series 到 DataFrame
+    stage: '3'
+    group: 1
+    prereqs:
+      - data.table-intro
+      - data.shapes
+      - py.dict-basics
+      - py.func-return
+    card: |-
+      Series 是带行标签的一列值，适合单独记录一批价格。DataFrame 把若干列并排成表，同一行的几列描述同一条记录。例如两行分别是甲架有 3 本、乙架有 7 本，就可以同时比较位置和数量。
+
+      pd.Series([3, 7], name='stock') 建立具名的一列。pd.DataFrame 可以接收列名到各列数值的字典，也能接收一行一行的数据并另给 columns。表用一个列名取出 Series，用列名列表保留 DataFrame。
+  - id: wrangle.csv
+    name: 从 CSV 文本读表
+    stage: '3'
+    group: 1
+    prereqs:
+      - wrangle.table
+      - data.text-formats
+    card: |-
+      CSV 把一批记录写成文本，表头一行给列起名，其余每行是一条记录。比如表头写 shelf,stock，下一行写 A,3，意思是 A 架有 3 本。字段自己带逗号时，可以用一对双引号保护整个字段。
+
+      pd.read_csv 会识别表头、分隔符和引号，并推断列类型。StringIO 把题目传入的文字包装成可读取的对象，运行示例时不需要打开本机文件。
+  - id: wrangle.loc
+    name: 用 loc 和 iloc 选行列
+    stage: '3'
+    group: 2
+    prereqs:
+      - wrangle.table
+      - py.slice
+      - py.tuple
+    card: |-
+      行标签像票号，位置像排队次序。票号为 20、10 的两个人依次排队，第一个人的票号是 20。查“票号 10”与查“排第一的人”会得到不同记录。普通索引从 0 开始时，两者容易混淆。
+
+      loc[标签, 列名] 按名字找，iloc[行位置, 列位置] 从零开始数。loc 切片包含结束标签，iloc 切片在结束位置之前停。行标签由输入表提供。
+  - id: wrangle.filter-sort
+    name: 按条件筛选并按键排序
+    stage: '3'
+    group: 2
+    prereqs:
+      - wrangle.table
+      - wrangle.mask
+    card: |-
+      筛选决定哪些记录留下，排序决定这些记录怎样排列。库存 3、0、6 的三本书中，有货的是第一本和第三本；若要优先补较少的库存，就把 3 放到 6 前面。筛完再排序也能保留原来的书号。
+
+      把整列比较产生的掩码放在 loc 的行位置。sort_values 按给定列排序，ascending=False 表示从大到小。若主键并列，继续比较第二个排序键，各键可以有自己的方向。
+  - id: wrangle.columns
+    name: 计算新列和条件赋值
+    stage: '3'
+    group: 2
+    prereqs:
+      - wrangle.loc
+      - wrangle.vectorize
+      - py.aliasing
+    card: |-
+      新列把每条记录的计算结果放回同一行。两单分别买 2 本和 3 本，每本 5 元和 4 元，小计就是 10 元和 12 元。两个同表的列参与运算时，相同标签的值会对齐。
+
+      用 t['新列'] = 整列结果 添加一列。只改选中的行时，一步写 t.loc[条件, 列名] = 值。先筛出子表、再对子表赋值是链式赋值（旧版本常提示 SettingWithCopy）；在这里使用的 pandas 里，这样无法更新原表。
+  - id: wrangle.missing
+    name: 识别、填补和删除缺失值
+    stage: '3'
+    group: 3
+    prereqs:
+      - wrangle.loc
+      - data.missing
+    card: |-
+      根线里空库存表示还没盘点，零表示盘点结果为零。pandas 数值列常用 NaN 表示缺失。若记录是 [4, 空, 0]，问“还有几格没填”，答案是 1。NaN 和自身比较也为假，逐项比较等号找不出它。
+
+      isna() 逐格给出缺失标记。fillna(值) 填上约定的替代值；dropna(subset=[列名]) 删去指定列缺失的行。选择哪一种要看业务问题，比如空售价不应自动当成免费。
+  - id: wrangle.cast
+    name: 检查 dtype 并转换可空整数
+    stage: '3'
+    group: 3
+    prereqs:
+      - wrangle.table
+      - data.missing
+      - data.value-kinds
+    card: |-
+      根线区分文字标签和数量。看起来同为 12，文本能保留前导零，数量才能做算术。库存列 [2, 空] 用普通 NumPy 整数存不下 NaN，pandas 从这份数据推断时常得到 float64，显示为 2.0。
+
+      列的 dtype 记录它怎样存值。astype('Int64') 使用 pandas 的可空整数类型，既能保存整数也能留空；大写 I 是名称的一部分。能作为数字读出的文字可以用 astype 转换，编号中的前导零若有意义则应保留文字。
+  - id: wrangle.group
+    name: 用 groupby 和 agg 按组汇总
+    stage: '4'
+    group: 1
+    prereqs:
+      - wrangle.table
+      - wrangle.columns
+      - wrangle.filter-sort
+    card: |-
+      分组统计先把同类记录放进一堆，再把每堆缩成一行。甲架有两次到货 2 和 5 本，乙架一次 4 本，按架合计就是甲 7、乙 4。若还要知道到货次数，甲有两笔，乙有一笔。
+
+      groupby 指明用哪列分堆。agg(新列名=('来源列', '统计方法')) 能同时命名多个统计量。默认把组名放在索引里，reset_index() 可把它还原为普通列；也可以在分组时写 as_index=False。
+  - id: wrangle.merge
+    name: 按键连接两张表
+    stage: '4'
+    group: 1
+    prereqs:
+      - wrangle.table
+      - data.column-type-key
+    card: |-
+      连接把两边键相同的记录放到一行。左边一个书号 7，右边有它的两笔到货，就能组成两行。如果两边分别有两条和三条同键记录，该键会得到六行。先想“一行究竟代表什么”，才能判断行数变化是否合理。
+
+      merge(on='键', how=...) 对应 SQL JOIN。inner 只留下配对；left 还留左侧落单行，right 留右侧落单行，outer 两侧都留。缺少的一侧补缺失值。本组连接键都有值。
+  - id: wrangle.melt
+    name: 用 melt 把多列叠成长表
+    stage: '4'
+    group: 2
+    prereqs:
+      - wrangle.table
+    card: |-
+      宽表把班次写在表头上，适合并排读。想按班次筛选时，班次应该变成一列里的值。一行甲店 am=2、pm=4，可以拆成两行：甲、am、2；甲、pm、4。门店名必须随两笔数量一起带过去。
+
+      melt 用 id_vars 指定保留的身份列，value_vars 列出要叠起来的列，var_name 给旧列名起名，value_name 给对应的值起名。每个原格子都成为一条记录，包括数值同为零的格子。
+  - id: wrangle.pivot
+    name: 用 pivot_table 把类别展开为列
+    stage: '4'
+    group: 2
+    prereqs:
+      - wrangle.group
+    card: |-
+      长表让每次登记占一行，交叉报表让读者沿一行比较同一店的不同班次。甲店早班两笔 2 和 3 本，晚班 4 本，交叉表就写甲、5、4。多个记录可能落进同一格，必须先决定这格取总量还是平均量。
+
+      pivot_table 的 index 指定行键，columns 指定展开的类别，values 是数值列。aggfunc='sum' 加总，fill_value=0 可在报表约定下补空格。reset_index() 将行键放回列。
+  - id: wrangle.dates
+    name: 把文字日期变成可计算的日期列
+    stage: '4'
+    group: 3
+    prereqs:
+      - wrangle.table
+      - data.value-kinds
+    card: |-
+      日期是日历上的位置。3 月 1 日和 2 月 28 日之间可能隔一天，也可能隔两天，取决于当年有没有 2 月 29 日。把日期留作字符串，只能直接比较字符，无法按日历算间隔。
+
+      pd.to_datetime 把格式为年-月-日的文字解析成日期。日期列的 .dt.month 取月份；两列日期相减会得到时长，再用 .dt.days 取相隔的整天数。当天到当天的间隔是零。
+  - id: wrangle.frequency
+    name: 用 value_counts 统计频数
+    stage: '4'
+    group: 3
+    prereqs:
+      - wrangle.group
+      - wrangle.missing
+    card: |-
+      频数是某个值出现了几次。三单的状态分别是“待取、待取、已取”，就有待取 2 次、已取 1 次。只知道有两种状态，还不足以安排人手；每种有多少单才是这份报表要的数。
+
+      对一列调用 value_counts()，不同值变成结果的索引，次数是内容。默认跳过缺失。要把缺失也作为一类，可指定 dropna=False。若约定将缺失归到一个已有状态，则先填补再计数。
+  - id: wrangle.apply
+    name: 在逐项函数和整列公式间选择
+    stage: '4'
+    group: 3
+    prereqs:
+      - wrangle.columns
+      - wrangle.vectorize
+      - py.sort-key
+    card: |-
+      有时现成公式已经覆盖整列，有时手里只有一个接收单值的函数。比如包装规则是每份装 4 本，数量为 5 本要占两份。Series.apply(fn) 让一列的每个数分别进入这个函数，结果按原行标签对应回来。
+
+      若业务只是每项加 1 或乘 2，可以直接写整列公式，避免每一行都进入 Python 函数。对复杂的单值规则，先试一个值，再用 apply 展到整列。比较两种写法时先核对结果。
+  - id: wrangle.projection
+    name: 按报表口径选列和去重
+    stage: '5'
+    group: 1
+    prereqs:
+      - wrangle.filter-sort
+      - wrangle.missing
+      - wrangle.columns
+    card: |-
+      同一张书目表可以回答不同的问题。两本书均属科幻，售价都是 18 元。要打印两本书的价签，应有两行；要列出上架的类别，只需要一行科幻。决定一行代表哪种事物，再决定保留哪些列和重复项。
+
+      SQL 的 SELECT 对应传入列名列表。SELECT DISTINCT 要先选定参与比较的列，再用 drop_duplicates 去掉整组相同的记录。WHERE 可用 loc 选行，ORDER BY 用 sort_values 排序，LIMIT 用 iloc 截取。
+  - id: wrangle.report-grain
+    name: 确定行代表什么再计数或关联
+    stage: '5'
+    group: 2
+    prereqs:
+      - wrangle.group
+      - wrangle.merge
+      - wrangle.missing
+    card: |-
+      先写下报表里一行的单位。三位读者中两位留了电话，人数是 3，电话已知的人数是 2。分组统计把一组变成一行，连接则可能给同一位读者配上多笔订单；直接数连接后的行数，常会误当作读者数。
+
+      SQL COUNT(*) 数所有行，COUNT(列) 跳过该列缺失。HAVING 在分组后筛选。要保留没有订单的读者，用左连接配上订单数，缺失才补零。要找完全没有匹配的键，可以先用 isin 查是否出现，再用 eq(False) 取未出现的那些。
+  - id: wrangle.window
+    name: 保留明细行计算组内窗口
+    stage: '5'
+    group: 3
+    prereqs:
+      - wrangle.group
+      - wrangle.filter-sort
+      - wrangle.cumsum
+      - wrangle.missing
+    card: |-
+      窗口给每条明细补一个统计值，明细仍然一条不少。三本书价格 9、9、6，逐本编号可得 1、2、3；同价并列的竞赛名次是 1、1、3；按价格档次则是 1、1、2。要先知道题目问的是书的位置还是价格档次。
+
+      SQL 的 PARTITION BY 对应 groupby。先用 sort_values 排好价格和书号，再用 cumcount()+1 得到每组的行号。rank(method='min') 给竞赛名次，method='dense' 给连续档次；降序时用 ascending=False，空价排末尾用 na_option='bottom'。按时间累计先排日期再 cumsum。

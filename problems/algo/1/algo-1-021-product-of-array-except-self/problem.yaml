@@ -1,0 +1,36 @@
+id: algo-1-021-product-of-array-except-self
+title: 漏掉当前位置的乘积
+track: algo
+stage: '1'
+order: 210
+format: write
+mode: function
+difficulty: 48
+skills:
+  requires:
+  - py.list-concat-repeat
+  - py.enumerate
+  - py.prefix-sum
+  introduces: null
+source: neetcode250
+leetcode: product-of-array-except-self
+milestones:
+- blind75
+- top100
+entry: product_except_self
+signature: 'def product_except_self(nums: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 第二遍直接写入，覆盖了左侧的积。
+  code: |
+    def product_except_self(nums: list[int]) -> list[int]:
+        result = [1] * len(nums)
+        product = 1
+        for i, value in enumerate(nums):
+            result[i] = product
+            product *= value
+        product = 1
+        for i in range(len(nums) - 1, -1, -1):
+            result[i] = product
+            product *= nums[i]
+        return result

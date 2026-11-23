@@ -1,0 +1,107 @@
+id: algo-3-l03-heaps
+title: 谁该先出堆，谁能留下
+track: algo
+skills:
+- algo.heapq
+- algo.heap-topk
+steps:
+- type: read
+  skill: algo.heapq
+  md: |-
+    总要从等待的项目中取当前最小的一项，同时还有新项目加入，就可以用最小堆。堆放在列表里，父项不会大于自己的孩子，于是最小值一定在下标零。调用 heapify 可在线性时间把现成列表建成堆；heappush 压入、heappop 取出时只沿一条树路调整，代价 O(log n)。
+
+    要先取最大的整数，可以用它的负数排队，取出后再还原符号。**列表从左到右都是排好序的** 是个容易误读的结论。堆保证的是父子关系，两个同层节点可能乱序。要列出所有值的排序结果，必须连续弹出。
+- type: example
+  skill: algo.heapq
+  code: |
+    import heapq
+
+    # ① 用负数让最大重量优先
+    heap = [-v for v in [4, 9, 3]]
+    heapq.heapify(heap)
+    # ② 新读数加入等待队列
+    heapq.heappush(heap, -7)
+    # ③ 逐次弹出并恢复符号
+    while heap:
+        print(-heapq.heappop(heap))
+
+    # 输出
+    # 9
+    # 7
+    # 4
+    # 3
+  md: |-
+    | 动作 | 原重量的堆顶 |
+    |---|---|
+    | 建堆 | 9 |
+    | 加入 7 | 9 |
+    | 弹出 9 | 7 |
+
+    再放入一个 9，预测头两次的输出。
+- type: quiz
+  skill: algo.heapq
+  q: 列表 [1,4,2] 可以是合法最小堆吗？
+  options:
+  - 不能，没有排序
+  - 可以，1 不大于两个孩子
+  answer: 1
+  explain: 同层的 4 和 2 没有顺序限制。
+- type: quiz
+  skill: algo.heapq
+  q: 对负数堆执行 heappop 得到 −9，原重量是多少？
+  options:
+  - −9
+  - '9'
+  answer: 1
+  explain: 入堆时已经取负，弹出后需要还原符号。
+- type: read
+  skill: algo.heap-topk
+  md: |-
+    数据一项项到来，只关心其中最大的 k 项时，希望随时能淘汰当前入围者里最弱的一个。把入围项装入最小堆：数量不足 k 直接加入，放入新项后若超额就弹出最小值。处理完任一段，堆内保留的就是这段里最大的至多 k 项；装满后堆顶恰是第 k 大。
+
+    每个读数只需一轮堆调整，时间 O(n log(k+1))，额外空间 O(k)。**找最大的几项就把堆顶设为最大值** 会先淘汰最该保留的项。名次按份数计算时，两个一样大的值也应保留两份；若问题有去重要求则另行处理。
+- type: example
+  skill: algo.heap-topk
+  code: |
+    import heapq
+
+    # ① 只开两个入围位置
+    kept = []
+    for value in [5, 1, 8, 5]:
+        # ② 超过两项时淘汰最小值
+        heapq.heappush(kept, value)
+        if len(kept) > 2:
+            heapq.heappop(kept)
+        # ③ 读出当前门槛
+        if len(kept) == 2:
+            print(kept[0])
+
+    # 输出
+    # 1
+    # 5
+    # 5
+  md: |-
+    | 新值 | 保留项（从小到大列出） | 第 2 大 |
+    |---|---|---|
+    | 1 | 1、5 | 1 |
+    | 8 | 5、8 | 5 |
+    | 5 | 5、8 | 5 |
+
+    把最后一项换成 9，观察门槛变化。
+- type: quiz
+  skill: algo.heap-topk
+  q: 保留最大的两项，现有 4、8，再来 6，淘汰谁？
+  options:
+  - '8'
+  - '4'
+  - '6'
+  answer: 1
+  explain: 合在一起是 4、6、8，队末门槛应升到 6。
+- type: quiz
+  skill: algo.heap-topk
+  q: 给定 8、8、3，第 2 大应取哪个值？
+  options:
+  - '3'
+  - '8'
+  answer: 1
+  explain: 排名按项计，两个 8 占两个名次。

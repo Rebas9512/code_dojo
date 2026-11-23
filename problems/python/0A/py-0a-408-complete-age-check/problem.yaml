@@ -1,0 +1,16 @@
+id: py-0a-408-complete-age-check
+title: 补全：是否年满十八岁
+track: python
+stage: 0A
+order: 95
+format: complete
+mode: stdio
+difficulty: 4
+skills:
+  requires:
+    - py.stdio-input
+    - py.compare-bool
+  introduces: null
+source: original
+leetcode: null
+milestones: []

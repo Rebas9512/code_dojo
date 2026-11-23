@@ -1,0 +1,80 @@
+id: math-2-l01-rates
+title: 函数表与斜率
+track: math
+skills:
+  - math.function-table
+  - math.slope
+steps:
+  - type: read
+    skill: math.function-table
+    md: |-
+      骑车 0 小时付 2 元，1 小时付 5 元，2 小时付 8 元。每给一个时长，收费规则就交回一个金额。把输入变成输出的确定规则叫函数。把几个输入和各自的结果排成表，就能观察规则，也方便检查程序。
+
+      给起步价加上每小时费用乘时长，就得到一个输出。表的一行是一对输入和输出。
+
+      | 时长 | 费用 |
+      |---|---|
+      | 0 | 2 |
+      | 1 | 5 |
+      | 2 | 8 |
+
+      ```python
+      def fare(hours):
+          return 2 + 3 * hours
+      ```
+
+      **MM10 把输入本身当成输出**。0 小时也是一个能交给函数的输入，输出仍由规则决定。相同输入再算一次会得到相同输出。
+  - type: example
+    skill: math.function-table
+    code: |
+      # ① 写下收费规则
+      def fare(hours):
+          return 2 + 3 * hours
+      # ② 按时间顺序打出三行
+      for t in [0, 1, 2]:
+          print([t, fare(t)])
+      # 输出 [0, 2]
+      # 输出 [1, 5]
+      # 输出 [2, 8]
+    md: 把起步价改为 4，看哪几行的费用跟着变化。
+  - type: quiz
+    skill: math.function-table
+    q: 若 f(x) = x × x，输入列表 [2, -2] 对应的输出是什么？
+    options:
+      - '[2, -2]'
+      - '[4, 4]'
+      - '[4, -4]'
+    answer: 1
+    explain: 逐项应用同一规则，两个输入都得到 4。（MM10 把输入本身当成输出）
+  - type: read
+    skill: math.slope
+    md: |-
+      上午 2 时的水位是 3 厘米，5 时是 9 厘米。水位一共升了 6 厘米，这段时间有 3 小时，平均每小时升 2 厘米。想比较不同时长内的变化快慢，就要把变化换成每单位输入的变化。
+
+      斜率也叫两点间的平均变化率。用「后一个输出减前一个输出」除以「后一个输入减前一个输入」，例如 (9−3)/(5−2)。
+
+      ```python
+      rise = 9 - 3
+      slope = rise / (5 - 2)
+      ```
+
+      **MM11 只报告变化量，忘了除以间隔**。读数下降时斜率可以为负。输入相同会让分母为零，这样的两个点无法计算这种斜率。
+  - type: example
+    skill: math.slope
+    code: |
+      # ① 记录时间与水位
+      times = [2, 5]
+      levels = [3, 9]
+      # ② 把总涨幅分给经过的小时数
+      print(levels[1] - levels[0])  # 输出 6
+      print((levels[1] - levels[0]) / (times[1] - times[0]))  # 输出 2.0
+    md: 把第二个时间改成 8，保持水位读数，观察每小时涨幅。
+  - type: quiz
+    skill: math.slope
+    q: 4 分钟内温度从 12 度降到 4 度，平均每分钟变化多少度？
+    options:
+      - '8'
+      - '-8'
+      - '-2'
+    answer: 2
+    explain: 变化量为 −8 度，平均分到 4 分钟是 −2 度/分钟。（MM11 只报告变化量，忘了除以间隔）

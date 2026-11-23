@@ -1,0 +1,31 @@
+id: algo-2-004-merge-strings-alternately
+title: 交替穿起两串字母
+track: algo
+stage: '2'
+order: 40
+format: write
+mode: function
+difficulty: 49
+skills:
+  requires:
+  - py.minmax-abs
+  - py.slice
+  - py.split-join
+  - py.two-index
+  introduces: null
+source: neetcode250
+leetcode: merge-strings-alternately
+milestones: []
+entry: interleave
+signature: 'def interleave(a: str, b: str) -> str:'
+compare: exact
+wrong_examples:
+- why: 丢掉右串的尾段。
+  code: |
+    def interleave(a: str, b: str) -> str:
+        parts = []
+        size = min(len(a), len(b))
+        for i in range(size):
+            parts.append(a[i])
+            parts.append(b[i])
+        return ''.join(parts) + a[size:]

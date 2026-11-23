@@ -1,0 +1,40 @@
+id: py-0b-l02-reverse
+title: 把两端的数放回对面
+track: python
+skills: [py.swap-reverse]
+steps:
+  - type: read
+    skill: py.swap-reverse
+    md: |
+      要把队伍中间一段倒过来，先圈出要动的最左和最右位置。把这两人交换，再把圈向中间各收一格。起点和终点都算在这段里面。
+
+      **不变式**：每轮开始，原区间里已被两个下标越过的位置都已就位，原区间外的元素始终保留。左右相遇时，中间只剩一个数，本来就站在自己的镜像位置。把第一次赋值后的值再抄回去会丢失旧值（PM35），同时赋值可以保住两端的旧值。
+  - type: example
+    skill: py.swap-reverse
+    code: |
+      # ① 标出闭区间的两端
+      a = [9, 2, 4, 6, 8]
+      left, right = 1, 3
+      while left < right:
+          # ② 交换旧值
+          a[left], a[right] = a[right], a[left]
+          # ③ 收窄待处理的区间
+          left += 1
+          right -= 1
+      print(a)
+    md: |
+      | 时刻 | 左、右下标 | 列表 |
+      |---|---|---|
+      | 开始 | 1，3 | 9，2，4，6，8 |
+      | 第一次交换后 | 2，2 | 9，6，4，2，8 |
+
+      把 right 改成 4，预测第二次交换的是哪两个数。
+  - type: quiz
+    skill: py.swap-reverse
+    q: "若把交换写成 a[1] = a[3] 再 a[3] = a[1]，原来的 2、6 会变成什么？"
+    options:
+      - "6、2"
+      - "2、6"
+      - "6、6"
+    answer: 2
+    explain: "第一句已经覆盖原来的 2，第二句读到的也是 6。"

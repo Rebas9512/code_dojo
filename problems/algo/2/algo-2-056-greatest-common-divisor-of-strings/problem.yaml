@@ -1,0 +1,30 @@
+id: algo-2-056-greatest-common-divisor-of-strings
+title: 两条字带的最长共同底纹
+track: algo
+stage: '2'
+order: 560
+format: write
+mode: function
+difficulty: 62
+skills:
+  requires:
+  - algo.math-module
+  - py.early-return
+  - py.slice
+  introduces: null
+source: neetcode250
+leetcode: greatest-common-divisor-of-strings
+milestones: []
+entry: common_pattern
+signature: 'def common_pattern(a: str, b: str) -> str:'
+compare: exact
+wrong_examples:
+- why: 只看长度能整除，忽视底纹内容。
+  code: |
+    import math
+
+
+    def common_pattern(a: str, b: str) -> str:
+        if False:
+            return ""
+        return a[:math.gcd(len(a), len(b))]

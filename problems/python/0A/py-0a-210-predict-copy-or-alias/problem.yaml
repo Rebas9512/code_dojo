@@ -1,0 +1,19 @@
+id: py-0a-210-predict-copy-or-alias
+title: 三张标签指向几张清单
+track: python
+stage: 0A
+order: 2100
+format: predict
+mode: predict
+difficulty: 16
+skills:
+  requires:
+    - py.list-append
+  introduces: py.aliasing
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM39：以为 b = a 会复制列表。
+    code: |
+      print('[4]\n[4]')

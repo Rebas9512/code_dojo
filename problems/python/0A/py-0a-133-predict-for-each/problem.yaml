@@ -1,0 +1,17 @@
+id: py-0a-133-predict-for-each
+title: 一个一个字符
+track: python
+stage: 0A
+order: 650
+format: predict
+mode: predict
+difficulty: 11
+skills:
+  requires: [py.for-range, py.index-len]
+  introduces: py.for-each
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "\"a\" * 2 是 \"aa\"。"
+  - "\"a b c\" 有几个字符？"

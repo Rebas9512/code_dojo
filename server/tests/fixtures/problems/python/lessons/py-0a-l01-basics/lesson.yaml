@@ -1,0 +1,28 @@
+id: py-0a-l01-basics
+title: 变量、算术和函数
+track: python
+skills: [py.var-arith, py.function-return]
+steps:
+  - type: read
+    skill: py.var-arith
+    md: |
+      `a = 1` 把名字 a 绑到值 1 上。`//` 是整除，`%` 是取余。
+  - type: read
+    skill: py.function-return
+    md: |
+      函数用 `def` 定义，用 `return` 把结果交出去。
+  - type: example
+    skill: py.function-return
+    code: |
+      # ① 定义函数
+      def double(x):
+          # ② 返回结果
+          return x * 2
+      print(double(21))
+    md: 试试把 `* 2` 改成 `* 3` 再运行。
+  - type: quiz
+    skill: py.function-return
+    q: "`return` 做什么？"
+    options: ["把结果交给调用者", "在屏幕上打印"]
+    answer: 0
+    explain: 打印是 print 的事。

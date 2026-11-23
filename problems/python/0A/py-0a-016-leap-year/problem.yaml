@@ -1,0 +1,20 @@
+id: py-0a-016-leap-year
+title: 闰年
+track: python
+stage: 0A
+order: 350
+format: write
+mode: function
+difficulty: 8
+skills:
+  requires: [py.floordiv-mod, py.compare-bool, py.func-return, py.bool-ops]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: is_leap
+signature: "def is_leap(year: int) -> bool:"
+compare: exact
+hints:
+  - "第一条规则是两个条件同时成立：用 and。"
+  - "两条规则满足其一即可：用 or，再加括号让结构更清楚。"

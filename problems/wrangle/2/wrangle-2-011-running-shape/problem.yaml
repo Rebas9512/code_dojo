@@ -1,0 +1,16 @@
+id: wrangle-2-011-running-shape
+title: 累计以后保留几格
+track: wrangle
+stage: '2'
+order: 110
+format: predict
+mode: predict
+difficulty: 23
+skills:
+  requires: []
+  introduces: wrangle.cumsum
+source: original
+wrong_examples:
+  - why: 把每个前缀的结果漏成一个总数。
+    code: |
+      print('(2,)')

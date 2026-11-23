@@ -1,0 +1,30 @@
+id: algo-1-031-place-by-value
+title: 原地把每个数换到它该在的位置
+track: algo
+stage: '1'
+order: 310
+format: write
+mode: function
+difficulty: 47
+skills:
+  requires:
+  - py.nested-loop
+  - py.swap-reverse
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: placement_swaps
+signature: 'def placement_swaps(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 每个位置只换一次，长环没走完。
+  code: |
+    def placement_swaps(nums: list[int]) -> int:
+        swaps = 0
+        for i in range(len(nums)):
+            if nums[i] != i + 1:
+                target = nums[i] - 1
+                nums[i], nums[target] = nums[target], nums[i]
+                swaps += 1
+        return swaps

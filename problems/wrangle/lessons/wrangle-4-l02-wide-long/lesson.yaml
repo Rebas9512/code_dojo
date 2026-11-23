@@ -1,0 +1,62 @@
+id: wrangle-4-l02-wide-long
+title: 宽表与长表
+track: wrangle
+skills:
+  - wrangle.melt
+  - wrangle.pivot
+steps:
+  - type: read
+    skill: wrangle.melt
+    md: |-
+      宽表把班次写在表头上，适合并排读。想按班次筛选时，班次应该变成一列里的值。一行甲店 am=2、pm=4，可以拆成两行：甲、am、2；甲、pm、4。门店名必须随两笔数量一起带过去。
+
+      melt 用 id_vars 指定保留的身份列，value_vars 列出要叠起来的列，var_name 给旧列名起名，value_name 给对应的值起名。每个原格子都成为一条记录，包括数值同为零的格子。
+
+      **WM21 展开后每个店仍只占一行**。三家店各有早晚两班，叠起来有六条记录，店名随每格数量一起保留。
+  - type: example
+    skill: wrangle.melt
+    code: |
+      import pandas as pd
+      # ① 一行存着两个班次
+      t = pd.DataFrame({"shop": ["甲"], "am": [2], "pm": [4]})
+      # ② 表头里的班次名变成列值
+      long = t.melt(id_vars="shop", var_name="shift", value_name="n")
+      print(long["shift"].tolist())  # 输出 ['am', 'pm']
+      print(long["n"].tolist())  # 输出 [2, 4]
+    md: 加一行新门店，观察同店的两行如何保留身份。
+  - type: quiz
+    skill: wrangle.melt
+    q: 三家店各有两个月的列，全部展开后共有几行？
+    options:
+      - '2'
+      - '3'
+      - '6'
+    answer: 2
+    explain: 每个门店、月份组合各占一行，3 × 2 得 6。（WM21）
+  - type: read
+    skill: wrangle.pivot
+    md: |-
+      长表让每次登记占一行，交叉报表让读者沿一行比较同一店的不同班次。甲店早班两笔 2 和 3 本，晚班 4 本，交叉表就写甲、5、4。多个记录可能落进同一格，必须先决定这格取总量还是平均量。
+
+      pivot_table 的 index 指定行键，columns 指定展开的类别，values 是数值列。aggfunc='sum' 加总，fill_value=0 可在报表约定下补空格。reset_index() 将行键放回列。
+
+      **WM22 撞在同一格的数都应取平均**。同架同班 2 本和 5 本，报总量时该格是 7，须指定 sum。
+  - type: example
+    skill: wrangle.pivot
+    code: |
+      import pandas as pd
+      # ① 一店两笔早班登记
+      t = pd.DataFrame({"shop": ["A", "A", "A"], "shift": ["am", "am", "pm"], "n": [2, 3, 4]})
+      # ② 把班次铺到横向
+      p = t.pivot_table(index="shop", columns="shift", values="n", aggfunc="sum")
+      print(p.loc["A", "am"])  # 输出 5
+    md: 把 sum 改成 mean，比较同一格的两个口径。
+  - type: quiz
+    skill: wrangle.pivot
+    q: 同店同班次录入 1 本和 3 本，要求总量时该格怎么填？
+    options:
+      - '4'
+      - '2'
+      - '3'
+    answer: 0
+    explain: 同一格的两笔加起来是 4。（WM22）

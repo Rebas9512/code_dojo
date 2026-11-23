@@ -1,0 +1,36 @@
+id: algo-4-055-last-stone-weight-ii
+title: 相撞后最小的剩余石重
+track: algo
+stage: '4'
+order: 550
+format: write
+mode: function
+difficulty: 75
+skills:
+  requires:
+  - algo.dp-knapsack
+  - py.bool-ops
+  - py.floordiv-mod
+  - py.list-builtins
+  introduces: null
+source: neetcode250
+leetcode: last-stone-weight-ii
+milestones: []
+entry: last_weight
+signature: 'def last_weight(stones: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 只减去较轻的一堆一次，忘了两堆相抵。
+  code: |
+    def last_weight(stones: list[int]) -> int:
+        total = sum(stones)
+        half = total // 2
+        possible = [True] + [False] * half
+        for weight in stones:
+            for s in range(half, weight - 1, -1):
+                possible[s] = possible[s] or possible[s - weight]
+        for s in range(half, -1, -1):
+            if possible[s]:
+                return total - s
+hints:
+- 一次相撞等价于让两块重量相减。试着把重量分到两边，让较小的一边尽量接近总重量的一半。

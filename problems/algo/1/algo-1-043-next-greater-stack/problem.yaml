@@ -1,0 +1,34 @@
+id: algo-1-043-next-greater-stack
+title: 单调栈：下一个更大元素
+track: algo
+stage: '1'
+order: 430
+format: complete
+mode: function
+difficulty: 49
+skills:
+  requires:
+  - py.bool-ops
+  - py.while
+  - py.nested-loop
+  - py.enumerate
+  - py.list-concat-repeat
+  introduces: algo.monotonic-stack
+source: original
+leetcode: null
+milestones: []
+entry: next_greater
+signature: 'def next_greater(nums: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 用一次 if 替代循环，同一新值只唤醒一个位置。
+  code: |
+    def next_greater(nums: list[int]) -> list[int]:
+        answer = [-1] * len(nums)
+        pending = []
+        for i, value in enumerate(nums):
+            if pending and nums[pending[-1]] < value:
+                previous = pending.pop()
+                answer[previous] = value
+            pending.append(i)
+        return answer

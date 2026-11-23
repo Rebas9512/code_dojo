@@ -1,0 +1,25 @@
+id: algo-1-004-compare-letter-counts
+title: 用 Counter 比较两个单词的字母
+track: algo
+stage: '1'
+order: 40
+format: complete
+mode: function
+difficulty: 32
+skills:
+  requires: []
+  introduces: algo.counter
+source: original
+leetcode: null
+milestones: []
+entry: count_gap
+signature: 'def count_gap(left: str, right: str, letter: str) -> int:'
+compare: exact
+wrong_examples:
+- why: 只问字母在不在，忽略了出现次数。
+  code: |
+    from collections import Counter
+
+
+    def count_gap(left: str, right: str, letter: str) -> int:
+        return int(letter in left) - Counter(right)[letter]

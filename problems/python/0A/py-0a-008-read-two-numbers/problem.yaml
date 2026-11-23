@@ -1,0 +1,17 @@
+id: py-0a-008-read-two-numbers
+title: 读入两个数
+track: python
+stage: 0A
+order: 80
+format: write
+mode: stdio
+difficulty: 5
+skills:
+  requires: [py.type-convert, py.stdio-input]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "input() 每调用一次读一行。"
+  - "int(input()) 读一行并转成整数。"

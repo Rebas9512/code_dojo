@@ -1,0 +1,30 @@
+id: sql-1-013-daily-book-titles
+title: 补全：把每天卖出的书名连起来
+track: sql
+stage: '1'
+order: 130
+format: complete
+difficulty: 29
+skills:
+  requires:
+    - sql.group-by
+    - sql.order-by
+    - sql.distinct
+    - sql.select-expr
+  introduces: sql.string-agg
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/same-title.sql
+  - db:bookstore + datasets/sample.sql + datasets/repeat-day.sql
+ordered: false
+hints:
+  - 先确定组内保留哪些名字，再确定名字之间的顺序。
+wrong_examples:
+  - why: 同一天的同名书重复出现
+    sql: |
+      SELECT sold_on, STRING_AGG(title, ',' ORDER BY title) AS titles
+      FROM sold_titles
+      GROUP BY sold_on;

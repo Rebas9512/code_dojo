@@ -1,0 +1,107 @@
+{
+  "examples": [
+    {
+      "args": [
+        {
+          "columns": [
+            "n"
+          ],
+          "data": [
+            [
+              4
+            ],
+            [
+              null
+            ],
+            [
+              0
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        "Int64",
+        2
+      ]
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "n"
+          ],
+          "data": [
+            [
+              null
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        "Int64",
+        0
+      ]
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        {
+          "columns": [
+            "n"
+          ],
+          "data": [
+            [
+              0
+            ],
+            [
+              0
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        "Int64",
+        2
+      ]
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "n"
+          ],
+          "data": []
+        }
+      ],
+      "expected": [
+        "Int64",
+        0
+      ]
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "n"
+          ],
+          "data": [
+            [
+              null
+            ],
+            [
+              3
+            ],
+            [
+              null
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        "Int64",
+        1
+      ]
+    }
+  ]
+}

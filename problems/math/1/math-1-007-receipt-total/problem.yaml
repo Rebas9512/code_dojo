@@ -1,0 +1,20 @@
+id: math-1-007-receipt-total
+title: 收银台报哪个数
+track: math
+stage: '1'
+order: 70
+format: predict
+mode: predict
+difficulty: 19
+skills:
+  requires:
+    - py.list-builtins
+    - math.vector-arithmetic
+    - py.accumulator
+  introduces: math.dot
+source: original
+wrong_examples:
+  - why: 报出小计列表，没有合计。
+    code: |
+      parts = [4 * 2, 3 * 5]
+      print(parts)

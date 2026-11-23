@@ -1,0 +1,38 @@
+id: algo-1-028-sort-colors
+title: 原地归整三种颜色
+track: algo
+stage: '1'
+order: 280
+format: write
+mode: function
+difficulty: 48
+skills:
+  requires:
+  - py.nested-loop
+  - py.helper-func
+  - py.dict-counting
+  introduces: null
+source: neetcode250
+leetcode: sort-colors
+milestones:
+- top100
+entry: run_case
+signature: 'def run_case(nums: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 只更新循环变量，没有修改原列表。
+  code: |
+    def sort_colors(nums: list[int]) -> None:
+        counts = [0, 0, 0]
+        for color in nums:
+            counts[color] += 1
+        index = 0
+        for color in range(3):
+            for _ in range(counts[color]):
+                value = color
+                index += 1
+
+
+    def run_case(nums: list[int]) -> list[int]:
+        sort_colors(nums)
+        return nums

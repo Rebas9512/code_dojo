@@ -1,0 +1,34 @@
+id: algo-4-038-coin-change
+title: 凑足金额最少用多少枚币
+track: algo
+stage: '4'
+order: 380
+format: write
+mode: function
+difficulty: 71
+skills:
+  requires:
+  - algo.dp-1d
+  - py.minmax-abs
+  - py.nested-loop
+  - py.ternary
+  introduces: null
+source: neetcode250
+leetcode: coin-change
+milestones:
+- blind75
+- top100
+entry: fewest_coins
+signature: 'def fewest_coins(coins: list[int], amount: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 不让一枚等额硬币完成最后一步。
+  code: |
+    def fewest_coins(coins: list[int], amount: int) -> int:
+        missing = amount + 1
+        best = [0] + [missing] * amount
+        for total in range(1, amount + 1):
+            for coin in coins:
+                if coin < total:
+                    best[total] = min(best[total], best[total - coin] + 1)
+        return -1 if best[amount] == missing else best[amount]

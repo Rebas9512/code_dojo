@@ -1,0 +1,32 @@
+id: wrangle-5-015-category-row-numbers
+title: 每个书架单独开始编号
+track: wrangle
+stage: '5'
+order: 150
+format: complete
+mode: function
+difficulty: 40
+skills:
+  requires:
+    - wrangle.window
+    - wrangle.group
+    - wrangle.filter-sort
+  introduces: null
+source: original
+entry: shelf_positions
+signature: 'def shelf_positions(shelf):'
+compare: frame
+leetcode: department-top-three-salaries
+sql_twin: sql-4-003-category-row-numbers
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 全店共用一个计数器。
+    code: |
+      def shelf_positions(shelf):
+          ranked = shelf.sort_values(['price', 'book_id'], ascending=[False, True])
+          ranked['position'] = range(1, len(ranked) + 1)
+          return ranked[['category', 'book_id', 'position']]

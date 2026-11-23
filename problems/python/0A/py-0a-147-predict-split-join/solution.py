@@ -1,0 +1,6 @@
+print("a b  c".split())
+print("a b  c".split(" "))
+print("-".join(["x", "y", "z"]))
+words = "hello world".split()
+print(len(words))
+print("".join(["c", "a", "t"]))

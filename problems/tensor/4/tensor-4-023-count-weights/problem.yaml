@@ -1,0 +1,28 @@
+id: tensor-4-023-count-weights
+title: 数出可调整的标量格
+track: tensor
+stage: '4'
+order: 230
+format: complete
+mode: function
+difficulty: 43
+skills:
+  requires:
+    - tensor.state
+    - py.for-each
+  introduces: null
+source: original
+entry: count_parameters
+signature: 'def count_parameters(layer):'
+compare: checker
+wrong_examples:
+  - why: 只数张量个数会漏掉一个参数里的多格。
+    code: |
+      import torch
+
+
+      def count_parameters(layer):
+          count = 0
+          for p in layer.parameters():
+              count += 1
+          return count

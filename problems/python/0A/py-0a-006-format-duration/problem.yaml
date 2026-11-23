@@ -1,0 +1,20 @@
+id: py-0a-006-format-duration
+title: 分钟换算成小时
+track: python
+stage: 0A
+order: 155
+format: complete
+mode: function
+difficulty: 5
+skills:
+  requires: [py.floordiv-mod, py.func-return, py.fstring]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: format_duration
+signature: "def format_duration(total_minutes: int) -> str:"
+compare: exact
+hints:
+  - "f-string 以 f 开头，花括号里放变量：f\"{hours}...\"。"
+  - "汉字原样写在花括号外面。"

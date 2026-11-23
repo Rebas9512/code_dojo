@@ -1,0 +1,46 @@
+id: algo-2-066-powx-n
+title: 用平方加速整数次幂
+track: algo
+stage: '2'
+order: 660
+format: write
+mode: function
+difficulty: 66
+skills:
+  requires:
+  - algo.math-module
+  - py.if-else
+  - py.multi-assign
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: powx-n
+milestones:
+- nc150
+entry: power
+signature: 'def power(x: float, n: int) -> float:'
+compare: float
+wrong_examples:
+- why: 负指数只翻转符号，没有取倒数。
+  code: |
+    def power(x: float, n: int) -> float:
+        if n < 0:
+            x, n = x, -n
+        result = 1.0
+        while n:
+            if n % 2:
+                result *= x
+            x *= x
+            n //= 2
+        return result
+- why: 重复乘 |n| 次，未利用指数减半。
+  code: |
+    def power(x: float, n: int) -> float:
+        if n < 0:
+            x, n = 1 / x, -n
+        result = 1.0
+        for _ in range(n):
+            result *= x
+        return result
+hints:
+- 指数每次除以 2，底数同时平方。若指数是奇数，先给结果乘一次底数。

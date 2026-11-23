@@ -1,0 +1,39 @@
+id: algo-5-074-maximum-profit-in-job-scheduling
+title: 互不冲突的最高接单收入
+track: algo
+stage: '5'
+order: 740
+format: combine
+mode: function
+difficulty: 86
+week: 10
+skills:
+  requires:
+  - algo.dp-1d
+  - algo.binary-search
+  - algo.intervals
+  - py.list-append
+  - py.zip
+  introduces: null
+source: grind169
+leetcode: maximum-profit-in-job-scheduling
+milestones: []
+entry: earn
+signature: 'def earn(start: list[int], end: list[int], pay: list[int]) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 相接端点被误当成冲突。
+  code: |
+    import bisect
+
+
+    def earn(start: list[int], end: list[int], pay: list[int]) -> int:
+        jobs = sorted(zip(end, start, pay))
+        ends = []
+        best = [0]
+        for finish, begin, fee in jobs:
+            count = bisect.bisect_left(ends, begin)
+            best.append(max(best[-1], best[count] + fee))
+            ends.append(finish)
+        return best[-1]

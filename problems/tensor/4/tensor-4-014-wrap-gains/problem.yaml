@@ -1,0 +1,26 @@
+id: tensor-4-014-wrap-gains
+title: 把现有增益变成参数
+track: tensor
+stage: '4'
+order: 140
+format: complete
+mode: function
+difficulty: 39
+skills:
+  requires:
+    - tensor.parameter
+  introduces: null
+source: original
+entry: gains
+signature: 'def gains(values):'
+compare: checker
+wrong_examples:
+  - why: 数值与求导开关相同，但只是普通张量。
+    code: |
+      import torch
+      import torch.nn as nn
+
+
+      def gains(values):
+          x = torch.tensor(values, dtype=torch.float32)
+          return x.requires_grad_(True)

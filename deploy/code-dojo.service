@@ -1,0 +1,15 @@
+[Unit]
+Description=code-dojo 个人练习站
+
+[Service]
+Type=simple
+WorkingDirectory=/绝对路径/code-dojo
+ExecStart=/绝对路径/code-dojo/deploy/run.sh
+Environment="HOME=%h"
+Environment="PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin"
+UMask=0077
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,1 @@
+INSERT INTO deliveries VALUES (5, 5, '2025-03-31', '2025-04-02');

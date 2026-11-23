@@ -1,0 +1,33 @@
+id: tensor-2-l04-puzzles
+title: 用坐标拼出张量运算
+track: tensor
+skills:
+  - tensor.coordinates
+steps:
+  - type: read
+    skill: tensor.coordinates
+    md: |-
+      有些运算只是在搬格子。从结果的第 i 格出发，问它应该读原来的哪一格，就能一次写出全部地址。例如四格倒读，结果位置 0、1、2、3 分别读旧位置 3、2、1、0。两根坐标轴还可以组成每一格的行号与列号。
+
+      `torch.arange(n)` 生成 0 到 n−1。用 `i[:, None]` 竖排行号，横排列号就能逐格比较。要合计最多八格，可以让每格先加左边距 1 的值，再用新结果加距 2、4 的值，覆盖 2、4、8 格；越过左边界的贡献乘零。
+
+      **TM13 常见误解：把目的地编号直接当成来源编号**。四格右移一格时，输出第零格要读原第三格。减一步得到来源地址，超过边界用余数绕回。
+  - type: example
+    skill: tensor.coordinates
+    code: |
+      import torch
+      # ① 为结果中的每个位置算一个来源地址
+      x = torch.tensor([2, 5, 8, 4])
+      i = torch.arange(4)
+      print((3 - i).tolist())  # 输出 [3, 2, 1, 0]
+      print(x[3 - i].tolist())  # 输出 [4, 8, 5, 2]
+    md: 把来源地址改成 (i - 1) % 4，观察第零格来自哪里。
+  - type: quiz
+    skill: tensor.coordinates
+    q: 一串四格循环右移一格，结果的第零格读原来的哪里？
+    options:
+      - 第零格
+      - 第三格
+      - 第一格
+    answer: 1
+    explain: 旧末格绕回开头，新位置 0 要往左找原位置 3。（TM13）

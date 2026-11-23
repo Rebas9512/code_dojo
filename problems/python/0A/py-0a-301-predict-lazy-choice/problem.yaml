@@ -1,0 +1,19 @@
+id: py-0a-301-predict-lazy-choice
+title: 没选中的算式算了吗
+track: python
+stage: 0A
+order: 4210
+format: predict
+mode: predict
+difficulty: 18
+skills:
+  requires:
+    - py.func-return
+  introduces: py.ternary
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM64：以为比较条件之前先计算两边候选值。
+    code: |
+      print('检查\n3')

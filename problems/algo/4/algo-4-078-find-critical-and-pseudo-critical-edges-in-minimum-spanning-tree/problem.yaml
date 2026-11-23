@@ -1,0 +1,71 @@
+id: algo-4-078-find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree
+title: 哪些线路在最低价网络中必须保留
+track: algo
+stage: '4'
+order: 780
+format: combine
+mode: function
+difficulty: 85
+skills:
+  requires:
+  - algo.mst
+  - algo.union-find
+  - algo.nested-func
+  - py.bool-ops
+  - py.break-continue
+  - py.default-args
+  - py.elif
+  - py.list-append
+  - py.nested-list
+  - py.sort-key
+  - py.ternary
+  - py.type-convert
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree
+milestones: []
+entry: classify_edges
+signature: 'def classify_edges(n: int, edges: list[list[int]]) -> list[list[int]]:'
+compare: checker
+wrong_examples:
+- why: 把所有非必选边都归到可选边，包含了太贵的线路。
+  code: |
+    def classify_edges(n: int, edges: list[list[int]]) -> list[list[int]]:
+        ranked = sorted(range(len(edges)), key=lambda i: edges[i][2])
+
+        def tree_cost(skip=-1, force=-1):
+            parent = list(range(n))
+
+            def root(node):
+                while node != parent[node]:
+                    parent[node] = parent[parent[node]]
+                    node = parent[node]
+                return node
+
+            cost = used = 0
+            if force >= 0:
+                u, v, cost = edges[force]
+                parent[u] = v
+                used = 1
+            for i in ranked:
+                if i == skip or i == force:
+                    continue
+                u, v, weight = edges[i]
+                a, b = root(u), root(v)
+                if a != b:
+                    parent[a] = b
+                    cost += weight
+                    used += 1
+            return cost if used == n - 1 else float("inf")
+
+        minimum = tree_cost()
+        must, may = [], []
+        for i in ranked:
+            if tree_cost(skip=i) > minimum:
+                must.append(i)
+            else:
+                may.append(i)
+        return [must, may]
+hints:
+- 先求最低总价。禁止使用一条边会不会涨价或断开？强制使用它后，还能不能保持最低总价？

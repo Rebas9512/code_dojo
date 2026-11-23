@@ -1,0 +1,24 @@
+id: wrangle-2-004-fare-grid
+title: 列出所有距离与费率的报价
+track: wrangle
+stage: '2'
+order: 40
+format: write
+mode: function
+difficulty: 20
+skills:
+  requires:
+    - wrangle.broadcast
+  introduces: null
+source: original
+entry: fares
+signature: 'def fares(distances, rates):'
+compare: allclose
+wrong_examples:
+  - why: 只乘对应位置，遗漏组合。
+    code: |
+      import numpy as np
+
+
+      def fares(distances, rates):
+          return np.array(distances) * np.array(rates)

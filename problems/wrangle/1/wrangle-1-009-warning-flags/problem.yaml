@@ -1,0 +1,25 @@
+id: wrangle-1-009-warning-flags
+title: 逐格标出低库存
+track: wrangle
+stage: '1'
+order: 90
+format: complete
+mode: function
+difficulty: 17
+skills:
+  requires:
+    - wrangle.mask
+  introduces: null
+source: original
+entry: flags
+signature: 'def flags(values, limit):'
+compare: allclose
+wrong_examples:
+  - why: 门槛相等时也应提醒。
+    code: |
+      import numpy as np
+
+
+      def flags(values, limit):
+          a = np.array(values)
+          return a < limit

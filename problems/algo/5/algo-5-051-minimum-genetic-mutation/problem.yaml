@@ -1,0 +1,47 @@
+id: algo-5-051-minimum-genetic-mutation
+title: 八格符号串最少改几次
+track: algo
+stage: '5'
+order: 510
+format: write
+mode: function
+difficulty: 78
+week: 6
+skills:
+  requires:
+  - algo.graph-bfs
+  - algo.hash-seen
+  - py.early-return
+  - py.nested-loop
+  - py.slice
+  - py.tuple
+  - py.while
+  introduces: null
+source: top-interview-150
+leetcode: minimum-genetic-mutation
+milestones: []
+entry: mutations
+signature: 'def mutations(start: str, end: str, bank: list[str]) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 忘记最后一个位置也允许修改。
+  code: |
+    from collections import deque
+
+
+    def mutations(start: str, end: str, bank: list[str]) -> int:
+        allowed = set(bank)
+        queue = deque([(start, 0)])
+        allowed.discard(start)
+        while queue:
+            word, steps = queue.popleft()
+            if word == end:
+                return steps
+            for i in range(7):
+                for ch in "ACGT":
+                    other = word[:i] + ch + word[i + 1 :]
+                    if other in allowed:
+                        allowed.remove(other)
+                        queue.append((other, steps + 1))
+        return -1

@@ -1,0 +1,24 @@
+id: data-0-013-reader-key
+title: 同名的读者
+track: data
+stage: '0'
+order: 130
+format: inspect
+mode: inspect
+difficulty: 5
+skills:
+  requires:
+    - data.column-type-key
+  introduces: null
+data:
+  - kind: table
+    title: 用户登记
+    file: users.csv
+answer:
+  type: short
+  accept:
+    - user_id
+  misconceptions:
+    name: DM05
+    姓名: DM05
+explain: user_id 是分配给用户的编号。姓名重复，城市也可能改变，两者都不能承担主键的职责。

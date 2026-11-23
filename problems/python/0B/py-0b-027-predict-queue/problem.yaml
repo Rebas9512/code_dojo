@@ -1,0 +1,20 @@
+id: py-0b-027-predict-queue
+title: 预测谁先从队首离开
+track: python
+stage: 0B
+order: 270
+format: predict
+mode: predict
+difficulty: 27
+skills:
+  requires: [py.print, py.list-basics, py.index-len]
+  introduces: py.deque
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: "把 popleft() 当成从右端取，错取最新的号码。"
+    code: |
+      print(1)
+      print(4)
+      print([4, 8, 4])

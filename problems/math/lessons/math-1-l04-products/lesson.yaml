@@ -1,0 +1,112 @@
+id: math-1-l04-products
+title: 矩阵的乘法
+track: math
+skills:
+  - math.matrix-vector
+  - math.matrix-product
+  - math.identity
+steps:
+  - type: read
+    skill: math.matrix-vector
+    md: |-
+      两张购物单分别买 [2, 1] 和 [0, 3] 件商品。若单价是 [3, 5]，第一单花 11 元，第二单花 15 元。把订单写成矩阵，一行结一次账，得到的两个总价组成一个新向量。这叫矩阵乘向量。
+
+      每一个输出分量，是对应一行与输入向量的点积。一行有几列，输入就需要几格；有几行就得到几个结果。
+
+      ```python
+      row = [2, 1]
+      prices = [3, 5]
+      total = sum(row[i] * prices[i] for i in range(len(row)))
+      ```
+
+      **MM07 把每一格当成独立的输出**。一行结束要合计，而且新的一行从零重新算。输出的长度由行数决定。
+  - type: example
+    skill: math.matrix-vector
+    code: |
+      # ① 两张订单用相同的价格表
+      orders = [[2, 1], [0, 3]]
+      prices = [3, 5]
+      # ② 每张订单各自结一次账
+      totals = []
+      for row in orders:
+          totals.append(sum(row[i] * prices[i] for i in range(len(row))))
+      print(totals)  # 输出 [11, 15]
+    md: 追加一行 [1, 1]，预测结果向量会多出什么。
+  - type: quiz
+    skill: math.matrix-vector
+    q: 4 行 3 列的矩阵乘一个 3 格向量，结果有几格？
+    options:
+      - '4'
+      - '3'
+      - '12'
+    answer: 0
+    explain: 每行产生一个点积，总共四行。（MM07 把每一格当成独立的输出）
+  - type: read
+    skill: math.matrix-product
+    md: |-
+      两家店各有两种套餐的订单。每份套餐又需要三种食材。要算第一家店要几个蛋，先拿出该店两种套餐的销量，再沿食材表的「蛋」列查两种套餐各用几个蛋。两列对应相乘、求和，就得到新表的一格。
+
+      左表 m × n，右表 n × p，中间的 n 表示同一批套餐。结果有 m 行 p 列。第 r 行第 c 列等于左表第 r 行与右表第 c 列的点积。
+
+      ```python
+      orders = [2, 1]
+      eggs = [3, 4]
+      needed = sum(orders[k] * eggs[k] for k in range(2))
+      ```
+
+      **MM08 用右表的一行配左表的一行**。右表要沿列读，固定的是食材，变化的是套餐。用不方的矩阵能直接看出方向错误。
+  - type: example
+    skill: math.matrix-product
+    code: |
+      # ① 一家店的两种套餐销量，每行套餐给出三项用料
+      orders = [2, 1]
+      recipe = [[1, 3, 0], [2, 4, 5]]
+      # ② 选定一种食材，合计两种套餐的贡献
+      out = []
+      for c in range(3):
+          out.append(sum(orders[k] * recipe[k][c] for k in range(2)))
+      print(out)  # 输出 [4, 10, 5]
+    md: 只改第二种套餐的第三项用料，先判断会影响哪格结果。
+  - type: quiz
+    skill: math.matrix-product
+    q: 2 × 3 的表乘 3 × 4 的表，要交回什么形状？
+    options:
+      - 3 × 3
+      - 2 × 4
+      - 4 × 2
+    answer: 1
+    explain: 每行一个来源、每列一个目标。中间的三项在每个点积中合计。（MM08 用右表的一行配左表的一行）
+  - type: read
+    skill: math.identity
+    md: |-
+      要把两个麦克风的声音原样传给两个音箱，可以让第一个音箱只接收第一个麦克风，第二个只接收第二个。两行权重分别是 [1, 0] 和 [0, 1]。能原样传递所有分量的这张方表，叫单位矩阵。
+
+      行列下标相等的格子写 1，其余写 0。因此一行乘一个向量时刚好保留同一位置的一项。
+
+      ```python
+      r = 1
+      row = [1 if c == r else 0 for c in range(3)]
+      ```
+
+      **MM09 把单位矩阵的每一格都填成一**。如果全填 1，每个音箱收到的都是所有通道之和。沿左上到右下的主对角线保留 1 就够了。
+  - type: example
+    skill: math.identity
+    code: |
+      # ① 两个通道设置为直通
+      signals = [7, -2]
+      identity = [[1, 0], [0, 1]]
+      # ② 按行混音，检查输出
+      for row in identity:
+          print(sum(row[i] * signals[i] for i in range(2)))  # 分别输出两次
+      # 输出 7
+      # 输出 -2
+    md: 把第一行第二个 0 改为 1，再听听哪个通道混进了另一条信号。
+  - type: quiz
+    skill: math.identity
+    q: 三阶单位矩阵的中间一行是什么？
+    options:
+      - '[1, 1, 1]'
+      - '[0, 0, 1]'
+      - '[0, 1, 0]'
+    answer: 2
+    explain: 中间一行要且只要第二个分量。（MM09 把单位矩阵的每一格都填成一）

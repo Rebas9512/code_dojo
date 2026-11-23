@@ -1,0 +1,157 @@
+{
+  "examples": [
+    {
+      "args": [
+        {
+          "columns": [
+            "id",
+            "stock"
+          ],
+          "data": [
+            [
+              3,
+              4
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              4
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "id"
+        ],
+        "data": [
+          [
+            3
+          ],
+          [
+            2
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "id",
+            "stock"
+          ],
+          "data": [
+            [
+              1,
+              0
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "id"
+        ],
+        "data": []
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        {
+          "columns": [
+            "id",
+            "stock"
+          ],
+          "data": [
+            [
+              5,
+              8
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "id"
+        ],
+        "data": [
+          [
+            5
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "id",
+            "stock"
+          ],
+          "data": [
+            [
+              3,
+              2
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              1,
+              8
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "id"
+        ],
+        "data": [
+          [
+            3
+          ],
+          [
+            2
+          ],
+          [
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "id",
+            "stock"
+          ],
+          "data": [
+            [
+              1,
+              0
+            ],
+            [
+              3,
+              0
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "id"
+        ],
+        "data": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+id: sql-3-l03-combine-and-clean
+title: 合并名单与核对清理结果
+track: sql
+skills:
+  - sql.set-ops
+  - sql.dml
+steps:
+  - type: read
+    skill: sql.set-ops
+    md: |
+      两张收条上都写着同一个名字。想数收了几张，就保留两张，用 UNION ALL；想整理联系人名册，同名文字只出现一遍，可以用 UNION。去重比较的是整行，如果两行还带不同的来源号，它们就不会被合并。
+
+      数据库按列的位置上下对齐，并不帮你按列名配对。合并本身也不保证展示顺序。题目要求先报读者再报书名时，可以先给两张榜各贴一个序号，最后一次性按序号排序。
+  - type: example
+    skill: sql.set-ops
+    db: bookstore
+    code: |
+      -- ① 两个柜台各交一份取书姓名
+      SELECT '小夏' AS name
+      UNION ALL
+      -- ② 第二张收条即使同名也保留
+      SELECT '小夏';
+    md: 去掉 ALL，记录数从几行变成几行？
+  - type: quiz
+    skill: sql.set-ops
+    q: 两份名单都有同一个单列值，求只在左边出现的值用什么？
+    options:
+      - UNION
+      - EXCEPT
+      - INTERSECT
+    answer: 1
+    explain: EXCEPT 扣掉右边出现的行。INTERSECT 则专门保留共有的行。
+  - type: read
+    skill: sql.dml
+    md: |
+      导入表里三条记录有相同邮箱，但编号不同。我们约定编号最小的是原件。对每个候选 p，只要能找到邮箱相同且编号更小的 q，当前 p 就是副本。找到几个伙伴都只需要圈一次，正适合用 EXISTS。
+
+      把 EXISTS 换成 NOT EXISTS，得到相反的留存名单。先拿编号 2、5、8 在纸上各试一次，又把条件改成大于号看看。清理前把这两份名单对齐，是判断比较方向有没有反的简单办法。
+  - type: example
+    skill: sql.dml
+    db: bookstore
+    patch: |
+      CREATE TABLE imports(id int PRIMARY KEY, email text);
+      INSERT INTO imports VALUES (2, 'a'), (5, 'a'), (8, 'a'), (7, 'b');
+    code: |
+      -- ① 每个导入编号只检查一次
+      -- ② 给能找到更早同邮箱记录的副本贴上标记
+      SELECT p.id, p.email, EXISTS (
+          SELECT 1 FROM imports q WHERE q.email = p.email AND q.id < p.id
+      ) AS should_remove FROM imports p ORDER BY p.id;
+    md: 把小于号改成大于号。编号 2 的标记发生什么变化？
+  - type: quiz
+    skill: sql.dml
+    q: 同一邮箱的编号为 2、5、8，保留最小号时应删哪些？
+    options:
+      - '2'
+      - 5 和 8
+      - 只删 8
+    answer: 1
+    explain: 5 和 8 都有一个比自己更早的同邮箱记录。
+  - type: example
+    skill: sql.dml
+    db: bookstore
+    patch: |
+      CREATE TABLE imports(id int PRIMARY KEY, email text);
+      INSERT INTO imports VALUES (2, 'a'), (5, 'a'), (8, 'a'), (7, 'b');
+      DELETE FROM imports p USING imports q WHERE q.email = p.email AND q.id < p.id;
+    code: |
+      -- ① 准备数据时已执行下面这条清理语句：
+      -- DELETE FROM imports p USING imports q WHERE q.email=p.email AND q.id<p.id;
+      -- ② 这条查询读取实际留下的邮件记录
+      SELECT id, email FROM imports ORDER BY id;
+    md: 与上一例中 should_remove 为假的编号对照。将 SELECT 改成 COUNT(*) 看还剩几人。
+  - type: read
+    skill: sql.dml
+    md: |
+      DELETE 作用于一张目标表。DELETE FROM imports p USING imports q 中 p 是可能删掉的行，q 只是证明 p 重复的伙伴。重复键和编号方向都对上才删除，省略 WHERE 就会删掉全部目标行。UPDATE 则保留行，例如 UPDATE imports SET email='b' WHERE id=7 只修改命中的字段。
+
+      生成清理单时，可以把 DELETE 先当作文本：FORMAT($sql$DELETE FROM imports WHERE id = %s;$sql$, 5) 会生成只删除 5 号的完整命令。下面的示例数据先保存原始清单，再执行一次真正的 DELETE；运行查询能看到每个旧编号最后是否还在表里。
+  - type: example
+    skill: sql.dml
+    db: bookstore
+    patch: |
+      CREATE TABLE imports(id int PRIMARY KEY, email text);
+      INSERT INTO imports VALUES (2, 'a'), (5, 'a'), (8, 'a'), (7, 'b');
+      CREATE TABLE before_cleanup AS SELECT * FROM imports;
+      DELETE FROM imports p USING imports q WHERE q.email = p.email AND q.id < p.id;
+    code: |
+      -- ① 从清理前的编号出发
+      -- ② 右侧只能查到实际删除后仍存在的编号
+      SELECT b.id, b.email, p.id AS surviving_id FROM before_cleanup b
+      LEFT JOIN imports p ON p.id = b.id ORDER BY b.id;
+    md: 加上 WHERE p.id IS NULL 再排序，核对只被删除的编号。
+  - type: quiz
+    skill: sql.dml
+    q: DELETE FROM imports p USING imports q 中，真正删的是哪一侧？
+    options:
+      - p 对应的行
+      - q 对应的行
+      - 两侧都删
+    answer: 0
+    explain: FROM 后是目标表；USING 提供用于判断的伙伴。

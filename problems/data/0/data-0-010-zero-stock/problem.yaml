@@ -1,0 +1,25 @@
+id: data-0-010-zero-stock
+title: 零库存还知道多少
+track: data
+stage: '0'
+order: 100
+format: inspect
+mode: inspect
+difficulty: 4
+skills:
+  requires:
+    - data.missing
+  introduces: null
+data:
+  - kind: table
+    title: 库存与出版社
+    file: books.csv
+answer:
+  type: short
+  accept:
+    - '3'
+    - 三
+  misconceptions:
+    '2': DM03
+    '1': DM03
+explain: 三个库存格都填了数。0 也记录了一次盘点结果。出版社空着只影响出版社这一列。

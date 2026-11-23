@@ -1,0 +1,27 @@
+id: tensor-4-002-one-slope
+title: 读出旋钮的局部斜率
+track: tensor
+stage: '4'
+order: 20
+format: complete
+mode: function
+difficulty: 33
+skills:
+  requires:
+    - tensor.backward
+  introduces: null
+source: original
+entry: slope
+signature: 'def slope(value):'
+compare: allclose
+wrong_examples:
+  - why: 返回了能耗本身。
+    code: |
+      import torch
+
+
+      def slope(value):
+          x = torch.tensor(value, dtype=torch.float32, requires_grad=True)
+          loss = x * x
+          loss.backward()
+          return loss

@@ -1,0 +1,33 @@
+id: algo-4-063-stone-game
+title: 从两端取石堆谁会赢
+track: algo
+stage: '4'
+order: 630
+format: write
+mode: function
+difficulty: 77
+skills:
+  requires:
+  - algo.dp-2d
+  - py.minmax-abs
+  - py.slice
+  introduces: null
+source: neetcode250
+leetcode: stone-game
+milestones: []
+entry: first_wins
+signature: 'def first_wins(piles: list[int]) -> bool:'
+compare: exact
+wrong_examples:
+- why: 按对自己更坏的选择计算领先分。
+  code: |
+    def first_wins(piles: list[int]) -> bool:
+        lead = piles[:]
+        for length in range(2, len(piles) + 1):
+            for left in range(len(piles) - length + 1):
+                right = left + length - 1
+                lead[left] = min(piles[left] - lead[left + 1],
+                                 piles[right] - lead[left])
+        return lead[0] > 0
+hints:
+- 给每段石堆记“当前行动的人最终领先多少”，拿走左端或右端后轮到对手。也可考虑原序列中奇数位与偶数位两组重量。

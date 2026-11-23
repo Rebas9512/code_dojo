@@ -1,0 +1,19 @@
+id: py-0a-012-safe-divide
+title: 安全的除法
+track: python
+stage: 0A
+order: 270
+format: complete
+mode: function
+difficulty: 6
+skills:
+  requires: [py.if-else, py.floordiv-mod, py.early-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: safe_divide
+signature: "def safe_divide(a: int, b: int) -> int:"
+compare: exact
+hints:
+  - "空着的那一行就是一个 return 语句。"

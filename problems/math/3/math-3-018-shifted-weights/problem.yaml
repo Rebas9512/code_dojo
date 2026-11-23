@@ -1,0 +1,27 @@
+id: math-3-018-shifted-weights
+title: 先把三个分数平移
+track: math
+stage: '3'
+order: 180
+format: complete
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - py.list-comp
+    - math.exp
+    - math.softmax
+  introduces: null
+source: original
+entry: shifted_weights
+signature: 'def shifted_weights(scores: list[float]) -> list[float]:'
+compare: float
+wrong_examples:
+  - why: 直接取指数，大分数会溢出。
+    code: |
+      from math import exp
+
+
+      def shifted_weights(scores: list[float]) -> list[float]:
+          peak = max(scores)
+          return [exp(s) for s in scores]

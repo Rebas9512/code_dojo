@@ -1,0 +1,44 @@
+id: algo-3-051-combinations
+title: 从连续编号中挑 k 个
+track: algo
+stage: '3'
+order: 510
+format: write
+mode: function
+difficulty: 62
+skills:
+  requires:
+  - algo.backtracking
+  - algo.nested-func
+  - py.list-comp
+  - py.multi-assign
+  - py.slice
+  - py.sorted
+  introduces: null
+source: neetcode250
+leetcode: combinations
+milestones: []
+entry: run_case
+signature: 'def run_case(n: int, k: int) -> list[list[int]]:'
+compare: unordered
+wrong_examples:
+- why: 漏掉恰够填完的最后一个起点。
+  code: |
+    def choose(n: int, k: int) -> list[list[int]]:
+        result, path = [], []
+        def fill(start):
+            if len(path) == k:
+                result.append(path[:])
+                return
+            missing = k - len(path)
+            for number in range(start, n - missing + 1):
+                path.append(number)
+                fill(number + 1)
+                path.pop()
+        fill(1)
+        return result
+
+
+    def run_case(n: int, k: int) -> list[list[int]]:
+        # 组合的成员可以任意排列；保留每一项和全部重复次数。
+        return [sorted(group) for group in choose(n, k)]

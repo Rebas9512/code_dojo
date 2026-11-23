@@ -1,0 +1,21 @@
+id: math-1-014-table-shape
+title: 给客流表贴形状标签
+track: math
+stage: '1'
+order: 140
+format: complete
+mode: function
+difficulty: 24
+skills:
+  requires:
+    - math.matrix-shape
+  introduces: null
+source: original
+entry: table_shape
+signature: 'def table_shape(table: list[list[int]]) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: 把行数又抄了一次。
+    code: |
+      def table_shape(table: list[list[int]]) -> list[int]:
+          return [len(table), len(table)]

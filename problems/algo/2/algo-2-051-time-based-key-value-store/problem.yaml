@@ -1,0 +1,44 @@
+id: algo-2-051-time-based-key-value-store
+title: 按时间读取最近一次记录
+track: algo
+stage: '2'
+order: 510
+format: write
+mode: class
+difficulty: 62
+skills:
+  requires:
+  - algo.binary-search
+  - algo.class-design
+  - py.dict-get
+  - py.list-append
+  - py.nested-list
+  - py.ternary
+  - py.tuple
+  introduces: null
+source: neetcode250
+leetcode: time-based-key-value-store
+milestones:
+- nc150
+entry: TimeMap
+compare: exact
+wrong_examples:
+- why: 查询恰好写入的时刻却跳过这次记录。
+  code: |
+    class TimeMap:
+        def __init__(self):
+            self.history = {}
+
+        def set(self, key: str, value: str, timestamp: int) -> None:
+            self.history.setdefault(key, []).append((timestamp, value))
+
+        def get(self, key: str, timestamp: int) -> str:
+            records = self.history.get(key, [])
+            lo, hi = 0, len(records)
+            while lo < hi:
+                mid = (lo + hi) // 2
+                if records[mid][0] < timestamp:
+                    lo = mid + 1
+                else:
+                    hi = mid
+            return records[lo - 1][1] if lo else ""

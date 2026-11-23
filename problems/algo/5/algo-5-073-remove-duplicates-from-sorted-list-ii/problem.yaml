@@ -1,0 +1,42 @@
+id: algo-5-073-remove-duplicates-from-sorted-list-ii
+title: 整组删除有重复的编号
+track: algo
+stage: '5'
+order: 730
+format: fix
+mode: function
+difficulty: 82
+week: 10
+skills:
+  requires:
+  - algo.ll-dummy
+  - py.bool-ops
+  - py.nested-loop
+  introduces: null
+source: top-interview-150
+leetcode: remove-duplicates-from-sorted-list-ii
+milestones: []
+entry: singles
+signature: 'def singles(head: ListNode | None) -> ListNode | None:'
+compare: exact
+time_limit_ms: 800
+convert:
+  args:
+    '0': listnode
+  returns: listnode
+wrong_examples:
+- why: 保留了重复组的最后一份。
+  code: |
+    def singles(head: ListNode | None) -> ListNode | None:
+        dummy = ListNode(0, head)
+        tail = dummy
+        while head:
+            first = head
+            while head.next and head.next.val == first.val:
+                head = head.next
+            if first is head:
+                tail = head
+            else:
+                tail.next = head
+            head = head.next
+        return dummy.next

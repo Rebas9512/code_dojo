@@ -1,0 +1,11 @@
+{
+  "examples": [
+    {"args": ["  Hello "], "expected": "hello"},
+    {"args": ["DATA"], "expected": "data"}
+  ],
+  "hidden": [
+    {"args": [""], "expected": ""},
+    {"args": ["  "], "expected": ""},
+    {"args": ["Py thon"], "expected": "py thon"}
+  ]
+}

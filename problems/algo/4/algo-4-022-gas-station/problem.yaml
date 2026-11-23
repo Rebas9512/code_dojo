@@ -1,0 +1,33 @@
+id: algo-4-022-gas-station
+title: 环线上从哪一站补给出发
+track: algo
+stage: '4'
+order: 220
+format: write
+mode: function
+difficulty: 67
+skills:
+  requires:
+  - algo.greedy
+  - py.ternary
+  introduces: null
+source: neetcode250
+leetcode: gas-station
+milestones:
+- nc150
+entry: gas_start
+signature: 'def gas_start(gas: list[int], cost: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 找到候选起点后，漏验全程总油量。
+  code: |
+    def gas_start(gas: list[int], cost: list[int]) -> int:
+        total = tank = start = 0
+        for i in range(len(gas)):
+            gain = gas[i] - cost[i]
+            total += gain
+            tank += gain
+            if tank < 0:
+                start = i + 1
+                tank = 0
+        return start

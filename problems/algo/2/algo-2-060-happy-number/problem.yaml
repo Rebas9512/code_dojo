@@ -1,0 +1,37 @@
+id: algo-2-060-happy-number
+title: 反复取各位平方和能到 1 吗
+track: algo
+stage: '2'
+order: 600
+format: write
+mode: function
+difficulty: 63
+skills:
+  requires:
+  - algo.hash-seen
+  - py.bool-ops
+  - py.floordiv-mod
+  - py.nested-loop
+  - py.tuple
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: happy-number
+milestones:
+- nc150
+entry: is_happy
+signature: 'def is_happy(n: int) -> bool:'
+compare: exact
+wrong_examples:
+- why: 算成数位和。
+  code: |
+    def is_happy(n: int) -> bool:
+        seen = set()
+        while n != 1 and n not in seen:
+            seen.add(n)
+            total = 0
+            while n:
+                n, digit = divmod(n, 10)
+                total += digit
+            n = total
+        return n == 1

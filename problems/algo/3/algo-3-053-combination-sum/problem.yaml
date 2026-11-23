@@ -1,0 +1,52 @@
+id: algo-3-053-combination-sum
+title: 可重复领用的面额组合
+track: algo
+stage: '3'
+order: 530
+format: write
+mode: function
+difficulty: 63
+skills:
+  requires:
+  - algo.backtracking
+  - algo.nested-func
+  - py.break-continue
+  - py.list-comp
+  - py.multi-assign
+  - py.slice
+  - py.sorted
+  introduces: null
+source: neetcode250
+leetcode: combination-sum
+milestones:
+- blind75
+- top100
+entry: run_case
+signature: 'def run_case(nums: list[int], target: int) -> list[list[int]]:'
+compare: unordered
+wrong_examples:
+- why: 选完后把当前面额也排除了。
+  code: |
+    def sum_choices(nums: list[int], target: int) -> list[list[int]]:
+        values = sorted(nums)
+        result, path = [], []
+        def visit(start, left):
+            if left == 0:
+                result.append(path[:])
+                return
+            for i in range(start, len(values)):
+                value = values[i]
+                if value > left:
+                    break
+                path.append(value)
+                visit(i + 1, left - value)
+                path.pop()
+        visit(0, target)
+        return result
+
+
+    def run_case(nums: list[int], target: int) -> list[list[int]]:
+        # 组合的成员可以任意排列；保留每一项和全部重复次数。
+        return [sorted(group) for group in sum_choices(nums, target)]
+hints:
+- 组合内只向后看可以去掉换序重复。当前面额允许再用，下一层的起点该在哪里？

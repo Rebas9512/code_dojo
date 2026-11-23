@@ -1,0 +1,51 @@
+id: algo-3-084-course-schedule
+title: 先修要求能否全部满足
+track: algo
+stage: '3'
+order: 840
+format: write
+mode: function
+difficulty: 71
+skills:
+  requires:
+  - algo.topo-sort
+  - py.genexp
+  - py.helper-func
+  - py.list-concat-repeat
+  - py.nested-loop
+  - py.ternary
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: course-schedule
+milestones:
+- blind75
+- top100
+entry: can_finish
+signature: 'def can_finish(n: int, prerequisites: list[list[int]]) -> bool:'
+compare: exact
+wrong_examples:
+- why: 能启动至少一门课就当作全部能完成。
+  code: |
+    from collections import deque
+
+
+    def schedule(n: int, prerequisites: list[list[int]]) -> list[int]:
+        after = [[] for _ in range(n)]
+        degree = [0] * n
+        for course, before in prerequisites:
+            after[before].append(course)
+            degree[course] += 1
+        queue = deque(i for i in range(n) if degree[i] == 0)
+        order = []
+        while queue:
+            current = queue.popleft()
+            order.append(current)
+            for course in after[current]:
+                degree[course] -= 1
+                if degree[course] == 0:
+                    queue.append(course)
+        return list(range(n)) if order else []
+
+    def can_finish(n: int, prerequisites: list[list[int]]) -> bool:
+        return len(schedule(n, prerequisites)) == n

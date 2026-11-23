@@ -1,0 +1,24 @@
+id: sql-0-150-complete-title-length
+title: 补全：书名占几个字符
+track: sql
+stage: "0"
+order: 320
+format: complete
+difficulty: 12
+skills: {requires: [sql.select-expr], introduces: sql.string-funcs}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/title-characters.sql
+ordered: false
+hints:
+  - LENGTH 可以数出文字中的字符个数。
+wrong_examples:
+  - why: 按存储字节数计算，多字节的汉字会多算。
+    sql: |
+      SELECT book_id, OCTET_LENGTH(title) AS chars FROM books;
+  - why: 先删掉空格再计数，少算了书名里的空格。
+    sql: |
+      SELECT book_id, LENGTH(REPLACE(title, ' ', '')) AS chars FROM books;

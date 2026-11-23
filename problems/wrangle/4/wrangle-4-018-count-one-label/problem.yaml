@@ -1,0 +1,27 @@
+id: wrangle-4-018-count-one-label
+title: 指定状态有多少单
+track: wrangle
+stage: '4'
+order: 180
+format: complete
+mode: function
+difficulty: 37
+skills:
+  requires:
+    - wrangle.frequency
+    - py.type-convert
+    - py.dict-get
+  introduces: null
+source: original
+entry: count_label
+signature: 'def count_label(t, label):'
+compare: exact
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 交出了不同状态数。
+    code: |
+      def count_label(t, label):
+          counts = t['status'].value_counts()
+          return len(counts)

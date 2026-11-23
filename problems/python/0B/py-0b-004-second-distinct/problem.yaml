@@ -1,0 +1,29 @@
+id: py-0b-004-second-distinct
+title: 一遍找出第二高的不同读数
+track: python
+stage: 0B
+order: 40
+format: write
+mode: function
+difficulty: 26
+skills:
+  requires: [py.linear-search, py.running-max, py.none, py.bool-ops, py.elif]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: second_highest
+signature: 'def second_highest(readings: list[int]) -> int | None:'
+compare: exact
+wrong_examples:
+  - why: "又遇到最高值时把它也登记为第二名。"
+    code: |
+      def second_highest(readings: list[int]) -> int | None:
+          highest = second = None
+          for value in readings:
+              if highest is None or value > highest:
+                  second = highest
+                  highest = value
+              elif value <= highest and (second is None or value > second):
+                  second = value
+          return second

@@ -1,0 +1,25 @@
+id: algo-5-034-find-the-index-of-the-first-occurrence-in-a-string
+title: 在采样带上找第一段标记
+track: algo
+stage: '5'
+order: 340
+format: write
+mode: function
+difficulty: 76
+week: 4
+skills:
+  requires:
+  - py.str-methods
+  introduces: null
+source: top-interview-150
+leetcode: find-the-index-of-the-first-occurrence-in-a-string
+milestones: []
+entry: locate
+signature: 'def locate(haystack: str, needle: str) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 找到的是最后一次出现。
+  code: |
+    def locate(haystack: str, needle: str) -> int:
+        return haystack.rfind(needle)

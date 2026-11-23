@@ -1,0 +1,19 @@
+id: py-0a-144-complete-positions
+title: 补全：所有出现的位置
+track: python
+stage: 0A
+order: 910
+format: complete
+mode: function
+difficulty: 14
+skills:
+  requires: [py.enumerate, py.list-append, py.if-else]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: positions_of
+signature: "def positions_of(nums: list[int], target: int) -> list[int]:"
+compare: exact
+hints:
+  - "要同时拿到下标 i 和值 x。"

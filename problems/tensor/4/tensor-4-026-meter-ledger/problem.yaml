@@ -1,0 +1,43 @@
+id: tensor-4-026-meter-ledger
+title: 让同一层记录两批通道贡献
+track: tensor
+stage: '4'
+order: 260
+format: combine
+mode: function
+difficulty: 45
+skills:
+  requires:
+    - tensor.module
+    - tensor.accumulate
+    - tensor.parameter
+    - tensor.reduce
+  introduces: null
+source: original
+entry: make_meter
+signature: 'def make_meter(gains):'
+compare: checker
+wrong_examples:
+  - why: 第二笔之前清空，就丢失了第一批的贡献。
+    code: |
+      import torch
+      import torch.nn as nn
+
+
+      class GainMeter(nn.Module):
+          def __init__(self, gains):
+              nn.Module.__init__(self)
+              self.gain = nn.Parameter(torch.tensor(gains, dtype=torch.float32))
+
+          def forward(self, x):
+              return x * self.gain
+
+          def record(self, x):
+              # 共用本层的前向公式，逐笔累计通道贡献。
+              loss = torch.sum(self.forward(x))
+              self.gain.grad = None
+              loss.backward()
+
+
+      def make_meter(gains):
+          return GainMeter(gains)

@@ -1,0 +1,24 @@
+id: tensor-4-012-fixed-factor
+title: 让参考因子停止求导
+track: tensor
+stage: '4'
+order: 120
+format: write
+mode: function
+difficulty: 38
+skills:
+  requires:
+    - tensor.boundary
+  introduces: null
+source: original
+entry: fixed_factor
+signature: 'def fixed_factor(x):'
+compare: checker
+wrong_examples:
+  - why: 两个因子都参与反向，会收到双倍梯度。
+    code: |
+      import torch
+
+
+      def fixed_factor(x):
+          return x * x

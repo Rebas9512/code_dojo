@@ -1,0 +1,33 @@
+id: algo-1-046-car-fleet
+title: 终点前会合的车队
+track: algo
+stage: '1'
+order: 460
+format: write
+mode: function
+difficulty: 58
+skills:
+  requires:
+  - py.running-max
+  - py.sorted
+  - py.zip
+  introduces: null
+source: neetcode250
+leetcode: car-fleet
+milestones:
+- nc150
+entry: car_fleet
+signature: 'def car_fleet(target: int, position: list[int], speed: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 同一时刻到终点也被算成两队。
+  code: |
+    def car_fleet(target: int, position: list[int], speed: list[int]) -> int:
+        fleets = 0
+        latest = 0
+        for start, rate in sorted(zip(position, speed), reverse=True):
+            arrival = (target - start) / rate
+            if arrival >= latest:
+                fleets += 1
+                latest = arrival
+        return fleets

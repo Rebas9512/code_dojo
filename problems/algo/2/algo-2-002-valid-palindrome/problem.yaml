@@ -1,0 +1,40 @@
+id: algo-2-002-valid-palindrome
+title: 忽略分隔符读回文
+track: algo
+stage: '2'
+order: 20
+format: write
+mode: function
+difficulty: 48
+skills:
+  requires:
+  - py.bool-ops
+  - py.early-return
+  - py.elif
+  - py.multi-assign
+  - py.str-methods
+  - py.two-index
+  introduces: null
+source: neetcode250
+leetcode: valid-palindrome
+milestones:
+- blind75
+entry: is_palindrome
+signature: 'def is_palindrome(text: str) -> bool:'
+compare: exact
+wrong_examples:
+- why: 忘了统一大小写。
+  code: |
+    def is_palindrome(text: str) -> bool:
+        left, right = 0, len(text) - 1
+        while left < right:
+            if not text[left].isalnum():
+                left += 1
+            elif not text[right].isalnum():
+                right -= 1
+            elif text[left] != text[right].lower():
+                return False
+            else:
+                left += 1
+                right -= 1
+        return True

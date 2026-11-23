@@ -1,0 +1,58 @@
+id: algo-3-017-lowest-common-ancestor-of-a-binary-search-tree
+title: 搜索树里的最近共同祖先
+track: algo
+stage: '3'
+order: 170
+format: write
+mode: function
+difficulty: 54
+skills:
+  requires:
+  - algo.bst
+  - py.bool-ops
+  - py.dict-get
+  - py.elif
+  - py.list-pop
+  - py.minmax-abs
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: lowest-common-ancestor-of-a-binary-search-tree
+milestones:
+- blind75
+entry: run_case
+signature: 'def run_case(root: TreeNode, first: int, second: int) -> int:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 在分叉处返回第一个查询点。
+  code: |
+    def common_ancestor(root: TreeNode, p: TreeNode, q: TreeNode) -> TreeNode:
+        while root:
+            if max(p.val, q.val) < root.val:
+                root = root.left
+            elif min(p.val, q.val) > root.val:
+                root = root.right
+            else:
+                return p
+
+
+    def run_case(root: TreeNode, first: int, second: int) -> int:
+        # 两个编号各自对应树中的一个现有节点。
+        nodes = {}
+        stack = [root]
+        while stack:
+            node = stack.pop()
+            nodes[node.val] = node
+            if node.left:
+                stack.append(node.left)
+            if node.right:
+                stack.append(node.right)
+        ancestor = common_ancestor(root, nodes[first], nodes[second])
+        if ancestor is not None and nodes.get(ancestor.val) is ancestor:
+            return ancestor.val
+        return None
+hints:
+- 两点同时比当前根小才都在左边。若当前根就是其中一点，分叉的位置在哪里？

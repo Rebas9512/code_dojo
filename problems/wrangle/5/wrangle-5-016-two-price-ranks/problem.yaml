@@ -1,0 +1,33 @@
+id: wrangle-5-016-two-price-ranks
+title: 书架上的名次和档次
+track: wrangle
+stage: '5'
+order: 160
+format: write
+mode: function
+difficulty: 41
+skills:
+  requires:
+    - wrangle.window
+    - wrangle.group
+    - wrangle.columns
+  introduces: null
+source: original
+entry: two_ranks
+signature: 'def two_ranks(shelf):'
+compare: frame
+leetcode: rank-scores
+sql_twin: sql-4-004-two-price-ranks
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 并列之后竞赛名次会跳号，档次仍应连续。
+    code: |
+      def two_ranks(shelf):
+          prices = shelf.groupby('category')['price']
+          shelf['place'] = prices.rank(method='min', ascending=False, na_option='bottom')
+          shelf['tier'] = shelf['place']
+          return shelf[['category', 'book_id', 'place', 'tier']]

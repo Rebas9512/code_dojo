@@ -1,0 +1,48 @@
+id: algo-1-056-linked-list-cycle
+title: 沿着箭头会绕回来吗
+track: algo
+stage: '1'
+order: 560
+format: write
+mode: function
+difficulty: 60
+skills:
+  requires:
+  - py.bool-ops
+  - py.list-append
+  - algo.fast-slow
+  introduces: null
+source: neetcode250
+leetcode: linked-list-cycle
+milestones:
+- blind75
+- top100
+entry: run_case
+signature: 'def run_case(head: ListNode | None, pos: int) -> bool:'
+compare: exact
+convert:
+  args:
+    '0': listnode
+wrong_examples:
+- why: 用值相等判定相遇，多个节点可保存一样的值。
+  code: |
+    def has_cycle(head: ListNode | None) -> bool:
+        slow = fast = head
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+            if fast and slow.val == fast.val:
+                return True
+        return False
+
+
+    def run_case(head: ListNode | None, pos: int) -> bool:
+
+        nodes = []
+        node = head
+        while node:
+            nodes.append(node)
+            node = node.next
+        if pos >= 0:
+            nodes[-1].next = nodes[pos]
+        return has_cycle(head)

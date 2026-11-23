@@ -1,0 +1,29 @@
+id: py-0a-345-complete-counter
+title: 补全计数器的累加
+track: python
+stage: 0A
+order: 4550
+format: complete
+mode: class
+difficulty: 20
+skills:
+  requires:
+    - py.class-methods
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: Counter
+compare: exact
+wrong_examples:
+  - why: 把读数替换为最新变化量。
+    code: |
+      class Counter:
+          def __init__(self, start: int):
+              self.value = start
+
+          def add(self, step: int) -> None:
+              self.value = step
+
+          def get(self) -> int:
+              return self.value

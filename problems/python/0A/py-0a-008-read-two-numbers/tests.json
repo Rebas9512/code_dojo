@@ -1,0 +1,12 @@
+{
+  "examples": [
+    {"stdin": "3\n4\n", "expected": "7\n12\n"},
+    {"stdin": "10\n-2\n", "expected": "8\n-20\n"}
+  ],
+  "hidden": [
+    {"stdin": "0\n0\n", "expected": "0\n0\n"},
+    {"stdin": "1\n1\n", "expected": "2\n1\n"},
+    {"stdin": "-5\n-5\n", "expected": "-10\n25\n"},
+    {"stdin": "1000\n1000\n", "expected": "2000\n1000000\n"}
+  ]
+}

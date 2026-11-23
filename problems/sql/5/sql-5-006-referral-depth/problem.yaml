@@ -1,0 +1,31 @@
+id: sql-5-006-referral-depth
+title: 推荐人链有几层
+track: sql
+stage: '5'
+order: 60
+format: write
+difficulty: 68
+skills:
+  requires:
+    - sql.self-join
+  introduces: sql.recursive-cte
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/new-root.sql
+  - db:bookstore + datasets/deeper.sql
+ordered: false
+hints:
+  - 可以从根向下标深度。每到一名被推荐人，深度怎样变化？
+wrong_examples:
+  - why: 把读者自己也算进推荐层数
+    sql: |
+      WITH RECURSIVE tree AS (
+          SELECT user_id, 1 AS depth FROM users WHERE referrer_id IS NULL
+          UNION ALL
+          SELECT child.user_id, parent.depth + 1 FROM tree parent
+          JOIN users child ON child.referrer_id = parent.user_id
+      )
+      SELECT user_id, depth FROM tree;

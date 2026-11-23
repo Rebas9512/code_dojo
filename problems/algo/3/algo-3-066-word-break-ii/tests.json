@@ -1,0 +1,12 @@
+{
+  "examples": [
+    {"args":["sunset",["sun","set","sunset"]],"expected":["sun set","sunset"]},
+    {"args":["aa",["a"]],"expected":["a a"]}
+  ],
+  "hidden": [
+    {"args":["b",["a"]],"expected":[]},
+    {"args":["a",["a"]],"expected":["a"]},
+    {"args":["aaa",["a","aa"]],"expected":["a a a","a aa","aa a"]},
+    {"args":["aaaaaaaaaaaaaaaaaaaz",["a","aa","aaa","aaaa","aaaaa","aaaaaa","aaaaaaa","aaaaaaaa","aaaaaaaaa","aaaaaaaaaa"]],"expected":[]}
+  ]
+}

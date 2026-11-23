@@ -1,0 +1,26 @@
+id: sql-0-012-not-harbor-press
+title: 不是 Harbor Press 出版的书
+track: sql
+stage: "0"
+order: 200
+format: variant
+difficulty: 10
+skills: {requires: [sql.is-null, sql.and-or], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/publishers.sql
+ordered: false
+hints:
+  - "NULL <> 'Harbor Press' 的结果不是 True。"
+  - "把\"出版社为空\"作为另一个条件用 OR 加上。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "只写 <>：publisher 为 NULL 的行比较结果是\"未知\"，被丢掉了"
+    sql: |
+      SELECT title, publisher FROM books WHERE publisher <> 'Harbor Press';
+  - why: "只要了出版社为空的书"
+    sql: |
+      SELECT title, publisher FROM books WHERE publisher IS NULL;

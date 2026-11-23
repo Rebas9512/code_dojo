@@ -1,0 +1,49 @@
+id: algo-3-077-reading-club-groups
+title: 读书会分成了几个小组
+track: algo
+stage: '3'
+order: 770
+format: write
+mode: function
+difficulty: 69
+skills:
+  requires:
+  - algo.graph-adj-list
+  - py.break-continue
+  - py.list-comp
+  - py.list-pop
+  - py.nested-loop
+  - py.set-basics
+  - py.while
+  introduces: null
+source: original
+leetcode: number-of-connected-components-in-an-undirected-graph
+milestones:
+- blind75
+replaces_premium: number-of-connected-components-in-an-undirected-graph
+entry: components
+signature: 'def components(n: int, edges: list[list[int]]) -> int:'
+compare: exact
+wrong_examples:
+- why: 只数有熟人的人构成的小组。
+  code: |
+    def components(n: int, edges: list[list[int]]) -> int:
+        neighbors = [[] for _ in range(n)]
+        for a, b in edges:
+            neighbors[a].append(b)
+            neighbors[b].append(a)
+        seen = set()
+        groups = 0
+        for start in range(n):
+            if start in seen or not neighbors[start]:
+                continue
+            groups += 1
+            stack = [start]
+            seen.add(start)
+            while stack:
+                node = stack.pop()
+                for other in neighbors[node]:
+                    if other not in seen:
+                        seen.add(other)
+                        stack.append(other)
+        return groups

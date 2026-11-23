@@ -1,0 +1,53 @@
+id: algo-3-072-max-area-of-island
+title: 连成一片的最大陆地
+track: algo
+stage: '3'
+order: 720
+format: variant
+mode: function
+difficulty: 68
+skills:
+  requires:
+  - algo.grid-dfs
+  - py.bool-ops
+  - py.enumerate
+  - py.list-pop
+  - py.minmax-abs
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: max-area-of-island
+milestones:
+- nc150
+entry: max_island
+signature: 'def max_island(grid: list[list[int]]) -> int:'
+compare: exact
+wrong_examples:
+- why: 把互不相连的面积也加到一起。
+  code: |
+    def fill(grid, r, c, land, marked):
+        if grid[r][c] != land:
+            return 0
+        rows, cols = len(grid), len(grid[0])
+        grid[r][c] = marked
+        stack = [(r, c)]
+        area = 0
+        while stack:
+            r, c = stack.pop()
+            area += 1
+            for dr, dc in ((-1,0), (1,0), (0,-1), (0,1)):
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == land:
+                    grid[nr][nc] = marked
+                    stack.append((nr, nc))
+        return area
+
+    def max_island(grid: list[list[int]]) -> int:
+        largest = 0
+        for r, row in enumerate(grid):
+            for c, cell in enumerate(row):
+                if cell == 1:
+                    largest = largest + fill(grid, r, c, 1, 0)
+        return largest
+hints:
+- 每片陆地分别计数，所有连通块的面积怎样合成最终结果？

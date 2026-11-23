@@ -1,0 +1,39 @@
+id: sql-2-015-managers-with-at-least-5-direct-reports
+title: 至少带五位直属成员的主管
+track: sql
+stage: '2'
+order: 150
+format: write
+difficulty: 35
+skills:
+  requires:
+    - sql.self-join
+    - sql.join-aggregate
+    - sql.having
+    - sql.count
+  introduces: null
+source: sql50
+leetcode: managers-with-at-least-5-direct-reports
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/namesakes.sql
+  - datasets/sample.sql + datasets/indirect-team.sql
+ordered: false
+hints:
+  - 输出只要姓名，分组时仍需要区分是哪个人。
+wrong_examples:
+  - why: 按姓名分组会把同名主管的团队合在一起
+    sql: |
+      SELECT m.name
+      FROM crew m
+      JOIN crew e ON e.leader_id = m.person_id
+      GROUP BY m.name
+      HAVING COUNT(*) >= 5;
+  - why: 排除了恰好五位下属的主管
+    sql: |
+      SELECT m.name
+      FROM crew m
+      JOIN crew e ON e.leader_id = m.person_id
+      GROUP BY m.person_id, m.name
+      HAVING COUNT(*) > 5;

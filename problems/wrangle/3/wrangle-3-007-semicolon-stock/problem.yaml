@@ -1,0 +1,27 @@
+id: wrangle-3-007-semicolon-stock
+title: 读取分号分隔的库存列
+track: wrangle
+stage: '3'
+order: 70
+format: write
+mode: function
+difficulty: 26
+skills:
+  requires:
+    - wrangle.csv
+  introduces: null
+source: original
+entry: read_stock
+signature: 'def read_stock(text):'
+compare: frame
+wrong_examples:
+  - why: 按逗号读，表头没有拆成两列。
+    code: |
+      from io import StringIO
+
+      import pandas as pd
+
+
+      def read_stock(text):
+          t = pd.read_csv(StringIO(text))
+          return t['stock']

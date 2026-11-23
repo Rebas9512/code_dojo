@@ -1,0 +1,59 @@
+id: tensor-1-l02-layout
+title: 改形状与交换轴
+track: tensor
+skills:
+  - tensor.reshape
+  - tensor.axes
+steps:
+  - type: read
+    skill: tensor.reshape
+    md: |-
+      把连续的一卷标签装成小盒时，想保留它们原来的顺序。六张标签每三张装一盒，是两盒三张；同一卷每两张装一盒，就会有三盒。两种排法都恰好用完六张。
+
+      `reshape(行数, 列数)` 或连续张量上的 `view` 都能重新分行。一个长度写 -1 时，PyTorch 用总格数除以已知长度。重排后按行读仍是原序列，无法整除时就没有这种排法。
+
+      **TM02 常见误解：把指定宽度当成行数**。六张标签每行放两张，reshape(-1, 2) 得到三行两列。每行两张沿着原顺序读。
+  - type: example
+    skill: tensor.reshape
+    code: |
+      import torch
+      # ① 生成从零开始的六个标签号
+      strip = torch.arange(6)
+      print(strip.reshape(-1, 2).tolist())  # 输出 [[0, 1], [2, 3], [4, 5]]
+      print(tuple(strip.view(1, -1).shape))  # 输出 (1, 6)
+    md: 把每盒两张改为三张，再数盒子。
+  - type: quiz
+    skill: tensor.reshape
+    q: 12 张标签 reshape(-1, 4) 后的形状是？
+    options:
+      - (4, 3)
+      - (3, 4)
+      - (12, 4)
+    answer: 1
+    explain: 指定每行四张，十二张分成三行。（TM02）
+  - type: read
+    skill: tensor.axes
+    md: |-
+      同一批照片可以按「批、行、列」读，也可以先选列再找行。两行三列的编号 0、1、2 / 3、4、5 交换轴后，第一行是 0、3。原仓位里的 0 和 3 隔着两个数，新的邻居未必在内存里相邻。
+
+      `transpose(a,b)` 交换两轴，`permute(2,0,1)` 按旧轴编号给出全部新轴。默认连续布局按末轴优先紧挨存放。`view` 要求目标形状的步幅相容，转置后直接展平常会失败。`reshape` 必要时复制；也可先 `contiguous()` 按现在的读取顺序整理，再 `view`。
+
+      **TM03 常见误解：以为换轴后的相邻格在内存里也相邻**。把 0 到 5 排成两行三列再转置，第一行要读 0、3。此时 view(-1) 会报错；reshape(-1) 或 contiguous().view(-1) 得到 [0, 3, 1, 4, 2, 5]。
+  - type: example
+    skill: tensor.axes
+    code: |
+      import torch
+      # ① 先换轴，再按新的行序展平
+      x = torch.arange(6).reshape(2, 3).transpose(0, 1)
+      print(x.is_contiguous())  # 输出 False
+      print(x.contiguous().view(-1).tolist())  # 输出 [0, 3, 1, 4, 2, 5]
+    md: 把 transpose 去掉，重新看两个输出。
+  - type: quiz
+    skill: tensor.axes
+    q: 两行三列的连续表转置后，按新的行序读，开头两个编号是？
+    options:
+      - 0、1
+      - 0、3
+      - 3、0
+    answer: 1
+    explain: 新表的第一行来自旧表第一列，依次是 0 和 3。（TM03）

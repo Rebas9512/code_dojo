@@ -1,0 +1,24 @@
+id: wrangle-3-002-named-stock
+title: 登记一列有名字的库存
+track: wrangle
+stage: '3'
+order: 20
+format: complete
+mode: function
+difficulty: 24
+skills:
+  requires:
+    - wrangle.table
+  introduces: null
+source: original
+entry: stock_column
+signature: 'def stock_column(values):'
+compare: frame
+wrong_examples:
+  - why: 列没有名字，汇入报表时无法辨认。
+    code: |
+      import pandas as pd
+
+
+      def stock_column(values):
+          return pd.Series(values)

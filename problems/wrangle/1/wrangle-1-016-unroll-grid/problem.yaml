@@ -1,0 +1,26 @@
+id: wrangle-1-016-unroll-grid
+title: 把班次记录排成一列数
+track: wrangle
+stage: '1'
+order: 160
+format: write
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - wrangle.reshape
+    - wrangle.slice
+    - wrangle.array
+  introduces: null
+source: original
+entry: timeline
+signature: 'def timeline(rows):'
+compare: allclose
+wrong_examples:
+  - why: 多保留了一个列轴。
+    code: |
+      import numpy as np
+
+
+      def timeline(rows):
+          return np.array(rows).reshape(-1, 1)

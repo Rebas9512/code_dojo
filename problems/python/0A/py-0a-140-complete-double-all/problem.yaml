@@ -1,0 +1,19 @@
+id: py-0a-140-complete-double-all
+title: 补全：每个数翻倍
+track: python
+stage: 0A
+order: 820
+format: complete
+mode: function
+difficulty: 13
+skills:
+  requires: [py.list-basics, py.for-range]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: double_all
+signature: "def double_all(nums: list[int]) -> list[int]:"
+compare: exact
+hints:
+  - "新值 = 原来的值 × 2，原来的值是 nums[i]。"

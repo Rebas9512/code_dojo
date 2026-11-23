@@ -1,0 +1,47 @@
+id: algo-5-059-basic-calculator
+title: 带括号的收支算式
+track: algo
+stage: '5'
+order: 590
+format: fix
+mode: function
+difficulty: 80
+week: 8
+skills:
+  requires:
+  - algo.stack-matching
+  - py.elif
+  - py.str-methods
+  - py.ternary
+  - py.tuple
+  - py.type-convert
+  introduces: null
+source: grind169
+leetcode: basic-calculator
+milestones: []
+entry: evaluate
+signature: 'def evaluate(expr: str) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 关闭括号时遗忘括号外的减号。
+  code: |
+    def evaluate(expr: str) -> int:
+        stack = []
+        total, sign, number = 0, 1, 0
+        for ch in expr:
+            if ch.isdigit():
+                number = number * 10 + int(ch)
+            elif ch in "+-":
+                total += sign * number
+                sign = 1 if ch == "+" else -1
+                number = 0
+            elif ch == "(":
+                stack.append((total, sign))
+                total, sign, number = 0, 1, 0
+            elif ch == ")":
+                inside = total + sign * number
+                previous, factor = stack.pop()
+                total = previous + inside
+                sign, number = 1, 0
+        return total + sign * number

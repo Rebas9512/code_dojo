@@ -1,0 +1,19 @@
+id: math-2-020-descent-sign
+title: 仓库订量往哪边调
+track: math
+stage: '2'
+order: 200
+format: predict
+mode: predict
+difficulty: 31
+skills:
+  requires:
+    - math.slope-rules
+  introduces: math.descent
+source: original
+wrong_examples:
+  - why: 沿升高费用的方向前进。
+    code: |
+      x = 1
+      slope = 2 * (x - 3)
+      print(x + 0.5 * slope)

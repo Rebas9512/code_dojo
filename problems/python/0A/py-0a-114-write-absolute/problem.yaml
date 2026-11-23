@@ -1,0 +1,19 @@
+id: py-0a-114-write-absolute
+title: 手写绝对值
+track: python
+stage: 0A
+order: 250
+format: write
+mode: function
+difficulty: 6
+skills:
+  requires: [py.if-else, py.func-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: absolute
+signature: "def absolute(n: int) -> int:"
+compare: exact
+hints:
+  - "n 是负数时，-n 就是它的相反数。"

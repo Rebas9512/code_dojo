@@ -1,0 +1,24 @@
+id: data-0-011-known-denominator
+title: 平均时除以几
+track: data
+stage: '0'
+order: 110
+format: inspect
+mode: inspect
+difficulty: 4
+skills:
+  requires:
+    - data.missing
+  introduces: null
+data:
+  - kind: table
+    title: 作者出生年份
+    file: authors.csv
+answer:
+  type: short
+  accept:
+    - '2'
+    - 二
+  misconceptions:
+    '3': DM03
+explain: Chen Yu 和 Tom Becker 有年份，分母用 2。把三行都算进分母，等于给缺失的年份补了一个 0。

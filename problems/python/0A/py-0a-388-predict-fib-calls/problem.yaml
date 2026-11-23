@@ -1,0 +1,19 @@
+id: py-0a-388-predict-fib-calls
+title: 同一个小问题来了几次
+track: python
+stage: 0A
+order: 5080
+format: predict
+mode: predict
+difficulty: 20
+skills:
+  requires:
+    - py.recursion
+  introduces: py.recursion-multi
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM68：以为第二次请求 fib(1) 会自动沿用已经算出的结果，不会再次进入函数。
+    code: |
+      print('3\n2\n1\n0\n2')

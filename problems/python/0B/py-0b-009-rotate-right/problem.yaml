@@ -1,0 +1,39 @@
+id: py-0b-009-rotate-right
+title: 用三次反转把列表向右轮转
+track: python
+stage: 0B
+order: 90
+format: combine
+mode: function
+difficulty: 29
+skills:
+  requires: [py.swap-reverse, py.helper-func, py.floordiv-mod, py.early-return, py.bool-ops, py.list-basics]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: run_case
+signature: 'def run_case(nums: list[int], k: int) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: "把右移的距离当成左移距离。"
+    code: |
+      def reverse_part(nums: list[int], left: int, right: int) -> None:
+          while left < right:
+              nums[left], nums[right] = nums[right], nums[left]
+              left += 1
+              right -= 1
+
+
+      def rotate_right(nums: list[int], k: int) -> None:
+          if not nums:
+              return
+          shift = (len(nums) - k) % len(nums)
+          reverse_part(nums, 0, len(nums) - 1)
+          reverse_part(nums, 0, shift - 1)
+          reverse_part(nums, shift, len(nums) - 1)
+
+
+      def run_case(nums: list[int], k: int) -> list[int]:
+          rotate_right(nums, k)
+          return nums

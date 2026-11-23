@@ -1,0 +1,27 @@
+id: sql-2-001-order-reader
+title: 补全：订单是谁下的
+track: sql
+stage: '2'
+order: 10
+format: complete
+difficulty: 24
+skills:
+  requires:
+    - sql.select-expr
+  introduces: sql.inner-join
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/repeated-buyer.sql
+  - db:bookstore + datasets/numbers-overlap.sql
+ordered: false
+hints:
+  - 订单用 user_id 记录下单人，订单号标识的是另一种东西。
+wrong_examples:
+  - why: 把订单号误当成用户号
+    sql: |
+      SELECT o.order_id, u.name
+      FROM orders o
+      JOIN users u ON u.user_id = o.order_id;

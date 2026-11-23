@@ -1,0 +1,17 @@
+id: py-0a-122-predict-loop-variable
+title: 改了 i 会怎样
+track: python
+stage: 0A
+order: 410
+format: predict
+mode: predict
+difficulty: 8
+skills:
+  requires: [py.for-range]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "第一轮 i 是 0，加 10 以后打印。"
+  - "两行 --- 之间什么都没有。"

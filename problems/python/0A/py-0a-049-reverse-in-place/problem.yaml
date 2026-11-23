@@ -1,0 +1,20 @@
+id: py-0a-049-reverse-in-place
+title: 原地反转列表
+track: python
+stage: 0A
+order: 940
+format: complete
+mode: function
+difficulty: 15
+skills:
+  requires: [py.while, py.list-basics, py.index-len, py.multi-assign]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: reverse_in_place
+signature: "def reverse_in_place(nums: list[int]) -> list[int]:"
+compare: exact
+hints:
+  - "交换 nums[left] 和 nums[right]。"
+  - "左边写两个目标，右边写两个值：nums[left], nums[right] = ..."

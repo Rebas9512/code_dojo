@@ -1,0 +1,67 @@
+id: algo-1-067-sort-list
+title: 按节点值整理整条链
+track: algo
+stage: '1'
+order: 670
+format: combine
+mode: function
+difficulty: 72
+skills:
+  requires:
+  - py.bool-ops
+  - py.recursion-multi
+  - algo.ll-dummy
+  - algo.fast-slow
+  introduces: null
+source: top-100-liked
+leetcode: sort-list
+milestones:
+- top100
+entry: sort_list
+signature: 'def sort_list(head: ListNode | None) -> ListNode | None:'
+compare: exact
+convert:
+  args:
+    '0': listnode
+  returns: listnode
+wrong_examples:
+- why: 切开后只排前半段。
+  code: |
+    def merge_lists(a, b):
+        dummy = tail = ListNode()
+        while a and b:
+            if a.val <= b.val:
+                tail.next = a
+                a = a.next
+            else:
+                tail.next = b
+                b = b.next
+            tail = tail.next
+        tail.next = a or b
+        return dummy.next
+
+
+    def sort_list(head: ListNode | None) -> ListNode | None:
+        if not head or not head.next:
+            return head
+        slow = head
+        fast = head.next
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+        second = slow.next
+        slow.next = None
+        return sort_list(head)
+- why: 每插入一个节点都从有序链的头开始找位置，递增输入使查找总耗时呈平方增长。
+  code: |
+    def sort_list(head: ListNode | None) -> ListNode | None:
+        dummy = ListNode()
+        while head:
+            following = head.next
+            previous = dummy
+            while previous.next and previous.next.val <= head.val:
+                previous = previous.next
+            head.next = previous.next
+            previous.next = head
+            head = following
+        return dummy.next

@@ -1,0 +1,41 @@
+id: algo-5-040-partition-list
+title: 把较小节点稳定地移到前组
+track: algo
+stage: '5'
+order: 400
+format: write
+mode: function
+difficulty: 77
+week: 5
+skills:
+  requires:
+  - algo.ll-dummy
+  introduces: null
+source: top-interview-150
+leetcode: partition-list
+milestones: []
+entry: partition
+signature: 'def partition(head: ListNode | None, x: int) -> ListNode | None:'
+compare: exact
+time_limit_ms: 800
+convert:
+  args:
+    '0': listnode
+  returns: listnode
+wrong_examples:
+- why: 与分界相等的节点被分进前组。
+  code: |
+    def partition(head: ListNode | None, x: int) -> ListNode | None:
+        small = left = ListNode()
+        large = right = ListNode()
+        while head:
+            if head.val <= x:
+                left.next = head
+                left = head
+            else:
+                right.next = head
+                right = head
+            head = head.next
+        right.next = None
+        left.next = large.next
+        return small.next

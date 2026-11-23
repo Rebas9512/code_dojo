@@ -1,0 +1,32 @@
+id: algo-5-032-word-pattern
+title: 一串代号对应哪些词
+track: algo
+stage: '5'
+order: 320
+format: write
+mode: function
+difficulty: 76
+week: 4
+skills:
+  requires:
+  - algo.hash-index-map
+  - py.bool-ops
+  - py.set-basics
+  - py.split-join
+  - py.zip
+  introduces: null
+source: top-interview-150
+leetcode: word-pattern
+milestones: []
+entry: matches
+signature: 'def matches(pattern: str, text: str) -> bool:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 只核对配好的前缀，漏掉多余的代号。
+  code: |
+    def matches(pattern: str, text: str) -> bool:
+        words = text.split()
+        return len(pattern) >= len(words) and len(set(pattern)) == len(set(words)) == len(
+            set(zip(pattern, words))
+        )

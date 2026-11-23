@@ -1,0 +1,34 @@
+id: sql-1-015-book-return-rate
+title: 每种书的退货率
+track: sql
+stage: '1'
+order: 150
+format: write
+difficulty: 30
+skills:
+  requires:
+    - sql.sum-avg
+    - sql.group-by
+    - sql.select-expr
+  introduces: sql.nullif
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/no-returns.sql
+  - db:bookstore + datasets/sample.sql + datasets/unequal-batches.sql
+ordered: false
+hints:
+  - 先得到每本书的两个合计。分母为 0 时，把它变成 NULL 再除。
+wrong_examples:
+  - why: 把无法定义的比例也显示为零
+    sql: |
+      SELECT book_id, COALESCE(1.0 * SUM(returned) / NULLIF(SUM(sold), 0), 0) AS return_rate
+      FROM stock_checks
+      GROUP BY book_id;
+  - why: 逐批算率再取平均，分母不再是总销量
+    sql: |
+      SELECT book_id, AVG(1.0 * returned / NULLIF(sold, 0)) AS return_rate
+      FROM stock_checks
+      GROUP BY book_id;

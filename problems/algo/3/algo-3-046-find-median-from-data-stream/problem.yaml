@@ -1,0 +1,43 @@
+id: algo-3-046-find-median-from-data-stream
+title: 随时读取中位数
+track: algo
+stage: '3'
+order: 460
+format: combine
+mode: class
+difficulty: 64
+skills:
+  requires:
+  - algo.class-design
+  - algo.heapq
+  introduces: null
+source: neetcode250
+leetcode: find-median-from-data-stream
+milestones:
+- blind75
+- top100
+entry: MedianFinder
+compare: float
+wrong_examples:
+- why: 偶数项只取靠下的一项。
+  code: |
+    import heapq
+
+
+    class MedianFinder:
+        def __init__(self):
+            self.lower = []
+            self.upper = []
+
+        def addNum(self, num: int) -> None:
+            heapq.heappush(self.lower, -num)
+            heapq.heappush(self.upper, -heapq.heappop(self.lower))
+            if len(self.upper) > len(self.lower):
+                heapq.heappush(self.lower, -heapq.heappop(self.upper))
+
+        def findMedian(self) -> float:
+            if len(self.lower) > len(self.upper):
+                return -self.lower[0]
+            return -self.lower[0]
+hints:
+- 把数分成较小和较大两半。窄的一侧至多比另一侧少一个，两侧边缘就能给出中位数。

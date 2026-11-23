@@ -1,0 +1,64 @@
+id: algo-4-002-implement-trie-prefix-tree
+title: 给词柜装上前缀查询
+track: algo
+stage: '4'
+order: 20
+format: write
+mode: class
+difficulty: 62
+skills:
+  requires:
+  - algo.trie
+  - algo.class-design
+  - py.bool-ops
+  - py.dict-get
+  - py.none
+  introduces: null
+source: neetcode250
+leetcode: implement-trie-prefix-tree
+milestones:
+- blind75
+- top100
+entry: Trie
+compare: exact
+wrong_examples:
+- why: 把能走到的每个前缀都报告为完整词。
+  code: |
+    class Trie:
+        def __init__(self):
+            self.root = {}
+
+        def insert(self, word: str) -> None:
+            node = self.root
+            for letter in word:
+                node = node.setdefault(letter, {})
+            node["#"] = True
+
+        def _walk(self, text: str):
+            node = self.root
+            for letter in text:
+                if letter not in node:
+                    return None
+                node = node[letter]
+            return node
+
+        def search(self, word: str) -> bool:
+            node = self._walk(word)
+            return node is not None
+
+        def startsWith(self, prefix: str) -> bool:
+            return self._walk(prefix) is not None
+- why: 逐个单词核对前缀，在大量查询时反复扫过整个词柜。
+  code: |
+    class Trie:
+        def __init__(self):
+            self.words = set()
+
+        def insert(self, word: str) -> None:
+            self.words.add(word)
+
+        def search(self, word: str) -> bool:
+            return word in self.words
+
+        def startsWith(self, prefix: str) -> bool:
+            return any(word.startswith(prefix) for word in self.words)

@@ -1,0 +1,28 @@
+id: algo-3-001-count-tree-nodes
+title: 手建一棵三节点的树，递归数节点个数
+track: algo
+stage: '3'
+order: 10
+format: complete
+mode: function
+difficulty: 48
+skills:
+  requires:
+  - py.recursion-multi
+  introduces: algo.tree-basics
+source: original
+leetcode: null
+milestones: []
+entry: count_nodes
+signature: 'def count_nodes(root: TreeNode | None) -> int:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 漏数当前节点。
+  code: |
+    def count_nodes(root: TreeNode | None) -> int:
+        if root is None:
+            return 0
+        return 0 + count_nodes(root.left) + count_nodes(root.right)

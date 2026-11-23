@@ -1,0 +1,20 @@
+id: math-2-004-tank-rate
+title: 水位升得有多快
+track: math
+stage: '2'
+order: 40
+format: predict
+mode: predict
+difficulty: 21
+skills:
+  requires:
+    - math.function-table
+    - py.value-types
+  introduces: math.slope
+source: original
+wrong_examples:
+  - why: 把总升幅当作每小时变化。
+    code: |
+      change = 14 - 2
+      hours = 5 - 1
+      print(change)

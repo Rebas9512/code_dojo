@@ -1,0 +1,51 @@
+id: algo-1-069-edit-doubly-linked
+title: 双向链表：头部插入、删除任意节点
+track: algo
+stage: '1'
+order: 690
+format: write
+mode: function
+difficulty: 68
+skills:
+  requires:
+  - algo.hash-index-map
+  - algo.ll-dummy
+  introduces: algo.doubly-linked
+source: original
+leetcode: null
+milestones: []
+entry: edit_list
+signature: 'def edit_list(head: ListNode | None, actions: list[list]) -> ListNode | None:'
+compare: exact
+convert:
+  args:
+    '0': listnode
+  returns: listnode
+wrong_examples:
+- why: 摘掉节点后，后继还认着旧前驱。
+  code: |
+    def edit_list(head: ListNode | None, actions: list[list]) -> ListNode | None:
+        dummy = ListNode(0, head)
+        positions = {}
+        before = dummy
+        node = head
+        while node:
+            positions[node.val] = node
+            node.prev = before
+            before = node
+            node = node.next
+        for action, value in actions:
+            if action == '加':
+                node = ListNode(value, dummy.next)
+                node.prev = dummy
+                dummy.next = node
+                positions[value] = node
+            else:
+                node = positions.pop(value)
+                node.prev.next = node.next
+            if node.next:
+                if action == '加':
+                    node.next.prev = node
+                else:
+                    node.next.prev = node
+        return dummy.next

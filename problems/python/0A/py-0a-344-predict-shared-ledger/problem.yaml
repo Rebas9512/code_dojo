@@ -1,0 +1,20 @@
+id: py-0a-344-predict-shared-ledger
+title: 两本账为何出现同一笔
+track: python
+stage: 0A
+order: 4540
+format: predict
+mode: predict
+difficulty: 19
+skills:
+  requires:
+    - py.class-basic
+    - py.list-append
+  introduces: py.class-methods
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM47：以为写在类体上的可变列表会自动给每个实例各复制一份。
+    code: |
+      print('[6]\n[]')

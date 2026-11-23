@@ -1,0 +1,42 @@
+id: tensor-2-025-triu
+title: 保留对角线和右上方
+track: tensor
+stage: '2'
+order: 250
+format: write
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - tensor.coordinates
+  introduces: null
+source: original
+entry: triu
+signature: 'def triu(x):'
+compare: checker
+wrong_examples:
+  - why: 直接调用现成运算，跳过了坐标构造。
+    code: |
+      import torch
+
+
+      def triu(x):
+          return torch.triu(x)
+  - why: 漏掉对角线本身。
+    code: |
+      import torch
+
+
+      def triu(x):
+          r = torch.arange(x.shape[0])[:, None]
+          c = torch.arange(x.shape[1])
+          return x * (c > r)
+constraints:
+  no_loops: true
+  forbid_calls:
+    - torch.triu
+    - torch.triu_indices
+    - torch.Tensor.triu
+  forbid_imports:
+    - numpy
+    - pandas

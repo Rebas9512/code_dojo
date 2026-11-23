@@ -1,0 +1,29 @@
+id: wrangle-5-004-scifi-books
+title: 为科幻架抄一张书目
+track: wrangle
+stage: '5'
+order: 40
+format: write
+mode: function
+difficulty: 35
+skills:
+  requires:
+    - wrangle.projection
+    - wrangle.loc
+  introduces: null
+source: original
+entry: scifi_list
+signature: 'def scifi_list(books):'
+compare: frame
+leetcode: select-data
+sql_twin: sql-0-003-scifi-books
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 把其他类别也贴到了科幻架。
+    code: |
+      def scifi_list(books):
+          return books[['book_id', 'title']]

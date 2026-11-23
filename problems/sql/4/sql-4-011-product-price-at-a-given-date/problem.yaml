@@ -1,0 +1,35 @@
+id: sql-4-011-product-price-at-a-given-date
+title: 还原指定日的价签
+track: sql
+stage: '4'
+order: 110
+format: combine
+difficulty: 58
+skills:
+  requires:
+    - sql.coalesce
+    - sql.distinct
+    - sql.join-conditions
+    - sql.left-join
+    - sql.self-join
+    - sql.top-n-per-group
+  introduces: null
+source: sql50
+leetcode: product-price-at-a-given-date
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/undated.sql
+  - datasets/sample.sql + datasets/same-price.sql
+ordered: false
+hints:
+  - 先找最新的一张有效价签，再回到完整的商品清单。
+wrong_examples:
+  - why: 排除了目标日本身
+    sql: |
+      WITH history AS (
+          SELECT sku, price, ROW_NUMBER() OVER (PARTITION BY sku ORDER BY changed DESC) AS pos
+          FROM price_changes WHERE changed < DATE '2019-08-16'
+      ), products AS (SELECT DISTINCT sku FROM price_changes)
+      SELECT p.sku, COALESCE(h.price, 10) AS price FROM products p
+      LEFT JOIN history h ON p.sku = h.sku AND h.pos = 1;

@@ -1,0 +1,26 @@
+id: algo-4-031-rolling-fibonacci
+title: 斐波那契：把表压成两个变量
+track: algo
+stage: '4'
+order: 310
+format: complete
+mode: function
+difficulty: 63
+skills:
+  requires:
+  - py.multi-assign
+  introduces: algo.dp-1d
+source: original
+leetcode: null
+milestones: []
+entry: rolling_fib
+signature: 'def rolling_fib(n: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 移动 n 次后返回了后一格。
+  code: |
+    def rolling_fib(n: int) -> int:
+        older, newer = 0, 1
+        for _ in range(n):
+            older, newer = newer, older + newer
+        return newer

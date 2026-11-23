@@ -1,0 +1,42 @@
+id: py-0a-351-desk-stack
+title: 桌上的一摞稿纸
+track: python
+stage: 0A
+order: 4610
+format: combine
+mode: class
+difficulty: 24
+skills:
+  requires:
+    - py.list-append
+    - py.list-pop
+    - py.none
+    - py.class-methods
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: Stack
+compare: exact
+wrong_examples:
+  - why: 从底部取走最早放进去的稿纸。
+    code: |
+      class Stack:
+          def __init__(self):
+              self.pages = []
+
+          def push(self, x: int) -> None:
+              self.pages.append(x)
+
+          def pop(self) -> int | None:
+              if self.pages:
+                  return self.pages.pop(0)
+              return None
+
+          def peek(self) -> int | None:
+              if self.pages:
+                  return self.pages[-1]
+              return None
+
+          def size(self) -> int:
+              return len(self.pages)

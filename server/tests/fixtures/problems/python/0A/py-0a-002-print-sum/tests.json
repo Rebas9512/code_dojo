@@ -1,0 +1,1 @@
+{"examples":[{"stdin":"1 2\n","expected":"3\n"},{"stdin":"5 5\n","expected":"10\n"}],"hidden":[{"stdin":"0 0\n","expected":"0\n"},{"stdin":"-3 1\n","expected":"-2\n"},{"stdin":"1000000000 1000000000\n","expected":"2000000000\n"}]}

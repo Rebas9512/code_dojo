@@ -1,0 +1,49 @@
+id: algo-4-012-meeting-rooms-iii
+title: 哪间会议室开会最多
+track: algo
+stage: '4'
+order: 120
+format: combine
+mode: function
+difficulty: 69
+skills:
+  requires:
+  - algo.intervals
+  - algo.heapq
+  - py.bool-ops
+  - py.if-else
+  - py.list-concat-repeat
+  - py.nested-list
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: meeting-rooms-iii
+milestones: []
+entry: busiest_room
+signature: 'def busiest_room(n: int, meetings: list[list[int]]) -> int:'
+compare: exact
+wrong_examples:
+- why: 推迟的会议仍使用原定结束时刻。
+  code: |
+    import heapq
+
+
+    def busiest_room(n: int, meetings: list[list[int]]) -> int:
+        free = list(range(n))
+        busy = []
+        counts = [0] * n
+        for start, end in sorted(meetings):
+            while busy and busy[0][0] <= start:
+                _, room = heapq.heappop(busy)
+                heapq.heappush(free, room)
+            if free:
+                room = heapq.heappop(free)
+                finish = end
+            else:
+                available, room = heapq.heappop(busy)
+                finish = end
+            heapq.heappush(busy, (finish, room))
+            counts[room] += 1
+        return counts.index(max(counts))
+hints:
+- 分开记空房的编号，以及忙碌房间的（可用时刻，编号）。若推迟开会，结束时间应平移相同的时长。

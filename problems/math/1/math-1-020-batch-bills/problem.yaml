@@ -1,0 +1,29 @@
+id: math-1-020-batch-bills
+title: 逐桌算账
+track: math
+stage: '1'
+order: 200
+format: complete
+mode: function
+difficulty: 28
+skills:
+  requires:
+    - py.list-append
+    - math.dot
+    - math.matrix-vector
+  introduces: null
+source: original
+entry: batch_bills
+signature: 'def batch_bills(orders: list[list[int]], prices: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: 每道菜都套用第一道菜的价格。
+    code: |
+      def batch_bills(orders: list[list[int]], prices: list[int]) -> list[int]:
+          totals = []
+          for row in orders:
+              total = 0
+              for i in range(len(prices)):
+                  total += row[i] * prices[0]
+              totals.append(total)
+          return totals

@@ -1,0 +1,16 @@
+id: tensor-1-011-insert-two-axes
+title: 两次插轴再挤一次
+track: tensor
+stage: '1'
+order: 110
+format: predict
+mode: predict
+difficulty: 22
+skills:
+  requires: []
+  introduces: tensor.singleton
+source: original
+wrong_examples:
+  - why: 把 squeeze(2) 当成无参数 squeeze()。
+    code: |
+      print('(1, 3)\n(1, 3, 1)\n(3,)')

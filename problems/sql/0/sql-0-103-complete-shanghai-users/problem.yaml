@@ -1,0 +1,25 @@
+id: sql-0-103-complete-shanghai-users
+title: 补全：上海的用户
+track: sql
+stage: "0"
+order: 50
+format: complete
+difficulty: 3
+skills: {requires: [sql.select-basic], introduces: sql.where}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/new-shanghai.sql
+ordered: false
+hints:
+  - "字符串用单引号：city = 'Shanghai'。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "城市名大小写不对"
+    sql: |
+      SELECT user_id, name FROM users WHERE city = 'shanghai';
+  - why: "条件写反了"
+    sql: |
+      SELECT user_id, name FROM users WHERE city <> 'Shanghai';

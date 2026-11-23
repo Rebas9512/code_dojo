@@ -1,0 +1,19 @@
+id: py-0a-034-count-vowels
+title: 数元音
+track: python
+stage: 0A
+order: 680
+format: write
+mode: function
+difficulty: 12
+skills:
+  requires: [py.for-each, py.accumulator, py.if-else, py.in-membership]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: count_vowels
+signature: "def count_vowels(s: str) -> int:"
+compare: exact
+hints:
+  - "还是「逐个字符 + 计数」的结构，只是判断条件换了。"

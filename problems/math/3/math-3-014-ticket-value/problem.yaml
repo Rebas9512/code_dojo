@@ -1,0 +1,18 @@
+id: math-3-014-ticket-value
+title: 一张票的期望返还
+track: math
+stage: '3'
+order: 140
+format: predict
+mode: predict
+difficulty: 31
+skills:
+  requires:
+    - math.dot
+    - math.frequency
+  introduces: math.expectation
+source: original
+wrong_examples:
+  - why: 把不同机会的奖项等权平均。
+    code: |
+      print((2 + 10) / 2)

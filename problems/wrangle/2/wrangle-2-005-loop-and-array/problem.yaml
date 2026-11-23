@@ -1,0 +1,16 @@
+id: wrangle-2-005-loop-and-array
+title: 两张校准单能否对上
+track: wrangle
+stage: '2'
+order: 50
+format: predict
+mode: predict
+difficulty: 20
+skills:
+  requires: []
+  introduces: wrangle.vectorize
+source: original
+wrong_examples:
+  - why: 以为乘三会把数组复制三遍。
+    code: |
+      print('False')

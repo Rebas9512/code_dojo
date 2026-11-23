@@ -1,0 +1,24 @@
+id: data-0-001-count-register
+title: 书架登记有多大
+track: data
+stage: '0'
+order: 10
+format: inspect
+mode: inspect
+difficulty: 1
+skills:
+  requires: []
+  introduces: data.table-intro
+data:
+  - kind: table
+    title: 书架登记
+    file: books.csv
+answer:
+  type: short
+  accept:
+    - 4 3
+    - 4行3列
+    - 4 行 3 列
+  misconceptions:
+    3 3: DM05
+explain: 四个图书编号各占一行。同名的两个版本也各算一行。横着看，每行都有编号、书名、库存三格。

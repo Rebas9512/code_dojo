@@ -1,0 +1,1 @@
+INSERT INTO play_days VALUES (2, '2025-02-03');

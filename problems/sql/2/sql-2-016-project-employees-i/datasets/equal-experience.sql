@@ -1,0 +1,2 @@
+INSERT INTO people VALUES (6,2);
+INSERT INTO assignments VALUES (30,6);

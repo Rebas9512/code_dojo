@@ -1,0 +1,2 @@
+order = [2, 5]
+print([2 * x for x in order])

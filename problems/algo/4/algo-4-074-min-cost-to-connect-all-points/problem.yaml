@@ -1,0 +1,44 @@
+id: algo-4-074-min-cost-to-connect-all-points
+title: 把平面上的点全部接通
+track: algo
+stage: '4'
+order: 740
+format: write
+mode: function
+difficulty: 80
+skills:
+  requires:
+  - algo.mst
+  - py.bool-ops
+  - py.enumerate
+  - py.genexp
+  - py.list-concat-repeat
+  - py.nested-loop
+  - py.sort-key
+  - py.type-convert
+  introduces: null
+source: neetcode250
+leetcode: min-cost-to-connect-all-points
+milestones:
+- nc150
+entry: connect_points
+signature: 'def connect_points(points: list[list[int]]) -> int:'
+compare: exact
+wrong_examples:
+- why: 先相加再取绝对值让两个方向的差抵消。
+  code: |
+    def connect_points(points: list[list[int]]) -> int:
+        n = len(points)
+        joined = [False] * n
+        price = [float("inf")] * n
+        price[0] = 0
+        total = 0
+        for _ in range(n):
+            node = min((i for i in range(n) if not joined[i]), key=lambda i: price[i])
+            joined[node] = True
+            total += price[node]
+            x, y = points[node]
+            for i, (a, b) in enumerate(points):
+                if not joined[i]:
+                    price[i] = min(price[i], abs(x - a + y - b))
+        return total

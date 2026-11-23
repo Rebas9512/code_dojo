@@ -1,0 +1,27 @@
+id: wrangle-3-012-positive-stock
+title: 只列出还能购买的货号
+track: wrangle
+stage: '3'
+order: 120
+format: complete
+mode: function
+difficulty: 29
+skills:
+  requires:
+    - wrangle.filter-sort
+    - wrangle.loc
+  introduces: null
+source: original
+entry: available
+signature: 'def available(t):'
+compare: frame
+leetcode: select-data
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 将零库存计作有货。
+    code: |
+      def available(t):
+          return t.loc[t['stock'] >= 0, ['id']]

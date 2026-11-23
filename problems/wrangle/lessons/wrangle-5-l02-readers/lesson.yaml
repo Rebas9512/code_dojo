@@ -1,0 +1,32 @@
+id: wrangle-5-l02-readers
+title: 书店的统计与关联清单
+track: wrangle
+skills:
+  - wrangle.report-grain
+steps:
+  - type: read
+    skill: wrangle.report-grain
+    md: |-
+      先写下报表里一行的单位。三位读者中两位留了电话，人数是 3，电话已知的人数是 2。分组统计把一组变成一行，连接则可能给同一位读者配上多笔订单；直接数连接后的行数，常会误当作读者数。
+
+      SQL COUNT(*) 数所有行，COUNT(列) 跳过该列缺失。HAVING 在分组后筛选。要保留没有订单的读者，用左连接配上订单数，缺失才补零。要找完全没有匹配的键，可以先用 isin 查是否出现，再用 eq(False) 取未出现的那些。
+
+      **WM27 数行和数电话列总相等**。三位读者有一位没留电话，总人数为 3，非空电话数为 2。
+  - type: example
+    skill: wrangle.report-grain
+    code: |
+      import pandas as pd
+      # ① 三行里有一位读者未留电话
+      u = pd.DataFrame({"phone": ["017", None, "024"]})
+      # ② 先数所有人，再只数电话有值的人
+      print(len(u), len(u.dropna(subset=["phone"])))  # 输出 3 2
+    md: 增加一位没有留电话的读者，观察哪一个数会变大。
+  - type: quiz
+    skill: wrangle.report-grain
+    q: 甲有两份订单，乙没有。把订单左连接到读者后共有几行？
+    options:
+      - '2'
+      - '3'
+      - '1'
+    answer: 1
+    explain: 甲对应两行，乙对应一行且订单列缺失。（WM27）

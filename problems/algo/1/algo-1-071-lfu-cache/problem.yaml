@@ -1,0 +1,68 @@
+id: algo-1-071-lfu-cache
+title: 先淘汰访问次数最少的键
+track: algo
+stage: '1'
+order: 710
+format: combine
+mode: class
+difficulty: 80
+skills:
+  requires:
+  - py.bool-ops
+  - py.multi-assign
+  - py.nested-list
+  - algo.class-design
+  - algo.defaultdict
+  - algo.bucket
+  - algo.doubly-linked
+  introduces: null
+source: neetcode250
+leetcode: lfu-cache
+milestones: []
+entry: LFUCache
+compare: exact
+wrong_examples:
+- why: 同频时淘汰最近使用的键。
+  code: |
+    from collections import defaultdict, OrderedDict
+
+
+    class LFUCache:
+        def __init__(self, capacity: int):
+            self.capacity = capacity
+            self.values = {}
+            self.frequency = {}
+            self.levels = defaultdict(OrderedDict)
+            self.lowest = 0
+
+        def _touch(self, key):
+            old = self.frequency[key]
+            del self.levels[old][key]
+            if not self.levels[old]:
+                del self.levels[old]
+                if self.lowest == old:
+                    self.lowest = old + 1
+            self.frequency[key] = old + 1
+            self.levels[old + 1][key] = None
+
+        def get(self, key: int) -> int:
+            if key not in self.values:
+                return -1
+            self._touch(key)
+            return self.values[key]
+
+        def put(self, key: int, value: int) -> None:
+            if key in self.values:
+                self.values[key] = value
+                self._touch(key)
+                return
+            if len(self.values) == self.capacity:
+                group = self.levels[self.lowest]
+                victim, _ = group.popitem(last=True)
+                if not group:
+                    del self.levels[self.lowest]
+                del self.frequency[victim]
+                del self.values[victim]
+            self.values[key] = value
+            self.frequency[key] = self.lowest = 1
+            self.levels[1][key] = None

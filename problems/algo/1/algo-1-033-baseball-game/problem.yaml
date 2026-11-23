@@ -1,0 +1,37 @@
+id: algo-1-033-baseball-game
+title: 记分员的操作记录
+track: algo
+stage: '1'
+order: 330
+unit: 2
+format: write
+mode: function
+difficulty: 48
+skills:
+  requires:
+  - py.type-convert
+  - py.elif
+  - py.list-builtins
+  - py.stack-list
+  introduces: null
+source: neetcode250
+leetcode: baseball-game
+milestones: []
+entry: total_score
+signature: 'def total_score(ops: list[str]) -> int:'
+compare: exact
+wrong_examples:
+- why: 翻倍覆盖了旧记录。
+  code: |
+    def total_score(ops: list[str]) -> int:
+        scores = []
+        for op in ops:
+            if op == 'C':
+                scores.pop()
+            elif op == 'D':
+                scores[-1] *= 2
+            elif op == '+':
+                scores.append(scores[-1] + scores[-2])
+            else:
+                scores.append(int(op))
+        return sum(scores)

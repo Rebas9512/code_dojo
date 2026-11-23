@@ -1,0 +1,43 @@
+id: sql-2-017-list-the-products-ordered-in-a-period
+title: 四月订购满一百件的商品
+track: sql
+stage: '2'
+order: 170
+format: combine
+difficulty: 36
+skills:
+  requires:
+    - sql.join-aggregate
+    - sql.inner-join
+    - sql.having
+    - sql.sum-avg
+    - sql.between
+    - sql.where
+  introduces: null
+source: sql50
+leetcode: list-the-products-ordered-in-a-period
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/before-period.sql
+  - datasets/sample.sql + datasets/same-label.sql
+ordered: false
+hints:
+  - 月份限制筛的是每笔记录，百件门槛筛的是整种商品。
+wrong_examples:
+  - why: 全年订购都算进四月
+    sql: |
+      SELECT p.label, SUM(r.units) AS units
+      FROM products p
+      JOIN requests r ON r.product_id = p.product_id
+
+      GROUP BY p.product_id, p.label
+      HAVING SUM(r.units) >= 100;
+  - why: 只看单笔满百，漏掉积少成多的商品
+    sql: |
+      SELECT p.label, SUM(r.units) AS units
+      FROM products p
+      JOIN requests r ON r.product_id = p.product_id
+      WHERE r.ordered_on BETWEEN '2025-04-01' AND '2025-04-30'
+      GROUP BY p.product_id, p.label
+      HAVING MAX(r.units) >= 100;

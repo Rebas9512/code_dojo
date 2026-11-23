@@ -1,0 +1,24 @@
+id: tensor-1-005-pack-labels
+title: 每盒同样宽
+track: tensor
+stage: '1'
+order: 50
+format: complete
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - tensor.reshape
+  introduces: null
+source: original
+entry: pack
+signature: 'def pack(values, width):'
+compare: allclose
+wrong_examples:
+  - why: 把盒宽写到了行轴。
+    code: |
+      import torch
+
+
+      def pack(values, width):
+          return torch.tensor(values).view(width, -1)

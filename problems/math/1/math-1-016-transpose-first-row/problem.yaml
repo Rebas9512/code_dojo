@@ -1,0 +1,19 @@
+id: math-1-016-transpose-first-row
+title: 转置后先看到谁
+track: math
+stage: '1'
+order: 160
+format: predict
+mode: predict
+difficulty: 25
+skills:
+  requires:
+    - py.list-comp
+    - math.matrix-shape
+  introduces: math.transpose
+source: original
+wrong_examples:
+  - why: 沿用原表第一行。
+    code: |
+      a = [[7, 9], [3, 4], [8, 1]]
+      print(a[0])

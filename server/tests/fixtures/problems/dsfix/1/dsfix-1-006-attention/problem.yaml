@@ -1,0 +1,19 @@
+id: dsfix-1-006-attention
+title: 手写单头注意力
+track: dsfix
+stage: '1'
+order: 60
+format: write
+mode: function
+difficulty: 30
+skills:
+  requires: []
+  introduces: null
+entry: attention
+signature: 'def attention(q, k, v):'
+compare: allclose
+atol: 1.0e-06
+constraints:
+  forbid_calls:
+  - torch.nn.functional.scaled_dot_product_attention
+  - torch.nn.MultiheadAttention

@@ -1,0 +1,33 @@
+id: algo-1-057-palindrome-linked-list
+title: 从两端读链上的数字
+track: algo
+stage: '1'
+order: 570
+format: write
+mode: function
+difficulty: 59
+skills:
+  requires:
+  - py.slice
+  - py.list-append
+  - algo.ll-traverse
+  introduces: null
+source: top-100-liked
+leetcode: palindrome-linked-list
+milestones:
+- top100
+entry: is_palindrome
+signature: 'def is_palindrome(head: ListNode | None) -> bool:'
+compare: exact
+convert:
+  args:
+    '0': listnode
+wrong_examples:
+- why: 只比较首尾，漏了中间的差异。
+  code: |
+    def is_palindrome(head: ListNode | None) -> bool:
+        values = []
+        while head:
+            values.append(head.val)
+            head = head.next
+        return values[0] == values[-1]

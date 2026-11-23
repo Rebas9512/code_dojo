@@ -1,0 +1,40 @@
+id: sql-1-014-group-sold-products-by-the-date
+title: 每日周边品种清单
+track: sql
+stage: '1'
+order: 140
+format: write
+difficulty: 30
+skills:
+  requires:
+    - sql.string-agg
+    - sql.count-distinct
+    - sql.order-by
+    - sql.group-by
+    - sql.select-expr
+  introduces: null
+source: sql50
+leetcode: group-sold-products-by-the-date
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/duplicate-sale.sql
+  - datasets/sample.sql + datasets/repeat-across-days.sql
+ordered: true
+hints:
+  - 行按日期排序，字符串里的名字另有一次排序。
+wrong_examples:
+  - why: 清单去重，件数却没去重
+    sql: |
+      SELECT sold_on, COUNT(item) AS varieties,
+             STRING_AGG(DISTINCT item, ',' ORDER BY item) AS items
+      FROM receipts
+      GROUP BY sold_on
+      ORDER BY sold_on;
+  - why: 清单按相反顺序拼接
+    sql: |
+      SELECT sold_on, COUNT(DISTINCT item) AS varieties,
+             STRING_AGG(DISTINCT item, ',' ORDER BY item DESC) AS items
+      FROM receipts
+      GROUP BY sold_on
+      ORDER BY sold_on;

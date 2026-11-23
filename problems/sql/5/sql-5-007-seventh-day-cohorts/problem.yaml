@@ -1,0 +1,44 @@
+id: sql-5-007-seventh-day-cohorts
+title: 首登七天后谁还在读
+track: sql
+stage: '5'
+order: 70
+format: combine
+difficulty: 68
+skills:
+  requires:
+    - sql.join-aggregate
+    - sql.join-conditions
+    - sql.retention
+    - sql.self-join
+    - sql.sum-avg
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/repeats.sql
+  - db:bookstore + datasets/near-dates.sql
+ordered: false
+hints:
+  - 每个批次左侧名册每人一行，右侧活动也要先缩到每人每天一行。
+wrong_examples:
+  - why: 把第七天之后的回访也计入
+    sql: |
+      WITH cohorts AS (
+          SELECT user_id, MIN(logged_on) AS first_day FROM reader_logins GROUP BY user_id
+      ), active_days AS (SELECT DISTINCT user_id, logged_on FROM reader_logins)
+      SELECT c.first_day, COUNT(*) AS readers, COUNT(a.user_id) AS returned,
+             1.0 * COUNT(a.user_id) / COUNT(*) AS rate
+      FROM cohorts c LEFT JOIN active_days a ON a.user_id = c.user_id AND a.logged_on >= c.first_day + 7
+      GROUP BY c.first_day;
+  - why: 重复登录撑大分子与分母
+    sql: |
+      WITH cohorts AS (
+          SELECT user_id, MIN(logged_on) AS first_day FROM reader_logins GROUP BY user_id
+      ), active_days AS (SELECT user_id, logged_on FROM reader_logins)
+      SELECT c.first_day, COUNT(*) AS readers, COUNT(a.user_id) AS returned,
+             1.0 * COUNT(a.user_id) / COUNT(*) AS rate
+      FROM cohorts c LEFT JOIN active_days a ON a.user_id = c.user_id AND a.logged_on = c.first_day + 7
+      GROUP BY c.first_day;

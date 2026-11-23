@@ -1,0 +1,46 @@
+id: algo-3-075-build-and-count
+title: 边列表建邻接表，数连通块
+track: algo
+stage: '3'
+order: 750
+format: complete
+mode: function
+difficulty: 66
+skills:
+  requires:
+  - py.break-continue
+  - py.list-comp
+  - py.list-pop
+  - py.nested-loop
+  - py.set-basics
+  - py.while
+  introduces: algo.graph-adj-list
+source: original
+leetcode: null
+milestones: []
+entry: components
+signature: 'def components(n: int, edges: list[list[int]]) -> int:'
+compare: exact
+wrong_examples:
+- why: 无向边只登记一个方向。
+  code: |
+    def components(n: int, edges: list[list[int]]) -> int:
+        neighbors = [[] for _ in range(n)]
+        for a, b in edges:
+            neighbors[a].append(b)
+            pass
+        seen = set()
+        groups = 0
+        for start in range(n):
+            if start in seen:
+                continue
+            groups += 1
+            stack = [start]
+            seen.add(start)
+            while stack:
+                node = stack.pop()
+                for other in neighbors[node]:
+                    if other not in seen:
+                        seen.add(other)
+                        stack.append(other)
+        return groups

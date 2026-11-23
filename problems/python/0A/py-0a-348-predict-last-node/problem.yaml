@@ -1,0 +1,21 @@
+id: py-0a-348-predict-last-node
+title: 最后一节车厢也有编号
+track: python
+stage: 0A
+order: 4580
+format: predict
+mode: predict
+difficulty: 19
+skills:
+  requires:
+    - py.default-args
+    - py.none
+    - py.while
+  introduces: py.node-class
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM66：误把末节点的 next 为空理解成末节点本身不存在。
+    code: |
+      print('7\n4')

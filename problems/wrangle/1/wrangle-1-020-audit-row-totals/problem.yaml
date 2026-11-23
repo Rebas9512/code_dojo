@@ -1,0 +1,26 @@
+id: wrangle-1-020-audit-row-totals
+title: 核算指定班次的总读数
+track: wrangle
+stage: '1'
+order: 200
+format: combine
+mode: function
+difficulty: 23
+skills:
+  requires:
+    - wrangle.axis
+    - wrangle.fancy
+  introduces: null
+source: original
+entry: audit_totals
+signature: 'def audit_totals(rows, positions):'
+compare: allclose
+wrong_examples:
+  - why: 沿班次轴求和，把分别核查的结果相加了。
+    code: |
+      import numpy as np
+
+
+      def audit_totals(rows, positions):
+          picked = np.array(rows)[positions]
+          return np.sum(picked, axis=0)

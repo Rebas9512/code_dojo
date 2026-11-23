@@ -1,0 +1,16 @@
+id: wrangle-2-014-rank-or-value
+title: 打印的是位置还是读数
+track: wrangle
+stage: '2'
+order: 140
+format: predict
+mode: predict
+difficulty: 25
+skills:
+  requires: []
+  introduces: wrangle.rank-index
+source: original
+wrong_examples:
+  - why: 把位置清单错当成排序后的值。
+    code: |
+      print('[1, 6, 9]')

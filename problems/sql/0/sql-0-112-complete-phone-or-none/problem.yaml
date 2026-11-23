@@ -1,0 +1,25 @@
+id: sql-0-112-complete-phone-or-none
+title: 补全：没有手机号就显示 none
+track: sql
+stage: "0"
+order: 210
+format: complete
+difficulty: 9
+skills: {requires: [sql.is-null, sql.select-expr], introduces: sql.coalesce}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/phones.sql
+ordered: false
+hints:
+  - "COALESCE(列, 默认值)：列为空时返回默认值。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "没处理空值"
+    sql: |
+      SELECT name, phone FROM users;
+  - why: "默认值写错了"
+    sql: |
+      SELECT name, COALESCE(phone, 'None') FROM users;

@@ -1,0 +1,23 @@
+id: math-1-006-scaled-displacement
+title: 画出放大后的位移箭头
+track: math
+stage: '1'
+order: 60
+format: write
+mode: function
+difficulty: 20
+skills:
+  requires:
+    - py.list-comp
+    - math.vector
+    - math.vector-arithmetic
+  introduces: null
+source: original
+entry: scaled_move
+signature: 'def scaled_move(start: list[int], end: list[int], factor: int) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: 调换起终点会反向。
+    code: |
+      def scaled_move(start: list[int], end: list[int], factor: int) -> list[int]:
+          return [(start[i] - end[i]) * factor for i in range(len(start))]

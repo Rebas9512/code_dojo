@@ -1,0 +1,24 @@
+id: py-0a-290-complete-odd-squares
+title: 补全奇数的平方
+track: python
+stage: 0A
+order: 4100
+format: complete
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - py.floordiv-mod
+    - py.list-comp
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: odd_squares
+signature: 'def odd_squares(nums: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: 保留了偶数的平方。
+    code: |
+      def odd_squares(nums: list[int]) -> list[int]:
+          return [x * x for x in nums if x % 2 == 0]

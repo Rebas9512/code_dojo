@@ -1,0 +1,17 @@
+id: py-0a-024-predict-while
+title: while 循环几次
+track: python
+stage: 0A
+order: 480
+format: predict
+mode: predict
+difficulty: 9
+skills:
+  requires: [py.compare-bool]
+  introduces: py.while
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "n 依次变成 3、9、27……"
+  - "27 < 50 还会再进一轮。"

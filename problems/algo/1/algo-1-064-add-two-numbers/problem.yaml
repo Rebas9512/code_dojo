@@ -1,0 +1,46 @@
+id: algo-1-064-add-two-numbers
+title: 逐节点相加并进位
+track: algo
+stage: '1'
+order: 640
+format: write
+mode: function
+difficulty: 65
+skills:
+  requires:
+  - py.floordiv-mod
+  - py.bool-ops
+  - py.tuple
+  - algo.ll-dummy
+  introduces: null
+source: neetcode250
+leetcode: add-two-numbers
+milestones:
+- nc150
+- top100
+entry: add_numbers
+signature: 'def add_numbers(a: ListNode, b: ListNode) -> ListNode:'
+compare: exact
+convert:
+  args:
+    '0': listnode
+    '1': listnode
+  returns: listnode
+wrong_examples:
+- why: 最后两个输入指针都空时丢弃进位。
+  code: |
+    def add_numbers(a: ListNode, b: ListNode) -> ListNode:
+        dummy = tail = ListNode()
+        carry = 0
+        while a or b:
+            total = carry
+            if a:
+                total += a.val
+                a = a.next
+            if b:
+                total += b.val
+                b = b.next
+            carry, digit = divmod(total, 10)
+            tail.next = ListNode(digit)
+            tail = tail.next
+        return dummy.next

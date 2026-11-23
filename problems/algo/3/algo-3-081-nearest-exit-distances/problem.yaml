@@ -1,0 +1,77 @@
+id: algo-3-081-nearest-exit-distances
+title: 每个空位到最近出口的步数
+track: algo
+stage: '3'
+order: 810
+format: write
+mode: function
+difficulty: 70
+skills:
+  requires:
+  - algo.graph-bfs
+  - algo.grid-dfs
+  - py.bool-ops
+  - py.enumerate
+  - py.genexp
+  - py.while
+  introduces: null
+source: original
+leetcode: walls-and-gates
+milestones:
+- nc150
+replaces_premium: walls-and-gates
+entry: run_case
+signature: 'def run_case(grid: list[list[int]]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+- why: 从出口扩展时少算一步。
+  code: |
+    from collections import deque
+
+
+    def fill_exits(grid: list[list[int]]) -> None:
+        queue = deque((r,c) for r,row in enumerate(grid) for c,v in enumerate(row) if v == 0)
+        while queue:
+            r, c = queue.popleft()
+            for dr, dc in ((0,1), (0,-1), (1,0), (-1,0)):
+                nr, nc = r + dr, c + dc
+                if (0 <= nr < len(grid) and 0 <= nc < len(grid[0])
+                        and grid[nr][nc] == 2147483647):
+                    grid[nr][nc] = grid[r][c]
+                    queue.append((nr,nc))
+
+
+    def run_case(grid: list[list[int]]) -> list[list[int]]:
+        fill_exits(grid)
+        return grid
+- why: 从每个空位单独出发找出口，多次经过同样的格子。
+  code: |
+    from collections import deque
+
+
+    def fill_exits(grid: list[list[int]]) -> None:
+        rows, cols = len(grid), len(grid[0])
+        def distance(r, c):
+            seen = {(r,c)}
+            queue = deque([(r,c,0)])
+            while queue:
+                r, c, steps = queue.popleft()
+                if grid[r][c] == 0:
+                    return steps
+                for dr, dc in ((1,0),(-1,0),(0,1),(0,-1)):
+                    nr, nc = r+dr, c+dc
+                    if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] != -1 and (nr,nc) not in seen:
+                        seen.add((nr,nc))
+                        queue.append((nr,nc,steps+1))
+            return 2147483647
+        for r in range(rows):
+            for c in range(cols):
+                if grid[r][c] == 2147483647:
+                    grid[r][c] = distance(r,c)
+
+
+    def run_case(grid: list[list[int]]) -> list[list[int]]:
+        fill_exits(grid)
+        return grid
+hints:
+- 把所有出口一次放入距离为零的队列。首次到达某个空位时，便能写下它的距离。

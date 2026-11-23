@@ -1,0 +1,24 @@
+id: math-2-013-cube-rule-check
+title: 给立方函数做数值核对
+track: math
+stage: '2'
+order: 130
+format: write
+mode: function
+difficulty: 28
+skills:
+  requires:
+    - py.list-basics
+    - math.derivative
+    - math.slope-rules
+  introduces: null
+source: original
+entry: check_cube
+signature: 'def check_cube(x: float, h: float) -> list[float]:'
+compare: float
+wrong_examples:
+  - why: 用立方函数值冒充规则斜率。
+    code: |
+      def check_cube(x: float, h: float) -> list[float]:
+          measured = ((x + h) ** 3 - x ** 3) / h
+          return [x ** 3, measured]

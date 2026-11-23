@@ -1,0 +1,26 @@
+id: py-0b-018-jumps-to-exit
+title: 跳几步能离开棋盘
+track: python
+stage: 0B
+order: 180
+format: write
+mode: function
+difficulty: 26
+skills:
+  requires: [py.accumulator]
+  introduces: py.simulation
+source: original
+leetcode: null
+milestones: []
+entry: jumps_to_exit
+signature: 'def jumps_to_exit(jumps: list[int]) -> int:'
+compare: exact
+wrong_examples:
+  - why: "刚到最后一格就停下，漏算跳出棋盘的那一步。"
+    code: |
+      def jumps_to_exit(jumps: list[int]) -> int:
+          pos = steps = 0
+          while pos < len(jumps) - 1:
+              pos += jumps[pos]
+              steps += 1
+          return steps

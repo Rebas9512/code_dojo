@@ -1,0 +1,21 @@
+id: py-0a-005-digit-sum-3
+title: 三位数的各位之和
+track: python
+stage: 0A
+order: 140
+format: write
+mode: function
+difficulty: 4
+skills:
+  requires: [py.floordiv-mod, py.func-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: digit_sum_3
+signature: "def digit_sum_3(n: int) -> int:"
+compare: exact
+hints:
+  - "个位是 n % 10。"
+  - "十位：先 n // 10 去掉个位，再 % 10。"
+  - "百位是 n // 100。"

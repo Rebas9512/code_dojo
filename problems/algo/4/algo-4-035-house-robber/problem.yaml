@@ -1,0 +1,30 @@
+id: algo-4-035-house-robber
+title: 隔开相邻的储物柜取最大收益
+track: algo
+stage: '4'
+order: 350
+format: write
+mode: function
+difficulty: 70
+skills:
+  requires:
+  - algo.dp-1d
+  - py.minmax-abs
+  - py.multi-assign
+  introduces: null
+source: neetcode250
+leetcode: house-robber
+milestones:
+- blind75
+- top100
+entry: max_loot
+signature: 'def max_loot(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 取当前柜时接上了可能含相邻柜的收益。
+  code: |
+    def max_loot(nums: list[int]) -> int:
+        two = one = 0
+        for amount in nums:
+            two, one = one, max(one, one + amount)
+        return one

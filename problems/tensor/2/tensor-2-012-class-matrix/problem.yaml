@@ -1,0 +1,32 @@
+id: tensor-2-012-class-matrix
+title: 从零表写出整数独热码
+track: tensor
+stage: '2'
+order: 120
+format: write
+mode: function
+difficulty: 28
+skills:
+  requires:
+    - tensor.one-hot
+    - tensor.route
+    - data.quantity-vs-label
+  introduces: null
+source: original
+entry: encode
+signature: 'def encode(labels, classes):'
+compare: allclose
+wrong_examples:
+  - why: 选对了列却仍写入零。
+    code: |
+      import torch
+
+
+      def encode(labels, classes):
+          indices = torch.tensor(labels).unsqueeze(1)
+          base = torch.zeros((len(labels), classes), dtype=torch.int64)
+          return torch.scatter(base, 1, indices, 0)
+constraints:
+  no_loops: true
+  forbid_calls:
+    - torch.nn.functional.one_hot

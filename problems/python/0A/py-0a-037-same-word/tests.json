@@ -1,0 +1,12 @@
+{
+  "examples": [
+    {"args": [" Hello", "hello "], "expected": true},
+    {"args": ["abc", "ABD"], "expected": false}
+  ],
+  "hidden": [
+    {"args": ["", "   "], "expected": true},
+    {"args": ["Py", "PY"], "expected": true},
+    {"args": ["a b", "ab"], "expected": false},
+    {"args": ["  Data  ", "DATA"], "expected": true}
+  ]
+}

@@ -1,0 +1,16 @@
+id: wrangle-2-001-broadcast-grid
+title: 每个货架遇上每个标签
+track: wrangle
+stage: '2'
+order: 10
+format: predict
+mode: predict
+difficulty: 18
+skills:
+  requires: []
+  introduces: wrangle.broadcast
+source: original
+wrong_examples:
+  - why: 只保留左侧数组的形状。
+    code: |
+      print('(3, 1)')

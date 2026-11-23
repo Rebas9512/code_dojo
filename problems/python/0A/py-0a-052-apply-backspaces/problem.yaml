@@ -1,0 +1,19 @@
+id: py-0a-052-apply-backspaces
+title: 退格键
+track: python
+stage: 0A
+order: 1010
+format: write
+mode: function
+difficulty: 16
+skills:
+  requires: [py.list-pop, py.split-join, py.for-each, py.if-else]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: apply_backspaces
+signature: "def apply_backspaces(s: str) -> str:"
+compare: exact
+hints:
+  - "对空列表 pop() 会报错，先检查长度。"

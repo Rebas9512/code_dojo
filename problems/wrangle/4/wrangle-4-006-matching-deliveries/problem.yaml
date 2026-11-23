@@ -1,0 +1,32 @@
+id: wrangle-4-006-matching-deliveries
+title: 查出有书目可配的到货
+track: wrangle
+stage: '4'
+order: 60
+format: complete
+mode: function
+difficulty: 31
+skills:
+  requires:
+    - wrangle.merge
+  introduces: null
+source: original
+entry: matched
+signature: 'def matched(books, lots):'
+compare: frame
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+    '1': dataframe
+wrong_examples:
+  - why: 保留了没有配对的记录。
+    code: |
+      def matched(books, lots):
+          return books.merge(lots, on='id', how='outer')
+  - why: 把到货误认为一书一行，连接前去重丢了后续批次。
+    code: |
+      def matched(books, lots):
+          one = lots.drop_duplicates('id')
+          return books.merge(one, on='id', how='inner')

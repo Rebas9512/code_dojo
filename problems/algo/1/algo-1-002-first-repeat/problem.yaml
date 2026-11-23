@@ -1,0 +1,28 @@
+id: algo-1-002-first-repeat
+title: 见过就停：用集合找第一个重复的数
+track: algo
+stage: '1'
+order: 20
+format: complete
+mode: function
+difficulty: 30
+skills:
+  requires:
+  - py.none
+  introduces: algo.hash-seen
+source: original
+leetcode: null
+milestones: []
+entry: first_repeat
+signature: 'def first_repeat(nums: list[int]) -> int | None:'
+compare: exact
+wrong_examples:
+- why: 把新来的数当成重复。
+  code: |
+    def first_repeat(nums: list[int]) -> int | None:
+        seen = set()
+        for value in nums:
+            if value not in seen:
+                return value
+            seen.add(value)
+        return None

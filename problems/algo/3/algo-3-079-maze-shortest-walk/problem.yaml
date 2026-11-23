@@ -1,0 +1,41 @@
+id: algo-3-079-maze-shortest-walk
+title: 迷宫里从起点到终点的最少步数（BFS）
+track: algo
+stage: '3'
+order: 790
+format: complete
+mode: function
+difficulty: 67
+skills:
+  requires:
+  - algo.grid-dfs
+  - py.bool-ops
+  - py.set-basics
+  - py.while
+  introduces: algo.graph-bfs
+source: original
+leetcode: null
+milestones: []
+entry: shortest_route
+signature: 'def shortest_route(grid: list[list[int]], start: list[int], end: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 把起点也算作一步。
+  code: |
+    from collections import deque
+
+
+    def shortest_route(grid: list[list[int]], start: list[int], end: list[int]) -> int:
+        queue = deque([(start[0], start[1], 1)])
+        seen = {tuple(start)}
+        while queue:
+            r, c, distance = queue.popleft()
+            if [r, c] == end:
+                return distance
+            for dr, dc in ((0,1), (0,-1), (1,0), (-1,0)):
+                nr, nc = r + dr, c + dc
+                if (0 <= nr < len(grid) and 0 <= nc < len(grid[0])
+                        and grid[nr][nc] == 0 and (nr,nc) not in seen):
+                    seen.add((nr,nc))
+                    queue.append((nr, nc, distance + 1))
+        return -1

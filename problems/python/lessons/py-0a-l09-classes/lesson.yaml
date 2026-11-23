@@ -1,0 +1,110 @@
+id: py-0a-l09-classes
+title: 对象、状态与节点
+track: python
+skills:
+  - py.class-basic
+  - py.class-methods
+  - py.node-class
+steps:
+  - type: read
+    skill: py.class-basic
+    md: |
+      一摞电影票都要记座位号，但改一张票不能连别人的座位也改掉。类描述每张票该有什么属性，实例是一张具体的票。写 Ticket(3) 会创建新实例，并让 `__init__` 为它登记初始值。
+
+      在构造函数内，self 就是正在填写的这张票。写 self.seat = seat 会把右边的参数保存到这张票上，函数结束后还能用票的名字读取。
+
+      **“同一种票只有一份座位号”（PM69）**。在 self 上保存的属性属于各自的实例。**“需要从 `__init__` 返回票”（PM46）**。创建表达式会交回实例，`__init__` 只负责初始化。
+  - type: example
+    skill: py.class-basic
+    code: |
+      # ① 在正在填写的票上保存属性
+      class Ticket:
+          def __init__(self, seat):
+              self.seat = seat
+
+
+      # ② 各开一张票，只修改第一张
+      a = Ticket(2)
+      b = Ticket(2)
+      a.seat = 8
+      print(a.seat, b.seat)  # 8 2
+    md: 把 b = Ticket(2) 换成 b = a，再看改座位时发生什么。
+  - type: quiz
+    skill: py.class-basic
+    q: '`__init__` 里只写 self.seat = seat。执行 Ticket(5) 会得到什么？'
+    options:
+      - None
+      - 座位号 5
+      - 一张 seat 为 5 的票对象
+    answer: 2
+    explain: 创建实例的表达式交回对象，`__init__` 给这个实例填属性，正常结束即可。
+  - type: read
+    skill: py.class-methods
+    md: |
+      有些操作要记住上一次的结果。把存款写成账户的方法，每次写 account.deposit(3)，Python 就把这个 account 交给方法里的 self。两次调用能沿同一个 self 找回累计的金额。
+
+      如果每个账户都要保存自己的流水，在 `__init__` 里面写 self.entries = []，使每次创建账户时都建一张表。类模式的样例会按从左到右的次序在同一个实例上调用方法。
+
+      **“把列表直接写在类体里，也会每人各得一张”（PM47）**。这样的列表由类持有，实例通过它追加时会改动同一份内容。
+  - type: example
+    skill: py.class-methods
+    code: |
+      # ① 开户时建好个人流水
+      class Ledger:
+          def __init__(self):
+              self.entries = []
+
+          def deposit(self, amount):
+              self.entries.append(amount)
+
+
+      # ② 给其中一本账存款，再看两本账
+      a = Ledger()
+      b = Ledger()
+      a.deposit(4)
+      print(a.entries)  # [4]
+      print(b.entries)  # []
+    md: 再给 b 存 6，查看哪一本账发生了变化。
+  - type: quiz
+    skill: py.class-methods
+    q: 想让每个账户有独立的流水，空列表应该在哪里创建？
+    options:
+      - 类体里写 entries = []
+      - '`__init__` 里写 self.entries = []'
+    answer: 1
+    explain: '`__init__` 每次创建实例都会运行，因此每个实例都拿到新列表。'
+  - type: read
+    skill: py.node-class
+    md: |
+      一节车厢上既能放编号，也能记住后面那节车厢。用一个对象代表一节车厢，val 存值，next 存后继节点的引用。头节点让你找得到起点，空链就用 None 表示。
+
+      遍历时手里的 node 代表当前要处理的节点。只要它存在，就先读取 val，然后把 node 移到 node.next。单节车厢也完整经历这两步。
+
+      **“next 已经空了，这一节就不算了”（PM66）**。末节点仍有自己的值；只有真的移过末节点，当前 node 才会变成 None。
+  - type: example
+    skill: py.node-class
+    code: |
+      # ① 从末节向前接上两节车厢
+      class Car:
+          def __init__(self, value, following=None):
+              self.val = value
+              self.next = following
+
+
+      head = Car(3, Car(6))
+      # ② 处理当前车厢，再跟随 next
+      node = head
+      while node is not None:
+          print(node.val)
+          node = node.next
+      # 依次输出 3、6
+    md: 把 head 改成 Car(0)，看看零号车厢能不能访问。
+  - type: quiz
+    skill: py.node-class
+    q: 当前 node 存在，node.next 是 None。此时应该怎么做？
+    options:
+      - 跳过 node
+      - 处理 node 的值，然后结束遍历
+      - 再读 node.next.val
+    answer: 1
+    explain: next 为空仅表示没有后继，当前节点仍然可以处理。

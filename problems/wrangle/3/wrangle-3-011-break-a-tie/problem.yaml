@@ -1,0 +1,16 @@
+id: wrangle-3-011-break-a-tie
+title: 两张同价标签如何排
+track: wrangle
+stage: '3'
+order: 110
+format: predict
+mode: predict
+difficulty: 28
+skills:
+  requires: []
+  introduces: wrangle.filter-sort
+source: original
+wrong_examples:
+  - why: 同价时仍按书号降序。
+    code: |
+      print('[4, 8, 2]')

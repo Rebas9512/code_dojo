@@ -1,0 +1,72 @@
+id: algo-3-058-combination-sum-ii
+title: 每张票只用一次的面额组合
+track: algo
+stage: '3'
+order: 580
+format: write
+mode: function
+difficulty: 64
+skills:
+  requires:
+  - algo.backtracking
+  - algo.nested-func
+  - py.bool-ops
+  - py.break-continue
+  - py.list-comp
+  - py.multi-assign
+  - py.slice
+  - py.sorted
+  introduces: null
+source: neetcode250
+leetcode: combination-sum-ii
+milestones:
+- nc150
+entry: run_case
+signature: 'def run_case(nums: list[int], target: int) -> list[list[int]]:'
+compare: unordered
+wrong_examples:
+- why: 同一张票又可被下一层选中。
+  code: |
+    def sum_choices(nums: list[int], target: int) -> list[list[int]]:
+        values = sorted(nums)
+        result, path = [], []
+        def visit(start, left):
+            if left == 0:
+                result.append(path[:])
+                return
+            for i in range(start, len(values)):
+                value = values[i]
+                if i > start and value == values[i - 1]:
+                    continue
+                if value > left:
+                    break
+                path.append(value)
+                visit(i, left - value)
+                path.pop()
+        visit(0, target)
+        return result
+
+
+    def run_case(nums: list[int], target: int) -> list[list[int]]:
+        # 组合的成员可以任意排列；保留每一项和全部重复次数。
+        return [sorted(group) for group in sum_choices(nums, target)]
+- why: 先按下标枚举所有选法，再用集合去重；相同面额会引出大量等价分支。
+  code: |
+    def sum_choices(nums: list[int], target: int) -> list[list[int]]:
+        groups = set()
+        def pick(i, left, path):
+            if left == 0:
+                groups.add(tuple(sorted(path)))
+                return
+            if i < len(nums) and left > 0:
+                pick(i + 1, left, path)
+                pick(i + 1, left - nums[i], path + [nums[i]])
+        pick(0, target, [])
+        return [list(group) for group in groups]
+
+
+    def run_case(nums: list[int], target: int) -> list[list[int]]:
+        # 组合的成员可以任意排列；保留每一项和全部重复次数。
+        return [sorted(group) for group in sum_choices(nums, target)]
+hints:
+- 每张票只能用一次。选择后从下一张开始；去重发生在同一层。

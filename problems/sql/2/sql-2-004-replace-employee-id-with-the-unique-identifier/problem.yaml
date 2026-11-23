@@ -1,0 +1,27 @@
+id: sql-2-004-replace-employee-id-with-the-unique-identifier
+title: 把门禁号填到人员名册
+track: sql
+stage: '2'
+order: 40
+format: write
+difficulty: 27
+skills:
+  requires:
+    - sql.left-join
+  introduces: null
+source: sql50
+leetcode: replace-employee-id-with-the-unique-identifier
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/empty-badges.sql
+  - datasets/sample.sql + datasets/namesakes.sql
+ordered: false
+hints:
+  - 哪张表才是完整名册？
+wrong_examples:
+  - why: 没领卡就从名册消失
+    sql: |
+      SELECT b.badge_id, s.name
+      FROM staff s
+      JOIN badges b ON b.staff_id = s.staff_id;

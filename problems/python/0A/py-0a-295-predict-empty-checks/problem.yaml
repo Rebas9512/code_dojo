@@ -1,0 +1,18 @@
+id: py-0a-295-predict-empty-checks
+title: 空托盘能通过哪次检查
+track: python
+stage: 0A
+order: 4150
+format: predict
+mode: predict
+difficulty: 18
+skills:
+  requires: []
+  introduces: py.genexp
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM62：以为空序列的 all 与 any 都会得到 False。
+    code: |
+      print('False\nFalse')

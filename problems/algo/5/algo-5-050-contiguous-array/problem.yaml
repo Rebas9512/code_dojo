@@ -1,0 +1,36 @@
+id: algo-5-050-contiguous-array
+title: 找出两种信号一样多的最长连续段
+track: algo
+stage: '5'
+order: 500
+format: write
+mode: function
+difficulty: 78
+week: 6
+skills:
+  requires:
+  - algo.prefix-hash
+  - py.enumerate
+  - py.minmax-abs
+  - py.ternary
+  introduces: null
+source: grind169
+leetcode: contiguous-array
+milestones: []
+entry: balanced
+signature: 'def balanced(bits: list[int]) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 漏记读入之前差值为零的位置。
+  code: |
+    def balanced(bits: list[int]) -> int:
+        first = {}
+        score = best = 0
+        for i, bit in enumerate(bits):
+            score += 1 if bit else -1
+            if score in first:
+                best = max(best, i - first[score])
+            else:
+                first[score] = i
+        return best

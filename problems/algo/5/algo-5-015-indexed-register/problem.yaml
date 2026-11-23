@@ -1,0 +1,36 @@
+id: algo-5-015-indexed-register
+title: 号码池第 1 级：登记与定位
+track: algo
+stage: '5'
+order: 150
+format: write
+mode: class
+difficulty: 74
+week: 2
+skills:
+  requires:
+  - algo.oop-design
+  - algo.hash-index-map
+  - py.dict-get
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: IndexedRegister
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 第一个编号的下标 0 被当作缺失。
+  code: |
+    class IndexedRegister:
+        def __init__(self):
+            self.where = {}
+
+        def insert(self, value: int) -> bool:
+            if value in self.where:
+                return False
+            self.where[value] = len(self.where)
+            return True
+
+        def position(self, value: int) -> int:
+            return self.where.get(value, -1) or -1

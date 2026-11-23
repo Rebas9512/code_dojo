@@ -1,0 +1,11 @@
+id: dsfix-1-007-predict-shape
+title: 预测张量的形状
+track: dsfix
+stage: '1'
+order: 70
+format: predict
+mode: predict
+difficulty: 35
+skills:
+  requires: []
+  introduces: null

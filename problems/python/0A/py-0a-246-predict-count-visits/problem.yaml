@@ -1,0 +1,19 @@
+id: py-0a-246-predict-count-visits
+title: 没有记录的第一票
+track: python
+stage: 0A
+order: 3060
+format: predict
+mode: predict
+difficulty: 17
+skills:
+  requires:
+    - py.if-else
+  introduces: py.dict-counting
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM42：以为空字典里已经有每个名字的零票记录，无需给新键建格就能加一。
+    code: |
+      print('1\n1\n2')

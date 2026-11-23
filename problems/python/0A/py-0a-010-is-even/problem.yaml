@@ -1,0 +1,20 @@
+id: py-0a-010-is-even
+title: 是不是偶数
+track: python
+stage: 0A
+order: 145
+format: write
+mode: function
+difficulty: 5
+skills:
+  requires: [py.compare-bool, py.floordiv-mod, py.func-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: is_even
+signature: "def is_even(n: int) -> bool:"
+compare: exact
+hints:
+  - "偶数除以 2 的余数是 0。"
+  - "return n % 2 == 0 就够了。"

@@ -1,0 +1,218 @@
+id: sql-0-l02-null-order
+title: 空值、排序、去重和 CASE
+track: sql
+skills: [sql.is-null, sql.coalesce, sql.order-by, sql.limit, sql.distinct, sql.case]
+steps:
+  - type: read
+    skill: sql.is-null
+    md: |
+      表里有些格子是**空的**，SQL 用 `NULL` 表示"未知 / 没有值"——比如用户没留手机号。NULL 不是 0，也不是空字符串。
+
+      关键规则：**任何值和 NULL 比较，结果都是"未知"**，既不是真也不是假。WHERE 只保留结果为**真**的行，所以：
+      - `WHERE phone = NULL` 一行都查不到；
+      - 判断是不是空，只能用 `IS NULL` / `IS NOT NULL`。
+
+      更隐蔽的坑：`WHERE publisher <> 'Harbor Press'` 不会返回 publisher 为 NULL 的书——它们和任何值比较都是"未知"，被丢掉了。如果这些书也该算进去，要写：
+
+      ```sql
+      WHERE publisher <> 'Harbor Press' OR publisher IS NULL
+      ```
+
+      常见误解：
+      - **"= NULL 能判断空值"**：不能，永远是"未知"。
+      - **"<> 某个值 会包含空值"**：不会。
+  - type: example
+    skill: sql.is-null
+    db: bookstore
+    code: |
+      -- ① WHERE：只留下 phone 是空值的行（只能用 IS NULL，不能写 = NULL）
+      -- ② SELECT：取出编号、姓名和手机号
+      SELECT user_id, name, phone
+      FROM users
+      WHERE phone IS NULL;
+    md: "把条件改成 `phone = NULL` 再运行，结果是几行？"
+  - type: quiz
+    skill: sql.is-null
+    q: "30 本书里 7 本是 Harbor Press 出版的，5 本出版社为空。`WHERE publisher <> 'Harbor Press'` 返回几行？"
+    options: ["23 行", "18 行", "30 行"]
+    answer: 1
+    explain: "出版社为空的 5 本比较结果是\"未知\"，被丢掉了：30 − 7 − 5 = 18。要把它们算上，加 `OR publisher IS NULL`。"
+  - type: read
+    skill: sql.coalesce
+    md: |
+      `COALESCE(a, b, ...)` 返回参数里**第一个不是 NULL** 的值。最常用的写法是给空值一个默认值：
+
+      ```sql
+      SELECT name, COALESCE(city, 'unknown') AS city
+      FROM users;
+      ```
+      city 有值就显示 city，是 NULL 就显示 'unknown'。
+
+      它在计算里也很重要：NULL 参与运算，结果还是 NULL（`NULL + 1` 是 NULL）。先 `COALESCE(x, 0)` 把空值当 0，再计算。
+
+      常见误解：
+      - **"COALESCE 会修改表里的数据"**：只影响这一次查询的结果。
+      - **"默认值写什么都行"**：类型要和列一致，`COALESCE(price, 'none')` 会报类型错误（price 是数字）。
+  - type: example
+    skill: sql.coalesce
+    db: bookstore
+    code: |
+      -- ① 有城市就显示城市
+      -- ② 城市为空时，用 'unknown' 代替
+      SELECT name,
+             city,
+             COALESCE(city, 'unknown') AS city_or_unknown
+      FROM users;
+    md: "对比第二列和第三列；再试试 `COALESCE(phone, city, 'none')`。"
+  - type: quiz
+    skill: sql.coalesce
+    q: "`COALESCE(NULL, NULL, 'x', 'y')` 的结果是？"
+    options: ["'x'", "'y'", "NULL"]
+    answer: 0
+    explain: "返回从左往右第一个不是 NULL 的参数。"
+  - type: read
+    skill: sql.order-by
+    md: |
+      没有 ORDER BY 时，结果的行顺序是**不确定**的。想按某种顺序排，在最后加 ORDER BY：
+
+      ```sql
+      SELECT title, price
+      FROM books
+      ORDER BY price DESC, title ASC;
+      ```
+      - `ASC` 从小到大（默认，可以省略），`DESC` 从大到小；每个排序键单独写方向；
+      - 第一个键相同（并列）时，才用第二个键比较；
+      - 可以按别名、表达式排序；升序时 NULL 排在最后。
+
+      执行顺序：FROM → WHERE → SELECT → **ORDER BY**。因为 ORDER BY 在 SELECT 之后，所以它能用 SELECT 起的别名。
+
+      常见误解：
+      - **"并列的行会保持原来的顺序"**：不一定。题目要求确定的顺序时，要加一个"决胜"的排序键（比如 book_id）。
+      - **"DESC 作用于后面所有的列"**：只作用于它紧挨着的那一列。
+  - type: example
+    skill: sql.order-by
+    db: bookstore
+    code: |
+      -- ① 主排序键：价格从高到低
+      -- ② 决胜键：价格相同时按书名 A→Z
+      SELECT title, price
+      FROM books
+      ORDER BY price DESC, title;
+    md: "去掉第二个排序键再运行，看看同价的书是什么顺序；再把 DESC 挪到 title 后面试试。"
+  - type: quiz
+    skill: sql.order-by
+    q: "`ORDER BY price DESC, title` 中，title 按什么方向排？"
+    options: ["从 A 到 Z（升序）", "从 Z 到 A（降序）"]
+    answer: 0
+    explain: "DESC 只作用于 price；title 没写方向，默认升序。"
+  - type: read
+    skill: sql.limit
+    md: |
+      `LIMIT n` 只要结果的前 n 行；`OFFSET k` 先跳过 k 行。它们几乎总是和 ORDER BY 一起用：先排好，再取前几名。
+
+      ```sql
+      SELECT book_id, title, price
+      FROM books
+      ORDER BY price DESC, book_id
+      LIMIT 3;                -- 最贵的 3 本
+      ```
+      分页：每页 5 行，第 2 页就是 `LIMIT 5 OFFSET 5`。
+
+      执行顺序：……→ ORDER BY → **LIMIT**（最后一步）。
+
+      常见误解：
+      - **"LIMIT 3 就是前三名"**：没有 ORDER BY 的 LIMIT 拿到的是"随便哪三行"。
+      - **"并列的会一起算进来"**：LIMIT 只数行数，第 3、4 名并列时会硬切掉一个；需要"并列都要"时要用子查询或窗口函数。
+      - MySQL 的 `LIMIT 5, 10` 在 PostgreSQL 里写作 `LIMIT 10 OFFSET 5`。
+  - type: example
+    skill: sql.limit
+    db: bookstore
+    code: |
+      -- ① 先排序：价格从高到低，同价 book_id 小的在前
+      -- ② 再只取前 3 行
+      SELECT book_id, title, price
+      FROM books
+      ORDER BY price DESC, book_id
+      LIMIT 3;
+    md: "加上 `OFFSET 3`，得到第 4 到第 6 贵的书。"
+  - type: quiz
+    skill: sql.limit
+    q: "`SELECT title FROM books LIMIT 3;`（没有 ORDER BY）返回的是？"
+    options: ["最贵的 3 本", "最早出版的 3 本", "不保证是哪 3 本"]
+    answer: 2
+    explain: "没有 ORDER BY 时行的顺序不确定，LIMIT 拿到的是任意 3 行。"
+  - type: read
+    skill: sql.distinct
+    md: |
+      `SELECT DISTINCT` 把结果里**完全相同的行**去掉，每种只留一行：
+
+      ```sql
+      SELECT DISTINCT category
+      FROM books;
+      ```
+      30 本书只有 7 个分类，结果就是 7 行。
+
+      DISTINCT 作用于 SELECT 里**所有的列**：`SELECT DISTINCT user_id, status` 是按 (user_id, status) 这一对去重。NULL 和 NULL 在去重时算相同，只留一个。
+
+      执行顺序：……→ SELECT → **DISTINCT** → ORDER BY → LIMIT。
+
+      常见误解：
+      - **"DISTINCT 只作用于第一列"**：作用于整行。多选了 title 之后，`SELECT DISTINCT category, title` 几乎就等于没去重。
+      - **"DISTINCT 会顺便排序"**：去重后的顺序也不保证，要排序另加 ORDER BY（排序的列必须出现在 SELECT 里）。
+  - type: example
+    skill: sql.distinct
+    db: bookstore
+    code: |
+      -- ① 每本书一行，分类会重复
+      -- ② DISTINCT：相同的行只留一行
+      SELECT DISTINCT category
+      FROM books;
+    md: "去掉 DISTINCT 看看有多少行；再试试 `SELECT DISTINCT category, publisher FROM books;`。"
+  - type: quiz
+    skill: sql.distinct
+    q: "users 里有 4 个用户的城市为空。`SELECT DISTINCT city FROM users;` 的结果里 NULL 出现几次？"
+    options: ["0 次", "1 次", "4 次"]
+    answer: 1
+    explain: "去重时 NULL 和 NULL 算相同，只留一行 NULL。"
+  - type: read
+    skill: sql.case
+    md: |
+      `CASE` 是 SQL 里的"if / elif / else"：按条件给出不同的值，常用来给数据打标签。
+
+      ```sql
+      SELECT title, price,
+             CASE
+                 WHEN price < 30 THEN 'budget'
+                 WHEN price < 50 THEN 'standard'
+                 ELSE 'premium'
+             END AS price_band
+      FROM books;
+      ```
+      规则：WHEN 从上往下判断，**第一个**为真的生效，后面的不再看；都不满足就用 ELSE；没写 ELSE 时结果是 NULL。最后别忘了 `END`。
+
+      所以走到第二个 WHEN 时已经知道 price ≥ 30，只需要写上限。
+
+      常见误解：
+      - **"每个 WHEN 都会检查"**：只用第一个成立的。
+      - **"边界会自己处理好"**：30 元正好落在哪一档，取决于你写的是 `<` 还是 `<=`。
+  - type: example
+    skill: sql.case
+    db: bookstore
+    code: |
+      -- ① 第一个 WHEN：库存为 0
+      -- ② 第二个 WHEN：走到这里说明库存大于 0
+      -- ③ ELSE：前面都不满足
+      SELECT title, stock,
+             CASE
+                 WHEN stock = 0 THEN 'sold out'
+                 WHEN stock < 5 THEN 'low'
+                 ELSE 'in stock'
+             END AS stock_label
+      FROM books;
+    md: "把两个 WHEN 的顺序对调，库存为 0 的书标签变了吗？"
+  - type: quiz
+    skill: sql.case
+    q: "价格 30.00 的书，按上面讲解里的 price_band 写法得到哪个标签？"
+    options: ["budget", "standard", "premium"]
+    answer: 1
+    explain: "30 < 30 不成立；30 < 50 成立，所以是 standard。"

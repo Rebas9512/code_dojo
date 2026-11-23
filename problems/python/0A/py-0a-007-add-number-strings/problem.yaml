@@ -1,0 +1,20 @@
+id: py-0a-007-add-number-strings
+title: 数字字符串相加
+track: python
+stage: 0A
+order: 120
+format: fix
+mode: function
+difficulty: 5
+skills:
+  requires: [py.func-return, py.type-convert]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: add_number_strings
+signature: "def add_number_strings(a: str, b: str) -> int:"
+compare: exact
+hints:
+  - "两个字符串用 + 连接是拼接，不是加法。"
+  - "用 int(...) 先把字符串转成整数。"

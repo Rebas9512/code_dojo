@@ -1,0 +1,37 @@
+id: algo-1-025-longest-consecutive-sequence
+title: 有记录的最长连续编号段
+track: algo
+stage: '1'
+order: 250
+format: write
+mode: function
+difficulty: 50
+skills:
+  requires:
+  - py.minmax-abs
+  - py.while
+  - py.running-max
+  - py.break-continue
+  - py.nested-loop
+  - algo.hash-seen
+  introduces: null
+source: neetcode250
+leetcode: longest-consecutive-sequence
+milestones:
+- blind75
+- top100
+entry: longest_consecutive
+signature: 'def longest_consecutive(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 从每个数重新数到尾，连续长段会超时。
+  code: |
+    def longest_consecutive(nums: list[int]) -> int:
+        values = set(nums)
+        best = 0
+        for start in values:
+            end = start
+            while end in values:
+                end += 1
+            best = max(best, end - start)
+        return best

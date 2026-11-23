@@ -1,0 +1,20 @@
+id: py-0a-048-find-index
+title: 第一次出现的位置
+track: python
+stage: 0A
+order: 920
+format: write
+mode: function
+difficulty: 15
+skills:
+  requires: [py.list-basics, py.early-return, py.enumerate]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: find_index
+signature: "def find_index(nums: list[int], target: int) -> int:"
+compare: exact
+hints:
+  - "找到就立刻 return i。"
+  - "循环走完都没找到，才 return -1。"

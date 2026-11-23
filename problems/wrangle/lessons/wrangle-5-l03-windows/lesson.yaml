@@ -1,0 +1,33 @@
+id: wrangle-5-l03-windows
+title: 每行的组内名次与累计
+track: wrangle
+skills:
+  - wrangle.window
+steps:
+  - type: read
+    skill: wrangle.window
+    md: |-
+      窗口给每条明细补一个统计值，明细仍然一条不少。三本书价格 9、9、6，逐本编号可得 1、2、3；同价并列的竞赛名次是 1、1、3；按价格档次则是 1、1、2。要先知道题目问的是书的位置还是价格档次。
+
+      SQL 的 PARTITION BY 对应 groupby。先用 sort_values 排好价格和书号，再用 cumcount()+1 得到每组的行号。rank(method='min') 给竞赛名次，method='dense' 给连续档次；降序时用 ascending=False，空价排末尾用 na_option='bottom'。按时间累计先排日期再 cumsum。
+
+      **WM28 并列之后档次也要跳号**。价格 9、9、6 的竞赛名次为 1、1、3，价格档次为 1、1、2。
+  - type: example
+    skill: wrangle.window
+    code: |
+      import pandas as pd
+      # ① 在同一组内保留并列的价格
+      s = pd.Series([9, 9, 6])
+      # ② 比较名次与档位
+      print(s.rank(method="min", ascending=False).tolist())  # 输出 [1.0, 1.0, 3.0]
+      print(s.rank(method="dense", ascending=False).tolist())  # 输出 [1.0, 1.0, 2.0]
+    md: 追加另一册 6 元的书，观察名次数组有几项。
+  - type: quiz
+    skill: wrangle.window
+    q: 第一档有三本同价书，下一本书位于第几档？
+    options:
+      - '4'
+      - '3'
+      - '2'
+    answer: 2
+    explain: 连续档位每遇到一种新价格才加一。（WM28）

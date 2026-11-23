@@ -1,0 +1,15 @@
+id: py-0a-406-predict-converted-label
+title: 转换后前导零去了哪里
+track: python
+stage: 0A
+order: 70
+format: predict
+mode: predict
+difficulty: 4
+skills:
+  requires:
+    - py.type-convert
+  introduces: null
+source: original
+leetcode: null
+milestones: []

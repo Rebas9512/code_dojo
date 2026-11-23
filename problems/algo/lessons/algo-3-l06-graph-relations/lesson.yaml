@@ -1,0 +1,115 @@
+id: algo-3-l06-graph-relations
+title: 依赖与连通的两种问题
+track: algo
+skills:
+- algo.topo-sort
+- algo.union-find
+steps:
+- type: read
+  skill: algo.topo-sort
+  md: |-
+    当一件事需要等另外几件先完成，可以给每个点记一个“尚未满足的前置数”，也叫入度。从入度为零的点里任选一个处理，沿它的出边把后继的欠数减一。刚好减到零的后继才获得入队资格。多个点同时就绪时，选哪个都能产生合法开头。
+
+    结束时要数处理过的点。若仍有点没处理，剩下的图里存在循环依赖，所有要求无法同时满足。每点进队一次，每条边计数一次，时间与邻接表空间都是 O(V+E)。**队列能启动就说明没有环** 会漏掉一块可以先做、另一块彼此卡住的图。
+- type: example
+  skill: algo.topo-sort
+  code: |
+    from collections import deque
+
+    # ① 建后继表，记录先修欠数
+    after = [[2], [2], [3], []]
+    degree = [0, 0, 2, 1]
+    queue = deque(i for i in range(4) if degree[i] == 0)
+    order = []
+    while queue:
+        # ② 完成一门已就绪的课
+        course = queue.popleft()
+        order.append(course)
+        # ③ 解除它对后继的约束
+        for other in after[course]:
+            degree[other] -= 1
+            if degree[other] == 0:
+                queue.append(other)
+    print(order)
+
+    # 输出
+    # [0, 1, 2, 3]
+  md: |-
+    | 完成 | 2 的剩余入度 | 新就绪 |
+    |---|---|---|
+    | 0 | 1 | 无 |
+    | 1 | 0 | 2 |
+    | 2 | 0 | 3 |
+
+    让最初队列反向排列，看看合法顺序是否唯一。
+- type: quiz
+  skill: algo.topo-sort
+  q: 两门先修课只完成了一门，后续课何时进队？
+  options:
+  - 立刻
+  - 等另一门也完成
+  answer: 1
+  explain: 仍欠一门，入度大于零。
+- type: quiz
+  skill: algo.topo-sort
+  q: 有一门孤立课和另两门互相依赖的课。队列能启动，能修完吗？
+  options:
+  - 能
+  - 不能
+  answer: 1
+  explain: 孤立课处理完队列就空，完成数小于总数。
+- type: read
+  skill: algo.union-find
+  md: |-
+    当连接不断加入，并且每次都想查“两点现在是不是一组”，可以让每个点认一个父编号。顺着父编号终会到达一个认自己作父亲的代表。两个点有同一个代表就同组。合并前先找各自的代表，已经相同就不用修改；不同则把较小那棵树的根接到较大树的根。
+
+    查找途中可把父指针提到祖父，之后的路会更短。这叫路径压缩，配合按大小合并，一串操作的平均成本接近常数，父表和大小表用 O(n) 空间。**直接比较两点的父编号** 会在组内树超过一层时误判。若题目允许删除旧连接，单靠这两张表很难知道哪些成员应分开。
+- type: example
+  skill: algo.union-find
+  code: |
+    # ① 每个编号初始独立
+    parent = list(range(5))
+    size = [1] * 5
+    def root(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    # ② 找两端的代表，按大小接根
+    for a, b in [(0, 1), (2, 3), (0, 2)]:
+        a, b = root(a), root(b)
+        if a != b:
+            if size[a] < size[b]:
+                a, b = b, a
+            parent[b] = a
+            size[a] += size[b]
+    # ③ 用代表回答查询
+    print(root(1) == root(3), root(1) == root(4))
+
+    # 输出
+    # True False
+  md: |-
+    | 合并后 | 所在组举例 |
+    |---|---|
+    | 0—1 | {0,1} |
+    | 2—3 | {2,3} |
+    | 0—2 | {0,1,2,3}，{4} |
+
+    把最后一条连接从 (0,2) 换成 (0,4)，预测两次查询各自的真假。
+- type: quiz
+  skill: algo.union-find
+  q: 直接父编号不同，能断定两点属于不同组吗？
+  options:
+  - 能
+  - 不能，要继续找到代表
+  answer: 1
+  explain: 一棵树有多层时，两个不同父亲仍可能通向同一个根。
+- type: quiz
+  skill: algo.union-find
+  q: 找到两端代表已经相等，再加这条无向边会增加分组数吗？
+  options:
+  - 会
+  - 不会
+  answer: 1
+  explain: 已有路径相连，新增边只在组内形成另外一条路线。

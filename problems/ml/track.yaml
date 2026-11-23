@@ -1,0 +1,33 @@
+id: ml
+name: 机器学习手写
+summary: 从回归和分类到反向传播，亲手实现并评估模型。
+order: 7
+language: python
+runtime: ds
+status: planned
+requires:
+  - tensor
+  - math
+skill_prefix: ml
+stages:
+  - id: '1'
+    name: 回归和梯度下降
+    units:
+      1: 从特征到误差
+      2: 解方程与逐步拟合
+      3: 特征尺度与训练轨迹
+  - id: '2'
+    name: 分类
+    units:
+      1: 从分数到类别
+      2: 让近邻投票
+  - id: '3'
+    name: 聚类和决策树
+    units:
+      1: 轮流分组与移动中心
+      2: 衡量并选择一次分裂
+      3: 把决策桩接成树
+  - id: '4'
+    name: 模型评估
+  - id: '5'
+    name: 自动求导和 MLP

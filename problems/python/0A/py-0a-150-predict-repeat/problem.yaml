@@ -1,0 +1,16 @@
+id: py-0a-150-predict-repeat
+title: 列表乘以一个数
+track: python
+stage: 0A
+order: 1020
+format: predict
+mode: predict
+difficulty: 15
+skills:
+  requires: [py.list-basics]
+  introduces: py.list-concat-repeat
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "counts 一共 5 格，下标 0 到 4。"

@@ -1,0 +1,31 @@
+id: algo-2-018-side-maxima
+title: 每个位置左右各见过的最高值
+track: algo
+stage: '2'
+order: 180
+format: complete
+mode: function
+difficulty: 52
+skills:
+  requires:
+  - py.accumulator
+  - py.aliasing
+  - py.minmax-abs
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: side_maxima
+signature: 'def side_maxima(nums: list[int]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+- why: 右侧记录错用相邻原值。
+  code: |
+    def side_maxima(nums: list[int]) -> list[list[int]]:
+        left = nums.copy()
+        right = nums.copy()
+        for i in range(1, len(nums)):
+            left[i] = max(left[i - 1], nums[i])
+        for i in range(len(nums) - 2, -1, -1):
+            right[i] = max(nums[i + 1], nums[i])
+        return [left, right]

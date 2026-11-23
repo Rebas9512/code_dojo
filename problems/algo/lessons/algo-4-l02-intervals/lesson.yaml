@@ -1,0 +1,54 @@
+id: algo-4-l02-intervals
+title: 两个时段在端点相遇
+track: algo
+skills:
+- algo.intervals
+steps:
+- type: read
+  skill: algo.intervals
+  md: |
+    把一段范围写成起点和终点。要把覆盖区域合起来时，先按起点排序。扫到新段前，输出中最后一段的右端是当前连通区域能到的最远位置。新区间若接得上，就取两个右端的较大值。一旦接不上，之后各段的起点只会更靠右，可以安心封存旧段。排序 O(n log n)，随后每段只看一次。
+
+    比较端点前先读单位。两段闭区间 [1,4]、[4,6] 都含刻度 4，应当合并。一间会议室在时刻 4 交还，新会议同刻开始就可以使用。若题目问最多保留多少个不冲突的时段，应该优先留下结束早的时段，为后面的安排留空间。
+- type: example
+  skill: algo.intervals
+  code: |
+    # ① 把刻度段按起点排好
+    spans = [[6, 8], [2, 6], [3, 4], [10, 11]]
+    merged = []
+    for start, end in sorted(spans):
+        # ② 接上当前段或另起一段
+        if merged and start <= merged[-1][1]:
+            merged[-1][1] = max(merged[-1][1], end)
+        else:
+            merged.append([start, end])
+    print(merged)
+
+    # 输出
+    # [[2, 8], [10, 11]]
+  md: |
+    | 新段 | 已合并的最后一段 | 原因 |
+    |---|---|---|
+    | [2,6] | [2,6] | 首段 |
+    | [3,4] | [2,6] | 已在覆盖内 |
+    | [6,8] | [2,8] | 共用端点 6 |
+    | [10,11] | [10,11] | 中间有空隙 |
+
+    把 [6,8] 改为 [7,8]，查看输出。
+- type: quiz
+  skill: algo.intervals
+  q: 已经合并到 [2,9]，下一个闭区间是 [3,5]。右端变成多少？
+  options:
+  - '5'
+  - '9'
+  - '14'
+  answer: 1
+  explain: '[3,5] 被完整包含，最远覆盖位置仍是 9。'
+- type: quiz
+  skill: algo.intervals
+  q: 会议 [1,4) 与 [4,6) 至少需要几间房？
+  options:
+  - '1'
+  - '2'
+  answer: 0
+  explain: 前一场的结束时刻不占房，后一场可以直接交接。

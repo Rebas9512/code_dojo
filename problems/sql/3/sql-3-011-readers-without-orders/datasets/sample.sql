@@ -1,0 +1,1 @@
+CREATE VIEW checkout_log AS SELECT user_id FROM orders UNION ALL SELECT NULL;

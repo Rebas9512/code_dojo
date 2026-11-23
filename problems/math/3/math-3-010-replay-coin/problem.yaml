@@ -1,0 +1,25 @@
+id: math-3-010-replay-coin
+title: 重放一段抛币记录
+track: math
+stage: '3'
+order: 100
+format: predict
+mode: predict
+difficulty: 29
+skills:
+  requires:
+    - py.list-builtins
+    - py.list-comp
+    - py.for-range
+    - py.accumulator
+  introduces: math.frequency
+source: original
+wrong_examples:
+  - why: 把理论正面次数当作本次正面次数。
+    code: |
+      from random import seed, randint
+
+      seed(7)
+      flips = [randint(0, 1) for i in range(3)]
+      print(flips == [1, 0, 1])
+      print(len(flips) / 2)

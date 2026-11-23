@@ -1,0 +1,42 @@
+id: algo-3-070-flood-from-seed
+title: 数一数某个格子连着多少个 1（递归涂色）
+track: algo
+stage: '3'
+order: 700
+format: complete
+mode: function
+difficulty: 65
+skills:
+  requires:
+  - py.bool-ops
+  - py.list-pop
+  - py.while
+  introduces: algo.grid-dfs
+source: original
+leetcode: null
+milestones: []
+entry: area_at
+signature: 'def area_at(grid: list[list[int]], row: int, col: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 没数起点。
+  code: |
+    def fill(grid, r, c, land, marked):
+        if grid[r][c] != land:
+            return 0
+        rows, cols = len(grid), len(grid[0])
+        grid[r][c] = marked
+        stack = [(r, c)]
+        area = -1
+        while stack:
+            r, c = stack.pop()
+            area += 1
+            for dr, dc in ((-1,0), (1,0), (0,-1), (0,1)):
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == land:
+                    grid[nr][nc] = marked
+                    stack.append((nr, nc))
+        return area
+
+    def area_at(grid: list[list[int]], row: int, col: int) -> int:
+        return fill(grid, row, col, 1, 0)

@@ -1,0 +1,35 @@
+id: algo-2-055-common-rope-length
+title: 两段绳子能剪出的最长等长段
+track: algo
+stage: '2'
+order: 550
+format: complete
+mode: function
+difficulty: 61
+skills:
+  requires:
+  - py.func-return
+  introduces: algo.math-module
+source: original
+leetcode: null
+milestones: []
+entry: common_length
+signature: 'def common_length(a: int, b: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 拿一次除法的余数当最终公约数。
+  code: |
+    import math
+
+
+    def common_length(a: int, b: int) -> int:
+        return a % b if b else a
+- why: 从较短长度起逐个试剪，直到两段都能整分。
+  code: |
+    def common_length(a: int, b: int) -> int:
+        if not a or not b:
+            return max(a, b)
+        size = min(a, b)
+        while a % size or b % size:
+            size -= 1
+        return size

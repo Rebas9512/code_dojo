@@ -1,0 +1,25 @@
+id: sql-3-010-above-category-average
+title: 比同类均价贵的书
+track: sql
+stage: '3'
+order: 100
+format: write
+difficulty: 46
+skills:
+  requires: []
+  introduces: sql.correlated-subquery
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/small-category.sql
+  - db:bookstore + datasets/singleton.sql
+ordered: false
+hints:
+  - 代入一本具体的书，内层应该看到哪几行？
+wrong_examples:
+  - why: 漏掉内外层的分类关联
+    sql: |
+      SELECT b.book_id, b.category, b.price FROM books b
+      WHERE b.price > (SELECT AVG(peer.price) FROM books peer);

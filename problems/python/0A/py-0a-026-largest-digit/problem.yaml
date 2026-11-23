@@ -1,0 +1,20 @@
+id: py-0a-026-largest-digit
+title: 最大的那一位
+track: python
+stage: 0A
+order: 540
+format: write
+mode: function
+difficulty: 10
+skills:
+  requires: [py.while, py.floordiv-mod, py.running-max]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: largest_digit
+signature: "def largest_digit(n: int) -> int:"
+compare: exact
+hints:
+  - "拆数字的方法：n % 10 取个位，n // 10 去掉个位。"
+  - "擂主的初始值可以是个位数字 n % 10。"

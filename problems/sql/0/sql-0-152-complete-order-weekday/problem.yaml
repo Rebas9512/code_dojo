@@ -1,0 +1,24 @@
+id: sql-0-152-complete-order-weekday
+title: 补全：下单那天是星期几
+track: sql
+stage: "0"
+order: 340
+format: complete
+difficulty: 12
+skills: {requires: [sql.select-expr], introduces: sql.date-funcs}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/week-boundaries.sql
+ordered: false
+hints:
+  - EXTRACT 可以从日期中取出一个部分。DOW 的编号从星期日的 0 开始。
+wrong_examples:
+  - why: 按每月几号取数，得到的是月份里的第几天。
+    sql: |
+      SELECT order_id, EXTRACT(DAY FROM order_date) AS weekday FROM orders;
+  - why: 按星期一到星期日编号为 1 到 7，星期日会变成 7。
+    sql: |
+      SELECT order_id, EXTRACT(ISODOW FROM order_date) AS weekday FROM orders;

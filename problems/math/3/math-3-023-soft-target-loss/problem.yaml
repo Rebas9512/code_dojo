@@ -1,0 +1,31 @@
+id: math-3-023-soft-target-loss
+title: 给多位标注员的投票计分
+track: math
+stage: '3'
+order: 230
+format: write
+mode: function
+difficulty: 38
+skills:
+  requires:
+    - py.if-else
+    - math.log
+    - math.expectation
+    - math.cross-entropy
+  introduces: null
+source: original
+entry: vote_loss
+signature: 'def vote_loss(target: list[float], predicted: list[float]) -> float:'
+compare: float
+wrong_examples:
+  - why: 没有按真实投票比例加权。
+    code: |
+      from math import log
+
+
+      def vote_loss(target: list[float], predicted: list[float]) -> float:
+          loss = 0.0
+          for i in range(len(target)):
+              if target[i] > 0:
+                  loss += -log(predicted[i])
+          return loss

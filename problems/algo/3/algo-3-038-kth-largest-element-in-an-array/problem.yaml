@@ -1,0 +1,35 @@
+id: algo-3-038-kth-largest-element-in-an-array
+title: 乱序成绩中的第 k 大
+track: algo
+stage: '3'
+order: 380
+format: write
+mode: function
+difficulty: 59
+skills:
+  requires:
+  - algo.heap-topk
+  - py.if-else
+  - py.slice
+  introduces: null
+source: neetcode250
+leetcode: kth-largest-element-in-an-array
+milestones:
+- nc150
+- top100
+entry: kth_largest
+signature: 'def kth_largest(nums: list[int], k: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 保留初始 k 项后，忽略更大的新数。
+  code: |
+    import heapq
+
+
+    def kth_largest(nums: list[int], k: int) -> int:
+        heap = nums[:k]
+        heapq.heapify(heap)
+        for value in nums[k:]:
+            if value < heap[0]:
+                heapq.heapreplace(heap, value)
+        return heap[0]

@@ -1,0 +1,40 @@
+id: algo-4-039-perfect-squares
+title: 最少几个平方数相加
+track: algo
+stage: '4'
+order: 390
+format: write
+mode: function
+difficulty: 71
+skills:
+  requires:
+  - algo.dp-1d
+  - py.break-continue
+  - py.list-append
+  - py.minmax-abs
+  - py.nested-loop
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: perfect-squares
+milestones:
+- top100
+entry: least_squares
+signature: 'def least_squares(n: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 等于目标的平方也被跳过。
+  code: |
+    def least_squares(n: int) -> int:
+        squares = []
+        base = 1
+        while base * base <= n:
+            squares.append(base * base)
+            base += 1
+        best = list(range(n + 1))
+        for total in range(1, n + 1):
+            for square in squares:
+                if square >= total:
+                    break
+                best[total] = min(best[total], 1 + best[total - square])
+        return best[n]

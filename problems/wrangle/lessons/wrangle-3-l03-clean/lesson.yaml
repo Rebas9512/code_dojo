@@ -1,0 +1,61 @@
+id: wrangle-3-l03-clean
+title: 缺失值与列类型
+track: wrangle
+skills:
+  - wrangle.missing
+  - wrangle.cast
+steps:
+  - type: read
+    skill: wrangle.missing
+    md: |-
+      根线里空库存表示还没盘点，零表示盘点结果为零。pandas 数值列常用 NaN 表示缺失。若记录是 [4, 空, 0]，问“还有几格没填”，答案是 1。NaN 和自身比较也为假，逐项比较等号找不出它。
+
+      isna() 逐格给出缺失标记。fillna(值) 填上约定的替代值；dropna(subset=[列名]) 删去指定列缺失的行。选择哪一种要看业务问题，比如空售价不应自动当成免费。
+
+      **WM17 NaN 等于自身**。NaN == NaN 得到 False。用 isna 标出缺失，同时保留真实的零。
+  - type: example
+    skill: wrangle.missing
+    code: |
+      import pandas as pd
+      # ① 找出没有上报的数量
+      s = pd.Series([4, None, 0])
+      print(s.isna().tolist())  # 输出 [False, True, False]
+      # ② 仅在“未报按零”这项统计里填补
+      print(s.fillna(0).tolist())  # 输出 [4.0, 0.0, 0.0]
+    md: 将 None 换成 0，再检查 isna 的结果。
+  - type: quiz
+    skill: wrangle.missing
+    q: 某本书没有售价，要统计有标价的书，应怎样处理？
+    options:
+      - 填 0 后计入
+      - 将所有零价书也删除
+      - 只删售价缺失的行
+    answer: 2
+    explain: 已登记的零和没有登记是两种状态。（WM17）
+  - type: read
+    skill: wrangle.cast
+    md: |-
+      根线区分文字标签和数量。看起来同为 12，文本能保留前导零，数量才能做算术。库存列 [2, 空] 用普通 NumPy 整数存不下 NaN，pandas 从这份数据推断时常得到 float64，显示为 2.0。
+
+      列的 dtype 记录它怎样存值。astype('Int64') 使用 pandas 的可空整数类型，既能保存整数也能留空；大写 I 是名称的一部分。能作为数字读出的文字可以用 astype 转换，编号中的前导零若有意义则应保留文字。
+
+      **WM18 整数列漏填之后仍是普通整数**。由 [2, 空] 推断出的普通数值列常为 float64；需要缺失整数语义时显式转成 Int64。
+  - type: example
+    skill: wrangle.cast
+    code: |
+      import pandas as pd
+      # ① 看普通推断如何存缺失的整数
+      s = pd.Series([2, None])
+      print(s.dtype)  # 输出 float64
+      # ② 改用可空整数
+      print(s.astype("Int64").dtype)  # 输出 Int64
+    md: 把 None 也填成整数，再观察转换前后的 dtype。
+  - type: quiz
+    skill: wrangle.cast
+    q: 希望数量列保留缺失且不显示小数，应选哪个类型？
+    options:
+      - float64
+      - Int64
+      - 普通 int
+    answer: 1
+    explain: pandas 的 Int64 为缺失状态单独留有标记。（WM18）

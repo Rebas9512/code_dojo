@@ -1,0 +1,25 @@
+id: sql-5-003-median-shelf-price
+title: 每种书的价格中位数
+track: sql
+stage: '5'
+order: 30
+format: write
+difficulty: 66
+skills:
+  requires: []
+  introduces: sql.median
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/even-and-odd.sql
+  - db:bookstore + datasets/sample.sql + datasets/unknown.sql
+ordered: false
+hints:
+  - 在 2 和 10 中间切一刀，切口的价格是多少？
+wrong_examples:
+  - why: 直接取较低的中间值
+    sql: |
+      SELECT category, PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY price) AS median_price
+      FROM price_survey GROUP BY category;

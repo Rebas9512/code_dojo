@@ -1,0 +1,27 @@
+id: wrangle-1-013-reorder-shifts
+title: 按检查单抽整班记录
+track: wrangle
+stage: '1'
+order: 130
+format: write
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - wrangle.fancy
+    - wrangle.mask
+    - wrangle.slice
+  introduces: null
+source: original
+entry: shifts
+signature: 'def shifts(rows, positions, minimum):'
+compare: exact
+wrong_examples:
+  - why: 先去重，丢掉了复查的班次。
+    code: |
+      import numpy as np
+
+
+      def shifts(rows, positions, minimum):
+          picked = np.array(rows)[sorted(set(positions))]
+          return picked[picked[:, 0] >= minimum].tolist()

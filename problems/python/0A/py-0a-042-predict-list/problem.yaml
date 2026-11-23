@@ -1,0 +1,17 @@
+id: py-0a-042-predict-list
+title: 列表初见
+track: python
+stage: 0A
+order: 800
+format: predict
+mode: predict
+difficulty: 13
+skills:
+  requires: [py.for-each, py.in-membership]
+  introduces: py.list-basics
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "列表打印成 [3, 8, 5] 的样子（逗号后有空格）。"
+  - "修改 nums[1] 之后，循环里遍历的是新列表。"

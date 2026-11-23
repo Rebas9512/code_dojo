@@ -1,0 +1,26 @@
+id: tensor-1-010-sensor-first
+title: 把传感器调到最前
+track: tensor
+stage: '1'
+order: 100
+format: write
+mode: function
+difficulty: 22
+skills:
+  requires:
+    - tensor.axes
+    - tensor.reshape
+  introduces: null
+source: original
+entry: sensor_first
+signature: 'def sensor_first(cube):'
+compare: allclose
+wrong_examples:
+  - why: 把时刻放到了最前。
+    code: |
+      import torch
+
+
+      def sensor_first(cube):
+          x = torch.tensor(cube)
+          return x.permute(1, 2, 0).reshape(x.shape[2], -1)

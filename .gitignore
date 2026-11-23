@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+
+# 本地数据（提交记录、对话等）
+server/data/
+
+# 编辑器 / 系统
+.DS_Store
+.idea/
+.vscode/
+
+# codex 运行记录（提示词、事件流、报告）
+codex/runs/
+
+# 部署配置（含密码哈希、令牌）
+deploy/.env
+*.env
+!deploy/.env.example

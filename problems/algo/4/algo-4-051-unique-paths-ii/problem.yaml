@@ -1,0 +1,33 @@
+id: algo-4-051-unique-paths-ii
+title: 绕开封闭格的路线数
+track: algo
+stage: '4'
+order: 510
+format: variant
+mode: function
+difficulty: 74
+skills:
+  requires:
+  - algo.dp-2d
+  - py.elif
+  - py.enumerate
+  introduces: null
+source: neetcode250
+leetcode: unique-paths-ii
+milestones: []
+entry: open_paths
+signature: 'def open_paths(grid: list[list[int]]) -> int:'
+compare: exact
+wrong_examples:
+- why: 滚动数组遇障碍仍保留上行的旧路线数。
+  code: |
+    def open_paths(grid: list[list[int]]) -> int:
+        row = [0] * len(grid[0])
+        row[0] = 1
+        for line in grid:
+            for c, blocked in enumerate(line):
+                if blocked:
+                    continue
+                elif c > 0:
+                    row[c] += row[c - 1]
+        return row[-1]

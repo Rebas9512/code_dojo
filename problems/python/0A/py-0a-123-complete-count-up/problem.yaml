@@ -1,0 +1,16 @@
+id: py-0a-123-complete-count-up
+title: 补全：从 1 数到 n
+track: python
+stage: 0A
+order: 420
+format: complete
+mode: stdio
+difficulty: 8
+skills:
+  requires: [py.for-range, py.stdio-input]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "range 不包含终点，所以终点要写 n + 1。"

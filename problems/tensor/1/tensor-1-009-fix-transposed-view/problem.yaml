@@ -1,0 +1,25 @@
+id: tensor-1-009-fix-transposed-view
+title: 修好换轴后的展平
+track: tensor
+stage: '1'
+order: 90
+format: fix
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - tensor.axes
+  introduces: null
+source: original
+entry: column_strip
+signature: 'def column_strip(rows):'
+compare: allclose
+wrong_examples:
+  - why: 转置改变步幅，直接 view 不能合并这两轴。
+    code: |
+      import torch
+
+
+      def column_strip(rows):
+          x = torch.tensor(rows).transpose(0, 1)
+          return x.view(-1)

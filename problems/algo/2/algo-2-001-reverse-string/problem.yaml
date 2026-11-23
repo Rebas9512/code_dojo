@@ -1,0 +1,33 @@
+id: algo-2-001-reverse-string
+title: 把字符牌倒过来
+track: algo
+stage: '2'
+order: 10
+format: write
+mode: function
+difficulty: 48
+skills:
+  requires:
+  - py.helper-func
+  - py.swap-reverse
+  introduces: null
+source: neetcode250
+leetcode: reverse-string
+milestones: []
+entry: run_case
+signature: 'def run_case(chars: list[str]) -> list:'
+compare: exact
+wrong_examples:
+- why: 右端少取最后一格。
+  code: |
+    def reverse_string(chars: list[str]) -> None:
+        left, right = 0, len(chars) - 2
+        while left < right:
+            chars[left], chars[right] = chars[right], chars[left]
+            left += 1
+            right -= 1
+
+
+    def run_case(chars: list[str]) -> list:
+        reverse_string(chars)
+        return chars

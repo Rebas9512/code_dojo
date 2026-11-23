@@ -1,0 +1,25 @@
+id: sql-0-104-complete-cheap-kids
+title: 补全：便宜的童书
+track: sql
+stage: "0"
+order: 80
+format: complete
+difficulty: 5
+skills: {requires: [sql.where], introduces: sql.and-or}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/kids-prices.sql
+ordered: false
+hints:
+  - "两个条件都要满足。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "用了 OR：只要满足一个条件就算"
+    sql: |
+      SELECT title, price FROM books WHERE category = 'kids' OR price < 15;
+  - why: "用了 <=，15 元整的也算进去了"
+    sql: |
+      SELECT title, price FROM books WHERE category = 'kids' AND price <= 15;

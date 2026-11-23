@@ -1,0 +1,16 @@
+id: wrangle-1-001-count-axes
+title: 一张价签有几个轴
+track: wrangle
+stage: '1'
+order: 10
+format: predict
+mode: predict
+difficulty: 13
+skills:
+  requires: []
+  introduces: wrangle.array
+source: original
+wrong_examples:
+  - why: 忽略每行外面的方括号。
+    code: |
+      print('(2,)\n1\nfloat64')

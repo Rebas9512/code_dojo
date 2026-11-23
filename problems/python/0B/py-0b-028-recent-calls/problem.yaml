@@ -1,0 +1,31 @@
+id: py-0b-028-recent-calls
+title: 统计最近三千毫秒的请求
+track: python
+stage: 0B
+order: 280
+format: write
+mode: class
+difficulty: 32
+skills:
+  requires: [py.deque, py.class-methods, py.while]
+  introduces: null
+source: leetcode75
+leetcode: number-of-recent-calls
+milestones: []
+entry: RecentCounter
+compare: exact
+wrong_examples:
+  - why: "PM75：错误地把刚好三千毫秒前的请求排除了。"
+    code: |
+      from collections import deque
+
+
+      class RecentCounter:
+          def __init__(self):
+              self.times = deque()
+
+          def ping(self, t: int) -> int:
+              self.times.append(t)
+              while self.times[0] <= t - 3000:
+                  self.times.popleft()
+              return len(self.times)

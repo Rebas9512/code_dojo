@@ -1,0 +1,24 @@
+id: tensor-2-003-alternate-columns
+title: 从首列起隔列读数
+track: tensor
+stage: '2'
+order: 30
+format: write
+mode: function
+difficulty: 23
+skills:
+  requires:
+    - tensor.slice
+  introduces: null
+source: original
+entry: alternate
+signature: 'def alternate(rows):'
+compare: allclose
+wrong_examples:
+  - why: 间隔选到了相机轴。
+    code: |
+      import torch
+
+
+      def alternate(rows):
+          return torch.tensor(rows)[::2, :]

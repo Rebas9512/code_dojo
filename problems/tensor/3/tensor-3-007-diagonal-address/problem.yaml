@@ -1,0 +1,16 @@
+id: tensor-3-007-diagonal-address
+title: 同一个字母出现两次
+track: tensor
+stage: '3'
+order: 70
+format: predict
+mode: predict
+difficulty: 30
+skills:
+  requires: []
+  introduces: tensor.relabel
+source: original
+wrong_examples:
+  - why: 误取了另一条对角线。
+    code: |
+      print('(2,)\n[5, -3]')

@@ -1,0 +1,25 @@
+id: math-3-016-net-ticket
+title: 算一张奖券的期望净收益
+track: math
+stage: '3'
+order: 160
+format: write
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - py.genexp
+    - py.list-builtins
+    - math.dot
+    - math.expectation
+  introduces: null
+source: original
+entry: expected_net
+signature: 'def expected_net(values: list[float], probs: list[float], cost: float) -> float:'
+compare: float
+wrong_examples:
+  - why: 漏扣每次都付的票价。
+    code: |
+      def expected_net(values: list[float], probs: list[float], cost: float) -> float:
+          gross = sum(values[i]*probs[i] for i in range(len(values)))
+          return gross

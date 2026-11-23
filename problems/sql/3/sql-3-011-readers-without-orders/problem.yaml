@@ -1,0 +1,24 @@
+id: sql-3-011-readers-without-orders
+title: 修一修：从没下过单的读者
+track: sql
+stage: '3'
+order: 110
+format: fix
+difficulty: 46
+skills:
+  requires: []
+  introduces: sql.exists
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/new-member-order.sql
+  - db:bookstore + datasets/sample.sql + datasets/guest-only.sql
+ordered: false
+hints:
+  - 对当前读者，只问是否能找到编号相同的一行。
+wrong_examples:
+  - why: 用含 NULL 的列表排除
+    sql: |
+      SELECT user_id, name FROM users WHERE user_id NOT IN (SELECT user_id FROM checkout_log);

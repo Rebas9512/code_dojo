@@ -1,0 +1,60 @@
+id: tensor-2-l02-addresses
+title: 每行的取数与写数地址
+track: tensor
+skills:
+  - tensor.route
+  - tensor.one-hot
+steps:
+  - type: read
+    skill: tensor.route
+    md: |-
+      每组检测员可以指定自己的探头。两行分别写 [4, 7, 2]、[9, 6, 1]，位置单写 [[1], [0]]，就从第一行拿 7、第二行拿 9。反过来，当位置单表示目的地时，就把两笔数值写回对应的格。
+
+      `torch.gather(x, 1, index)` 只沿列轴按单取数，结果形状与位置单相同。`torch.scatter(base, 1, index, src)` 把 src 写到 base 的指定列，结果保留底表形状。位置单用长整数，写入题中每行的目的地互异。
+
+      **TM09 常见误解：让每一行都使用第一行的地址**。两行 [4, 7, 2]、[9, 6, 1] 按 [[1], [0]] 查，分别取回 7、9，第二行用自己的列号。
+  - type: example
+    skill: tensor.route
+    code: |
+      import torch
+      # ① 位置单的每一行只指挥同一行
+      x = torch.tensor([[4, 7, 2], [9, 6, 1]])
+      idx = torch.tensor([[1], [0]])
+      print(torch.gather(x, 1, idx).tolist())  # 输出 [[7], [9]]
+      print(torch.scatter(x, 1, idx, 0).tolist())  # 输出 [[4, 0, 2], [0, 6, 1]]
+    md: 把第一行地址改为 2，看第二行是否受影响。
+  - type: quiz
+    skill: tensor.route
+    q: 同一行 gather 的地址为 [2, 2] 会发生什么？
+    options:
+      - 取一次并去重
+      - 取两个相同的值
+      - 把值写到第 2 列
+    answer: 1
+    explain: 地址单有两格，重复地址也要读取两次。（TM09）
+  - type: read
+    skill: tensor.one-hot
+    md: |-
+      类别编号是一张座位号，数字较大并不意味着这种类别更多。三类设备用 0、1、2 编号；编号 2 的设备写成 [0, 0, 1]，编号 0 写成 [1, 0, 0]。这叫独热编码，每行只有一个位置亮起。
+
+      回看「认识数据」的数量与标签。列数来自类别目录，即使本批只出现编号 0，也要留出其余类别的列。可用每行标签与全部列号广播比较，也可在全零底表里沿列 scatter 一个 1。
+
+      **TM10 常见误解：用本批出现的类别数决定输出宽度**。目录有五类时，两个标签 [1, 1] 也要编码成两行五列；四个未出现的类别各留一列。
+  - type: example
+    skill: tensor.one-hot
+    code: |
+      import torch
+      # ① 横排所有可能的类别，竖排实际标签
+      labels = torch.tensor([2, 0]).unsqueeze(1)
+      cols = torch.arange(4)
+      print((labels == cols).tolist())  # 输出 [[False, False, True, False], [True, False, False, False]]
+    md: 把类别目录扩大为五类，找出始终为空的列。
+  - type: quiz
+    skill: tensor.one-hot
+    q: 目录有 5 类，标签全是 1。每行应该有几列？
+    options:
+      - '1'
+      - '2'
+      - '5'
+    answer: 2
+    explain: 列代表完整目录中的类别，未观测到的类也有位置。（TM10）

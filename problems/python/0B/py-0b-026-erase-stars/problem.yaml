@@ -1,0 +1,28 @@
+id: py-0b-026-erase-stars
+title: 星号擦掉最近留下的字母
+track: python
+stage: 0B
+order: 260
+format: write
+mode: function
+difficulty: 30
+skills:
+  requires: [py.stack-list, py.split-join, py.if-else]
+  introduces: null
+source: leetcode75
+leetcode: removing-stars-from-a-string
+milestones: []
+entry: erase_stars
+signature: 'def erase_stars(text: str) -> str:'
+compare: exact
+wrong_examples:
+  - why: "擦掉了最早的字母。"
+    code: |
+      def erase_stars(text: str) -> str:
+          kept = []
+          for ch in text:
+              if ch == "*":
+                  kept.pop(0)
+              else:
+                  kept.append(ch)
+          return "".join(kept)

@@ -1,0 +1,55 @@
+id: algo-3-060-word-search
+title: 相邻字格里能否拼出词
+track: algo
+stage: '3'
+order: 600
+format: write
+mode: function
+difficulty: 65
+skills:
+  requires:
+  - algo.backtracking
+  - algo.counter
+  - algo.nested-func
+  - py.bool-ops
+  - py.dict-iter
+  - py.genexp
+  - py.nested-list
+  - py.slice
+  - py.tuple
+  introduces: null
+source: neetcode250
+leetcode: word-search
+milestones:
+- blind75
+- top100
+entry: has_word
+signature: 'def has_word(board: list[list[str]], word: str) -> bool:'
+compare: exact
+wrong_examples:
+- why: 允许在同一次拼词中重复踩格。
+  code: |
+    from collections import Counter
+
+
+    def has_word(board: list[list[str]], word: str) -> bool:
+        rows, cols = len(board), len(board[0])
+        counts = Counter(ch for row in board for ch in row)
+        if any(counts[ch] < count for ch, count in Counter(word).items()):
+            return False
+        if counts[word[-1]] < counts[word[0]]:
+            word = word[::-1]
+        def match(r, c, index):
+            if not (0 <= r < rows and 0 <= c < cols) or board[r][c] != word[index]:
+                return False
+            if index + 1 == len(word):
+                return True
+            saved = board[r][c]
+            board[r][c] = saved
+            found = any(match(r + dr, c + dc, index + 1)
+                        for dr, dc in ((0,1), (1,0), (0,-1), (-1,0)))
+            board[r][c] = saved
+            return found
+        return any(match(r, c, 0) for r in range(rows) for c in range(cols))
+hints:
+- 只把当前路线上的格子暂时标记。退回去探索另一条路线前，格子要恢复成什么？

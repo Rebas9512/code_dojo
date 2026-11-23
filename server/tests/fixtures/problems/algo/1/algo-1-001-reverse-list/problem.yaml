@@ -1,0 +1,15 @@
+id: algo-1-001-reverse-list
+title: 反转链表
+track: algo
+stage: "1"
+order: 10
+format: write
+mode: function
+difficulty: 20
+skills: {requires: [py.function-return], introduces: algo.reverse-list}
+source: neetcode250
+leetcode: reverse-linked-list
+milestones: [blind75, nc150, top100]
+entry: reverse_list
+signature: "def reverse_list(head: Optional[ListNode]) -> Optional[ListNode]:"
+convert: {args: {"0": listnode}, returns: listnode}

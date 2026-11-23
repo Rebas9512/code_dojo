@@ -1,0 +1,31 @@
+id: sql-0-207-triangle-judgement
+title: 三根木条能围成三角形吗
+track: sql
+stage: "0"
+order: 470
+format: write
+difficulty: 18
+skills:
+  requires: [sql.case]
+  introduces: null
+source: sql50
+leetcode: triangle-judgement
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/longest-side.sql
+  - datasets/sample.sql + datasets/straight-line.sql
+ordered: false
+hints:
+  - 轮流把 x、y、z 当作第三边。三次比较都通过，才给这一组标上 Yes。
+wrong_examples:
+  - why: 只检查 x 加 y 是否大于 z，漏掉最长边在其他列的情况。
+    sql: |
+      SELECT x, y, z, CASE WHEN x + y > z THEN 'Yes' ELSE 'No' END AS triangle
+      FROM triangle;
+  - why: 把两边之和恰好等于第三边也算作三角形。
+    sql: |
+      SELECT x, y, z,
+             CASE WHEN x + y >= z AND x + z >= y AND y + z >= x
+                  THEN 'Yes' ELSE 'No' END AS triangle
+      FROM triangle;

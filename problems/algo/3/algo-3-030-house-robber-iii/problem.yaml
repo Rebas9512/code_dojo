@@ -1,0 +1,50 @@
+id: algo-3-030-house-robber-iii
+title: 相邻房屋不能同时取钱
+track: algo
+stage: '3'
+order: 300
+format: combine
+mode: function
+difficulty: 57
+skills:
+  requires:
+  - algo.nested-func
+  - algo.tree-postorder
+  - py.bool-ops
+  - py.list-builtins
+  - py.recursion-multi
+  introduces: null
+source: neetcode250
+leetcode: house-robber-iii
+milestones: []
+entry: rob
+signature: 'def rob(root: TreeNode | None) -> int:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 选父节点时也选两个孩子。
+  code: |
+    def rob(root: TreeNode | None) -> int:
+        def choose(node):
+            if not node:
+                return 0, 0
+            left_skip, left_take = choose(node.left)
+            right_skip, right_take = choose(node.right)
+            skip = max(left_skip, left_take) + max(right_skip, right_take)
+            take = node.val + left_take + right_take
+            return skip, take
+        return max(choose(root))
+- why: 对同一孙子树反复尝试取与不取，长链中出现大量重复调用。
+  code: |
+    def rob(root: TreeNode | None) -> int:
+        if not root:
+            return 0
+        take = root.val
+        for child in (root.left, root.right):
+            if child:
+                take += rob(child.left) + rob(child.right)
+        return max(take, rob(root.left) + rob(root.right))
+hints:
+- 对子树分别算选根、跳过根时的最大金额。选了父亲以后，孩子还有哪一种选择？

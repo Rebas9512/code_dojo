@@ -1,0 +1,28 @@
+id: math-1-021-feature-scores
+title: 为每条记录打分
+track: math
+stage: '1'
+order: 210
+format: write
+mode: function
+difficulty: 30
+skills:
+  requires:
+    - py.genexp
+    - py.list-builtins
+    - math.dot
+    - math.matrix-shape
+    - math.matrix-vector
+  introduces: null
+source: original
+entry: feature_scores
+signature: 'def feature_scores(rows: list[list[int]], weights: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: 分别求和再相乘会混进不对应的特征。
+    code: |
+      def feature_scores(rows: list[list[int]], weights: list[int]) -> list[int]:
+          out = []
+          for row in rows:
+              out.append(sum(row) * sum(weights))
+          return out

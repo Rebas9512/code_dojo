@@ -1,0 +1,53 @@
+id: algo-2-064-set-matrix-zeroes
+title: 让原有零所在的行列清零
+track: algo
+stage: '2'
+order: 640
+format: combine
+mode: function
+difficulty: 66
+skills:
+  requires:
+  - py.bool-ops
+  - py.genexp
+  - py.helper-func
+  - py.multi-assign
+  - py.nested-list
+  introduces: null
+source: neetcode250
+leetcode: set-matrix-zeroes
+milestones:
+- blind75
+- top100
+entry: run_case
+signature: 'def run_case(matrix: list[list[int]]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+- why: 把第一行和第一列共用一个标记。
+  code: |
+    def set_zeroes(matrix: list[list[int]]) -> None:
+        rows, cols = len(matrix), len(matrix[0])
+        first_row = 0 in matrix[0]
+        first_col = any(row[0] == 0 for row in matrix)
+        for r in range(1, rows):
+            for c in range(1, cols):
+                if matrix[r][c] == 0:
+                    matrix[r][0] = 0
+                    matrix[0][c] = 0
+        for r in range(1, rows):
+            for c in range(1, cols):
+                if matrix[r][0] == 0 or matrix[0][c] == 0:
+                    matrix[r][c] = 0
+        if first_row:
+            for c in range(cols):
+                matrix[0][c] = 0
+        if first_row:
+            for r in range(rows):
+                matrix[r][0] = 0
+
+
+    def run_case(matrix: list[list[int]]) -> list[list[int]]:
+        set_zeroes(matrix)
+        return matrix
+hints:
+- 用第一行、第一列的格子记哪些行列要清零。它们自己原来需不需要清零，要另外保存。

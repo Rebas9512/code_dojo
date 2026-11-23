@@ -1,0 +1,111 @@
+id: algo-2-l02-windows
+title: 移动一格后还要重算什么
+track: algo
+skills:
+- algo.window-fixed
+- algo.window-variable
+steps:
+- type: read
+  skill: algo.window-fixed
+  md: |-
+    看见“连续且恰好 k 项”，先把这 k 个相邻位置当成一个窗口。相邻两个窗口重合了 k−1 项。如果关心的是总和、平均值或字母张数，可以保存窗口的合计，只更新离开和进入的两项。
+
+    先算开头 k 项，再从下标 k 开始向右走。走到 i 时，进入值是 nums[i]，离开值是 nums[i-k]。更新后手里的和就等于以 i 结尾的整个窗口。每项最多进出一次，所以时间 O(n)，只记和时额外空间 O(1)。
+
+    **最大和可以初始化为零**会让全负数输给一个从未存在的窗口。求窗口最大元素时也不能从旧最大值直接减掉离开者：旧最大值出窗后，还要知道谁排第二。
+- type: example
+  skill: algo.window-fixed
+  code: |
+    # ① 用实际的第一个窗口建账
+    nums = [-5, -2, -4, -1]
+    k = 2
+    total = sum(nums[i] for i in range(k))
+    best = total
+    print(total)
+    for i in range(k, len(nums)):
+        # ② 一项进、一项出
+        total += nums[i] - nums[i - k]
+        # ③ 比较完整窗口
+        best = max(best, total)
+        print(total)
+    print(best)
+
+    # 输出
+    # -7
+    # -6
+    # -5
+    # -5
+  md: |-
+    | 窗口 | [-5,-2] | [-2,-4] | [-4,-1] |
+    |---|---:|---:|---:|
+    | 合计 | -7 | -6 | -5 |
+
+    把 k 改成 4 再运行，观察没有滑动时的答案。
+- type: quiz
+  skill: algo.window-fixed
+  q: k=3，新来的元素下标是 5，离开的是哪一格？
+  options:
+  - '2'
+  - '3'
+  - '5'
+  answer: 0
+  explain: 旧窗口为下标 2、3、4，滑动后是 3、4、5。
+- type: quiz
+  skill: algo.window-fixed
+  q: 只记当前最大值 9，它离开窗口后，能从 9 和新值推回新最大值吗？
+  options:
+  - 能，取两者较大值
+  - 不能，还要知道窗口里留下了谁
+  answer: 1
+  explain: '[9,8] 和 [9,2] 都迎来 1，新的最大值分别为 8 和 2。'
+- type: read
+  skill: algo.window-variable
+  md: |-
+    要求最长连续段，却没有指定长度时，先问能否维护一个预算。例如最多容许 k 个零：右端加入一格可能超支，移走左端的格子能恢复合法。每次记录长度时，窗口一定在预算内。
+
+    右端向前时登记新值，超支就反复移走左端，直到合法，再比较 right-left+1。两个下标一共各自只走一趟；内层虽有 while，所有收缩加起来不超过 n 次。只计零的版本用 O(n) 时间和 O(1) 额外空间。求最短覆盖时方向反过来：合法时记答案并尝试缩短。
+
+    **和超标就扔掉左端适用于任意整数**会出错。[5,-2] 找和 3，第一格就扔掉 5 会错失整段。有负数时，扩张也可能使和变小，先检查条件是否具备单调性。
+- type: example
+  skill: algo.window-variable
+  code: |
+    # ① 扩张窗口并登记零
+    nums = [1, 0, 0, 1]
+    left = zeros = best = 0
+    for right, value in enumerate(nums):
+        zeros += value == 0
+        # ② 超过一个零就从左边退掉
+        while zeros > 1:
+            zeros -= nums[left] == 0
+            left += 1
+        # ③ 只记录合法段
+        best = max(best, right - left + 1)
+        print(left, right, best)
+
+    # 输出
+    # 0 0 1
+    # 0 1 2
+    # 2 2 2
+    # 2 3 2
+  md: |-
+    | 右端下标 | 0 | 1 | 2 | 3 |
+    |---|---:|---:|---:|---:|
+    | 恢复合法后的左端 | 0 | 0 | 2 | 2 |
+
+    把预算条件改成 zeros > 0，再看合法段可否为空。
+- type: quiz
+  skill: algo.window-variable
+  q: 示例读到第二个 0，只移掉最左的 1 后可以记录长度吗？
+  options:
+  - 可以，已经缩过一次
+  - 还不行，窗口里仍有两个零
+  answer: 1
+  explain: 需要持续收缩直到移走第一个 0，才能重新满足预算。
+- type: quiz
+  skill: algo.window-variable
+  q: 要求整数连续段的和恰为 3，输入可含负数，和一超 3 就收缩可靠吗？
+  options:
+  - 可靠
+  - 不可靠
+  answer: 1
+  explain: '[5,-2] 的第一步已经超过 3，继续扩张却刚好到 3。可以改查历史前缀和。'

@@ -1,0 +1,44 @@
+id: algo-4-048-stone-game-iii
+title: 从队首拿一至三堆石子
+track: algo
+stage: '4'
+order: 480
+format: write
+mode: function
+difficulty: 78
+skills:
+  requires:
+  - algo.dp-1d
+  - py.bool-ops
+  - py.minmax-abs
+  - py.nested-loop
+  - py.none
+  introduces: null
+source: neetcode250
+leetcode: stone-game-iii
+milestones: []
+entry: stone_winner
+signature: 'def stone_winner(values: list[int]) -> str:'
+compare: exact
+wrong_examples:
+- why: 把下一轮对手的领先分加给了当前玩家。
+  code: |
+    def stone_winner(values: list[int]) -> str:
+        n = len(values)
+        lead = [0] * (n + 1)
+        for i in range(n - 1, -1, -1):
+            gained = 0
+            best = None
+            for j in range(i, min(i + 3, n)):
+                gained += values[j]
+                margin = gained + lead[j + 1]
+                if best is None or margin > best:
+                    best = margin
+            lead[i] = best
+        if lead[0] > 0:
+            return "Alice"
+        if lead[0] < 0:
+            return "Bob"
+        return "Tie"
+hints:
+- 试着记“当前轮到的人最终能领先多少”。拿完队首几堆之后，剩余局面的领先分属于对方。

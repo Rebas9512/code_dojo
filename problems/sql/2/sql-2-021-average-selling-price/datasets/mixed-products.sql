@@ -1,0 +1,1 @@
+INSERT INTO unit_sales VALUES (3,'2025-01-15',9),(2,'2025-01-31',3);

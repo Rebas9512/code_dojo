@@ -1,0 +1,37 @@
+id: algo-4-067-burst-balloons
+title: 最后戳哪个气球得分最高
+track: algo
+stage: '4'
+order: 670
+format: write
+mode: function
+difficulty: 82
+skills:
+  requires:
+  - algo.dp-2d
+  - py.minmax-abs
+  introduces: null
+source: neetcode250
+leetcode: burst-balloons
+milestones:
+- nc150
+entry: burst_score
+signature: 'def burst_score(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 计算最后一戳时漏乘两侧尚在的气球。
+  code: |
+    def burst_score(nums: list[int]) -> int:
+        values = [1] + nums + [1]
+        n = len(values)
+        best = [[0] * n for _ in range(n)]
+        for gap in range(2, n):
+            for left in range(n - gap):
+                right = left + gap
+                sides = values[left] * values[right]
+                for last in range(left + 1, right):
+                    score = best[left][last] + values[last] + best[last][right]
+                    best[left][right] = max(best[left][right], score)
+        return best[0][-1]
+hints:
+- 反过来想，在两个还没破的边界之间，谁最后被戳破？那一刻左右邻居的值已经确定。

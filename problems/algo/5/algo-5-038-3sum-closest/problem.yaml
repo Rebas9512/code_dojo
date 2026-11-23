@@ -1,0 +1,42 @@
+id: algo-5-038-3sum-closest
+title: 三张卡最接近目标的总和
+track: algo
+stage: '5'
+order: 380
+format: write
+mode: function
+difficulty: 77
+week: 5
+skills:
+  requires:
+  - algo.two-pointers
+  - py.early-return
+  - py.nested-loop
+  - py.slice
+  introduces: null
+source: grind169
+leetcode: 3sum-closest
+milestones: []
+entry: closest
+signature: 'def closest(nums: list[int], target: int) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 只选总和更小的组合，忽略与目标的距离。
+  code: |
+    def closest(nums: list[int], target: int) -> int:
+        nums.sort()
+        best = sum(nums[:3])
+        for i in range(len(nums) - 2):
+            left, right = i + 1, len(nums) - 1
+            while left < right:
+                total = nums[i] + nums[left] + nums[right]
+                if total < best:
+                    best = total
+                if total == target:
+                    return total
+                if total < target:
+                    left += 1
+                else:
+                    right -= 1
+        return best

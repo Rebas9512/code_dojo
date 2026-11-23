@@ -1,0 +1,35 @@
+id: algo-3-048-binary-decision-strings
+title: 列出所有长度为 n 的 01 串（选 / 不选）
+track: algo
+stage: '3'
+order: 480
+format: complete
+mode: function
+difficulty: 60
+skills:
+  requires:
+  - algo.nested-func
+  - py.multi-assign
+  - py.split-join
+  introduces: algo.backtracking
+source: original
+leetcode: null
+milestones: []
+entry: bit_strings
+signature: 'def bit_strings(n: int) -> list[str]:'
+compare: unordered
+wrong_examples:
+- why: 只探索 1 开头的选择。
+  code: |
+    def bit_strings(n: int) -> list[str]:
+        answers, path = [], []
+        def visit():
+            if len(path) == n:
+                answers.append(''.join(path))
+                return
+            for digit in '1':
+                path.append(digit)
+                visit()
+                path.pop()
+        visit()
+        return answers

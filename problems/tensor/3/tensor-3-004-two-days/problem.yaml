@@ -1,0 +1,16 @@
+id: tensor-3-004-two-days
+title: 两批单据会合并吗
+track: tensor
+stage: '3'
+order: 40
+format: predict
+mode: predict
+difficulty: 29
+skills:
+  requires: []
+  introduces: tensor.batch-contract
+source: original
+wrong_examples:
+  - why: 把批次也相加了。
+    code: |
+      print('(1, 1)\n[[19]]')

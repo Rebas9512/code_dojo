@@ -1,0 +1,94 @@
+{
+  "examples": [
+    {
+      "args": [
+        "id,title\n1,\"A,B\"\n2,C\n"
+      ],
+      "expected": {
+        "columns": [
+          "id",
+          "title"
+        ],
+        "data": [
+          [
+            1,
+            "A,B"
+          ],
+          [
+            2,
+            "C"
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        "id,title\n3,夜\n"
+      ],
+      "expected": {
+        "columns": [
+          "id",
+          "title"
+        ],
+        "data": [
+          [
+            3,
+            "夜"
+          ]
+        ]
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        "id,title\n"
+      ],
+      "expected": {
+        "columns": [
+          "id",
+          "title"
+        ],
+        "data": []
+      }
+    },
+    {
+      "args": [
+        "id,title\n2,\"A\"\"B\"\n"
+      ],
+      "expected": {
+        "columns": [
+          "id",
+          "title"
+        ],
+        "data": [
+          [
+            2,
+            "A\"B"
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        "id,title\n1,A\n8,A\n"
+      ],
+      "expected": {
+        "columns": [
+          "id",
+          "title"
+        ],
+        "data": [
+          [
+            1,
+            "A"
+          ],
+          [
+            8,
+            "A"
+          ]
+        ]
+      }
+    }
+  ]
+}

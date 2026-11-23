@@ -1,0 +1,26 @@
+id: sql-0-017-price-band
+title: 价位标签
+track: sql
+stage: "0"
+order: 300
+format: write
+difficulty: 12
+skills: {requires: [sql.select-expr, sql.and-or, sql.case], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/band-edges.sql
+ordered: false
+hints:
+  - "CASE WHEN 条件 THEN 值 ... ELSE 值 END"
+  - "WHEN 从上往下判断，第一个成立的生效。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "30 元整被算成 budget"
+    sql: |
+      SELECT title, price, CASE WHEN price <= 30 THEN 'budget' WHEN price < 50 THEN 'standard' ELSE 'premium' END FROM books;
+  - why: "50 元整被算成 standard"
+    sql: |
+      SELECT title, price, CASE WHEN price > 50 THEN 'premium' WHEN price >= 30 THEN 'standard' ELSE 'budget' END FROM books;

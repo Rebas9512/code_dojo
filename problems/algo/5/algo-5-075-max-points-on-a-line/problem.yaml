@@ -1,0 +1,48 @@
+id: algo-5-075-max-points-on-a-line
+title: 一条直线最多穿过多少个标记
+track: algo
+stage: '5'
+order: 750
+format: write
+mode: function
+difficulty: 82
+week: 10
+skills:
+  requires:
+  - algo.math-module
+  - algo.counter
+  - py.bool-ops
+  - py.enumerate
+  - py.if-else
+  - py.minmax-abs
+  - py.nested-loop
+  - py.slice
+  - py.tuple
+  introduces: null
+source: top-interview-150
+leetcode: max-points-on-a-line
+milestones: []
+entry: most_points
+signature: 'def most_points(points: list[list[int]]) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 同一条直线的反向向量落入两个桶。
+  code: |
+    import math
+
+
+    def most_points(points: list[list[int]]) -> int:
+        best = 1
+        for i, (x, y) in enumerate(points):
+            slopes = {}
+            for xx, yy in points[i + 1 :]:
+                dx, dy = xx - x, yy - y
+                factor = math.gcd(dx, dy)
+                dx, dy = dx // factor, dy // factor
+                if dx < 0 or (dx == 0 and dy < 0):
+                    dx, dy = dx, dy
+                key = (dx, dy)
+                slopes[key] = slopes.get(key, 0) + 1
+                best = max(best, 1 + slopes[key])
+        return best

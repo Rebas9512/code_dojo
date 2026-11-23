@@ -1,0 +1,62 @@
+id: algo-4-013-minimum-interval-to-include-each-query
+title: 逐个刻度找最短覆盖段
+track: algo
+stage: '4'
+order: 130
+format: combine
+mode: function
+difficulty: 69
+skills:
+  requires:
+  - algo.intervals
+  - algo.heapq
+  - py.bool-ops
+  - py.if-else
+  - py.list-concat-repeat
+  - py.nested-list
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: minimum-interval-to-include-each-query
+milestones:
+- nc150
+entry: shortest_cover
+signature: 'def shortest_cover(intervals: list[list[int]], queries: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 在查询右端点时过早弹出区间。
+  code: |
+    import heapq
+
+
+    def shortest_cover(intervals: list[list[int]], queries: list[int]) -> list[int]:
+        ordered = sorted(intervals)
+        heap = []
+        answer = [-1] * len(queries)
+        i = 0
+        for pos in sorted(range(len(queries)), key=lambda j: queries[j]):
+            q = queries[pos]
+            while i < len(ordered) and ordered[i][0] <= q:
+                start, end = ordered[i]
+                heapq.heappush(heap, (end - start + 1, end))
+                i += 1
+            while heap and heap[0][1] <= q:
+                heapq.heappop(heap)
+            if heap:
+                answer[pos] = heap[0][0]
+        return answer
+- why: 每个刻度都重新检查所有区间，查询多时来不及。
+  code: |
+    def shortest_cover(intervals: list[list[int]], queries: list[int]) -> list[int]:
+        answer = []
+        for q in queries:
+            best = -1
+            for start, end in intervals:
+                if start <= q <= end:
+                    length = end - start + 1
+                    if best == -1 or length < best:
+                        best = length
+            answer.append(best)
+        return answer
+hints:
+- 给查询带上原下标，再按刻度排序。起点已扫过的段都可作为候选，堆顶还要核对右端。

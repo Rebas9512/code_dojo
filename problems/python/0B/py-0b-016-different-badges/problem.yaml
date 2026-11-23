@@ -1,0 +1,32 @@
+id: py-0b-016-different-badges
+title: 找出两份名单各自独有的编号
+track: python
+stage: 0B
+order: 160
+unit: 5
+format: write
+mode: function
+difficulty: 26
+skills:
+  requires: [py.set-basics, py.linear-search, py.helper-func, py.list-append]
+  introduces: null
+source: leetcode75
+leetcode: find-the-difference-of-two-arrays
+milestones: []
+entry: different_badges
+signature: 'def different_badges(a: list[int], b: list[int]) -> list[list[int]]:'
+compare: checker
+wrong_examples:
+  - why: "只排除另一场的编号，没有排除本场重复签到。"
+    code: |
+      def only_here(records: list[int], others: list[int]) -> list[int]:
+          excluded = set(others)
+          unique = []
+          for badge in records:
+              if badge not in excluded:
+                  unique.append(badge)
+          return unique
+
+
+      def different_badges(a: list[int], b: list[int]) -> list[list[int]]:
+          return [only_here(a, b), only_here(b, a)]

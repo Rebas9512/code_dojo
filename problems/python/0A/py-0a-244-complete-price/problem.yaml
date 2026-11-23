@@ -1,0 +1,23 @@
+id: py-0a-244-complete-price
+title: 补全未标价商品的价格
+track: python
+stage: 0A
+order: 3040
+format: complete
+mode: function
+difficulty: 18
+skills:
+  requires:
+    - py.dict-get
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: price_of
+signature: 'def price_of(prices: dict[str, int], item: str) -> int:'
+compare: exact
+wrong_examples:
+  - why: 省略默认值，缺货时会得到 None。
+    code: |
+      def price_of(prices: dict[str, int], item: str) -> int:
+          return prices.get(item)

@@ -1,0 +1,32 @@
+id: algo-1-016-frequency-buckets
+title: 按出现次数把元素放进桶
+track: algo
+stage: '1'
+order: 160
+format: complete
+mode: function
+difficulty: 40
+skills:
+  requires:
+  - py.dict-iter
+  - py.list-comp
+  - algo.counter
+  introduces: algo.bucket
+source: original
+leetcode: null
+milestones: []
+entry: frequency_buckets
+signature: 'def frequency_buckets(nums: list[int]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+- why: 重复使用同一个列表作所有桶。
+  code: |
+    from collections import Counter
+
+
+    def frequency_buckets(nums: list[int]) -> list[list[int]]:
+        counts = Counter(nums)
+        buckets = [[]] * (len(nums) + 1)
+        for value, count in counts.items():
+            buckets[count].append(value)
+        return buckets

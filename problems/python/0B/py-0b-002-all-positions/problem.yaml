@@ -1,0 +1,27 @@
+id: py-0b-002-all-positions
+title: 收集所有出现的位置
+track: python
+stage: 0B
+order: 20
+format: variant
+mode: function
+difficulty: 23
+skills:
+  requires: [py.linear-search, py.enumerate, py.list-append]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: all_positions
+signature: 'def all_positions(books: list[int], target: int) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: "命中一本书就停了，后面的相同编号被漏掉。"
+    code: |
+      def all_positions(books: list[int], target: int) -> list[int]:
+          positions = []
+          for i, book in enumerate(books):
+              if book == target:
+                  positions.append(i)
+                  break
+          return positions

@@ -1,0 +1,16 @@
+id: wrangle-3-008-label-range
+title: 切片终点的票会入选吗
+track: wrangle
+stage: '3'
+order: 80
+format: predict
+mode: predict
+difficulty: 27
+skills:
+  requires: []
+  introduces: wrangle.loc
+source: original
+wrong_examples:
+  - why: 误以为标签切片也排除终点。
+    code: |
+      print('1\n1')

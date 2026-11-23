@@ -1,0 +1,33 @@
+id: wrangle-5-l01-catalog
+title: 书店的书目与读者清单
+track: wrangle
+skills:
+  - wrangle.projection
+steps:
+  - type: read
+    skill: wrangle.projection
+    md: |-
+      同一张书目表可以回答不同的问题。两本书均属科幻，售价都是 18 元。要打印两本书的价签，应有两行；要列出上架的类别，只需要一行科幻。决定一行代表哪种事物，再决定保留哪些列和重复项。
+
+      SQL 的 SELECT 对应传入列名列表。SELECT DISTINCT 要先选定参与比较的列，再用 drop_duplicates 去掉整组相同的记录。WHERE 可用 loc 选行，ORDER BY 用 sort_values 排序，LIMIT 用 iloc 截取。
+
+      **WM26 选列会自动合并重复行**。同名同价的两个版本都需要价签。商品清单保留两行；类别目录才对类别去重。
+  - type: example
+    skill: wrangle.projection
+    code: |
+      import pandas as pd
+      # ① 同类图书仍有各自的书号
+      books = pd.DataFrame({"id": [1, 2, 3], "category": ["科幻", "科幻", "历史"]})
+      # ② 报表只问有哪些类别
+      out = books[["category"]].drop_duplicates()
+      print(out["category"].tolist())  # 输出 ['科幻', '历史']
+    md: 试试先对整张 books 去重，再选 category，比较剩几行。
+  - type: quiz
+    skill: wrangle.projection
+    q: 两本书同名同价。题目只要求列出所有图书的书名和价格，应交几行？
+    options:
+      - '2'
+      - '1'
+      - 由列数决定
+    answer: 0
+    explain: 清单以每一本书为单位，没有要求去重。（WM26）

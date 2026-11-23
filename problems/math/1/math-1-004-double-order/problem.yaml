@@ -1,0 +1,20 @@
+id: math-1-004-double-order
+title: 双份订单有几格
+track: math
+stage: '1'
+order: 40
+format: predict
+mode: predict
+difficulty: 17
+skills:
+  requires:
+    - py.list-comp
+    - math.vector
+    - py.for-range
+  introduces: math.vector-arithmetic
+source: original
+wrong_examples:
+  - why: 误把记录重复两遍。
+    code: |
+      order = [2, 5]
+      print(2 * order)

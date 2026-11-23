@@ -1,0 +1,17 @@
+id: py-0a-031-predict-index
+title: 字符串下标
+track: python
+stage: 0A
+order: 610
+format: predict
+mode: predict
+difficulty: 11
+skills:
+  requires: [py.func-return]
+  introduces: py.index-len
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "\"python\" 有 6 个字符，下标 0 到 5。"
+  - "s[-2] 是倒数第二个。"

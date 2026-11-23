@@ -1,0 +1,42 @@
+id: algo-5-078-largest-number
+title: 把整数卡拼成最大的数
+track: algo
+stage: '5'
+order: 780
+format: write
+mode: function
+difficulty: 82
+week: 10
+skills:
+  requires:
+  - algo.greedy
+  - py.sort-key
+  - algo.nested-func
+  - py.genexp
+  - py.split-join
+  - py.ternary
+  - py.type-convert
+  introduces: null
+source: grind169
+leetcode: largest-number
+milestones: []
+entry: largest
+signature: 'def largest(nums: list[int]) -> str:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 只比较卡面字典序，在一张卡是另一张前缀时会排错。
+  code: |
+    from functools import cmp_to_key
+
+
+    def largest(nums: list[int]) -> str:
+        def compare(a, b):
+            if a > b:
+                return -1
+            if a + b < b + a:
+                return 1
+            return 0
+
+        parts = sorted((str(n) for n in nums), key=cmp_to_key(compare))
+        return "0" if parts[0] == "0" else "".join(parts)

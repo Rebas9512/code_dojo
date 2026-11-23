@@ -1,0 +1,19 @@
+id: math-1-026-identity-channel
+title: 直通后还剩哪个通道
+track: math
+stage: '1'
+order: 260
+format: predict
+mode: predict
+difficulty: 31
+skills:
+  requires:
+    - math.matrix-product
+  introduces: math.identity
+source: original
+wrong_examples:
+  - why: 把直通当成全部合流。
+    code: |
+      row = [1, 1]
+      v = [6, -3]
+      print(row[0] * v[0] + row[1] * v[1])

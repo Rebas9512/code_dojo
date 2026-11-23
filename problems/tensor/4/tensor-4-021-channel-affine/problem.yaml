@@ -1,0 +1,36 @@
+id: tensor-4-021-channel-affine
+title: 手写逐通道标定层
+track: tensor
+stage: '4'
+order: 210
+format: write
+mode: function
+difficulty: 42
+skills:
+  requires:
+    - tensor.module
+    - tensor.parameter
+  introduces: null
+source: original
+entry: make_affine
+signature: 'def make_affine(gain, offset):'
+compare: checker
+wrong_examples:
+  - why: 先加偏置会把偏置也乘以增益。
+    code: |
+      import torch
+      import torch.nn as nn
+
+
+      class ChannelAffine(nn.Module):
+          def __init__(self, gain, offset):
+              nn.Module.__init__(self)
+              self.gain = nn.Parameter(torch.tensor(gain, dtype=torch.float32))
+              self.offset = nn.Parameter(torch.tensor(offset, dtype=torch.float32))
+
+          def forward(self, x):
+              return (x + self.offset) * self.gain
+
+
+      def make_affine(gain, offset):
+          return ChannelAffine(gain, offset)

@@ -1,0 +1,28 @@
+id: sql-0-003-scifi-books
+title: 科幻书有哪些
+track: sql
+stage: "0"
+order: 60
+format: write
+difficulty: 4
+skills: {requires: [sql.select-basic, sql.where], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/new-scifi.sql
+ordered: false
+hints:
+  - "WHERE 列 = '值'，字符串用单引号。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "大小写不对：'Scifi' 和 'scifi' 不相等"
+    sql: |
+      SELECT book_id, title FROM books WHERE category = 'Scifi';
+  - why: "条件写反了"
+    sql: |
+      SELECT book_id, title FROM books WHERE category <> 'scifi';
+  - why: "忘了写 WHERE"
+    sql: |
+      SELECT book_id, title FROM books;

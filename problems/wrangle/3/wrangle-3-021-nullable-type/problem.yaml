@@ -1,0 +1,16 @@
+id: wrangle-3-021-nullable-type
+title: 漏填一格后整列是什么类型
+track: wrangle
+stage: '3'
+order: 210
+format: predict
+mode: predict
+difficulty: 33
+skills:
+  requires: []
+  introduces: wrangle.cast
+source: original
+wrong_examples:
+  - why: 以为出现缺失后仍自动使用普通整数。
+    code: |
+      print('int64\nInt64')

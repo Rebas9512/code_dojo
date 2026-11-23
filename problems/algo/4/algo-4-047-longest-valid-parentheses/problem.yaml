@@ -1,0 +1,34 @@
+id: algo-4-047-longest-valid-parentheses
+title: 最长的完整括号片段
+track: algo
+stage: '4'
+order: 470
+format: write
+mode: function
+difficulty: 77
+skills:
+  requires:
+  - algo.dp-1d
+  - py.bool-ops
+  - py.minmax-abs
+  introduces: null
+source: top-100-liked
+leetcode: longest-valid-parentheses
+milestones:
+- top100
+entry: valid_length
+signature: 'def valid_length(s: str) -> int:'
+compare: exact
+wrong_examples:
+- why: 漏接新左括号之前已经配好的连续段。
+  code: |
+    def valid_length(s: str) -> int:
+        ends = [0] * len(s)
+        best = 0
+        for i in range(1, len(s)):
+            if s[i] == ")":
+                opening = i - ends[i - 1] - 1
+                if opening >= 0 and s[opening] == "(":
+                    ends[i] = ends[i - 1] + 2
+                    best = max(best, ends[i])
+        return best

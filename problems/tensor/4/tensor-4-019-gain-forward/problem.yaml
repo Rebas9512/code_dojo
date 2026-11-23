@@ -1,0 +1,16 @@
+id: tensor-4-019-gain-forward
+title: 增益遇上两批信号
+track: tensor
+stage: '4'
+order: 190
+format: predict
+mode: predict
+difficulty: 41
+skills:
+  requires: []
+  introduces: tensor.module
+source: original
+wrong_examples:
+  - why: 把逐列增益当作逐行增益。
+    code: |
+      print('(2, 2)\n[[2.0, 4.0], [-4.0, 12.0]]')

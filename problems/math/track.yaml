@@ -1,0 +1,29 @@
+id: math
+name: 数学（用代码学）
+summary: 用代码算向量、矩阵、导数和概率。
+order: 4
+language: python
+runtime: python
+status: active
+requires: [python]
+skill_prefix: math
+stages:
+  - id: "1"
+    name: 向量和矩阵
+    units:
+      1: 向量与分量
+      2: 点积与距离
+      3: 行、列与转置
+      4: 矩阵的乘法
+  - id: "2"
+    name: 函数和导数
+    units:
+      1: 函数表与斜率
+      2: 用差商看导数
+      3: 梯度与下降
+  - id: "3"
+    name: 指数对数和概率
+    units:
+      1: 指数与对数
+      2: 波动与随机结果
+      3: 从打分到损失

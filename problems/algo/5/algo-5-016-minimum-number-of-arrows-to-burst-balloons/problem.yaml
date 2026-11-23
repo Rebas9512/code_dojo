@@ -1,0 +1,34 @@
+id: algo-5-016-minimum-number-of-arrows-to-burst-balloons
+title: 最少选多少条竖直扫描线
+track: algo
+stage: '5'
+order: 160
+format: write
+mode: function
+difficulty: 74
+week: 2
+skills:
+  requires:
+  - algo.intervals
+  - algo.greedy
+  - py.bool-ops
+  - py.none
+  introduces: null
+source: top-interview-150
+leetcode: minimum-number-of-arrows-to-burst-balloons
+milestones: []
+entry: fewest
+signature: 'def fewest(spans: list[list[int]]) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 把共享端点的闭区间当成需要分开扫描。
+  code: |
+    def fewest(spans: list[list[int]]) -> int:
+        point = None
+        count = 0
+        for a, b in sorted(spans, key=lambda span: span[1]):
+            if point is None or a >= point:
+                point = b
+                count += 1
+        return count

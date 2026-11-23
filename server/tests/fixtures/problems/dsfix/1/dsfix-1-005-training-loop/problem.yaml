@@ -1,0 +1,14 @@
+id: dsfix-1-005-training-loop
+title: 修好小批次训练循环
+track: dsfix
+stage: '1'
+order: 50
+format: fix
+mode: function
+difficulty: 25
+skills:
+  requires: []
+  introduces: null
+entry: train
+signature: 'def train(model, data, optimizer, steps):'
+compare: checker

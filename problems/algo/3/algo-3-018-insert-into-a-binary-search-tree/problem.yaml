@@ -1,0 +1,36 @@
+id: algo-3-018-insert-into-a-binary-search-tree
+title: 向搜索树添一个新编号
+track: algo
+stage: '3'
+order: 180
+format: write
+mode: function
+difficulty: 54
+skills:
+  requires:
+  - algo.bst
+  - py.recursion-multi
+  introduces: null
+source: neetcode250
+leetcode: insert-into-a-binary-search-tree
+milestones: []
+entry: insert
+signature: 'def insert(root: TreeNode | None, key: int) -> TreeNode:'
+compare: checker
+convert:
+  args:
+    '0': treenode
+  returns: treenode
+wrong_examples:
+- why: 漏接递归返回的新左孩子。
+  code: |
+    def insert(root: TreeNode | None, key: int) -> TreeNode:
+        if root is None:
+            return TreeNode(key)
+        if key < root.val:
+            insert(root.left, key)
+        else:
+            root.right = insert(root.right, key)
+        return root
+hints:
+- 试着沿查找路径走到第一个空位置。若整棵输入树为空，需要交回什么？

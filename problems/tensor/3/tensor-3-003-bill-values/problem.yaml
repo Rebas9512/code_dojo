@@ -1,0 +1,24 @@
+id: tensor-3-003-bill-values
+title: 每张领料单值多少
+track: tensor
+stage: '3'
+order: 30
+format: write
+mode: function
+difficulty: 28
+skills:
+  requires:
+    - tensor.contract
+  introduces: null
+source: original
+entry: bills
+signature: 'def bills(a, p):'
+compare: checker
+wrong_examples:
+  - why: 留下材料轴会变成各材料跨单的小计。
+    code: |
+      import torch
+
+
+      def bills(a, p):
+          return torch.einsum("ij,j->j", a, p)

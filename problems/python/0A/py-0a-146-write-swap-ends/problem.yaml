@@ -1,0 +1,20 @@
+id: py-0a-146-write-swap-ends
+title: 首尾互换
+track: python
+stage: 0A
+order: 950
+format: write
+mode: function
+difficulty: 15
+skills:
+  requires: [py.multi-assign, py.if-else, py.index-len, py.list-basics]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: swap_ends
+signature: "def swap_ends(nums: list[int]) -> list[int]:"
+compare: exact
+hints:
+  - "最后一个元素是 nums[-1]。"
+  - "空列表没有 nums[0]，先判断长度。"

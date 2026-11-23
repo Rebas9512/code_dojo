@@ -1,0 +1,31 @@
+id: algo-2-058-plus-one
+title: 十进制数字牌加一
+track: algo
+stage: '2'
+order: 580
+format: write
+mode: function
+difficulty: 62
+skills:
+  requires:
+  - py.early-return
+  - py.floordiv-mod
+  - py.list-concat-repeat
+  introduces: null
+source: neetcode250
+leetcode: plus-one
+milestones:
+- nc150
+entry: plus_one
+signature: 'def plus_one(digits: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 最高位产生进位时忘记扩展。
+  code: |
+    def plus_one(digits: list[int]) -> list[int]:
+        for i in range(len(digits) - 1, -1, -1):
+            if digits[i] < 9:
+                digits[i] += 1
+                return digits
+            digits[i] = 0
+        return digits

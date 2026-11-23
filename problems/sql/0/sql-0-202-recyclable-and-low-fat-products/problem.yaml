@@ -1,0 +1,27 @@
+id: sql-0-202-recyclable-and-low-fat-products
+title: 选出低脂且包装可回收的商品
+track: sql
+stage: "0"
+order: 420
+format: write
+difficulty: 15
+skills:
+  requires: [sql.and-or]
+  introduces: null
+source: sql50
+leetcode: recyclable-and-low-fat-products
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/single-flags.sql
+  - datasets/sample.sql + datasets/matching-flags.sql
+ordered: false
+hints:
+  - 逐行检查两个标记，只有两个答案都是“是”时才保留编号。
+wrong_examples:
+  - why: 满足任意一个条件就放进清单。
+    sql: |
+      SELECT product_id FROM products WHERE low_fats = 'Y' OR recyclable = 'Y';
+  - why: 只要求两项标记相同，把两个 N 也选进来了。
+    sql: |
+      SELECT product_id FROM products WHERE low_fats = recyclable;

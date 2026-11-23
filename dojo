@@ -1,0 +1,6 @@
+#!/bin/sh
+if ! command -v uv >/dev/null 2>&1; then
+    echo '缺少 uv。Linux：curl -LsSf https://astral.sh/uv/install.sh | sh；macOS：brew install uv' >&2
+    exit 1
+fi
+exec uv run --no-project --python '>=3.12' "$(dirname "$0")/dojo.py" "$@"

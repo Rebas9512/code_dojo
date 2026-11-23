@@ -1,0 +1,37 @@
+id: tensor
+name: 张量与 PyTorch
+summary: 练习张量形状、索引和自动求导，写出自己的网络层。
+order: 6
+language: python
+runtime: ds
+status: active
+requires: [wrangle, math]
+skill_prefix: tensor
+stages:
+  - id: "1"
+    name: 张量和形状
+    units:
+      1: 张量的格子
+      2: 改形状与交换轴
+      3: 单例轴与广播
+      4: 沿轴汇总
+  - id: "2"
+    name: 索引和掩码
+    units:
+      1: 切片、筛选与填值
+      2: 每行的取数与写数地址
+      3: 按条件和名次选择
+      4: 用坐标拼出张量运算
+  - id: "3"
+    name: einsum
+    units:
+      1: 用字母写矩阵乘法
+      2: 转置与对角线
+      3: 外积与注意力打分
+  - id: "4"
+    name: 自动求导和 nn.Module
+    units:
+      1: 从损失读出梯度
+      2: 计算图的边界
+      3: 可学习的参数与线性层
+      4: 自定义层与保存状态

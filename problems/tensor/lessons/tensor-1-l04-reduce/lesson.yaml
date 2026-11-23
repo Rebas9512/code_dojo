@@ -1,0 +1,33 @@
+id: tensor-1-l04-reduce
+title: 沿轴汇总
+track: tensor
+skills:
+  - tensor.reduce
+steps:
+  - type: read
+    skill: tensor.reduce
+    md: |-
+      聚合把一排读数浓缩为一个结果。两台仪器各测三次，要给每台算自己的平均值，六格就变成两个平均值。要继续用每个平均值校正原来的那一行，保留一个列位置会更方便。
+
+      `dim` 指出参与汇总、会变短的轴。二维表 `sum(dim=0)` 沿行向下加，`mean(dim=1)` 给每行一个平均。均值需要浮点张量。加 `keepdim=True` 会把被汇总的轴留成长度一，使结果还能沿原轴广播。
+
+      **TM06 常见误解：漏掉 keepdim 导致行均值对齐列**。两行均值是 2 和 7 时，一维的 [2, 7] 会对齐末轴。保留列轴得到 [[2], [7]]，每格才能减去本行均值。
+  - type: example
+    skill: tensor.reduce
+    code: |
+      import torch
+      # ① 先取得每行均值，再检查它能沿哪个方向展开
+      x = torch.tensor([[1., 3.], [6., 8.]])
+      m = x.mean(dim=1, keepdim=True)
+      print(m.tolist())  # 输出 [[2.0], [7.0]]
+      print((x - m).tolist())  # 输出 [[-1.0, 1.0], [-1.0, 1.0]]
+    md: 删去 keepdim=True，再看同一张方表的差值。
+  - type: quiz
+    skill: tensor.reduce
+    q: 形状 (2, 3, 4) 沿 dim=1 求和并保轴会得到？
+    options:
+      - (2, 4)
+      - (2, 1, 4)
+      - (1, 3, 4)
+    answer: 1
+    explain: 保留原位置的长度一，首轴两批和末轴四格照旧。（TM06）

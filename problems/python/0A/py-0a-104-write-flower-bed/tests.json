@@ -1,0 +1,11 @@
+{
+  "examples": [
+    {"stdin": "", "expected": "28\n22\n"},
+    {"stdin": "", "expected": "28\n22\n"}
+  ],
+  "hidden": [
+    {"stdin": "", "expected": "28\n22\n"},
+    {"stdin": "", "expected": "28\n22\n"},
+    {"stdin": "", "expected": "28\n22\n"}
+  ]
+}

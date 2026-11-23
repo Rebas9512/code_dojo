@@ -1,0 +1,32 @@
+id: algo-2-011-skip-equal-runs
+title: 排序后跨过重复的一段
+track: algo
+stage: '2'
+order: 110
+format: complete
+mode: function
+difficulty: 50
+skills:
+  requires:
+  - py.bool-ops
+  - py.enumerate
+  - py.if-else
+  - py.list-append
+  - py.sorted
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: distinct_values
+signature: 'def distinct_values(nums: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 误把第一个数和末项比较。
+  code: |
+    def distinct_values(nums: list[int]) -> list[int]:
+        ordered = sorted(nums)
+        result = []
+        for i, value in enumerate(ordered):
+            if ordered[i - 1] != value:
+                result.append(value)
+        return result

@@ -1,0 +1,39 @@
+id: algo-4-072-cheapest-flights-within-k-stops
+title: 限制中转次数的最低票价
+track: algo
+stage: '4'
+order: 720
+format: combine
+mode: function
+difficulty: 80
+unit: 6
+skills:
+  requires:
+  - algo.dp-2d
+  - algo.graph-adj-list
+  - py.minmax-abs
+  - py.slice
+  - py.ternary
+  - py.type-convert
+  introduces: null
+source: neetcode250
+leetcode: cheapest-flights-within-k-stops
+milestones:
+- nc150
+entry: flight_cost
+signature: 'def flight_cost(n: int, flights: list[list[int]], src: int, dst: int, k: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 原地更新会让一轮连用多段航班。
+  code: |
+    def flight_cost(n: int, flights: list[list[int]], src: int, dst: int, k: int) -> int:
+        price = [float("inf")] * n
+        price[src] = 0
+        for _ in range(k + 1):
+            updated = price
+            for u, v, fare in flights:
+                updated[v] = min(updated[v], price[u] + fare)
+            price = updated
+        return -1 if price[dst] == float("inf") else price[dst]
+hints:
+- 第 1 轮只准坐一段航班。下一轮松弛时从上一轮的价格表读取，整轮结束才替换。

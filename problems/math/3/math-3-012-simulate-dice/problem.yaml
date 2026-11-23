@@ -1,0 +1,31 @@
+id: math-3-012-simulate-dice
+title: 估计骰子达标频率
+track: math
+stage: '3'
+order: 120
+format: write
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - py.if-else
+    - math.frequency
+  introduces: null
+source: original
+entry: dice_frequency
+signature: 'def dice_frequency(n: int, s: int, threshold: int) -> float:'
+compare: float
+wrong_examples:
+  - why: 漏计恰好等于门槛的结果。
+    code: |
+      from random import seed, randint
+
+
+      def dice_frequency(n: int, s: int, threshold: int) -> float:
+          seed(s)
+          hits = 0
+          for i in range(n):
+              face = randint(1, 6)
+              if face > threshold:
+                  hits += 1
+          return hits/n

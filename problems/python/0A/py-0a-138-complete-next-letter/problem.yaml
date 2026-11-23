@@ -1,0 +1,19 @@
+id: py-0a-138-complete-next-letter
+title: 补全：下一个字母
+track: python
+stage: 0A
+order: 770
+format: complete
+mode: function
+difficulty: 13
+skills:
+  requires: [py.ord-chr, py.floordiv-mod]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: next_letter
+signature: "def next_letter(ch: str) -> str:"
+compare: exact
+hints:
+  - "编号 0 对应 a，用 chr 把 ord(\"a\") + 编号 转回字符。"

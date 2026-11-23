@@ -1,0 +1,20 @@
+id: py-0a-047-score-summary
+title: 成绩概览
+track: python
+stage: 0A
+order: 890
+format: write
+mode: function
+difficulty: 14
+skills:
+  requires: [py.fstring, py.list-basics, py.list-builtins]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: score_summary
+signature: "def score_summary(scores: list[int]) -> str:"
+compare: exact
+hints:
+  - "平均分 = sum(scores) / len(scores)。"
+  - "三项之间各有一个空格。"

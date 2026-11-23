@@ -1,0 +1,20 @@
+id: py-0a-036-is-palindrome
+title: 回文串
+track: python
+stage: 0A
+order: 710
+format: write
+mode: function
+difficulty: 12
+skills:
+  requires: [py.slice, py.compare-bool]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: is_palindrome
+signature: "def is_palindrome(s: str) -> bool:"
+compare: exact
+hints:
+  - "反转后的字符串怎么写？"
+  - "比较结果本身就是 True / False。"

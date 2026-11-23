@@ -1,0 +1,21 @@
+id: math-2-017-one-axis-at-a-time
+title: 只拉长一条边
+track: math
+stage: '2'
+order: 170
+format: predict
+mode: predict
+difficulty: 29
+skills:
+  requires:
+    - py.multi-assign
+    - math.derivative
+    - math.vector
+  introduces: math.gradient
+source: original
+wrong_examples:
+  - why: 测第一根轴时把另一根也拉长。
+    code: |
+      x, y = 4, 3
+      print((x + 1) * (y + 1) - x * y)
+      print(x * (y + 1) - x * y)

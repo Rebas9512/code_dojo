@@ -1,0 +1,27 @@
+id: py-0a-201-complete-two-boxes
+title: 补全两箱书的运费
+track: python
+stage: 0A
+order: 2010
+format: complete
+mode: function
+difficulty: 17
+skills:
+  requires:
+    - py.helper-func
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: delivery
+signature: 'def delivery(a: int, b: int) -> int:'
+compare: exact
+wrong_examples:
+  - why: 把两箱合起来，只收了一次底价。
+    code: |
+      def box_fee(books: int) -> int:
+          return 3 + 2 * books
+
+
+      def delivery(a: int, b: int) -> int:
+          return box_fee(a + b)

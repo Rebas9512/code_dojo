@@ -1,0 +1,36 @@
+id: sql-1-004-five-book-categories
+title: 修一修：书目够五种的分类
+track: sql
+stage: '1'
+order: 40
+format: fix
+difficulty: 20
+skills:
+  requires:
+    - sql.group-by
+    - sql.count
+    - sql.select-expr
+  introduces: sql.having
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/exactly-five.sql
+  - db:bookstore + datasets/small-category.sql
+ordered: false
+hints:
+  - 先按分类数书，再决定整组是否保留。
+wrong_examples:
+  - why: 把至少五种写成超过五种
+    sql: |
+      SELECT category, COUNT(*) AS book_count
+      FROM books
+      GROUP BY category
+      HAVING COUNT(*) > 5;
+  - why: 分组前按每种书的库存筛行，改变了分类的书目数
+    sql: |
+      SELECT category, COUNT(*) AS book_count
+      FROM books WHERE stock >= 5
+      GROUP BY category
+      HAVING COUNT(*) >= 5;

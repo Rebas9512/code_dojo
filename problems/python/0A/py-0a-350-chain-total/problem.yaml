@@ -1,0 +1,33 @@
+id: py-0a-350-chain-total
+title: 沿链累计货物重量变化
+track: python
+stage: 0A
+order: 4600
+format: write
+mode: function
+difficulty: 22
+skills:
+  requires:
+    - py.accumulator
+    - py.while
+    - py.node-class
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: chain_total
+signature: 'def chain_total(head: ListNode | None) -> int:'
+convert:
+  args:
+    '0': listnode
+compare: exact
+wrong_examples:
+  - why: 只数节点个数，没有读每个节点上的值。
+    code: |
+      def chain_total(head: ListNode | None) -> int:
+          total = 0
+          node = head
+          while node is not None:
+              total += 1
+              node = node.next
+          return total

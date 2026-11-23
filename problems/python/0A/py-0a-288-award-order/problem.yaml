@@ -1,0 +1,23 @@
+id: py-0a-288-award-order
+title: 同分时按名字排
+track: python
+stage: 0A
+order: 4080
+format: write
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - py.sort-key
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: awards
+signature: 'def awards(rows: list[list]) -> list[list]:'
+compare: exact
+wrong_examples:
+  - why: 只看分数，同分时沿用了输入顺序。
+    code: |
+      def awards(rows: list[list]) -> list[list]:
+          return sorted(rows, key=lambda row: -row[1])

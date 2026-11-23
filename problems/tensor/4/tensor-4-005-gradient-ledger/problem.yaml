@@ -1,0 +1,16 @@
+id: tensor-4-005-gradient-ledger
+title: 第二笔梯度记到哪里
+track: tensor
+stage: '4'
+order: 50
+format: predict
+mode: predict
+difficulty: 34
+skills:
+  requires: []
+  introduces: tensor.accumulate
+source: original
+wrong_examples:
+  - why: 误以为第二笔覆盖第一笔。
+    code: |
+      print('4.0\n3.0\n-1.0')

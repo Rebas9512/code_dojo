@@ -1,0 +1,27 @@
+id: py-0a-249-letter-stock
+title: 清点字母印章
+track: python
+stage: 0A
+order: 3090
+format: write
+mode: function
+difficulty: 20
+skills:
+  requires:
+    - py.str-methods
+    - py.dict-counting
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: stamps
+signature: 'def stamps(text: str) -> dict[str, int]:'
+compare: exact
+wrong_examples:
+  - why: 将同一字母的两种大小写分开计数。
+    code: |
+      def stamps(text: str) -> dict[str, int]:
+          counts = {}
+          for letter in text:
+              counts[letter] = counts.get(letter, 0) + 1
+          return counts

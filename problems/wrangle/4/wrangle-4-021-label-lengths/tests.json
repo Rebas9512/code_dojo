@@ -1,0 +1,116 @@
+{
+  "examples": [
+    {
+      "args": [
+        {
+          "columns": [
+            "label"
+          ],
+          "data": [
+            [
+              "ab"
+            ],
+            [
+              "xyz"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "name": "label",
+        "data": [
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "label"
+          ],
+          "data": [
+            [
+              ""
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "name": "label",
+        "data": [
+          0
+        ]
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        {
+          "columns": [
+            "label"
+          ],
+          "data": []
+        }
+      ],
+      "expected": {
+        "name": "label",
+        "data": []
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "label"
+          ],
+          "data": [
+            [
+              "小店"
+            ],
+            [
+              "A"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "name": "label",
+        "data": [
+          2,
+          1
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "label"
+          ],
+          "data": [
+            [
+              "abc"
+            ],
+            [
+              "abc"
+            ],
+            [
+              "d"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "name": "label",
+        "data": [
+          3,
+          3,
+          1
+        ]
+      }
+    }
+  ]
+}

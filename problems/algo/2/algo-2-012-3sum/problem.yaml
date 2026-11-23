@@ -1,0 +1,61 @@
+id: algo-2-012-3sum
+title: 找出所有零和三元组
+track: algo
+stage: '2'
+order: 120
+format: combine
+mode: function
+difficulty: 53
+skills:
+  requires:
+  - algo.two-pointers
+  - py.bool-ops
+  - py.break-continue
+  - py.elif
+  - py.nested-loop
+  introduces: null
+source: neetcode250
+leetcode: 3sum
+milestones:
+- blind75
+- top100
+entry: three_sum
+signature: 'def three_sum(nums: list[int]) -> list[list[int]]:'
+compare: checker
+wrong_examples:
+- why: 忽略已选首项是否重复。
+  code: |
+    def three_sum(nums: list[int]) -> list[list[int]]:
+        values = sorted(nums)
+        result = []
+        for i in range(len(values) - 2):
+            if False:
+                continue
+            left, right = i + 1, len(values) - 1
+            while left < right:
+                total = values[i] + values[left] + values[right]
+                if total < 0:
+                    left += 1
+                elif total > 0:
+                    right -= 1
+                else:
+                    result.append([values[i], values[left], values[right]])
+                    left += 1
+                    right -= 1
+                    while left < right and values[left] == values[left - 1]:
+                        left += 1
+        return result
+- why: 枚举三张牌的全部选法，再去重。
+  code: |
+    from itertools import combinations
+
+
+    def three_sum(nums: list[int]) -> list[list[int]]:
+        answers = set()
+        for group in combinations(nums, 3):
+            if sum(group) == 0:
+                answers.add(tuple(sorted(group)))
+        return [list(group) for group in answers]
+hints:
+- 先排序并固定第一张牌，把剩下两张交给对向指针。
+- 相同首项只固定一次。找到一组后，移动两端并跨过相同取值。

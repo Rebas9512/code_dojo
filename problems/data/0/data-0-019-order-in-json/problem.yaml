@@ -1,0 +1,25 @@
+id: data-0-019-order-in-json
+title: 读一笔订单的明细
+track: data
+stage: '0'
+order: 190
+format: inspect
+mode: inspect
+difficulty: 7
+skills:
+  requires:
+    - data.text-formats
+  introduces: null
+data:
+  - kind: json
+    title: 102 号订单和书目明细
+    file: order.json
+answer:
+  type: short
+  accept:
+    - '3'
+    - 三
+    - 3册
+  misconceptions:
+    '102': DM04
+explain: 明细中 6 号书买了 2 册，14 号书买了 1 册，加起来是 3 册。订单编号用来查单。

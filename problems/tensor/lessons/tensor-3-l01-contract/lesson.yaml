@@ -1,0 +1,63 @@
+id: tensor-3-l01-contract
+title: 用字母写矩阵乘法
+track: tensor
+skills:
+  - tensor.contract
+  - tensor.batch-contract
+steps:
+  - type: read
+    skill: tensor.contract
+    md: |-
+      两个班各领两种材料，要算每班能装多少个小包，可以先看其中一个班。若它领了 [2, 3] 份材料，每份分别能装 4、5 包，共有 2×4 + 3×5 = 23 包。对所有班和包装规格重复这个计算，就是矩阵乘法。
+
+      `einsum` 让每一轴有一个字母。写 ij,jk->ik 时，逗号分开两张输入表，同名 j 对齐相乘。箭头右边留下班级 i、规格 k；消失的材料轴 j 要把各项贡献加起来。用普通矩阵乘法 @ 可以核对每一格。
+
+      **TM14 常见误解：把重复字母的各项乘积当成最终结果**。数量 [2, 3] 与单价 [4, 5] 的两项贡献为 8 和 15。材料轴从输出消失时，还要加成 23。
+  - type: example
+    skill: tensor.contract
+    code: |
+      import torch
+      # ① 一行材料量乘一列产量，再和显式乘法核对
+      a = torch.tensor([[2, 3]])
+      b = torch.tensor([[4], [5]])
+      out = torch.einsum("ij,jk->ik", a, b)
+      print(out.tolist())  # 输出 [[23]]
+      print(torch.equal(out, a @ b))  # 输出 True
+    md: 把每份第二种材料的产量改成 1，手算新总数。
+  - type: quiz
+    skill: tensor.contract
+    q: (2, 3) 和 (3, 4) 做 ij,jk->ik 后哪一轴消失？
+    options:
+      - i（2）
+      - j（3）
+      - k（4）
+    answer: 1
+    explain: 每个输出格都要加上三份 j 的贡献，只保留 i 与 k。（TM14）
+  - type: read
+    skill: tensor.batch-contract
+    md: |-
+      两天各有领料单和当天的配方。如果第一天单上的两种材料数量为 [2, 1]，当天产量是 [4, 3]，这一天共得 11。即使第二天的产量翻倍，第一天的结果也不应受影响。批次轴把各天的计算隔开。
+
+      bij,bjk->bik 的 b 在两份输入和输出中都出现，选定某个 b 后只在这一天里把 j 加起来。显式计算可用 `torch.bmm` 逐批乘两张三维表，也可用 @ 匹配相同批次。
+
+      **TM15 常见误解：把批次字母也省掉而合并所有天**。两天的产量分别为 11、22，去掉输出的批次字母会把它们合成 33，无法再分天交卷。
+  - type: example
+    skill: tensor.batch-contract
+    code: |
+      import torch
+      # ① 每批单独乘，保留第一个轴
+      a = torch.tensor([[[2, 1]], [[2, 1]]])
+      b = torch.tensor([[[4], [3]], [[8], [6]]])
+      y = torch.einsum("bij,bjk->bik", a, b)
+      print(y.tolist())  # 输出 [[[11]], [[22]]]
+      print(torch.equal(y, torch.bmm(a, b)))  # 输出 True
+    md: 交换两天的配方，看哪张单的结果发生变化。
+  - type: quiz
+    skill: tensor.batch-contract
+    q: bij,bjk->ik 比保留 b 的结果少了什么？
+    options:
+      - 把各批的小计加在一起了
+      - 只保留第一批
+      - 把列变成行
+    answer: 0
+    explain: 箭头右边消失的 b 也会求和，因此两天的结果混成一个。（TM15）

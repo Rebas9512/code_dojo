@@ -1,0 +1,32 @@
+id: algo-1-008-longest-common-prefix
+title: 文件名前面相同的部分
+track: algo
+stage: '1'
+order: 80
+format: write
+mode: function
+difficulty: 36
+skills:
+  requires:
+  - py.early-return
+  - py.bool-ops
+  - py.nested-loop
+  - py.slice
+  - py.enumerate
+  introduces: null
+source: neetcode250
+leetcode: longest-common-prefix
+milestones: []
+entry: longest_common_prefix
+signature: 'def longest_common_prefix(words: list[str]) -> str:'
+compare: exact
+wrong_examples:
+- why: 把第一个不相同的字符也保留了。
+  code: |
+    def longest_common_prefix(words: list[str]) -> str:
+        first = words[0]
+        for i, letter in enumerate(first):
+            for word in words[1:]:
+                if i >= len(word) or word[i] != letter:
+                    return first[:i + 1]
+        return first

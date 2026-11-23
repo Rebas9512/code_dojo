@@ -1,0 +1,31 @@
+id: py-0a-255-complete-buckets
+title: 补全按长度收词
+track: python
+stage: 0A
+order: 3150
+format: complete
+mode: function
+difficulty: 18
+skills:
+  requires:
+    - py.if-else
+    - py.type-convert
+    - py.dict-grouping
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: by_size
+signature: 'def by_size(words: list[str]) -> dict[str, list[str]]:'
+compare: exact
+wrong_examples:
+  - why: 每加入一个成员就把整组替换掉。
+    code: |
+      def by_size(words: list[str]) -> dict[str, list[str]]:
+          groups = {}
+          for word in words:
+              key = str(len(word))
+              if key not in groups:
+                  groups[key] = []
+              groups[key] = [word]
+          return groups

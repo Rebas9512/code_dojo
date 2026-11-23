@@ -1,0 +1,16 @@
+id: tensor-1-007-move-axes
+title: 交换后哪一轴先读
+track: tensor
+stage: '1'
+order: 70
+format: predict
+mode: predict
+difficulty: 20
+skills:
+  requires: []
+  introduces: tensor.axes
+source: original
+wrong_examples:
+  - why: 把新轴编号误作旧轴的目的地。
+    code: |
+      print('(2, 3, 4)\n(3, 4, 2) True\n(4, 3, 2)')

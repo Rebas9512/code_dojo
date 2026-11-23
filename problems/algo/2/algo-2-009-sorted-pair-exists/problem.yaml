@@ -1,0 +1,40 @@
+id: algo-2-009-sorted-pair-exists
+title: 两端凑出目标值
+track: algo
+stage: '2'
+order: 90
+format: fix
+mode: function
+difficulty: 50
+skills:
+  requires:
+  - py.early-return
+  introduces: algo.two-pointers
+source: original
+leetcode: null
+milestones: []
+entry: has_pair
+signature: 'def has_pair(nums: list[int], target: int) -> bool:'
+compare: exact
+wrong_examples:
+- why: 让同一位置配自己。
+  code: |
+    def has_pair(nums: list[int], target: int) -> bool:
+        left, right = 0, len(nums) - 1
+        while left <= right:
+            total = nums[left] + nums[right]
+            if total == target:
+                return True
+            if total < target:
+                left += 1
+            else:
+                right -= 1
+        return False
+- why: 枚举每一对位置，找不到时要逐对比到最后。
+  code: |
+    def has_pair(nums: list[int], target: int) -> bool:
+        for i in range(len(nums)):
+            for j in range(i + 1, len(nums)):
+                if nums[i] + nums[j] == target:
+                    return True
+        return False

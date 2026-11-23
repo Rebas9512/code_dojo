@@ -1,0 +1,40 @@
+id: algo-2-062-rotate-image
+title: 把方阵顺时针旋转 90°
+track: algo
+stage: '2'
+order: 620
+format: write
+mode: function
+difficulty: 65
+skills:
+  requires:
+  - py.helper-func
+  - py.nested-list
+  - py.sorted
+  - py.swap-reverse
+  introduces: null
+source: neetcode250
+leetcode: rotate-image
+milestones:
+- blind75
+- top100
+entry: run_case
+signature: 'def run_case(matrix: list[list[int]]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+- why: 所有坐标对都换两次，抵消转置。
+  code: |
+    def rotate_image(matrix: list[list[int]]) -> None:
+        size = len(matrix)
+        for r in range(size):
+            for c in range(size):
+                matrix[r][c], matrix[c][r] = matrix[c][r], matrix[r][c]
+        for row in matrix:
+            row.reverse()
+
+
+    def run_case(matrix: list[list[int]]) -> list[list[int]]:
+        rotate_image(matrix)
+        return matrix
+hints:
+- 分两步追踪左下角的坐标。先转置，再翻转每一行，它会去哪里？

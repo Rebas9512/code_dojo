@@ -1,0 +1,40 @@
+id: algo-4-042-word-break
+title: 词表能否拼完一整串
+track: algo
+stage: '4'
+order: 420
+format: write
+mode: function
+difficulty: 72
+skills:
+  requires:
+  - algo.dp-1d
+  - algo.hash-seen
+  - py.bool-ops
+  - py.break-continue
+  - py.genexp
+  - py.list-builtins
+  - py.nested-loop
+  - py.slice
+  introduces: null
+source: neetcode250
+leetcode: word-break
+milestones:
+- blind75
+- top100
+entry: can_segment
+signature: 'def can_segment(s: str, words: list[str]) -> bool:'
+compare: exact
+wrong_examples:
+- why: 只要结尾是词就算成功，漏检查前缀。
+  code: |
+    def can_segment(s: str, words: list[str]) -> bool:
+        dictionary = set(words)
+        longest = max(len(word) for word in words)
+        possible = [True] + [False] * len(s)
+        for end in range(1, len(s) + 1):
+            for start in range(max(0, end - longest), end):
+                if s[start:end] in dictionary:
+                    possible[end] = True
+                    break
+        return possible[-1]

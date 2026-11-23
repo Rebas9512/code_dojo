@@ -1,0 +1,25 @@
+id: tensor-2-005-fault-list
+title: 按读取顺序收集故障码
+track: tensor
+stage: '2'
+order: 50
+format: complete
+mode: function
+difficulty: 24
+skills:
+  requires:
+    - tensor.mask
+  introduces: null
+source: original
+entry: faults
+signature: 'def faults(rows):'
+compare: exact
+wrong_examples:
+  - why: 零是正常读数。
+    code: |
+      import torch
+
+
+      def faults(rows):
+          x = torch.tensor(rows)
+          return x[x <= 0].tolist()

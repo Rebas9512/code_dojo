@@ -1,0 +1,26 @@
+id: algo-4-049-count-grid-arrivals
+title: 网格路径数：这一格从上或左到达
+track: algo
+stage: '4'
+order: 490
+format: complete
+mode: function
+difficulty: 68
+skills:
+  requires: []
+  introduces: algo.dp-2d
+source: original
+leetcode: null
+milestones: []
+entry: path_table
+signature: 'def path_table(rows: int, cols: int) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+- why: 把左边一步看成了左上方的斜走。
+  code: |
+    def path_table(rows: int, cols: int) -> list[list[int]]:
+        table = [[1] * cols for _ in range(rows)]
+        for r in range(1, rows):
+            for c in range(1, cols):
+                table[r][c] = table[r - 1][c] + table[r - 1][c - 1]
+        return table

@@ -1,0 +1,81 @@
+id: algo-5-024-sudoku-solver
+title: 补全九宫格登记表
+track: algo
+stage: '5'
+order: 240
+format: combine
+mode: function
+difficulty: 79
+week: 3
+skills:
+  requires:
+  - algo.backtracking
+  - algo.hash-seen
+  - algo.nested-func
+  - py.break-continue
+  - py.floordiv-mod
+  - py.list-comp
+  - py.nested-list
+  - py.sorted
+  - py.tuple
+  introduces: null
+source: grind169
+leetcode: sudoku-solver
+milestones: []
+entry: run_case
+signature: 'def run_case(board: list[list[str]]) -> list[list[str]]:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 候选数字少了 9，有些空格必然无法填写。
+  code: |
+    def solve(board: list[list[str]]) -> None:
+        digits = set("12345678")
+        rows = [set() for _ in range(9)]
+        cols = [set() for _ in range(9)]
+        boxes = [set() for _ in range(9)]
+        empty = []
+        for r in range(9):
+            for c in range(9):
+                value = board[r][c]
+                b = 3 * (r // 3) + c // 3
+                if value == ".":
+                    empty.append((r, c, b))
+                else:
+                    rows[r].add(value)
+                    cols[c].add(value)
+                    boxes[b].add(value)
+
+        def fill(pos):
+            if pos == len(empty):
+                return True
+            fewest = 10
+            for j in range(pos, len(empty)):
+                r, c, b = empty[j]
+                possible = digits - rows[r] - cols[c] - boxes[b]
+                if len(possible) < fewest:
+                    chosen, options, fewest = j, possible, len(possible)
+                    if fewest <= 1:
+                        break
+            empty[pos], empty[chosen] = empty[chosen], empty[pos]
+            r, c, b = empty[pos]
+            for value in sorted(options):
+                board[r][c] = value
+                rows[r].add(value)
+                cols[c].add(value)
+                boxes[b].add(value)
+                if fill(pos + 1):
+                    return True
+                rows[r].remove(value)
+                cols[c].remove(value)
+                boxes[b].remove(value)
+                board[r][c] = "."
+            empty[pos], empty[chosen] = empty[chosen], empty[pos]
+            return False
+
+        fill(0)
+
+
+    def run_case(board: list[list[str]]) -> list[list[str]]:
+        solve(board)
+        return board

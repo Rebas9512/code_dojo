@@ -1,0 +1,24 @@
+id: tensor-3-008-swap-letters
+title: 换一种方向看表
+track: tensor
+stage: '3'
+order: 80
+format: complete
+mode: function
+difficulty: 31
+skills:
+  requires:
+    - tensor.relabel
+  introduces: null
+source: original
+entry: swap
+signature: 'def swap(a):'
+compare: checker
+wrong_examples:
+  - why: 原顺序会保留原表。
+    code: |
+      import torch
+
+
+      def swap(a):
+          return torch.einsum("ij->ij", a)

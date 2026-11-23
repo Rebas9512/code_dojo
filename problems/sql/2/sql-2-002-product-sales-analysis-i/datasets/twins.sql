@@ -1,0 +1,1 @@
+INSERT INTO sales VALUES (13,3,2025,16);

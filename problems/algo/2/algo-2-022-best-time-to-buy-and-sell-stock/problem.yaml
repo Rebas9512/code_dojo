@@ -1,0 +1,32 @@
+id: algo-2-022-best-time-to-buy-and-sell-stock
+title: 一次买卖能赚多少
+track: algo
+stage: '2'
+order: 220
+format: write
+mode: function
+difficulty: 53
+skills:
+  requires:
+  - py.accumulator
+  - py.for-each
+  - py.minmax-abs
+  introduces: null
+source: neetcode250
+leetcode: best-time-to-buy-and-sell-stock
+milestones:
+- blind75
+- top100
+entry: max_profit
+signature: 'def max_profit(prices: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 允许卖出之后才买入。
+  code: |
+    def max_profit(prices: list[int]) -> int:
+        lowest = prices[0]
+        profit = 0
+        for price in prices:
+            profit = max(profit, price - lowest)
+            lowest = min(lowest, price)
+        return max(prices) - min(prices)

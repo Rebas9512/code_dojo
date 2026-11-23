@@ -1,0 +1,25 @@
+id: py-0a-389-complete-calls
+title: 补全调用树上的节点数
+track: python
+stage: 0A
+order: 5090
+format: complete
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - py.recursion-multi
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: nodes
+signature: 'def nodes(n: int) -> int:'
+compare: exact
+wrong_examples:
+  - why: 只统计孩子的节点，忘了当前这次调用。
+    code: |
+      def nodes(n: int) -> int:
+          if n < 2:
+              return 1
+          return nodes(n - 1) + nodes(n - 2)

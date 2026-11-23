@@ -1,0 +1,30 @@
+id: sql-4-013-last-person-to-fit-in-the-bus
+title: 最后能登上班车的人
+track: sql
+stage: '4'
+order: 130
+format: write
+difficulty: 59
+skills:
+  requires:
+    - sql.cte
+    - sql.limit
+    - sql.running-total
+  introduces: null
+source: sql50
+leetcode: last-person-to-fit-in-the-bus
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/equal-weights.sql
+  - datasets/sample.sql + datasets/single.sql
+ordered: false
+hints:
+  - 先算每人上来后的总重，再找最后一次未超限。
+wrong_examples:
+  - why: 把刚好 1000 当超重
+    sql: |
+      WITH boarding AS (
+          SELECT turn, rider, SUM(weight) OVER (ORDER BY turn) AS load FROM lineup
+      )
+      SELECT rider FROM boarding WHERE load < 1000 ORDER BY turn DESC LIMIT 1;

@@ -1,0 +1,24 @@
+id: wrangle-1-002-float-readings
+title: 把称重读数存成浮点数组
+track: wrangle
+stage: '1'
+order: 20
+format: complete
+mode: function
+difficulty: 14
+skills:
+  requires:
+    - wrangle.array
+  introduces: null
+source: original
+entry: weights
+signature: 'def weights(values):'
+compare: allclose
+wrong_examples:
+  - why: 沿用整数类型。
+    code: |
+      import numpy as np
+
+
+      def weights(values):
+          return np.array(values)

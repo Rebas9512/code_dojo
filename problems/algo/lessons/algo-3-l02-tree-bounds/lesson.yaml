@@ -1,0 +1,123 @@
+id: algo-3-l02-tree-bounds
+title: 祖先留下的边界和记录
+track: algo
+skills:
+- algo.bst
+- algo.nested-func
+steps:
+- type: read
+  skill: algo.bst
+  md: |-
+    看到“二叉搜索树”并且要查找一个值时，比较一次就能排除一整侧。当前值太大就走左边，太小就走右边。理由是每个祖先都给后代划出了允许范围，整条路径的限制必须同时生效。中序遍历这种严格搜索树时，取出的值依次增大。
+
+    查找只走一条路径，耗时 O(h)，用循环只要常数额外空间。树倾斜成链时 h 可与节点数一样大。**验证时只检查相邻父子** 会放过这样的结构：根 8 的左孩子为 3，3 的右孩子为 10。10 虽比 3 大，却越过了根规定的上界。
+- type: example
+  skill: algo.bst
+  code: |
+    class TreeNode:
+        def __init__(self, val, left=None, right=None):
+            self.val = val
+            self.left = left
+            self.right = right
+
+
+    # ① 建一棵在祖父位置出现冲突的树
+    root = TreeNode(8, TreeNode(3, None, TreeNode(10)), TreeNode(12))
+
+    # ② 把祖先留下的上下界一起带给孩子
+    def valid(node, low, high):
+        if node is None:
+            return True
+        if not low < node.val < high:
+            return False
+        return valid(node.left, low, node.val) and valid(node.right, node.val, high)
+
+    # ③ 从无界区间开始核对
+    print(valid(root, float('-inf'), float('inf')))
+
+    # 输出
+    # False
+  md: |-
+    | 节点 | 允许区间 | 通过 |
+    |---|---|---|
+    | 8 | (−∞, +∞) | 是 |
+    | 3 | (−∞, 8) | 是 |
+    | 10 | (3, 8) | 否 |
+
+    把 10 改成 7，再运行。
+- type: quiz
+  skill: algo.bst
+  q: 根 8 的左子树里，3 的右孩子最大能取哪个整数？
+  options:
+  - '7'
+  - '8'
+  - 任意大于 3 的数
+  answer: 0
+  explain: 严格上界 8 仍来自祖先。
+- type: quiz
+  skill: algo.bst
+  q: 在任意二叉树中，查 12 时遇到 8 就一定能丢掉左子树吗？
+  options:
+  - 能
+  - 要先保证整棵树满足搜索树性质
+  answer: 1
+  explain: 普通二叉树没有给左右子树规定值域。
+- type: read
+  skill: algo.nested-func
+  md: |-
+    一题需要反复访问树，同时又要记住目前最好的结果时，可以在入口函数内部定义一个小函数。每次调用入口，都从头准备自己的记录。内部函数能读取外层名字；若要让赋值落到外层那份记录上，先在内部写 nonlocal 并指定变量名。
+
+    遍历中每个节点只比较一次，找最大值花 O(n) 时间，递归深度由树高决定。**把最大值初始设为零** 会让全负数时的结果凭空多出一个候选。把首个真实节点当起点就能避开它。如果只需对子树独立计数，也可以直接交回数值，无需共享状态。
+- type: example
+  skill: algo.nested-func
+  code: |
+    class TreeNode:
+        def __init__(self, val, left=None, right=None):
+            self.val = val
+            self.left = left
+            self.right = right
+
+
+    # ① 每次入口调用都建自己的初始记录
+    def highest(root):
+        best = root.val
+        # ② 在当前调用内共享并更新最大值
+        def visit(node):
+            nonlocal best
+            if node:
+                best = max(best, node.val)
+                visit(node.left)
+                visit(node.right)
+        # ③ 完整遍历后读回结果
+        visit(root)
+        return best
+
+    print(highest(TreeNode(-8, TreeNode(-3), TreeNode(-9))))
+
+    # 输出
+    # -3
+  md: |-
+    | 读到的值 | best |
+    |---|---|
+    | −8 | −8 |
+    | −3 | −3 |
+    | −9 | −3 |
+
+    把 best 的初值改成 0，找出输出里哪一个数并未在树里出现。
+- type: quiz
+  skill: algo.nested-func
+  q: 给外层整数 best 重新赋值时，内部函数需要哪一行？
+  options:
+  - nonlocal best
+  - best = 0
+  - 什么都不写
+  answer: 0
+  explain: 赋值默认创建局部名字，nonlocal 让赋值落到最近的外层绑定。
+- type: quiz
+  skill: algo.nested-func
+  q: 外层保存的是列表，只调用它的 append，需要 nonlocal 吗？
+  options:
+  - 需要
+  - 不需要
+  answer: 1
+  explain: append 改的是对象内容，名字仍指向原对象。

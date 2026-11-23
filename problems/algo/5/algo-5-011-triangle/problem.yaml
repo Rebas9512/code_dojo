@@ -1,0 +1,34 @@
+id: algo-5-011-triangle
+title: 从三角表顶端走到末行
+track: algo
+stage: '5'
+order: 110
+format: write
+mode: function
+difficulty: 73
+week: 1
+skills:
+  requires:
+  - algo.dp-1d
+  - py.aliasing
+  - py.enumerate
+  - py.nested-loop
+  - py.slice
+  - py.sorted
+  introduces: null
+source: top-interview-150
+leetcode: triangle
+milestones: []
+entry: min_total
+signature: 'def min_total(rows: list[list[int]]) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 每层只允许直下，遗漏另一条合法路线。
+  code: |
+    def min_total(rows: list[list[int]]) -> int:
+        best = rows[-1].copy()
+        for row in reversed(rows[:-1]):
+            for j, value in enumerate(row):
+                best[j] = value + best[j]
+        return best[0]

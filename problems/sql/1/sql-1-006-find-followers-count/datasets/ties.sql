@@ -1,0 +1,1 @@
+INSERT INTO follows VALUES (2,19),(14,31);

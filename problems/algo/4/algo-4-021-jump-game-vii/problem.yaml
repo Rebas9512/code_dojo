@@ -1,0 +1,35 @@
+id: algo-4-021-jump-game-vii
+title: 跨过封闭踏板到达终点
+track: algo
+stage: '4'
+order: 210
+format: fix
+mode: function
+difficulty: 67
+unit: 3
+skills:
+  requires:
+  - algo.window-fixed
+  - py.bool-ops
+  - py.if-else
+  introduces: null
+source: neetcode250
+leetcode: jump-game-vii
+milestones: []
+entry: can_cross
+signature: 'def can_cross(s: str, low: int, high: int) -> bool:'
+compare: exact
+wrong_examples:
+- why: 窗口只加入旧起点，从不移出够不到当前格的起点。
+  code: |
+    def can_cross(s: str, low: int, high: int) -> bool:
+        reachable = [False] * len(s)
+        reachable[0] = True
+        active = 0
+        for i in range(1, len(s)):
+            if i >= low:
+                active += reachable[i - low]
+            reachable[i] = active > 0 and s[i] == "0"
+        return reachable[-1]
+hints:
+- 落在 i 的上一步只能来自 [i−high,i−low]。该范围右移一格时，哪项可以加进来，哪项应移出去？

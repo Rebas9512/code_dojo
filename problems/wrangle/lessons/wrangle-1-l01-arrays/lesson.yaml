@@ -1,0 +1,32 @@
+id: wrangle-1-l01-arrays
+title: 数组与形状
+track: wrangle
+skills:
+  - wrangle.array
+steps:
+  - type: read
+    skill: wrangle.array
+    md: |-
+      数组把同种类型的数放进有规则的格子，方便按同一种方法处理一批读数。两个柜台各记三天销量，一共有六格，排列方式是两行三列。整数可以用来数册，小数可以记录重量。
+
+      用 np.array 把列表放入格子。dtype 表示每格的存储类型；指定 float 会将 2 存成 2.0。shape 按轴列出长度，ndim 数轴的个数。一行三列和单独三个数有不同的形状。
+
+      **WM01 把行数当成轴数**。一行四列仍有行、列两个轴；形状 (1, 4) 的 ndim 为 2。
+  - type: example
+    skill: wrangle.array
+    code: |
+      import numpy as np
+      # ① 两家店各登记三天
+      sales = np.array([[2, 1, 0], [4, 3, 2]], dtype=float)
+      # ② 分别读形状、轴数和每格类型
+      print(sales.shape, sales.ndim, sales.dtype)  # 输出 (2, 3) 2 float64
+    md: 去掉一层方括号，只留下第一家店的三个数，再看形状。
+  - type: quiz
+    skill: wrangle.array
+    q: 一行登记四个数，形状为 (1, 4)，ndim 是几？
+    options:
+      - '1'
+      - '2'
+      - '4'
+    answer: 1
+    explain: 两个轴分别表示行和列，行数为 1 的轴仍存在。（WM01）

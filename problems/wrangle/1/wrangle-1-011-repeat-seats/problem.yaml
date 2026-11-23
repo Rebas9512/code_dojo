@@ -1,0 +1,16 @@
+id: wrangle-1-011-repeat-seats
+title: 同一张票查两次
+track: wrangle
+stage: '1'
+order: 110
+format: predict
+mode: predict
+difficulty: 18
+skills:
+  requires: []
+  introduces: wrangle.fancy
+source: original
+wrong_examples:
+  - why: 将位置去重并改回原顺序。
+    code: |
+      print('[5, 8]')

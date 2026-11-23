@@ -1,0 +1,50 @@
+id: algo-2-063-spiral-matrix
+title: 沿外圈向内读网格
+track: algo
+stage: '2'
+order: 630
+format: write
+mode: function
+difficulty: 65
+skills:
+  requires:
+  - py.bool-ops
+  - py.if-else
+  - py.list-append
+  - py.multi-assign
+  - py.nested-list
+  - py.slice
+  - py.sorted
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: spiral-matrix
+milestones:
+- blind75
+- top100
+entry: spiral
+signature: 'def spiral(matrix: list[list[int]]) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 只剩一行也把底边再读一次。
+  code: |
+    def spiral(matrix: list[list[int]]) -> list[int]:
+        top, bottom = 0, len(matrix)
+        left, right = 0, len(matrix[0])
+        result = []
+        while top < bottom and left < right:
+            result.extend(matrix[top][left:right])
+            top += 1
+            for r in range(top, bottom):
+                result.append(matrix[r][right - 1])
+            right -= 1
+            if True:
+                result.extend(reversed(matrix[bottom - 1][left:right]))
+                bottom -= 1
+            if left < right:
+                for r in range(bottom - 1, top - 1, -1):
+                    result.append(matrix[r][left])
+                left += 1
+        return result
+hints:
+- 读完一条边就缩掉它。准备读底边或左边之前，重新确认还有没有这一行或列。

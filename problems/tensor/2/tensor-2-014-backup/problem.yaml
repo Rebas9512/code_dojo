@@ -1,0 +1,26 @@
+id: tensor-2-014-backup
+title: 无效位置改用备用值
+track: tensor
+stage: '2'
+order: 140
+format: complete
+mode: function
+difficulty: 29
+skills:
+  requires:
+    - tensor.where
+  introduces: null
+source: original
+entry: backup
+signature: 'def backup(main, spare):'
+compare: allclose
+wrong_examples:
+  - why: 忽略了零也是有效读数。
+    code: |
+      import torch
+
+
+      def backup(main, spare):
+          x = torch.tensor(main)
+          y = torch.tensor(spare)
+          return torch.where(x > 0, x, y)

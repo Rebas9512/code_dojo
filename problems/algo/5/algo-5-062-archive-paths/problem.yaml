@@ -1,0 +1,57 @@
+id: algo-5-062-archive-paths
+title: 档案目录第 2 级：写入和读取文件
+track: algo
+stage: '5'
+order: 620
+format: variant
+mode: class
+difficulty: 80
+week: 8
+skills:
+  requires:
+  - algo.oop-design
+  - algo.trie
+  - py.dict-get
+  - py.multi-assign
+  - py.sorted
+  - py.split-join
+  introduces: null
+source: original
+leetcode: design-in-memory-file-system
+milestones: []
+entry: Archive
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 追加写被实现为覆盖，文件只剩最后一段。
+  code: |
+    class Archive:
+        def __init__(self):
+            self.root = {}
+
+        def _directory(self, path):
+            node = self.root
+            for name in path.split("/"):
+                if name:
+                    node = node[name]
+            return node
+
+        def mkdir(self, path: str) -> None:
+            node = self.root
+            for name in path.split("/"):
+                if name:
+                    node = node.setdefault(name, {})
+
+        def ls(self, path: str) -> list[str]:
+            node = self._directory(path)
+            if isinstance(node, list):
+                return [path.rsplit("/", 1)[-1]]
+            return sorted(node)
+
+        def addContentToFile(self, path: str, content: str) -> None:
+            parent, _, name = path.rpartition("/")
+            directory = self._directory(parent)
+            directory[name] = [content]
+
+        def readContentFromFile(self, path: str) -> str:
+            return "".join(self._directory(path))

@@ -1,0 +1,20 @@
+id: py-0a-018-triangle-type
+title: 三角形的类型
+track: python
+stage: 0A
+order: 390
+format: combine
+mode: function
+difficulty: 9
+skills:
+  requires: [py.early-return, py.bool-ops]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: triangle_type
+signature: "def triangle_type(a: int, b: int, c: int) -> str:"
+compare: exact
+hints:
+  - "先排除不是三角形的情况，再判断等边，最后判断等腰。"
+  - "1、2、3 不能组成三角形：1 + 2 不大于 3。"

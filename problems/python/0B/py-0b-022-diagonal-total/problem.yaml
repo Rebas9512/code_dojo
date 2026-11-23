@@ -1,0 +1,28 @@
+id: py-0b-022-diagonal-total
+title: 两条对角线共经过哪些格
+track: python
+stage: 0B
+order: 220
+format: variant
+mode: function
+difficulty: 28
+skills:
+  requires: [py.matrix-traverse, py.for-range, py.accumulator, py.if-else]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: diagonal_total
+signature: 'def diagonal_total(grid: list[list[int]]) -> int:'
+compare: exact
+wrong_examples:
+  - why: "方阵边长为奇数时重复计算中心格。"
+    code: |
+      def diagonal_total(grid: list[list[int]]) -> int:
+          n = len(grid)
+          total = 0
+          for row in range(n):
+              other = n - 1 - row
+              total += grid[row][row]
+              total += grid[row][other]
+          return total

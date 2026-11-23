@@ -1,0 +1,26 @@
+id: sql-0-004-cheap-books
+title: 30 元以下的书
+track: sql
+stage: "0"
+order: 70
+format: write
+difficulty: 5
+skills: {requires: [sql.where], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/edge-prices.sql
+ordered: false
+hints:
+  - "数字不加引号：price < 30。"
+  - "\"低于\"不包含等于。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "用了 <=，把正好 30 元的也算进去了"
+    sql: |
+      SELECT title, price FROM books WHERE price <= 30;
+  - why: "方向反了"
+    sql: |
+      SELECT title, price FROM books WHERE price > 30;

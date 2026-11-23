@@ -1,0 +1,24 @@
+id: data-0-004-read-one-value
+title: 给一条记录里的值归类
+track: data
+stage: '0'
+order: 40
+format: inspect
+mode: inspect
+difficulty: 2
+skills:
+  requires:
+    - data.table-intro
+  introduces: data.value-kinds
+data:
+  - kind: json
+    title: 一位用户的资料
+    file: user.json
+answer:
+  type: short
+  accept:
+    - 整数 文字 文字
+    - 整数 字符串 字符串
+  misconceptions:
+    整数 文字 整数: DM01
+explain: 1 没有引号，是整数。姓名和手机号各用引号括起，都是文字；电话里的字符恰好全是数字。

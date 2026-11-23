@@ -1,0 +1,29 @@
+id: sql-4-006-department-top-three-salaries
+title: 各部薪资最高的三档
+track: sql
+stage: '4'
+order: 60
+format: combine
+difficulty: 56
+skills:
+  requires:
+    - sql.top-n-per-group
+  introduces: null
+source: sql50
+leetcode: department-top-three-salaries
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/extra-ties.sql
+  - datasets/sample.sql + datasets/null-only.sql
+ordered: false
+hints:
+  - 先标档次，再从外层读出合格的行。
+wrong_examples:
+  - why: 按序号只取三个人
+    sql: |
+      WITH ranks AS (
+          SELECT dept, worker, salary, ROW_NUMBER() OVER (PARTITION BY dept ORDER BY salary DESC) AS tier
+          FROM wages WHERE salary IS NOT NULL
+      )
+      SELECT dept, worker, salary FROM ranks WHERE tier <= 3;

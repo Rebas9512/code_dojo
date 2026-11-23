@@ -1,0 +1,19 @@
+id: py-0a-135-complete-strip-ends
+title: 补全：去掉首尾
+track: python
+stage: 0A
+order: 700
+format: complete
+mode: function
+difficulty: 12
+skills:
+  requires: [py.slice]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: strip_ends
+signature: "def strip_ends(s: str) -> str:"
+compare: exact
+hints:
+  - "从下标 1 开始，到倒数第一个之前结束。"

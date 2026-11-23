@@ -1,0 +1,50 @@
+id: algo-3-091-evaluate-division
+title: 沿着比值链换算
+track: algo
+stage: '3'
+order: 910
+format: combine
+mode: function
+difficulty: 72
+skills:
+  requires:
+  - algo.graph-adj-list
+  - algo.nested-func
+  - py.bool-ops
+  - py.dict-get
+  - py.list-comp
+  - py.list-pop
+  - py.nested-loop
+  - py.set-basics
+  - py.while
+  - py.zip
+  introduces: null
+source: neetcode250
+leetcode: evaluate-division
+milestones: []
+entry: quotients
+signature: 'def quotients(equations: list[list[str]], values: list[float], queries: list[list[str]]) -> list[float]:'
+compare: float
+wrong_examples:
+- why: 反向边也用正向倍率。
+  code: |
+    def quotients(equations: list[list[str]], values: list[float], queries: list[list[str]]) -> list[float]:
+        graph = {}
+        for (a, b), value in zip(equations, values):
+            graph.setdefault(a, []).append((b, value))
+            graph.setdefault(b, []).append((a, value))
+        def ratio(start, end):
+            if start not in graph or end not in graph:
+                return -1.0
+            stack = [(start, 1.0)]
+            seen = {start}
+            while stack:
+                node, weight = stack.pop()
+                if node == end:
+                    return weight
+                for other, factor in graph[node]:
+                    if other not in seen:
+                        seen.add(other)
+                        stack.append((other, weight * factor))
+            return -1.0
+        return [ratio(a,b) for a,b in queries]

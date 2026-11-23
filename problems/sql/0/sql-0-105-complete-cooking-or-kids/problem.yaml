@@ -1,0 +1,25 @@
+id: sql-0-105-complete-cooking-or-kids
+title: 补全：两个分类
+track: sql
+stage: "0"
+order: 110
+format: complete
+difficulty: 6
+skills: {requires: [sql.where], introduces: sql.in-list}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/more-categories.sql
+ordered: false
+hints:
+  - "\"在这几个值里\"用 IN (...)。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "写成了 NOT IN"
+    sql: |
+      SELECT title, category FROM books WHERE category NOT IN ('cooking', 'kids');
+  - why: "只写了一个分类"
+    sql: |
+      SELECT title, category FROM books WHERE category = 'cooking';

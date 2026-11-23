@@ -1,0 +1,26 @@
+id: py-0b-006-highest-altitude
+title: 走过的最高海拔
+track: python
+stage: 0B
+order: 60
+format: write
+mode: function
+difficulty: 24
+skills:
+  requires: [py.linear-search, py.accumulator, py.running-max, py.minmax-abs]
+  introduces: null
+source: leetcode75
+leetcode: find-the-highest-altitude
+milestones: []
+entry: highest_altitude
+signature: 'def highest_altitude(changes: list[int]) -> int:'
+compare: exact
+wrong_examples:
+  - why: "比较每段的升降量，忽略已累积的海拔。"
+    code: |
+      def highest_altitude(changes: list[int]) -> int:
+          altitude = peak = 0
+          for change in changes:
+              altitude += change
+              peak = max(peak, change)
+          return peak

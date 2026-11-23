@@ -1,0 +1,36 @@
+id: algo-1-029-merge-runs
+title: 合并两个有序列表 → 归并排序
+track: algo
+stage: '1'
+order: 290
+format: complete
+mode: function
+difficulty: 43
+skills:
+  requires:
+  - py.if-else
+  - py.bool-ops
+  - py.slice
+  - py.list-concat-repeat
+  - py.two-index
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: merge
+signature: 'def merge(a: list[int], b: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 忘了尚未用完的一边。
+  code: |
+    def merge(a: list[int], b: list[int]) -> list[int]:
+        result = []
+        i = j = 0
+        while i < len(a) and j < len(b):
+            if a[i] <= b[j]:
+                result.append(a[i])
+                i += 1
+            else:
+                result.append(b[j])
+                j += 1
+        return result

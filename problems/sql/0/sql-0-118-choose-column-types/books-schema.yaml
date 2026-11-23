@@ -1,0 +1,37 @@
+columns:
+  - name: book_id
+    type: integer
+    nullable: false
+    primary_key: true
+  - name: title
+    type: text
+    nullable: false
+    primary_key: false
+  - name: author_id
+    type: integer
+    nullable: true
+    primary_key: false
+  - name: category
+    type: text
+    nullable: false
+    primary_key: false
+  - name: price
+    type: numeric(6,2)
+    nullable: false
+    primary_key: false
+  - name: stock
+    type: integer
+    nullable: false
+    primary_key: false
+  - name: publisher
+    type: text
+    nullable: true
+    primary_key: false
+  - name: published_on
+    type: date
+    nullable: true
+    primary_key: false
+  - name: pages
+    type: integer
+    nullable: true
+    primary_key: false

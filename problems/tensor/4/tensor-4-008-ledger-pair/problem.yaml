@@ -1,0 +1,29 @@
+id: tensor-4-008-ledger-pair
+title: 报告小计与累计梯度
+track: tensor
+stage: '4'
+order: 80
+format: write
+mode: function
+difficulty: 36
+skills:
+  requires:
+    - tensor.accumulate
+    - tensor.backward
+  introduces: null
+source: original
+entry: ledger
+signature: 'def ledger(a, b):'
+compare: exact
+wrong_examples:
+  - why: 留下的是可被原地累加改动的同一份梯度。
+    code: |
+      import torch
+
+
+      def ledger(a, b):
+          x = torch.tensor(1., requires_grad=True)
+          (a * x).backward()
+          first = x.grad
+          (b * x).backward()
+          return [first.item(), x.grad.item()]

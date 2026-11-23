@@ -1,0 +1,26 @@
+id: data-0-003-sales-from-register
+title: 这张表能告诉店员什么
+track: data
+stage: '0'
+order: 30
+format: inspect
+mode: inspect
+difficulty: 1
+skills:
+  requires:
+    - data.table-intro
+  introduces: null
+data:
+  - kind: table
+    title: 书架登记
+    file: books.csv
+answer:
+  type: choice
+  options:
+    - 卖出 5 本
+    - 还要查订单明细
+    - 卖出 0 本
+  correct: 1
+  misconceptions:
+    '0': DM04
+explain: 5 写在 book_id 列，0 写在 stock 列。卖出多少要看成交记录，这张登记只给了编号、书名和现存册数。

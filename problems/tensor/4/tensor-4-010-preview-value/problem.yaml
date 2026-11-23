@@ -1,0 +1,25 @@
+id: tensor-4-010-preview-value
+title: 预览新的仪器读数
+track: tensor
+stage: '4'
+order: 100
+format: complete
+mode: function
+difficulty: 37
+skills:
+  requires:
+    - tensor.boundary
+  introduces: null
+source: original
+entry: preview
+signature: 'def preview(x):'
+compare: checker
+wrong_examples:
+  - why: 在暂停记录的上下文之外计算，预览仍带梯度。
+    code: |
+      import torch
+
+
+      def preview(x):
+          value = x + 1
+          return value

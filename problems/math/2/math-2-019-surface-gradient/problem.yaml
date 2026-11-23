@@ -1,0 +1,26 @@
+id: math-2-019-surface-gradient
+title: 测一块曲面的两向坡度
+track: math
+stage: '2'
+order: 190
+format: write
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - math.derivative
+    - math.vector
+    - math.gradient
+  introduces: null
+source: original
+entry: surface_gradient
+signature: 'def surface_gradient(x: float, y: float, h: float) -> list[float]:'
+compare: float
+wrong_examples:
+  - why: 把两个方向装入相反的格子。
+    code: |
+      def surface_gradient(x: float, y: float, h: float) -> list[float]:
+          base = x*x + x*y
+          right = (x+h)**2 + (x+h)*y
+          up = x*x + x*(y+h)
+          return [(up-base)/h, (right-base)/h]

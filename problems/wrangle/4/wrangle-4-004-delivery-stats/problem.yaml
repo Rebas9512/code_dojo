@@ -1,0 +1,28 @@
+id: wrangle-4-004-delivery-stats
+title: 给每个货架开一张对账单
+track: wrangle
+stage: '4'
+order: 40
+format: write
+mode: function
+difficulty: 30
+skills:
+  requires:
+    - wrangle.group
+    - wrangle.cast
+  introduces: null
+source: original
+entry: delivery_stats
+signature: 'def delivery_stats(t):'
+compare: frame
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 相同数量的两批也应各计一次。
+    code: |
+      def delivery_stats(t):
+          t['n'] = t['n'].astype('Int64')
+          return t.groupby('rack', as_index=False).agg(batches=('n', 'nunique'), total=('n', 'sum'))

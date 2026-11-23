@@ -1,0 +1,32 @@
+id: algo-1-007-two-sum
+title: 凑齐指定的货重
+track: algo
+stage: '1'
+order: 70
+format: write
+mode: function
+difficulty: 37
+skills:
+  requires:
+  - py.early-return
+  - algo.hash-index-map
+  introduces: null
+source: neetcode250
+leetcode: two-sum
+milestones:
+- blind75
+- top100
+entry: two_sum
+signature: 'def two_sum(nums: list[int], target: int) -> list[int]:'
+compare: unordered
+wrong_examples:
+- why: 先把自己存进去，可能同一件货被选两次。
+  code: |
+    def two_sum(nums: list[int], target: int) -> list[int]:
+        positions = {}
+        for i, value in enumerate(nums):
+            positions[value] = i
+            other = target - value
+            if other in positions:
+                return [positions[other], i]
+            positions[value] = i

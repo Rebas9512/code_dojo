@@ -1,0 +1,44 @@
+id: algo-1-019-pack-and-unpack
+title: 打包与拆包：把字符串列表编成一个字符串
+track: algo
+stage: '1'
+order: 190
+format: write
+mode: class
+difficulty: 47
+skills:
+  requires:
+  - py.fstring
+  - py.type-convert
+  - py.while
+  - py.slice
+  - py.split-join
+  - algo.class-design
+  introduces: null
+source: original
+leetcode: encode-and-decode-strings
+milestones:
+- blind75
+replaces_premium: encode-and-decode-strings
+entry: Codec
+compare: exact
+wrong_examples:
+- why: 只读一位长度，遇到两位数就截短。
+  code: |
+    class Codec:
+        def encode(self, words: list[str]) -> str:
+            parts = []
+            for word in words:
+                parts.append(f"{len(word)}#{word}")
+            return ''.join(parts)
+
+        def decode(self, packet: str) -> list[str]:
+            words = []
+            start = 0
+            while start < len(packet):
+                mark = packet.index('#', start)
+                length = int(packet[start])
+                start = mark + 1
+                words.append(packet[start:start + length])
+                start += length
+            return words

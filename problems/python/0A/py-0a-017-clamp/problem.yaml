@@ -1,0 +1,20 @@
+id: py-0a-017-clamp
+title: 限制在区间内
+track: python
+stage: 0A
+order: 380
+format: write
+mode: function
+difficulty: 7
+skills:
+  requires: [py.func-return, py.minmax-abs]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: clamp
+signature: "def clamp(x: int, low: int, high: int) -> int:"
+compare: exact
+hints:
+  - "min(x, high) 保证结果不超过 high。"
+  - "再套一层 max(low, ...) 保证结果不小于 low。"

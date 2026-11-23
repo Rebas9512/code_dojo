@@ -1,0 +1,27 @@
+id: wrangle-4-009-shift-log
+title: 把早晚两列拆成登记
+track: wrangle
+stage: '4'
+order: 90
+format: complete
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - wrangle.melt
+  introduces: null
+source: original
+entry: shift_log
+signature: 'def shift_log(t):'
+compare: frame
+leetcode: reshape-data-melt
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 只展开早班。
+    code: |
+      def shift_log(t):
+          return t.melt(id_vars='shop', value_vars=['am'], var_name='shift', value_name='n')

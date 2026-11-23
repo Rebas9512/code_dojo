@@ -1,0 +1,16 @@
+track: python
+skills:
+  - id: py.var-arith
+    name: 变量与算术
+    stage: 0A
+    group: 1
+    prereqs: []
+    card: |
+      `a + b`、`a // b`（整除）、`a % b`（取余）。
+  - id: py.function-return
+    name: 函数与返回值
+    stage: 0A
+    group: 6
+    prereqs: [py.var-arith]
+    card: |
+      `def f(x):` 定义函数，`return` 返回结果。

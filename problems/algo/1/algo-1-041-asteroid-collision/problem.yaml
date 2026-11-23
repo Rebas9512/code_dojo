@@ -1,0 +1,37 @@
+id: algo-1-041-asteroid-collision
+title: 同轨运行的碎石
+track: algo
+stage: '1'
+order: 410
+unit: 2
+format: write
+mode: function
+difficulty: 55
+skills:
+  requires:
+  - py.if-else
+  - py.bool-ops
+  - py.while
+  - py.nested-loop
+  - py.stack-list
+  introduces: null
+source: neetcode250
+leetcode: asteroid-collision
+milestones: []
+entry: asteroid_collision
+signature: 'def asteroid_collision(rocks: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 只让来石撞一次，无法连续消掉几块。
+  code: |
+    def asteroid_collision(rocks: list[int]) -> list[int]:
+        stack = []
+        for rock in rocks:
+            if stack and stack[-1] > 0 and rock < 0 and stack[-1] < -rock:
+                stack.pop()
+            if stack and stack[-1] > 0 and rock < 0:
+                if stack[-1] == -rock:
+                    stack.pop()
+            else:
+                stack.append(rock)
+        return stack

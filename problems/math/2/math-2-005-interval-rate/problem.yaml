@@ -1,0 +1,21 @@
+id: math-2-005-interval-rate
+title: 算出区间的变化率
+track: math
+stage: '2'
+order: 50
+format: complete
+mode: function
+difficulty: 22
+skills:
+  requires:
+    - math.slope
+  introduces: null
+source: original
+entry: interval_rate
+signature: 'def interval_rate(t0: float, y0: float, t1: float, y1: float) -> float:'
+compare: float
+wrong_examples:
+  - why: 直接除以终点时刻。
+    code: |
+      def interval_rate(t0: float, y0: float, t1: float, y1: float) -> float:
+          return (y1 - y0) / t1

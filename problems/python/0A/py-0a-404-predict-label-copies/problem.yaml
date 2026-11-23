@@ -1,0 +1,15 @@
+id: py-0a-404-predict-label-copies
+title: 重复价签上的字符
+track: python
+stage: 0A
+order: 55
+format: predict
+mode: predict
+difficulty: 4
+skills:
+  requires:
+    - py.type-ops
+  introduces: null
+source: original
+leetcode: null
+milestones: []

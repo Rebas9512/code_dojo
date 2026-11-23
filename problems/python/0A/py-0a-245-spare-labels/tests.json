@@ -1,0 +1,11 @@
+{
+  "examples": [
+    {"args": [["云", "松"], {"云": "小云"}], "expected": ["小云", "松"]},
+    {"args": [["A"], {"A": ""}], "expected": [""]}
+  ],
+  "hidden": [
+    {"args": [[], {}], "expected": []},
+    {"args": [["B"], {}], "expected": ["B"]},
+    {"args": [["x", "x"], {"x": "甲"}], "expected": ["甲", "甲"]}
+  ]
+}

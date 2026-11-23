@@ -1,0 +1,46 @@
+id: algo-4-065-longest-increasing-path-in-a-matrix
+title: 只能走向更高一格的最长路线
+track: algo
+stage: '4'
+order: 650
+format: combine
+mode: function
+difficulty: 82
+skills:
+  requires:
+  - algo.dp-2d
+  - algo.grid-dfs
+  - algo.memo-cache
+  - py.bool-ops
+  - py.genexp
+  - py.list-builtins
+  introduces: null
+source: neetcode250
+leetcode: longest-increasing-path-in-a-matrix
+milestones:
+- nc150
+entry: rising_length
+signature: 'def rising_length(matrix: list[list[int]]) -> int:'
+compare: exact
+wrong_examples:
+- why: 只试向下和向右，漏掉上行与左行。
+  code: |
+    from functools import cache
+
+
+    def rising_length(matrix: list[list[int]]) -> int:
+        rows, cols = len(matrix), len(matrix[0])
+
+        @cache
+        def length(r, c):
+            best = 1
+            for dr, dc in [(1, 0), (0, 1)]:
+                nr, nc = r + dr, c + dc
+                if (0 <= nr < rows and 0 <= nc < cols
+                        and matrix[nr][nc] > matrix[r][c]):
+                    best = max(best, 1 + length(nr, nc))
+            return best
+
+        return max(length(r, c) for r in range(rows) for c in range(cols))
+hints:
+- 从一个格子出发的最佳后续只取决于该格。每步严格变大，沿合法边不会走回原格。

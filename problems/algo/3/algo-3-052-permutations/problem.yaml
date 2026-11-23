@@ -1,0 +1,46 @@
+id: algo-3-052-permutations
+title: 所有编号的入场次序
+track: algo
+stage: '3'
+order: 520
+format: write
+mode: function
+difficulty: 63
+skills:
+  requires:
+  - algo.backtracking
+  - algo.nested-func
+  - py.break-continue
+  - py.enumerate
+  - py.list-concat-repeat
+  - py.multi-assign
+  - py.slice
+  introduces: null
+source: neetcode250
+leetcode: permutations
+milestones:
+- nc150
+- top100
+entry: arrangements
+signature: 'def arrangements(nums: list[int]) -> list[list[int]]:'
+compare: unordered
+wrong_examples:
+- why: 一条分支占用的位置在退回后仍被标记。
+  code: |
+    def arrangements(nums: list[int]) -> list[list[int]]:
+        result, path = [], []
+        used = [False] * len(nums)
+        def fill():
+            if len(path) == len(nums):
+                result.append(path[:])
+                return
+            for i, value in enumerate(nums):
+                if used[i]:
+                    continue
+                used[i] = True
+                path.append(value)
+                fill()
+                path.pop()
+                pass
+        fill()
+        return result

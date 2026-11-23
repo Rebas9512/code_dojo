@@ -1,0 +1,117 @@
+id: algo-4-l05-grid-and-bag
+title: 一格的来路，一件物品的去留
+track: algo
+skills:
+- algo.dp-2d
+- algo.dp-knapsack
+steps:
+- type: read
+  skill: algo.dp-2d
+  md: |
+    **状态**：ways(r,c) 是从左上角到第 r 行第 c 列的路线数。**转移**：最后一步只能从上方或左方来，两类走法相加。**初值**：起点有一种空走法，越过上边、左边都贡献 0。**顺序**：递归先询问来处。按行填表时从上到下、行内从左到右，依赖的两格都已经算好。
+
+    当只知道行号无法确定位置，必须再知道列号时，就需要一对坐标。每格做常数次运算，m 行 n 列用 O(mn) 时间和表空间。先画依赖箭头再决定从哪里填。例如戳气球的两个坐标是区间两端，要先算短区间。建表时每一行都要新建列表，否则改一格会同时改到其他行。
+- type: example
+  skill: algo.dp-2d
+  code: |
+    from functools import cache
+
+    # ① 自顶向下，看最后一步来自哪里
+    @cache
+    def ways(r, c):
+        if r < 0 or c < 0:
+            return 0
+        if r == 0 and c == 0:
+            return 1
+        return ways(r - 1, c) + ways(r, c - 1)
+
+    # ② 自底向上，先放好边界上的唯一走法
+    table = [[1] * 4 for _ in range(3)]
+    for r in range(1, 3):
+        for c in range(1, 4):
+            table[r][c] = table[r - 1][c] + table[r][c - 1]
+    print(ways(2, 3))
+    print(table[2])
+
+    # 输出
+    # 10
+    # [1, 3, 6, 10]
+  md: |
+    | 格子 (r,c) | 上方 | 左方 | 合计 |
+    |---|---|---|---|
+    | (1,1) | 1 | 1 | 2 |
+    | (2,2) | 3 | 3 | 6 |
+    | (2,3) | 4 | 6 | 10 |
+
+    在纸上遮住 (1,1)，试着重填它右方和下方的格子。
+- type: quiz
+  skill: algo.dp-2d
+  q: 起点没有迈步，为什么还要记 1？
+  options:
+  - 有一种留在起点的走法
+  - 起点已经走了一步
+  answer: 0
+  explain: 这一次空走法给后面的计数提供起始来源。
+- type: quiz
+  skill: algo.dp-2d
+  q: 状态改成开区间 (左,右) 的最优分，依赖两个更短区间，怎样安排顺序？
+  options:
+  - 仍然固定逐行从左上开始
+  - 按区间长度从短到长
+  answer: 1
+  explain: 答案依赖短区间，先算短区间才能在较长区间中读到它们。
+- type: read
+  skill: algo.dp-knapsack
+  md: |
+    **状态**：can(i,s) 表示前 i 件物品中能否挑出总和恰为 s 的一批。**转移**：不选第 i 件就查 can(i−1,s)。选它就查 can(i−1,s−重量)。**初值**：手里没有物品时只有 0 能凑出。**顺序**：递归每次少看一件，填表则逐件加入。如果压成一行，每件的容量从大到小更新，让读到的较小容量仍属于上一轮。
+
+    看见“每项最多用一次”“正好够这个容量”时试着画一张物品数乘容量的表。n 件、容量 S 时最多 O(nS) 次判断，一维数组只占 O(S)。反过来，每种硬币可无限使用，就要从小到大更新，允许本轮的结果再次参与。计数题要保留方案数，不能只记真假。
+- type: example
+  skill: algo.dp-knapsack
+  code: |
+    from functools import cache
+
+    # ① 自顶向下，把第 i 件留在外面或放进包中
+    items = [3, 5]
+    target = 6
+    @cache
+    def can(i, s):
+        if i == 0:
+            return s == 0
+        weight = items[i - 1]
+        return can(i - 1, s) or (weight <= s and can(i - 1, s - weight))
+
+    # ② 自底向上，倒序更新本轮可以凑出的容量
+    possible = [True] + [False] * target
+    for weight in items:
+        for s in range(target, weight - 1, -1):
+            possible[s] = possible[s] or possible[s - weight]
+    print(can(len(items), target))
+    print([i for i in range(target + 1) if possible[i]])
+
+    # 输出
+    # False
+    # [0, 3, 5]
+  md: |
+    | 物品 | 更新前可达 | 更新后可达（最多 6） |
+    |---|---|---|
+    | 3 | 0 | 0、3 |
+    | 5 | 0、3 | 0、3、5 |
+
+    试试追加第二件重量为 3 的物品，再看 6。
+- type: quiz
+  skill: algo.dp-knapsack
+  q: 只有一件重量 3，要凑 6。若从 3 向上更新，会发生什么？
+  options:
+  - 正确得出无法凑齐
+  - 先标记 3，又读这个新标记凑出 6
+  answer: 1
+  explain: 同一轮用了这件物品两次，违反只许选一次的约束。
+- type: quiz
+  skill: algo.dp-knapsack
+  q: 面值 3 的硬币有无限多枚，要统计组合，容量该怎样扫？
+  options:
+  - 从小到大
+  - 从大到小
+  answer: 0
+  explain: 凑出 3 后还能用同一种面值继续凑 6，所以要看本轮更新值。

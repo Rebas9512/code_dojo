@@ -1,0 +1,29 @@
+id: algo-3-049-sum-of-all-subset-xor-totals
+title: 所有取法的异或值之和
+track: algo
+stage: '3'
+order: 490
+format: write
+mode: function
+difficulty: 60
+skills:
+  requires:
+  - algo.backtracking
+  - algo.bit-ops
+  - algo.nested-func
+  introduces: null
+source: neetcode250
+leetcode: sum-of-all-subset-xor-totals
+milestones: []
+entry: subset_xor_sum
+signature: 'def subset_xor_sum(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 把异或换成普通加法。
+  code: |
+    def subset_xor_sum(nums: list[int]) -> int:
+        def visit(i, value):
+            if i == len(nums):
+                return value
+            return visit(i + 1, value) + visit(i + 1, value + nums[i])
+        return visit(0, 0)

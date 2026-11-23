@@ -1,0 +1,44 @@
+id: algo-2-005-merge-sorted-array
+title: 用尾部空位合并两列数
+track: algo
+stage: '2'
+order: 50
+format: write
+mode: function
+difficulty: 49
+skills:
+  requires:
+  - py.bool-ops
+  - py.break-continue
+  - py.helper-func
+  - py.multi-assign
+  - py.two-index
+  introduces: null
+source: neetcode250
+leetcode: merge-sorted-array
+milestones: []
+entry: run_case
+signature: 'def run_case(nums1: list[int], m: int, nums2: list[int], n: int) -> list:'
+compare: exact
+wrong_examples:
+- why: 把合法的下标 0 也当成用完。
+  code: |
+    def merge(nums1: list[int], m: int, nums2: list[int], n: int) -> None:
+        i, j = m - 1, n - 1
+        for dest in range(m + n - 1, -1, -1):
+            if j < 0:
+                break
+            if i > 0 and nums1[i] > nums2[j]:
+                nums1[dest] = nums1[i]
+                i -= 1
+            else:
+                nums1[dest] = nums2[j]
+                j -= 1
+
+
+    def run_case(nums1: list[int], m: int, nums2: list[int], n: int) -> list:
+        merge(nums1, m, nums2, n)
+        return nums1
+hints:
+- 比较两列还未放好的最大值。
+- 从 nums1 的空位末端往前写，这样不会盖住未读的数据。

@@ -1,0 +1,2 @@
+INSERT INTO staff VALUES (8, NULL, 40000),
+    (7, 30, 12000);

@@ -1,0 +1,33 @@
+id: algo-2-038-search-insert-position
+title: 为新编号寻找插入点
+track: algo
+stage: '2'
+order: 380
+format: write
+mode: function
+difficulty: 57
+skills:
+  requires:
+  - algo.binary-search
+  - py.if-else
+  - py.multi-assign
+  introduces: null
+source: neetcode250
+leetcode: search-insert-position
+milestones:
+- top100
+entry: insert_position
+signature: 'def insert_position(nums: list[int], x: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 把可插在末尾的位置排除在答案之外。
+  code: |
+    def insert_position(nums: list[int], x: int) -> int:
+        lo, hi = 0, len(nums) - 1
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if nums[mid] < x:
+                lo = mid + 1
+            else:
+                hi = mid
+        return lo

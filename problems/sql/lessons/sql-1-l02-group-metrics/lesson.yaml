@@ -1,0 +1,113 @@
+id: sql-1-l02-group-metrics
+title: 在一组记录里计算不同指标
+track: sql
+skills:
+  - sql.count-distinct
+  - sql.conditional-agg
+  - sql.string-agg
+  - sql.nullif
+steps:
+  - type: read
+    skill: sql.count-distinct
+    md: |
+      把订单按日期分堆后，每一行代表一单。若同一人上午、下午各来一次，数行会记两次，数不同来客就只应记一次。`COUNT(DISTINCT user_id)` 在每堆内收集不重复且非空的编号，然后数这个集合。
+
+      同一个人明天再来，会在明天的堆里再记一次。注意去重的是括号里的值：若用姓名，两个同名读者会被合并。SELECT 最外层写 DISTINCT 只能去掉最终重复的结果行，不能修正组内已经算大的计数。
+  - type: example
+    skill: sql.count-distinct
+    db: bookstore
+    code: |
+      -- ① 按用户分组，一行评分算一票
+      -- ② 看这些票涉及几种不同的星数
+      SELECT user_id, COUNT(*) AS votes, COUNT(DISTINCT stars) AS different_scores
+      FROM ratings
+      GROUP BY user_id;
+    md: 把 DISTINCT 后的 stars 改成 book_id，为什么两个数现在相同？
+  - type: quiz
+    skill: sql.count-distinct
+    q: 一个组里的用户号依次是 7、7、NULL、9。COUNT(DISTINCT user_id) 得到多少？
+    options:
+      - '2'
+      - '3'
+      - '4'
+    answer: 0
+    explain: 重复的 7 合为一个值，NULL 不参加计数，留下 7 和 9。
+  - type: read
+    skill: sql.conditional-agg
+    md: |
+      一位读者想看自己给了多少好评、多少差评。若先用 WHERE 只留下好评，就丢失了同组的差评。可以让每条评分同时给两个计数器贡献数值：达到条件记 1，没达到记 0，最后按读者分别求和。
+
+      把 CASE 表达式放在 SUM 里面就能做到这一点。某个用户全是普通评分，他仍然有一组，两列的加数都可以全为 0。如果改用 COUNT，数字 0 仍然会被它计数；计数条件成立的行时，未命中要给 NULL。
+  - type: example
+    skill: sql.conditional-agg
+    db: bookstore
+    code: |
+      -- ① 同一张评分卡分别给两列贡献 0 或 1
+      -- ② 各列在用户自己的评分里累加
+      SELECT user_id, SUM(CASE WHEN stars = 5 THEN 1 ELSE 0 END) AS five_star,
+             SUM(CASE WHEN stars <= 2 THEN 1 ELSE 0 END) AS low_star
+      FROM ratings
+      GROUP BY user_id;
+    md: 把第二个 SUM 改成 COUNT，看看只有高分的读者会得到什么。
+  - type: quiz
+    skill: sql.conditional-agg
+    q: 三条记录只有一条满足条件。COUNT(CASE WHEN 条件 THEN 1 ELSE 0 END) 得到多少？
+    options:
+      - '0'
+      - '1'
+      - '3'
+    answer: 2
+    explain: 三个返回值分别是 1、0、0，都非空，COUNT 全算进去了。
+  - type: read
+    skill: sql.string-agg
+    md: |
+      一张清单常要求一天一行，行内列出多个名字。这时可以把一组文字交给 STRING_AGG。第一个参数是要连接的文字，第二个参数是分隔符。想让重复书名只出现一次，就在第一个参数前加 DISTINCT。NULL 会被跳过。
+
+      还要分清两个排序位置。函数括号里的 ORDER BY 决定逗号左右谁先谁后；整个查询末尾的 ORDER BY 决定哪一天的整行先出现。即使今天看到的清单碰巧有序，也要把要求的顺序写进函数。
+  - type: example
+    skill: sql.string-agg
+    db: bookstore
+    code: |
+      -- ① 一个分类放在一行
+      -- ② 在每个分类内部将不同书名按字母顺序连起来
+      SELECT category, STRING_AGG(DISTINCT title, ', ' ORDER BY title) AS titles
+      FROM books
+      GROUP BY category;
+    md: 删掉 DISTINCT，看看 programming 的清单里哪本书出现两次。
+  - type: quiz
+    skill: sql.string-agg
+    q: 一组里依次来了 Zen、Ash、Zen，要求去重并按名字升序，用英文逗号分隔。应该得到哪串文字？
+    options:
+      - Zen,Ash
+      - Ash,Zen
+      - Ash,Zen,Zen
+    answer: 1
+    explain: 先确定组内只有两个不同名字，再在聚合内部按升序拼接。
+  - type: read
+    skill: sql.nullif
+    md: |
+      卖出 10 册、退回 0 册的退货率为 0。一天一本都没卖时，分母也为 0，这个比例没有定义。分母来自分组统计时，必须逐组处理；直接过滤零销量会让本该出现的书号整行消失。
+
+      `NULLIF(x, 0)` 在 x 等于 0 时交出 NULL，其他时候仍交出 x。让它守在除号右侧，分母为零的那一行就得到 NULL。只有题目要求用某个数表示缺失时，才在外层用 COALESCE 补数。整数比率还要在除法前引入小数。
+  - type: example
+    skill: sql.nullif
+    db: bookstore
+    patch: |
+      CREATE TABLE desk_tallies (book_id integer REFERENCES books, sold_today integer, sold_yesterday integer);
+      INSERT INTO desk_tallies VALUES (5,3,0),(6,0,4),(7,2,5);
+    code: |
+      -- ① 对比两天售出的册数，保留每本书
+      -- ② 昨天销量为零时，比值留空
+      SELECT book_id, sold_today, sold_yesterday,
+             1.0 * sold_today / NULLIF(sold_yesterday, 0) AS day_ratio
+      FROM desk_tallies;
+    md: 给比值包上 COALESCE(..., 0)。留意哪两本书从此显示出相同的数值。
+  - type: quiz
+    skill: sql.nullif
+    q: 销量为 0 的书必须保留，比例显示 NULL。哪种处理符合要求？
+    options:
+      - WHERE 去掉销量为 0 的书
+      - 把分母补成 1
+      - 分母用 NULLIF(销量, 0)
+    answer: 2
+    explain: NULL 分母会传递成 NULL 比例，同时组和书号都保留下来。

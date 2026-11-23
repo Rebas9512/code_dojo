@@ -1,0 +1,31 @@
+id: py-0b-007-reverse-segment
+title: 原地反转闭区间
+track: python
+stage: 0B
+order: 70
+format: write
+mode: function
+difficulty: 25
+skills:
+  requires: [py.list-basics, py.helper-func]
+  introduces: py.swap-reverse
+source: original
+leetcode: null
+milestones: []
+entry: run_case
+signature: 'def run_case(nums: list[int], left: int, right: int) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: "把右边界当成切片的开区间，漏掉最后一个位置。"
+    code: |
+      def reverse_part(nums: list[int], left: int, right: int) -> None:
+          right -= 1
+          while left < right:
+              nums[left], nums[right] = nums[right], nums[left]
+              left += 1
+              right -= 1
+
+
+      def run_case(nums: list[int], left: int, right: int) -> list[int]:
+          reverse_part(nums, left, right)
+          return nums

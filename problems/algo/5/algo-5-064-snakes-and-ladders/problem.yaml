@@ -1,0 +1,52 @@
+id: algo-5-064-snakes-and-ladders
+title: 折返编号的跳转棋盘
+track: algo
+stage: '5'
+order: 640
+format: write
+mode: function
+difficulty: 80
+week: 8
+skills:
+  requires:
+  - algo.graph-bfs
+  - py.early-return
+  - py.floordiv-mod
+  - py.minmax-abs
+  - py.nested-list
+  - py.set-basics
+  - py.ternary
+  - py.tuple
+  - py.while
+  introduces: null
+source: top-interview-150
+leetcode: snakes-and-ladders
+milestones: []
+entry: throws
+signature: 'def throws(board: list[list[int]]) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 从上面开始数行，把跳转读到了别的格。
+  code: |
+    from collections import deque
+
+
+    def throws(board: list[list[int]]) -> int:
+        n = len(board)
+        queue = deque([(1, 0)])
+        seen = {1}
+        while queue:
+            here, count = queue.popleft()
+            if here == n * n:
+                return count
+            for step in range(here + 1, min(here + 6, n * n) + 1):
+                row, col = divmod(step - 1, n)
+                if row % 2:
+                    col = n - 1 - col
+                jump = board[row][col]
+                dest = step if jump == -1 else jump
+                if dest not in seen:
+                    seen.add(dest)
+                    queue.append((dest, count + 1))
+        return -1

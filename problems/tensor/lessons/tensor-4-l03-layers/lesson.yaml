@@ -1,0 +1,65 @@
+id: tensor-4-l03-layers
+title: 可学习的参数与线性层
+track: tensor
+skills:
+  - tensor.parameter
+  - tensor.linear
+steps:
+  - type: read
+    skill: tensor.parameter
+    md: |-
+      旋钮的当前值和「这是要学习的旋钮」是两件事。一对通道的增益可从 [1, 1] 起步，今后分别调大或调小。用参数对象表达这个身份，稍后把它放到网络层的属性上，层就能找到需要训练的旋钮。
+
+      `nn.Parameter(浮点张量)` 保留张量的形状和值，默认开启求导。普通张量即使手动开启求导，挂到层上也不会自动登记为参数。这里先练习造出参数，再在自己的层中安装它。
+
+      **TM21 常见误解：把能求导的普通张量当成已经登记的参数**。把普通浮点张量和 Parameter 分别挂到模块属性上，即使两者都能求导，也只有 Parameter 会自动出现在参数清单中。
+  - type: example
+    skill: tensor.parameter
+    code: |
+      import torch
+      import torch.nn as nn
+      # ① 给相同的初值两种身份
+      x = torch.tensor([1., 1.], requires_grad=True)
+      p = nn.Parameter(x)
+      print(x.requires_grad, p.requires_grad)  # 输出 True True
+      print(isinstance(x, nn.Parameter), isinstance(p, nn.Parameter))  # 输出 False True
+    md: 改为 nn.Parameter(x, requires_grad=False)，比较身份与开关。
+  - type: quiz
+    skill: tensor.parameter
+    q: torch.tensor([1.], requires_grad=True) 一定是 Parameter 吗？
+    options:
+      - 一定是
+      - 还只是普通浮点张量
+      - 已经是线性层
+    answer: 1
+    explain: 参与求导是张量的一个属性，Parameter 另有供模块识别的身份。（TM21）
+  - type: read
+    skill: tensor.linear
+    md: |-
+      把两个特征 [2, 3] 合成一个分数时，若权重为 [4, 5]，偏置为 1，结果是 2×4 + 3×5 + 1 = 24。每个输出都可以使用自己的一组权重。线性层把这些可学习的权重和偏置收在一起，一次处理整批样本。
+
+      `nn.Linear(输入数, 输出数)` 的 weight 形状是（输出数，输入数），每行产生一个输出。bias 为每个输出留一格，bias=False 可以省略偏置。传入（批，输入数）得到（批，输出数）。构造时会随机初始化；示例先固定种子，有指定初值时在 no_grad 中复制进去。
+
+      **TM22 常见误解：按输入数、输出数的顺序存权重**。三个输入、两个输出时，每个输出需要三个系数。weight 是 (2, 3)，四个样本的输出则是 (4, 2)。
+  - type: example
+    skill: tensor.linear
+    code: |
+      import torch
+      import torch.nn as nn
+      # ① 固定初始化后用指定的系数计算
+      torch.manual_seed(0)
+      layer = nn.Linear(2, 1)
+      with torch.no_grad():
+          layer.weight.copy_(torch.tensor([[4., 5.]]))
+          layer.bias.copy_(torch.tensor([1.]))
+      print(layer(torch.tensor([[2., 3.]])).tolist())  # 输出 [[24.0]]
+    md: 只把偏置改为 0，检查得分少了多少。
+  - type: quiz
+    skill: tensor.linear
+    q: nn.Linear(3, 2) 的权重表有几行几列？
+    options:
+      - 3 行 2 列
+      - 2 行 3 列
+      - 2 行 1 列
+    answer: 1
+    explain: 两个输出各占一行，每行读取三个输入特征。（TM22）

@@ -1,0 +1,36 @@
+id: sql-3-020-duplicate-rating-preview
+title: 删除重复邮箱
+track: sql
+stage: '3'
+order: 210
+format: write
+mode: dml
+check_query: SELECT id, email FROM address_book ORDER BY id
+ordered: true
+difficulty: 52
+skills:
+  requires:
+    - sql.exists
+    - sql.and-or
+  introduces: sql.dml
+source: sql50
+leetcode: delete-duplicate-emails
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/two-groups.sql
+  - datasets/sample.sql + datasets/older-copy.sql
+hints:
+  - 把当前行记作 p。哪一行能证明 p 的邮箱已经用更小的编号登记过？
+  - 删除条件需要同时核对邮箱和编号。
+wrong_examples:
+  - why: 只检查是否有更小的编号，误删其他邮箱的首条记录
+    sql: |
+      DELETE FROM address_book p WHERE EXISTS (
+          SELECT 1 FROM address_book q WHERE q.id < p.id
+      );
+  - why: 编号方向写反，每个邮箱留下了最大编号
+    sql: |
+      DELETE FROM address_book p WHERE EXISTS (
+          SELECT 1 FROM address_book q WHERE q.email = p.email AND q.id > p.id
+      );

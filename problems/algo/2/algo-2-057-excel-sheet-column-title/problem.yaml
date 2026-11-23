@@ -1,0 +1,34 @@
+id: algo-2-057-excel-sheet-column-title
+title: 把列编号写成字母
+track: algo
+stage: '2'
+order: 570
+format: write
+mode: function
+difficulty: 62
+skills:
+  requires:
+  - py.floordiv-mod
+  - py.ord-chr
+  - py.sorted
+  - py.split-join
+  - py.tuple
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: excel-sheet-column-title
+milestones: []
+entry: column_name
+signature: 'def column_name(n: int) -> str:'
+compare: exact
+wrong_examples:
+- why: 漏掉每一步从一基换成零基。
+  code: |
+    def column_name(n: int) -> str:
+        letters = []
+        while n:
+            n, digit = divmod(n, 26)
+            letters.append(chr(ord("A") + digit))
+        return "".join(reversed(letters))
+hints:
+- 把列号减一再除以 26，所得余数才能从 A 的 0 对应到 Z 的 25。

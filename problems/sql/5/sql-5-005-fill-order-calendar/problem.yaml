@@ -1,0 +1,31 @@
+id: sql-5-005-fill-order-calendar
+title: 补全：给订单日历补上空日
+track: sql
+stage: '5'
+order: 50
+format: complete
+difficulty: 67
+skills:
+  requires:
+    - sql.cte
+    - sql.join-aggregate
+  introduces: sql.generate-series
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/endpoints.sql
+  - db:bookstore + datasets/no-orders.sql
+ordered: true
+hints:
+  - 左右日期相减得到相隔几天；从偏移 0 数到这个差值。
+wrong_examples:
+  - why: 用 COUNT(*) 数补出来的空行
+    sql: |
+      WITH calendar AS (
+          SELECT DATE '2025-02-26' + i AS day
+          FROM generate_series(0, DATE '2025-03-03' - DATE '2025-02-26') AS offsets(i)
+      )
+      SELECT c.day, COUNT(*) AS orders FROM calendar c
+      LEFT JOIN orders o ON o.order_date = c.day GROUP BY c.day ORDER BY c.day;

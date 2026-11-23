@@ -1,0 +1,20 @@
+id: py-0a-384-predict-suffix-start
+title: 最后一张数卡有没有读到
+track: python
+stage: 0A
+order: 5040
+format: predict
+mode: predict
+difficulty: 20
+skills:
+  requires:
+    - py.list-basics
+    - py.recursion
+  introduces: py.recursion-seq
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM67：把最后一张卡的位置当作空后缀的起点。
+    code: |
+      print('1\n空')

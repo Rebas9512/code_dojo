@@ -1,0 +1,29 @@
+id: sql-3-021-delete-duplicate-emails
+title: 清理邮箱后会留下谁
+track: sql
+stage: '3'
+order: 200
+format: write
+difficulty: 51
+skills:
+  requires:
+    - sql.and-or
+    - sql.exists
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/new-minimum.sql
+  - datasets/sample.sql + datasets/unique.sql
+ordered: false
+hints:
+  - 对当前邮箱，能找到同邮箱且编号更小的记录吗？想一想这种情况下要不要保留当前行。
+wrong_examples:
+  - why: 保留最新编号
+    sql: |
+      SELECT p.id, p.email FROM address_book p
+      WHERE NOT EXISTS (
+          SELECT 1 FROM address_book q WHERE q.email = p.email AND q.id > p.id
+      );

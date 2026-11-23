@@ -1,0 +1,12 @@
+{
+  "examples": [
+    {"args":["cabinxcab",["cab","cabin"]],"expected":1},
+    {"args":["abcd",["abc","ab","cd"]],"expected":0}
+  ],
+  "hidden": [
+    {"args":["z",["zz"]],"expected":1},
+    {"args":["abcdef",["x"]],"expected":6},
+    {"args":["banana",["ana"]],"expected":3},
+    {"args":["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaz",["a","aa","aaa","aaaa","aaaaa","aaaaaa","aaaaaaa","aaaaaaaa","aaaaaaaaa","aaaaaaaaaa","aaaaaaaaaaa","aaaaaaaaaaaa","aaaaaaaaaaaaa","aaaaaaaaaaaaaa","aaaaaaaaaaaaaaa","aaaaaaaaaaaaaaaa","aaaaaaaaaaaaaaaaa","aaaaaaaaaaaaaaaaaa","aaaaaaaaaaaaaaaaaaa","aaaaaaaaaaaaaaaaaaaa","aaaaaaaaaaaaaaaaaaaaa","aaaaaaaaaaaaaaaaaaaaaa","aaaaaaaaaaaaaaaaaaaaaaa","aaaaaaaaaaaaaaaaaaaaaaaa","aaaaaaaaaaaaaaaaaaaaaaaaa"]],"expected":1}
+  ]
+}

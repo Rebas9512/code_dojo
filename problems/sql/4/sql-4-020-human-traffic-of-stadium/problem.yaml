@@ -1,0 +1,32 @@
+id: sql-4-020-human-traffic-of-stadium
+title: 展馆高客流的连续编号
+track: sql
+stage: '4'
+order: 200
+format: combine
+difficulty: 63
+skills:
+  requires:
+    - sql.cte
+    - sql.gaps-islands
+  introduces: null
+source: leetcode-db
+leetcode: human-traffic-of-stadium
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/gap-and-single.sql
+  - datasets/sample.sql + datasets/long-run.sql
+ordered: true
+hints:
+  - 先挑出高客流，再按编号减行号分段，最后给整段数行。
+wrong_examples:
+  - why: 先给不合格日也编号，低客流无法切段
+    sql: |
+      WITH qualifying AS (
+          SELECT id, day, visitors, id - ROW_NUMBER() OVER (ORDER BY id) AS block
+          FROM gate_days
+      ), measured AS (
+          SELECT id, day, visitors, COUNT(*) OVER (PARTITION BY block) AS length FROM qualifying
+      )
+      SELECT id, day, visitors FROM measured WHERE length >= 3 ORDER BY id;

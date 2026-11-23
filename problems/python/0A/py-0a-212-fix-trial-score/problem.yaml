@@ -1,0 +1,26 @@
+id: py-0a-212-fix-trial-score
+title: 修好试算时被改动的成绩
+track: python
+stage: 0A
+order: 2120
+format: fix
+mode: function
+difficulty: 18
+skills:
+  requires:
+    - py.aliasing
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: trial
+signature: 'def trial(scores: list[int], bonus: int) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+  - why: 只给同一张表起了另一个名字。
+    code: |
+      def trial(scores: list[int], bonus: int) -> list[list[int]]:
+          adjusted = scores
+          for i in range(len(adjusted)):
+              adjusted[i] += bonus
+          return [scores, adjusted]

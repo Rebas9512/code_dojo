@@ -1,0 +1,27 @@
+id: sql-0-200-invalid-tweets
+title: 哪些短消息超过了字数
+track: sql
+stage: "0"
+order: 400
+format: write
+difficulty: 16
+skills:
+  requires: [sql.where, sql.string-funcs]
+  introduces: null
+source: sql50
+leetcode: invalid-tweets
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/length-boundary.sql
+  - datasets/sample.sql + datasets/edge-spaces.sql
+ordered: false
+hints:
+  - 先数出整条原文有几个字符，再判断它有没有超过上限。
+wrong_examples:
+  - why: 把恰好 15 个字符也算作超长。
+    sql: |
+      SELECT tweet_id FROM tweets WHERE LENGTH(content) >= 15;
+  - why: 先去掉首尾空格，低估了原文的长度。
+    sql: |
+      SELECT tweet_id FROM tweets WHERE LENGTH(TRIM(content)) > 15;

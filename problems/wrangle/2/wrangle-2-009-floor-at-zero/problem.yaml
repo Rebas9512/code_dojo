@@ -1,0 +1,25 @@
+id: wrangle-2-009-floor-at-zero
+title: 把负库存修正为零
+track: wrangle
+stage: '2'
+order: 90
+format: complete
+mode: function
+difficulty: 22
+skills:
+  requires:
+    - wrangle.where
+  introduces: null
+source: original
+entry: nonnegative
+signature: 'def nonnegative(values):'
+compare: allclose
+wrong_examples:
+  - why: 删掉负数后记录变短。
+    code: |
+      import numpy as np
+
+
+      def nonnegative(values):
+          a = np.array(values)
+          return a[a >= 0]

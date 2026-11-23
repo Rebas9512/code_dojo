@@ -1,0 +1,44 @@
+id: algo-1-030-sort-an-array
+title: 把乱序名单排好
+track: algo
+stage: '1'
+order: 300
+format: combine
+mode: function
+difficulty: 51
+skills:
+  requires:
+  - py.floordiv-mod
+  - py.bool-ops
+  - py.slice
+  - py.list-concat-repeat
+  - py.recursion-multi
+  - py.two-index
+  introduces: null
+source: neetcode250
+leetcode: sort-an-array
+milestones: []
+entry: sort_array
+signature: 'def sort_array(nums: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 分成两半却跳过了分界元素。
+  code: |
+    def merge(a: list[int], b: list[int]) -> list[int]:
+        result = []
+        i = j = 0
+        while i < len(a) and j < len(b):
+            if a[i] <= b[j]:
+                result.append(a[i])
+                i += 1
+            else:
+                result.append(b[j])
+                j += 1
+        return result + a[i:] + b[j:]
+
+
+    def sort_array(nums: list[int]) -> list[int]:
+        if len(nums) < 2:
+            return nums
+        mid = len(nums) // 2
+        return merge(sort_array(nums[:mid]), sort_array(nums[mid + 1:]))

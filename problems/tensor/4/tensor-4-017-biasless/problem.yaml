@@ -1,0 +1,26 @@
+id: tensor-4-017-biasless
+title: 建立没有偏置的读出层
+track: tensor
+stage: '4'
+order: 170
+format: complete
+mode: function
+difficulty: 40
+skills:
+  requires:
+    - tensor.linear
+  introduces: null
+source: original
+entry: readout
+signature: 'def readout(inputs, outputs):'
+compare: checker
+wrong_examples:
+  - why: 无偏置任务中多建了一组偏置。
+    code: |
+      import torch
+      import torch.nn as nn
+
+
+      def readout(inputs, outputs):
+          torch.manual_seed(0)
+          return nn.Linear(inputs, outputs, bias=True)

@@ -1,0 +1,2 @@
+INSERT INTO wages VALUES (10, 7, NULL),
+    (11, 8, NULL);

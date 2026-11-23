@@ -1,0 +1,38 @@
+id: algo-5-025-average-of-levels-in-binary-tree
+title: 每层读数的平均值
+track: algo
+stage: '5'
+order: 250
+format: write
+mode: function
+difficulty: 75
+week: 3
+skills:
+  requires:
+  - algo.tree-bfs
+  - py.genexp
+  - py.list-builtins
+  - py.tuple
+  - py.while
+  introduces: null
+source: top-interview-150
+leetcode: average-of-levels-in-binary-tree
+milestones: []
+entry: averages
+signature: 'def averages(root: TreeNode) -> list[float]:'
+compare: float
+time_limit_ms: 800
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 向下取整丢掉了小数。
+  code: |
+    def averages(root: TreeNode) -> list[float]:
+        level = [root]
+        out = []
+        while level:
+            total = sum(node.val for node in level)
+            out.append(total // len(level))
+            level = [child for node in level for child in (node.left, node.right) if child]
+        return out

@@ -1,0 +1,19 @@
+id: py-0a-112-complete-can-vote
+title: 补全：到年龄了吗
+track: python
+stage: 0A
+order: 125
+format: complete
+mode: function
+difficulty: 5
+skills:
+  requires: [py.compare-bool, py.func-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: can_vote
+signature: "def can_vote(age: int) -> bool:"
+compare: exact
+hints:
+  - "\"满 18 岁\"包含 18 本身：>= 还是 >？"

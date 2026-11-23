@@ -1,0 +1,691 @@
+{
+  "examples": [
+    {
+      "args": [
+        {
+          "columns": [
+            "book_id",
+            "title",
+            "price"
+          ],
+          "data": [
+            [
+              2,
+              "Stars Over Gobi",
+              39.0
+            ],
+            [
+              5,
+              "The Last Lantern",
+              39.0
+            ],
+            [
+              8,
+              "Quantum Garden",
+              45.0
+            ],
+            [
+              22,
+              "Orbit of Ashes",
+              39.0
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "book_id",
+          "title",
+          "price"
+        ],
+        "data": [
+          [
+            8,
+            "Quantum Garden",
+            45.0
+          ],
+          [
+            2,
+            "Stars Over Gobi",
+            39.0
+          ],
+          [
+            5,
+            "The Last Lantern",
+            39.0
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "book_id",
+            "title",
+            "price"
+          ],
+          "data": [
+            [
+              1,
+              "The Silent Harbor",
+              42.0
+            ],
+            [
+              2,
+              "Stars Over Gobi",
+              39.0
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "book_id",
+          "title",
+          "price"
+        ],
+        "data": [
+          [
+            1,
+            "The Silent Harbor",
+            42.0
+          ],
+          [
+            2,
+            "Stars Over Gobi",
+            39.0
+          ]
+        ]
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        {
+          "columns": [
+            "book_id",
+            "title",
+            "price"
+          ],
+          "data": []
+        }
+      ],
+      "expected": {
+        "columns": [
+          "book_id",
+          "title",
+          "price"
+        ],
+        "data": []
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "book_id",
+            "title",
+            "price"
+          ],
+          "data": [
+            [
+              1,
+              "The Silent Harbor",
+              42.0
+            ],
+            [
+              2,
+              "Stars Over Gobi",
+              39.0
+            ],
+            [
+              3,
+              "Python in Practice",
+              68.0
+            ],
+            [
+              4,
+              "A Short History of Tea",
+              35.0
+            ],
+            [
+              5,
+              "The Last Lantern",
+              39.0
+            ],
+            [
+              6,
+              "Little Cloud",
+              18.5
+            ],
+            [
+              7,
+              "Noodles at Midnight",
+              29.9
+            ],
+            [
+              8,
+              "Quantum Garden",
+              45.0
+            ],
+            [
+              9,
+              "The Map Maker",
+              35.0
+            ],
+            [
+              10,
+              "SQL for Curious Minds",
+              59.0
+            ],
+            [
+              11,
+              "Dragons of the North",
+              52.0
+            ],
+            [
+              12,
+              "Data at Dawn",
+              49.0
+            ],
+            [
+              13,
+              "Silk Road Letters",
+              55.0
+            ],
+            [
+              14,
+              "Moon Rabbit",
+              15.0
+            ],
+            [
+              15,
+              "The Clockwork Sea",
+              33.0
+            ],
+            [
+              16,
+              "Spice Atlas",
+              42.0
+            ],
+            [
+              17,
+              "Winter Orchard",
+              27.5
+            ],
+            [
+              18,
+              "Algorithms, Gently",
+              75.0
+            ],
+            [
+              19,
+              "Empire of Salt",
+              48.0
+            ],
+            [
+              20,
+              "The Glass Fox",
+              31.0
+            ],
+            [
+              21,
+              "Rainy Season",
+              24.0
+            ],
+            [
+              22,
+              "Orbit of Ashes",
+              39.0
+            ],
+            [
+              23,
+              "Count with Panda",
+              12.0
+            ],
+            [
+              24,
+              "Street Food Stories",
+              35.0
+            ],
+            [
+              25,
+              "Untitled Poems",
+              20.0
+            ],
+            [
+              26,
+              "Rivers and Kings",
+              61.0
+            ],
+            [
+              27,
+              "Data at Dawn",
+              55.0
+            ],
+            [
+              28,
+              "The Paper Moon",
+              45.0
+            ],
+            [
+              29,
+              "Bread & Butter",
+              22.0
+            ],
+            [
+              30,
+              "Theory of Tides",
+              38.0
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "book_id",
+          "title",
+          "price"
+        ],
+        "data": [
+          [
+            18,
+            "Algorithms, Gently",
+            75.0
+          ],
+          [
+            3,
+            "Python in Practice",
+            68.0
+          ],
+          [
+            26,
+            "Rivers and Kings",
+            61.0
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "book_id",
+            "title",
+            "price"
+          ],
+          "data": [
+            [
+              1,
+              "The Silent Harbor",
+              42.0
+            ],
+            [
+              2,
+              "Stars Over Gobi",
+              39.0
+            ],
+            [
+              3,
+              "Python in Practice",
+              68.0
+            ],
+            [
+              4,
+              "A Short History of Tea",
+              35.0
+            ],
+            [
+              5,
+              "The Last Lantern",
+              39.0
+            ],
+            [
+              6,
+              "Little Cloud",
+              18.5
+            ],
+            [
+              7,
+              "Noodles at Midnight",
+              29.9
+            ],
+            [
+              8,
+              "Quantum Garden",
+              45.0
+            ],
+            [
+              9,
+              "The Map Maker",
+              35.0
+            ],
+            [
+              10,
+              "SQL for Curious Minds",
+              59.0
+            ],
+            [
+              11,
+              "Dragons of the North",
+              52.0
+            ],
+            [
+              12,
+              "Data at Dawn",
+              49.0
+            ],
+            [
+              13,
+              "Silk Road Letters",
+              55.0
+            ],
+            [
+              14,
+              "Moon Rabbit",
+              15.0
+            ],
+            [
+              15,
+              "The Clockwork Sea",
+              33.0
+            ],
+            [
+              16,
+              "Spice Atlas",
+              42.0
+            ],
+            [
+              17,
+              "Winter Orchard",
+              27.5
+            ],
+            [
+              18,
+              "Algorithms, Gently",
+              75.0
+            ],
+            [
+              19,
+              "Empire of Salt",
+              48.0
+            ],
+            [
+              20,
+              "The Glass Fox",
+              31.0
+            ],
+            [
+              21,
+              "Rainy Season",
+              24.0
+            ],
+            [
+              22,
+              "Orbit of Ashes",
+              39.0
+            ],
+            [
+              23,
+              "Count with Panda",
+              12.0
+            ],
+            [
+              24,
+              "Street Food Stories",
+              35.0
+            ],
+            [
+              25,
+              "Untitled Poems",
+              20.0
+            ],
+            [
+              26,
+              "Rivers and Kings",
+              61.0
+            ],
+            [
+              27,
+              "Data at Dawn",
+              55.0
+            ],
+            [
+              28,
+              "The Paper Moon",
+              45.0
+            ],
+            [
+              29,
+              "Bread & Butter",
+              22.0
+            ],
+            [
+              30,
+              "Theory of Tides",
+              38.0
+            ],
+            [
+              31,
+              "Advanced Python",
+              68.0
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "book_id",
+          "title",
+          "price"
+        ],
+        "data": [
+          [
+            18,
+            "Algorithms, Gently",
+            75.0
+          ],
+          [
+            3,
+            "Python in Practice",
+            68.0
+          ],
+          [
+            31,
+            "Advanced Python",
+            68.0
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "book_id",
+            "title",
+            "price"
+          ],
+          "data": [
+            [
+              1,
+              "The Silent Harbor",
+              80.0
+            ],
+            [
+              2,
+              "Stars Over Gobi",
+              39.0
+            ],
+            [
+              3,
+              "Python in Practice",
+              75.0
+            ],
+            [
+              4,
+              "A Short History of Tea",
+              35.0
+            ],
+            [
+              5,
+              "The Last Lantern",
+              39.0
+            ],
+            [
+              6,
+              "Little Cloud",
+              18.5
+            ],
+            [
+              7,
+              "Noodles at Midnight",
+              29.9
+            ],
+            [
+              8,
+              "Quantum Garden",
+              45.0
+            ],
+            [
+              9,
+              "The Map Maker",
+              35.0
+            ],
+            [
+              10,
+              "SQL for Curious Minds",
+              59.0
+            ],
+            [
+              11,
+              "Dragons of the North",
+              52.0
+            ],
+            [
+              12,
+              "Data at Dawn",
+              49.0
+            ],
+            [
+              13,
+              "Silk Road Letters",
+              55.0
+            ],
+            [
+              14,
+              "Moon Rabbit",
+              15.0
+            ],
+            [
+              15,
+              "The Clockwork Sea",
+              33.0
+            ],
+            [
+              16,
+              "Spice Atlas",
+              42.0
+            ],
+            [
+              17,
+              "Winter Orchard",
+              27.5
+            ],
+            [
+              18,
+              "Algorithms, Gently",
+              75.0
+            ],
+            [
+              19,
+              "Empire of Salt",
+              48.0
+            ],
+            [
+              20,
+              "The Glass Fox",
+              31.0
+            ],
+            [
+              21,
+              "Rainy Season",
+              24.0
+            ],
+            [
+              22,
+              "Orbit of Ashes",
+              39.0
+            ],
+            [
+              23,
+              "Count with Panda",
+              12.0
+            ],
+            [
+              24,
+              "Street Food Stories",
+              35.0
+            ],
+            [
+              25,
+              "Untitled Poems",
+              20.0
+            ],
+            [
+              26,
+              "Rivers and Kings",
+              75.0
+            ],
+            [
+              27,
+              "Data at Dawn",
+              55.0
+            ],
+            [
+              28,
+              "The Paper Moon",
+              45.0
+            ],
+            [
+              29,
+              "Bread & Butter",
+              22.0
+            ],
+            [
+              30,
+              "Theory of Tides",
+              38.0
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "book_id",
+          "title",
+          "price"
+        ],
+        "data": [
+          [
+            1,
+            "The Silent Harbor",
+            80.0
+          ],
+          [
+            3,
+            "Python in Practice",
+            75.0
+          ],
+          [
+            18,
+            "Algorithms, Gently",
+            75.0
+          ]
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+id: py-0a-145-predict-swap
+title: 两种交换写法
+track: python
+stage: 0A
+order: 930
+format: predict
+mode: predict
+difficulty: 14
+skills:
+  requires: [py.var-arith]
+  introduces: py.multi-assign
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "x = y 之后 x 是 2，接着 y = x 呢？"

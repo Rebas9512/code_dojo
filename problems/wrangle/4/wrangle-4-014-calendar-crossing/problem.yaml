@@ -1,0 +1,16 @@
+id: wrangle-4-014-calendar-crossing
+title: 跨年后读到哪个月份
+track: wrangle
+stage: '4'
+order: 140
+format: predict
+mode: predict
+difficulty: 35
+skills:
+  requires: []
+  introduces: wrangle.dates
+source: original
+wrong_examples:
+  - why: 把月号当成日号。
+    code: |
+      print('[31, 1]')

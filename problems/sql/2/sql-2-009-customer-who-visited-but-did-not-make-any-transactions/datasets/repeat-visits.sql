@@ -1,0 +1,2 @@
+INSERT INTO visits VALUES (6,7),(7,7),(8,9);
+INSERT INTO bills VALUES (109,7);

@@ -1,0 +1,19 @@
+id: py-0a-043-clip-negatives
+title: 负数归零
+track: python
+stage: 0A
+order: 830
+format: write
+mode: function
+difficulty: 13
+skills:
+  requires: [py.list-basics, py.for-range, py.index-len, py.if-else]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: clip_negatives
+signature: "def clip_negatives(nums: list[int]) -> list[int]:"
+compare: exact
+hints:
+  - "用 for i in range(len(nums)) 拿到每个下标。"

@@ -1,0 +1,20 @@
+id: py-0b-025-predict-stack
+title: 预测纸条从栈顶出来的顺序
+track: python
+stage: 0B
+order: 250
+format: predict
+mode: predict
+difficulty: 26
+skills:
+  requires: [py.list-append, py.print, py.index-len, py.split-join]
+  introduces: py.stack-list
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: "PM37：把 pop() 当成取走最早入栈的纸条。"
+    code: |
+      print("白")
+      print("青")
+      print("白黄")

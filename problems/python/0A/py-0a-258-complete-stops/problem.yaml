@@ -1,0 +1,26 @@
+id: py-0a-258-complete-stops
+title: 补全走过的站数
+track: python
+stage: 0A
+order: 3180
+format: complete
+mode: function
+difficulty: 18
+skills:
+  requires:
+    - py.set-basics
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: stop_count
+signature: 'def stop_count(route: list[int]) -> int:'
+compare: exact
+wrong_examples:
+  - why: 统计路线长度，把经过次数当成不同站数。
+    code: |
+      def stop_count(route: list[int]) -> int:
+          seen = set()
+          for stop in route:
+              seen.add(stop)
+          return len(route)

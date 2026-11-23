@@ -1,0 +1,26 @@
+id: py-0a-252-complete-subtotal
+title: 补全账本小计
+track: python
+stage: 0A
+order: 3120
+format: complete
+mode: function
+difficulty: 18
+skills:
+  requires:
+    - py.dict-iter
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: net
+signature: 'def net(entries: dict[str, int]) -> int:'
+compare: exact
+wrong_examples:
+  - why: 遍历字典本身拿到项目名。
+    code: |
+      def net(entries: dict[str, int]) -> int:
+          total = 0
+          for amount in entries:
+              total += amount
+          return total

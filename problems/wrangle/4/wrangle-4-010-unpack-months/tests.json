@@ -1,0 +1,237 @@
+{
+  "examples": [
+    {
+      "args": [
+        {
+          "columns": [
+            "shop",
+            "note",
+            "jan",
+            "feb"
+          ],
+          "data": [
+            [
+              "A",
+              "已核",
+              2,
+              3
+            ],
+            [
+              "B",
+              "已核",
+              0,
+              4
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "shop",
+          "month",
+          "qty"
+        ],
+        "data": [
+          [
+            "A",
+            "jan",
+            2
+          ],
+          [
+            "A",
+            "feb",
+            3
+          ],
+          [
+            "B",
+            "jan",
+            0
+          ],
+          [
+            "B",
+            "feb",
+            4
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "shop",
+            "note",
+            "jan",
+            "feb"
+          ],
+          "data": [
+            [
+              "C",
+              "已核",
+              1,
+              1
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "shop",
+          "month",
+          "qty"
+        ],
+        "data": [
+          [
+            "C",
+            "jan",
+            1
+          ],
+          [
+            "C",
+            "feb",
+            1
+          ]
+        ]
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        {
+          "columns": [
+            "shop",
+            "note",
+            "jan",
+            "feb"
+          ],
+          "data": []
+        }
+      ],
+      "expected": {
+        "columns": [
+          "shop",
+          "month",
+          "qty"
+        ],
+        "data": []
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "shop",
+            "note",
+            "jan",
+            "feb"
+          ],
+          "data": [
+            [
+              "A",
+              "已核",
+              0,
+              0
+            ],
+            [
+              "A",
+              "已核",
+              0,
+              0
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "shop",
+          "month",
+          "qty"
+        ],
+        "data": [
+          [
+            "A",
+            "jan",
+            0
+          ],
+          [
+            "A",
+            "feb",
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "shop",
+            "note",
+            "jan",
+            "feb"
+          ],
+          "data": [
+            [
+              "D",
+              "已核",
+              9,
+              3
+            ],
+            [
+              "C",
+              "已核",
+              2,
+              1
+            ],
+            [
+              "B",
+              "已核",
+              0,
+              2
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "shop",
+          "month",
+          "qty"
+        ],
+        "data": [
+          [
+            "B",
+            "jan",
+            0
+          ],
+          [
+            "B",
+            "feb",
+            2
+          ],
+          [
+            "C",
+            "jan",
+            2
+          ],
+          [
+            "C",
+            "feb",
+            1
+          ],
+          [
+            "D",
+            "jan",
+            9
+          ],
+          [
+            "D",
+            "feb",
+            3
+          ]
+        ]
+      }
+    }
+  ]
+}

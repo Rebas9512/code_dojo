@@ -1,0 +1,35 @@
+id: algo-4-010-non-overlapping-intervals
+title: 为互不冲突的时段最少删几项
+track: algo
+stage: '4'
+order: 100
+format: write
+mode: function
+difficulty: 64
+skills:
+  requires:
+  - algo.intervals
+  - py.bool-ops
+  - py.none
+  introduces: null
+source: neetcode250
+leetcode: non-overlapping-intervals
+milestones:
+- blind75
+entry: erase_overlaps
+signature: 'def erase_overlaps(intervals: list[list[int]]) -> int:'
+compare: exact
+wrong_examples:
+- why: 优先保留开始最早的长段。
+  code: |
+    def erase_overlaps(intervals: list[list[int]]) -> int:
+        end = None
+        removed = 0
+        for start, stop in sorted(intervals, key=lambda span: span[0]):
+            if end is None or start >= end:
+                end = stop
+            else:
+                removed += 1
+        return removed
+hints:
+- 设想有两种保留方案。从结束较早的那一段之后开始，原本能参加的后续时段仍然都能参加。

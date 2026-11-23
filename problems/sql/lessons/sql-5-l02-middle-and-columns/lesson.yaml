@@ -1,0 +1,70 @@
+id: sql-5-l02-middle-and-columns
+title: 取中间位置，把分类摊成列
+track: sql
+skills:
+  - sql.median
+  - sql.pivot
+steps:
+  - type: read
+    skill: sql.median
+    md: |
+      店长要一个有代表性的标价。三个价签 2、3、100 的平均会被 100 拉高，但排在中间的是 3。把观测按数值排好，取中间位置，叫作中位数。四个数 2、3、9、100 中间是 3 和 9，中位数为 6，原表可以没有这个标价。
+
+      连续分位函数会在相邻位置之间插值，并跳过 NULL。手写时先确定每组有效数，再编号找中点。同价的真记录需要各占一个位置。对偶数只取较低的那一位，遇到两中点不等就会出错。
+  - type: example
+    skill: sql.median
+    db: bookstore
+    code: |
+      -- ① 一类一组，按真实标价排序
+      -- ② 在中点位置连续插值
+      SELECT category, PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price) AS median
+      FROM books GROUP BY category ORDER BY category;
+    md: 把 0.5 改成 0 或 1，和分类的最低价、最高价核对。
+  - type: quiz
+    skill: sql.median
+    q: 已知值 2、3、9、100 与一个空值，中位数是？
+    options:
+      - '3'
+      - '6'
+      - '9'
+    answer: 1
+    explain: NULL 跳过。剩四个观测，取中间两项 3 与 9 的平均。
+  - type: example
+    skill: sql.median
+    db: bookstore
+    code: |
+      -- ① 只给已知的价格编号，算各类样本量
+      WITH positions AS (
+          SELECT category, price, ROW_NUMBER() OVER (PARTITION BY category ORDER BY price, book_id) AS pos,
+                 COUNT(*) OVER (PARTITION BY category) AS n FROM books
+      )
+      -- ② 取一个或两个中间位置
+      SELECT category, AVG(price) AS median FROM positions
+      WHERE 2 * pos BETWEEN n AND n + 2 GROUP BY category ORDER BY category;
+    md: 书店 books.price 从不为空。比较两种算法对奇数与偶数种书的分类给出的结果。
+  - type: read
+    skill: sql.pivot
+    md: |
+      纸上的盘点单只有“分类、册数”两列，一次销售占一行。店长想看一个读者一行，儿童书和科幻书各一列。这是把行里的分类摊到列上。先决定结果每行代表谁，再为每个目标列写一个条件：匹配时交册数，其他时候交零，最后按人汇总。
+
+      计件和计笔容易混淆。一行买五册，计件应把 quantity 加进去。若题目要求没有下单的人也有三格零，先拿完整读者名册接明细；只在销售表上分组时，没有订单的人连组都没有。
+  - type: example
+    skill: sql.pivot
+    db: bookstore
+    code: |
+      -- ① 用每种书的分类把库存分进相应的列
+      -- ② 每个出版社只交一行
+      SELECT publisher,
+             SUM(CASE WHEN category = 'kids' THEN stock ELSE 0 END) AS kids,
+             SUM(CASE WHEN category = 'scifi' THEN stock ELSE 0 END) AS scifi
+      FROM books GROUP BY publisher;
+    md: 添加 fiction 列；想想把 stock 换成 1 后每格的单位。
+  - type: quiz
+    skill: sql.pivot
+    q: 一条儿童书明细 quantity=5，要报册数，这条明细应给儿童书列加几？
+    options:
+      - '0'
+      - '1'
+      - '5'
+    answer: 2
+    explain: 每行是一笔明细，quantity 才表示这一笔的册数。

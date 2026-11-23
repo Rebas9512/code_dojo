@@ -1,0 +1,128 @@
+id: algo-4-l04-one-dimensional
+title: 从递归树到一行表
+track: algo
+skills:
+- algo.memo-cache
+- algo.dp-1d
+steps:
+- type: read
+  skill: algo.memo-cache
+  md: |
+    **状态**：先用一句话定义 fib(i) 是第 i 个斐波那契数。**转移**：求第 i 项要把前两项相加。**初值**：fib(0)=0、fib(1)=1。**顺序**：从目标向下递归，较小的参数先返回。也可从 2 开始逐项向上填表。两种方向用的是同一个依赖关系。
+
+    当不同分支反复询问同一个参数、而答案又只由参数决定时，在函数上加 @cache。第一次会执行函数体，把参数和结果一起存下。后来命中就立即交回旧结果。普通递归的调用数会指数增长，缓存后只有 O(n) 种参数，时间和空间都为 O(n)。把会改变答案的条件漏出参数，或者把可修改的列表直接作为缓存键，都会出问题。
+- type: example
+  skill: algo.memo-cache
+  code: |
+    from functools import cache
+
+    # ① 观察不带缓存时进入函数体多少次
+    plain_calls = []
+    def plain(i):
+        plain_calls.append(i)
+        if i < 2:
+            return i
+        return plain(i - 1) + plain(i - 2)
+
+    # ② 自顶向下，让相同下标共用返回值
+    visits = []
+    @cache
+    def fib(i):
+        visits.append(i)
+        if i < 2:
+            return i
+        return fib(i - 1) + fib(i - 2)
+
+    # ③ 自底向上，按依赖顺序填同一批状态
+    table = [0, 1]
+    for i in range(2, 6):
+        table.append(table[i - 1] + table[i - 2])
+    print(plain(5), len(plain_calls))
+    print(fib(5), len(visits))
+    print(table)
+
+    # 输出
+    # 5 15
+    # 5 6
+    # [0, 1, 1, 2, 3, 5]
+  md: |
+    | 求 fib(5) 的过程 | fib(3) 的处理 |
+    |---|---|
+    | 经 fib(4) 第一次问到 | 算出 2，存进缓存 |
+    | 回到 fib(5) 再问 | 命中，直接返回 2 |
+
+    把两处调用改为 6，填表上界也增大一格，比较函数体进入次数。
+- type: quiz
+  skill: algo.memo-cache
+  q: 从空缓存算完 fib(4)，再算 fib(3) 会新进入几次函数体？
+  options:
+  - 0 次
+  - 1 次
+  - 3 次
+  answer: 0
+  explain: 第一次算 fib(4) 已经过 fib(3)，第二次查到同一个键。
+- type: quiz
+  skill: algo.memo-cache
+  q: 两个状态站点相同，一个还可转机两次，一个不能再转。只以站点做缓存键合适吗？
+  options:
+  - 合适
+  - 须把剩余转机次数也记入键
+  answer: 1
+  explain: 两条路径今后能选的航班不同，相同站点可能对应不同答案。
+- type: read
+  skill: algo.dp-1d
+  md: |
+    **状态**：设 f(i) 为前 i 个柜子能取得的最大收益，允许空手。**转移**：不拿最后一个柜子得 f(i−1)。拿它就不能拿它的左邻，得 f(i−2) 加当前收益，取较大者。**初值**：零个柜子的收益为 0，只有一个时取它。**顺序**：递归从目标拆小，填表则按柜子数递增。最后读 f(n)。
+
+    当把问题缩到一个位置、前缀长度或金额就足以决定后续时，可尝试一维表。状态也可以存方案数或是否可达，此时合并的方法分别是相加或“至少一种可行”。每个柜子只处理两个旧状态，时间 O(n)。完整表和缓存占 O(n) 空间。若只要最终值，可以保留相邻两格，把额外空间降到 O(1)。
+- type: example
+  skill: algo.dp-1d
+  code: |
+    from functools import cache
+
+    # ① 自顶向下，比较取与不取
+    values = [6, 9, 6]
+    @cache
+    def best(i):
+        if i == 0:
+            return 0
+        if i == 1:
+            return values[0]
+        return max(best(i - 1), best(i - 2) + values[i - 1])
+
+    # ② 自底向上，把同一选择写进表里
+    table = [0, values[0]]
+    for i in range(2, len(values) + 1):
+        table.append(max(table[i - 1], table[i - 2] + values[i - 1]))
+
+    # ③ 同一张表只留前两格
+    two = one = 0
+    for value in values:
+        two, one = one, max(one, two + value)
+    print(best(len(values)), table, one)
+
+    # 输出
+    # 12 [0, 6, 9, 12] 12
+  md: |
+    | 前 i 个柜子 | 不取末柜 | 取末柜 | f(i) |
+    |---|---|---|---|
+    | 2 | 6 | 0+9 | 9 |
+    | 3 | 9 | 6+6 | 12 |
+
+    把 9 改为 15，观察最后一次取舍。
+- type: quiz
+  skill: algo.dp-1d
+  q: 前两柜最高能得 9，第三柜值 6。为何不能直接写 9+6？
+  options:
+  - 可能同时取到相邻柜
+  - 加法不适合求最值
+  answer: 0
+  explain: 前两柜的最优方案可能取了第二柜，取第三柜要退回前一柜的状态。
+- type: quiz
+  skill: algo.dp-1d
+  q: 求恰到某一级的走法数，用哪种方式合并以一步、两步结尾的方案？
+  options:
+  - 取较大值
+  - 相加
+  answer: 1
+  explain: 最后一步不同，这两批方案不重叠，计数应当相加。

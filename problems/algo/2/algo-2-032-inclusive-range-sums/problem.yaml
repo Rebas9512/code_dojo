@@ -1,0 +1,28 @@
+id: algo-2-032-inclusive-range-sums
+title: 一次建表，多次查区间和
+track: algo
+stage: '2'
+order: 320
+format: complete
+mode: function
+difficulty: 56
+skills:
+  requires:
+  - py.list-comp
+  - py.prefix-sum
+  introduces: null
+unit: 3
+source: original
+leetcode: null
+milestones: []
+entry: range_sums
+signature: 'def range_sums(nums: list[int], queries: list[list[int]]) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 漏算右端。
+  code: |
+    def range_sums(nums: list[int], queries: list[list[int]]) -> list[int]:
+        prefix = [0]
+        for value in nums:
+            prefix.append(prefix[-1] + value)
+        return [prefix[right] - prefix[left] for left, right in queries]

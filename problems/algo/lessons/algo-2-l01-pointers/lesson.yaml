@@ -1,0 +1,111 @@
+id: algo-2-l01-pointers
+title: 两支指针分别负责什么
+track: algo
+skills:
+- algo.read-write-pointer
+- algo.two-pointers
+steps:
+- type: read
+  skill: algo.read-write-pointer
+  md: |-
+    要在原列表里删去某些值、保留其余值的先后次序时，让读指针逐格检查，让写指针记住下一个空位。每次读新数之前，从下标 0 到 write 之前的那一段，恰好保存所有已经遇见、应该留下的数。
+
+    读到要保留的值，就把它抄到 write，再把 write 加一；跳过的值只让读指针前进。写指针最多追平读指针，所以不会盖掉还没读到的内容。读完 n 格只走一趟，时间 O(n)，额外只有几个下标，空间 O(1)。
+
+    **每读一格都推进写指针**会在结果里留下空档。返回的 write 是有效长度；旧列表尾部可能还有值，读结果只看前 write 格。
+- type: example
+  skill: algo.read-write-pointer
+  code: |
+    # ① 让 write 指向下一个保留位置
+    nums = [0, 8, 0, 3]
+    write = 0
+    for value in nums:
+        # ② 只把非零的值写进有效前缀
+        if value != 0:
+            nums[write] = value
+            write += 1
+        print(value, write)
+    # ③ 取出有效部分
+    print(nums[:write])
+
+    # 输出
+    # 0 0
+    # 8 1
+    # 0 1
+    # 3 2
+    # [8, 3]
+  md: |-
+    | 刚读的值 | 0 | 8 | 0 | 3 |
+    |---|---:|---:|---:|---:|
+    | 下一个写入位置 | 0 | 1 | 1 | 2 |
+
+    把第一个 0 改成 5，再运行，看写指针从哪一轮开始移动。
+- type: quiz
+  skill: algo.read-write-pointer
+  q: 刚读完 [0,8,0]，下一项 3 应写在哪个下标？
+  options:
+  - '0'
+  - '1'
+  - '3'
+  answer: 1
+  explain: 已有一项 8，占下标 0。write 为 1，正好指着下一个空位。
+- type: quiz
+  skill: algo.read-write-pointer
+  q: 保留照片原有先后次序，能否每次把待删项与末项交换？
+  options:
+  - 可以，长度没变
+  - 不能，末项可能跑到较早的保留项前面
+  answer: 1
+  explain: '[0,8,3] 若用末尾 3 顶掉 0，会留下 3、8。顺着读、顺着写才保序。'
+- type: read
+  skill: algo.two-pointers
+  md: |-
+    在有序列表里想找和为目标的一对数，可以从两端夹向中间。每轮开始时，若还有答案，它的两个下标都在左右指针围住的范围内。先算两端的和，再决定能排除整行还是整列配对。
+
+    和偏小时，左端就算配上当前最大的数也不够，因此左端可以前进；和偏大时，同理移走右端。每轮少一个候选位置，共 O(n) 时间、O(1) 额外空间。盛水题要重新问“哪边限制了高度”，移动较矮的一边有机会补偿变短的宽度。
+
+    **任何数组都能照和的大小移动指针**会漏解。例如 [4,9,1] 找 13，首尾和 5 太小，但 4 明明能配 9。排序有代价，题目要原下标时还要保留下标。
+- type: example
+  skill: algo.two-pointers
+  code: |
+    # ① 在非降序列表的两端站好
+    nums = [-2, 1, 4, 8]
+    left, right = 0, len(nums) - 1
+    while left < right:
+        # ② 先比较两端的和
+        total = nums[left] + nums[right]
+        print(left, right, total)
+        if total == 5:
+            break
+        # ③ 排除一端的所有配对
+        if total < 5:
+            left += 1
+        else:
+            right -= 1
+
+    # 输出
+    # 0 3 6
+    # 0 2 2
+    # 1 2 5
+  md: |-
+    | 已比的和 | 6 | 2 | 5 |
+    |---|---|---|---|
+    | 操作 | 排除 8 | 排除 -2 | 找到 1 和 4 |
+
+    把目标的两处 5 都改成 9，再追踪左右下标。
+- type: quiz
+  skill: algo.two-pointers
+  q: 列表 [2,3,8] 找 11，首尾和为 10，能排除谁？
+  options:
+  - '2'
+  - '8'
+  answer: 0
+  explain: 2 配最大的 8 也只到 10，而 8 还可能与 3 配对。
+- type: quiz
+  skill: algo.two-pointers
+  q: 只有一格 [4]，要找两个不同位置凑 8，怎样结束？
+  options:
+  - 允许 left == right 算一对
+  - 两指针相遇就结束
+  answer: 1
+  explain: 同一个下标只能取一次，只有 left < right 才有两格。

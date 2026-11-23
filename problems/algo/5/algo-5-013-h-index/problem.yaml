@@ -1,0 +1,36 @@
+id: algo-5-013-h-index
+title: 能支持多高的引用门槛
+track: algo
+stage: '5'
+order: 130
+format: write
+mode: function
+difficulty: 74
+week: 2
+skills:
+  requires:
+  - algo.bucket
+  - py.early-return
+  - py.minmax-abs
+  introduces: null
+source: top-interview-150
+leetcode: h-index
+milestones: []
+entry: h_index
+signature: 'def h_index(citations: list[int]) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 误以为文章数必须严格多于门槛。
+  code: |
+    def h_index(citations: list[int]) -> int:
+        n = len(citations)
+        buckets = [0] * (n + 1)
+        for value in citations:
+            buckets[min(n, value)] += 1
+        count = 0
+        for h in range(n, 0, -1):
+            count += buckets[h]
+            if count > h:
+                return h
+        return 0

@@ -1,0 +1,38 @@
+id: sql-5-004-category-purchase-columns
+title: 补全：把三类购书量摆成三列
+track: sql
+stage: '5'
+order: 40
+format: complete
+difficulty: 67
+skills:
+  requires:
+    - sql.join-aggregate
+    - sql.left-join
+    - sql.sum-avg
+  introduces: sql.pivot
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/large-order.sql
+  - db:bookstore + datasets/sample.sql + datasets/only-cancelled.sql
+ordered: false
+hints:
+  - 先画一个读者一行的空表；每条明细应把几册加进哪一列？
+wrong_examples:
+  - why: 把儿童书的明细条数当作册数
+    sql: |
+      SELECT u.user_id,
+             SUM(CASE WHEN p.category = 'fiction' THEN p.quantity ELSE 0 END) AS fiction,
+             SUM(CASE WHEN p.category = 'scifi' THEN p.quantity ELSE 0 END) AS scifi,
+             SUM(CASE WHEN p.category = 'kids' THEN 1 ELSE 0 END) AS kids
+      FROM users u LEFT JOIN book_purchases p ON p.user_id = u.user_id GROUP BY u.user_id;
+  - why: 只保留买过书的读者
+    sql: |
+      SELECT u.user_id,
+             SUM(CASE WHEN p.category = 'fiction' THEN p.quantity ELSE 0 END) AS fiction,
+             SUM(CASE WHEN p.category = 'scifi' THEN p.quantity ELSE 0 END) AS scifi,
+             SUM(CASE WHEN p.category = 'kids' THEN p.quantity ELSE 0 END) AS kids
+      FROM users u JOIN book_purchases p ON p.user_id = u.user_id GROUP BY u.user_id;

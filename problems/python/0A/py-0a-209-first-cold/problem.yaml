@@ -1,0 +1,26 @@
+id: py-0a-209-first-cold
+title: 第一条负温记录
+track: python
+stage: 0A
+order: 2090
+format: write
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - py.for-each
+    - py.none
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: first_cold
+signature: 'def first_cold(readings: list[int]) -> int | None:'
+compare: exact
+wrong_examples:
+  - why: 把零度也当成负温。
+    code: |
+      def first_cold(readings: list[int]) -> int | None:
+          for temperature in readings:
+              if temperature <= 0:
+                  return temperature

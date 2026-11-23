@@ -1,0 +1,27 @@
+id: py-0a-242-basket-total
+title: 按价目表结账
+track: python
+stage: 0A
+order: 3020
+format: write
+mode: function
+difficulty: 20
+skills:
+  requires:
+    - py.accumulator
+    - py.dict-basics
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: checkout
+signature: 'def checkout(prices: dict[str, int], basket: list[str]) -> int:'
+compare: exact
+wrong_examples:
+  - why: 遍历价目表，以为每样都买了一件。
+    code: |
+      def checkout(prices: dict[str, int], basket: list[str]) -> int:
+          total = 0
+          for item in prices:
+              total += prices[item]
+          return total

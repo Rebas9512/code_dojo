@@ -1,0 +1,47 @@
+id: algo-4-073-grow-a-cheap-network
+title: Prim：把新站接到已连部分
+track: algo
+stage: '4'
+order: 730
+format: complete
+mode: function
+difficulty: 74
+skills:
+  requires:
+  - py.bool-ops
+  - py.break-continue
+  - py.list-comp
+  - py.nested-loop
+  - py.set-basics
+  - py.while
+  introduces: algo.mst
+source: original
+leetcode: null
+milestones: []
+entry: connect_stations
+signature: 'def connect_stations(n: int, edges: list[list[int]]) -> int:'
+compare: exact
+wrong_examples:
+- why: 把接入一条边的费用换成了从根出发的累计路费。
+  code: |
+    import heapq
+
+
+    def connect_stations(n: int, edges: list[list[int]]) -> int:
+        graph = [[] for _ in range(n)]
+        for u, v, fee in edges:
+            graph[u].append((fee, v))
+            graph[v].append((fee, u))
+        joined = set()
+        heap = [(0, 0)]
+        total = 0
+        while heap and len(joined) < n:
+            fee, node = heapq.heappop(heap)
+            if node in joined:
+                continue
+            joined.add(node)
+            total += fee
+            for edge_fee, dest in graph[node]:
+                if dest not in joined:
+                    heapq.heappush(heap, (fee + edge_fee, dest))
+        return total

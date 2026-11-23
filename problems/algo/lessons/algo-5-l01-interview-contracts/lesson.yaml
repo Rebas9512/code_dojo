@@ -1,0 +1,84 @@
+id: algo-5-l01-interview-contracts
+title: 失败时交回什么，暂停后记住什么
+track: algo
+skills: [algo.try-except, algo.generator, algo.oop-design]
+steps:
+  - type: read
+    skill: algo.try-except
+    md: |
+      读配置时，正常的一行能拆成键和值，值也能转成整数。可是一旦用户少打等号，或者打成“十个”，程序应该继续用哪个值？先和调用者约好默认值，再把拆分、转换放进 try。Python 遇到 ValueError 就跳到对应的 except，成功则直接交回转换结果。读一行所花的时间随字符数线性增长。把 try 限制在输入转换附近，后面的计算若写错，仍可看到出错的位置。
+  - type: example
+    skill: algo.try-except
+    code: |
+      # ① 给转换失败约定一个结果
+      def count(text, fallback):
+          try:
+              return int(text)
+          except ValueError:
+              return fallback
+
+      # ② 比较填错和确实填了零
+      print(count("三", 6))
+      print(count("0", 6))
+      # 输出
+      # 6
+      # 0
+    md: 把第二行输入换成 "-3"，观察默认值在哪条路径上才会用到。
+  - type: quiz
+    skill: algo.try-except
+    q: 输入是 "0"，默认值是 6。若在成功转换后写 return value or 6，会交回什么？
+    options: ["0", "6", "抛出 ValueError"]
+    answer: 1
+    explain: 整数 0 转换成功，但在 or 左边会被当成假值。只在转换失败的分支交回默认值。
+  - type: read
+    skill: algo.generator
+    md: |
+      设想一叠装着小纸条的信封，调用者可能只要头两张。可以先把每张纸条抄到列表里，也可以每次交出一张。函数遇到 yield 会暂停，并记住循环走到了哪里；下次 next 才从这里继续。嵌套信封交给另一个生成器，用 yield from 依次转交它产出的纸条。走遍 n 个格子需 O(n) 次访问，递归栈随嵌套深度增长。读完的生成器已经走到终点，再遍历时不会从头开始。
+  - type: example
+    skill: algo.generator
+    code: |
+      # ① 依次打开信封
+      def slips(envelopes):
+          for envelope in envelopes:
+              yield from envelope
+
+      # ② 只收第一张，保留阅读位置
+      it = slips([[7, 3], [], [5]])
+      print(next(it))
+      # ③ 收下剩余纸条，再检查一次
+      print(list(it))
+      print(list(it))
+      # 输出
+      # 7
+      # [3, 5]
+      # []
+    md: 对同一个 it 连续调用两次 next，看看最后还剩下什么。
+  - type: quiz
+    skill: algo.generator
+    q: 第一次 next 已取走 7，在同一个生成器上调用 list 会收到什么？
+    options: ["[7, 3, 5]", "[3, 5]", "[]"]
+    answer: 1
+    explain: 挂起的位置还在第一封信里。下次取到 3，空信封没有输出，最后取到 5。
+  - type: read
+    skill: algo.oop-design
+    md: |
+      面对一串操作，先挑两个会互相影响的调用，写出第二个应该看到什么。键值库写入 0 后再读取，结果应该是 0；删掉后再读，才是约定的缺失值。字典能把单键读写做到平均 O(1)。新增“保存现场”后，之前保存的值在新写入之后仍要可读；若值是整数，复制一份有 n 项的字典需要 O(n) 时间和空间。若记录还含可变列表，外层字典的浅复制会让两边继续共用同一个列表。
+  - type: example
+    skill: algo.oop-design
+    code: |
+      # ① 准备只存整数的当前记录
+      live = {"ink": 4}
+      # ② 保留此刻的记录
+      saved = live.copy()
+      # ③ 继续写入，比较两个时刻
+      live["ink"] = 0
+      print(saved["ink"], live["ink"])
+      # 输出
+      # 4 0
+    md: 把 saved = live.copy() 改成 saved = live，观察第一次打印的值。
+  - type: quiz
+    skill: algo.oop-design
+    q: 将 saved = live 当成快照，接着把 live["ink"] 从 4 改为 0，再读 saved["ink"] 会得到什么？
+    options: ["4", "0", "找不到键"]
+    answer: 1
+    explain: 两个名字引用同一份字典，给其中一个名字所指的对象写入，另一个也能看到。

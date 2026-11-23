@@ -1,0 +1,19 @@
+id: py-0a-204-predict-shared-default
+title: 没有带袋子的两次调用
+track: python
+stage: 0A
+order: 2040
+format: predict
+mode: predict
+difficulty: 16
+skills:
+  requires:
+    - py.list-append
+  introduces: py.default-args
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM40：以为每次省略参数都会新建默认列表。
+    code: |
+      print('1\n1\n1')

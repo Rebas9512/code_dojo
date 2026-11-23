@@ -1,0 +1,31 @@
+id: py-0a-343-two-cups
+title: 两只量杯的读数
+track: python
+stage: 0A
+order: 4530
+format: write
+mode: function
+difficulty: 22
+skills:
+  requires:
+    - py.class-basic
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: cup_levels
+signature: 'def cup_levels(a: int, b: int, change: int) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: 第二只量杯只是第一只的别名。
+    code: |
+      class Cup:
+          def __init__(self, level: int):
+              self.level = level
+
+
+      def cup_levels(a: int, b: int, change: int) -> list[int]:
+          first = Cup(a)
+          second = first
+          second.level += change
+          return [first.level, second.level]

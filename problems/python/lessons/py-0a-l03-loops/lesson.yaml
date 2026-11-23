@@ -1,0 +1,260 @@
+id: py-0a-l03-loops
+title: 循环
+track: python
+skills: [py.for-range, py.accumulator, py.while, py.running-max, py.break-continue, py.nested-loop]
+steps:
+  - type: read
+    skill: py.for-range
+    md: |
+      **循环**让一段代码重复执行。最常用的写法：
+
+      ```python
+      for i in range(5):
+          print(i)
+      ```
+      `range(5)` 产生 0、1、2、3、4 这五个数（**从 0 开始，不包含 5**）。for 每一轮把名字 i 贴到下一个数上，然后执行一遍缩进的循环体。
+
+      `range` 的三种写法：
+      - `range(n)`：0 到 n-1，共 n 个；
+      - `range(a, b)`：a 到 b-1；要包含 b 就写 `range(a, b + 1)`；
+      - `range(a, b, step)`：每次加 step，step 可以是负数：`range(10, 0, -3)` 是 10、7、4、1。
+
+      读循环最好的办法是列一张**追踪表**：每一轮写一行，记下 i 和其他变量的值。
+
+      常见误解：
+      - **"range(1, n) 包含 n"**：不包含，这是最常见的"差一错误"。
+      - **"在循环体里改 i 会影响下一轮"**：不会，下一轮 i 会被重新设成 range 的下一个数。
+      - **"循环体至少执行一次"**：`range(0)`、`range(1, 1)` 里一个数都没有，循环体一次也不执行。
+  - type: example
+    skill: py.for-range
+    code: |
+      # ① 打印 1 到 5 和它们的平方（要包含 5，终点写 6）
+      for i in range(1, 6):
+          # ② 循环体：每一轮执行一次
+          print(i, i * i)
+      # ③ 倒着数，步长 -2
+      for i in range(10, 0, -2):
+          print(i)
+    md: "把第 ① 步改成 `range(1, 5)`，少了哪一行？"
+  - type: quiz
+    skill: py.for-range
+    q: "`range(2, 6)` 包含哪些数？"
+    options: ["2, 3, 4, 5", "2, 3, 4, 5, 6", "3, 4, 5, 6"]
+    answer: 0
+    explain: "从 2 开始，到 6 之前停：不包含终点 6。"
+  - type: read
+    skill: py.accumulator
+    md: |
+      循环最常见的用法是**累加**：把一串数一个一个加起来。套路固定为三步：
+
+      1. **初始化**：循环开始**之前**，准备一个变量存"到目前为止的结果"（求和从 0 开始，累乘从 1 开始）；
+      2. **每轮更新**：循环体里把当前这一项累积进去：`total = total + i`（或 `total += i`）；
+      3. **循环后读取**：循环结束，这个变量就是答案。
+
+      **计数**也是累加：从 0 开始，满足条件时加 1：
+
+      ```python
+      count = 0
+      for i in range(1, n + 1):
+          if i % 3 == 0:
+              count += 1
+      ```
+
+      常见误解：
+      - **"初始化写在循环里也行"**：那样每一轮都会被清零，最后只剩最后一轮的值。
+      - **"累乘也从 0 开始"**：0 乘任何数都是 0，累乘要从 1 开始。
+  - type: example
+    skill: py.accumulator
+    code: |
+      def sum_to_n(n):
+          # ① 初始化：循环之前准备累加器
+          total = 0
+          for i in range(1, n + 1):
+              # ② 每轮更新：把当前这一项加进去
+              total = total + i
+          # ③ 循环结束后读取结果
+          return total
+
+      print(sum_to_n(4))
+      print(sum_to_n(100))
+    md: "把 `total = 0` 挪进循环体（for 的下一行）再运行，结果变成了什么？为什么？"
+  - type: quiz
+    skill: py.accumulator
+    q: "求 1 × 2 × 3 × … × n 时，累乘变量的初始值应该是？"
+    options: ["0", "1", "n"]
+    answer: 1
+    explain: "累乘从 1 开始；从 0 开始的话，乘什么都是 0。"
+  - type: read
+    skill: py.while
+    md: |
+      `for` 适合"次数事先知道"的重复。有时不知道要重复几次，只知道**什么时候停**——比如"一直除以 10，直到变成 0"。这时用 `while`：
+
+      ```python
+      while 条件:
+          循环体
+      ```
+      每一轮开始**之前**检查条件：为 True 就执行一遍循环体，再回到顶部检查；为 False 就结束循环。
+
+      写 while 时问自己三件事：
+      1. 条件里用到的变量，循环前有初始值吗？
+      2. 条件写对了吗（什么时候继续、什么时候停）？
+      3. 循环体里有没有让条件**最终变成 False** 的更新？没有的话就是死循环，判题会超时。
+
+      常见误解：
+      - **"条件随时都在检查"**：只在每一轮的开头检查；循环体中途条件变假，这一轮也会做完。
+      - **"while 至少执行一次"**：一开始条件就是 False，一次也不执行。
+  - type: example
+    skill: py.while
+    code: |
+      def count_digits(n):
+          # ① 特殊情况：0 有 1 位
+          if n == 0:
+              return 1
+          # ② 初始化计数器
+          count = 0
+          # ③ 只要 n 还没变成 0，就去掉一位并计数
+          while n > 0:
+              n = n // 10
+              count += 1
+          return count
+
+      print(count_digits(2026), count_digits(7), count_digits(0))
+    md: "把 2026 换成别的数试试。想一想：如果删掉 `n = n // 10` 这一行会发生什么？"
+  - type: quiz
+    skill: py.while
+    q: "n = 5 时，`while n < 3:` 下面的循环体执行几次？"
+    options: ["0 次", "1 次", "3 次"]
+    answer: 0
+    explain: "第一次检查条件时 5 < 3 就是 False，循环体一次都不执行。"
+  - type: read
+    skill: py.running-max
+    md: |
+      找最大值（或最小值）的套路叫"**打擂台**"：用一个变量 `best` 记住"到目前为止最好的那个"，每来一个新值就和它比，新值更好就换成新值。
+
+      ```python
+      best = 第一个值
+      对每个值 x:
+          if x > best:
+              best = x
+      ```
+      三个子步骤：① 选初始擂主 ② 逐个挑战 ③ 胜者替换。
+
+      初始擂主要选对：最安全的是**用第一个值**当擂主。
+
+      常见误解：
+      - **"初始值写 0 就行"**：如果所有值都是负数，没有一个能大过 0，结果会错成 0。
+      - **"找最小值是另一套写法"**：只是把 `>` 换成 `<`。
+  - type: example
+    skill: py.running-max
+    code: |
+      def largest_digit(n):
+          # ① 初始擂主：个位数字
+          best = n % 10
+          while n > 0:
+              digit = n % 10
+              # ② 挑战：新数字更大吗？
+              if digit > best:
+                  # ③ 换擂主
+                  best = digit
+              n = n // 10
+          return best
+
+      print(largest_digit(1938))
+      print(largest_digit(0))
+    md: "把 `>` 改成 `<`，函数就变成了找最小的数字。"
+  - type: quiz
+    skill: py.running-max
+    q: "有三个数 -5、-2、-9。打擂台时 best 的初始值写成 0，最后的结果是？"
+    options: ["-2", "0", "-9"]
+    answer: 1
+    explain: "三个数都比 0 小，没有一个能换掉擂主，结果错成 0。初始值应该用第一个数。"
+  - type: read
+    skill: py.break-continue
+    md: |
+      循环中途有两种"跳转"：
+      - `break`：**立刻结束整个循环**，跳到循环后面的代码；
+      - `continue`：**跳过这一轮剩下的部分**，直接进入下一轮。
+
+      ```python
+      for i in range(1, 10):
+          if i % 3 == 0:
+              continue      # 3 的倍数不处理
+          if i > 7:
+              break         # 超过 7 就停
+          print(i)
+      ```
+      什么时候用 break？"找到第一个就够了"的情况——找到以后继续循环只是浪费，甚至会被后面的结果覆盖。在函数里，如果找到以后不需要再做别的事，直接 return 往往更简单。
+
+      常见误解：
+      - **"break 会跳出所有循环"**：只跳出它所在的**那一层**循环。
+      - **"continue 会结束循环"**：它只跳过这一轮。
+  - type: example
+    skill: py.break-continue
+    code: |
+      def first_multiple(a, b, k):
+          # ① 先假设找不到
+          result = -1
+          for x in range(a, b + 1):
+              # ② 找到一个 k 的倍数
+              if x % k == 0:
+                  result = x
+                  # ③ 找到第一个就停，不再往后看
+                  break
+          return result
+
+      print(first_multiple(1, 20, 7))
+      print(first_multiple(1, 5, 6))
+    md: "删掉 break 再运行，第一行的结果变了吗？为什么？"
+  - type: quiz
+    skill: py.break-continue
+    q: |
+      下面的循环打印哪些数？
+      ```python
+      for i in range(5):
+          if i == 2:
+              continue
+          print(i)
+      ```
+    options: ["0 1 3 4", "0 1", "0 1 2 3 4"]
+    answer: 0
+    explain: "continue 只跳过 i == 2 这一轮，循环继续。"
+  - type: read
+    skill: py.nested-loop
+    md: |
+      循环体里还可以再放一个循环，叫**嵌套循环**。外层每走一步，内层都要**从头到尾完整跑一遍**，所以总次数是两层次数相乘。
+
+      ```python
+      for row in range(1, 4):            # 外层：第几行
+          for col in range(1, row + 1):  # 内层：这一行的每一列
+              print(row, col)
+      ```
+      内层的范围可以依赖外层的变量（上面的 `row + 1`），这样能枚举出"三角形"的组合。
+
+      最常见的用途是**枚举所有两两组合**：让 b 从 a + 1 开始，就只会得到 a < b 的组合，不重复、也不会自己和自己配对。
+
+      常见误解：
+      - **"内层只跑一次"**：外层每一轮，内层都重新跑一遍。
+      - **"内外两层可以用同一个变量名"**：会互相覆盖，必须用不同的名字。
+      - 双重循环的次数是相乘的：n = 1000 时就是一百万次。
+  - type: example
+    skill: py.nested-loop
+    code: |
+      def count_pairs(n, target):
+          count = 0
+          # ① 外层：选第一个数 a
+          for a in range(1, n + 1):
+              # ② 内层：只选比 a 大的 b
+              for b in range(a + 1, n + 1):
+                  # ③ 检查这一对
+                  if a + b == target:
+                      count += 1
+          return count
+
+      print(count_pairs(5, 6))
+    md: "把内层改成 `range(1, n + 1)`，结果变成几？多出来的是哪些组合？"
+  - type: quiz
+    skill: py.nested-loop
+    q: "外层循环 3 轮、内层循环每次 4 轮，内层的循环体一共执行几次？"
+    options: ["7 次", "12 次", "4 次"]
+    answer: 1
+    explain: "外层每一轮内层都完整跑 4 次：3 × 4 = 12。"

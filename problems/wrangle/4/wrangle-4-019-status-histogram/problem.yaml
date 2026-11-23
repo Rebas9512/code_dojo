@@ -1,0 +1,32 @@
+id: wrangle-4-019-status-histogram
+title: 为未登记订单保留一行
+track: wrangle
+stage: '4'
+order: 190
+format: write
+mode: function
+difficulty: 37
+skills:
+  requires:
+    - wrangle.frequency
+    - wrangle.dates
+    - wrangle.loc
+  introduces: null
+source: original
+entry: status_counts
+signature: 'def status_counts(t, month):'
+compare: frame
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 默认略去了空状态。
+    code: |
+      import pandas as pd
+
+
+      def status_counts(t, month):
+          in_month = pd.to_datetime(t['day']).dt.month == month
+          return t.loc[in_month, 'status'].value_counts().reset_index(name='orders')

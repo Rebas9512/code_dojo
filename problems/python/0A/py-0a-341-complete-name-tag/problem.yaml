@@ -1,0 +1,29 @@
+id: py-0a-341-complete-name-tag
+title: 补全行李牌上的名字
+track: python
+stage: 0A
+order: 4510
+format: complete
+mode: function
+difficulty: 20
+skills:
+  requires:
+    - py.class-basic
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: read_tag
+signature: 'def read_tag(owner: str) -> str:'
+compare: exact
+wrong_examples:
+  - why: 只在构造函数里给一个局部名字赋值。
+    code: |
+      class Tag:
+          def __init__(self, owner: str):
+              owner = owner
+
+
+      def read_tag(owner: str) -> str:
+          tag = Tag(owner)
+          return tag.owner

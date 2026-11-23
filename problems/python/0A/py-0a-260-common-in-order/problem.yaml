@@ -1,0 +1,30 @@
+id: py-0a-260-common-in-order
+title: 两份清单共同的编号
+track: python
+stage: 0A
+order: 3200
+format: combine
+mode: function
+difficulty: 22
+skills:
+  requires:
+    - py.if-else
+    - py.list-append
+    - py.set-basics
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: common
+signature: 'def common(a: list[int], b: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: 收进结果后仍保留资格，使重复编号进了两次。
+    code: |
+      def common(a: list[int], b: list[int]) -> list[int]:
+          remaining = set(b)
+          result = []
+          for value in a:
+              if value in remaining:
+                  result.append(value)
+          return result

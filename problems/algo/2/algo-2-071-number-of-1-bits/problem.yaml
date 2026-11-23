@@ -1,0 +1,30 @@
+id: algo-2-071-number-of-1-bits
+title: 清点寄存器里亮起的位
+track: algo
+stage: '2'
+order: 710
+format: write
+mode: function
+difficulty: 65
+skills:
+  requires:
+  - algo.bit-ops
+  - py.func-return
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: number-of-1-bits
+milestones:
+- blind75
+entry: count_ones
+signature: 'def count_ones(n: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 右移清掉一格，却把零位也计入。
+  code: |
+    def count_ones(n: int) -> int:
+        count = 0
+        while n:
+            n >>= 1
+            count += 1
+        return count

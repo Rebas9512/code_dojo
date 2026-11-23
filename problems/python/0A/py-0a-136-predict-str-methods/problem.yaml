@@ -1,0 +1,17 @@
+id: py-0a-136-predict-str-methods
+title: 方法改了原字符串吗
+track: python
+stage: 0A
+order: 720
+format: predict
+mode: predict
+difficulty: 12
+skills:
+  requires: [py.index-len]
+  introduces: py.str-methods
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "第 2 行的结果没有被任何变量接住。"
+  - "\"banana\" 里有几段 \"an\"？"

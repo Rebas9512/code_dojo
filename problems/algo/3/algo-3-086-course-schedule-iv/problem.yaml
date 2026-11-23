@@ -1,0 +1,49 @@
+id: algo-3-086-course-schedule-iv
+title: 两门课是否有间接先修关系
+track: algo
+stage: '3'
+order: 860
+format: combine
+mode: function
+difficulty: 71
+skills:
+  requires:
+  - algo.topo-sort
+  - py.genexp
+  - py.if-else
+  - py.list-concat-repeat
+  - py.nested-loop
+  - py.set-basics
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: course-schedule-iv
+milestones: []
+entry: prerequisites_of
+signature: 'def prerequisites_of(n: int, edges: list[list[int]], queries: list[list[int]]) -> list[bool]:'
+compare: exact
+wrong_examples:
+- why: 只登记直接先修者。
+  code: |
+    from collections import deque
+
+
+    def prerequisites_of(n: int, edges: list[list[int]], queries: list[list[int]]) -> list[bool]:
+        after = [[] for _ in range(n)]
+        degree = [0] * n
+        ancestors = [set() for _ in range(n)]
+        for a, b in edges:
+            after[a].append(b)
+            degree[b] += 1
+        ready = deque(i for i in range(n) if degree[i] == 0)
+        while ready:
+            a = ready.popleft()
+            for b in after[a]:
+                pass
+                ancestors[b].add(a)
+                degree[b] -= 1
+                if degree[b] == 0:
+                    ready.append(b)
+        return [a in ancestors[b] for a, b in queries]
+hints:
+- 处理某门课时，它已经收集了哪些更早的祖先？将它和这些祖先一并传给直接后继。

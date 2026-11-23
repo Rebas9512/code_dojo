@@ -1,0 +1,74 @@
+id: algo-3-087-minimum-height-trees
+title: 以哪些节点为根能让树最矮
+track: algo
+stage: '3'
+order: 870
+format: write
+mode: function
+difficulty: 71
+skills:
+  requires:
+  - algo.graph-adj-list
+  - algo.topo-sort
+  - py.early-return
+  - py.genexp
+  - py.list-concat-repeat
+  - py.nested-loop
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: minimum-height-trees
+milestones: []
+entry: shortest_roots
+signature: 'def shortest_roots(n: int, edges: list[list[int]]) -> list[int]:'
+compare: unordered
+wrong_examples:
+- why: 两中心时只交回其中一个。
+  code: |
+    from collections import deque
+
+
+    def shortest_roots(n: int, edges: list[list[int]]) -> list[int]:
+        if n == 1:
+            return [0]
+        adjacent = [[] for _ in range(n)]
+        degree = [0] * n
+        for a, b in edges:
+            adjacent[a].append(b)
+            adjacent[b].append(a)
+            degree[a] += 1
+            degree[b] += 1
+        leaves = deque(i for i in range(n) if degree[i] == 1)
+        remaining = n
+        while remaining > 2:
+            width = len(leaves)
+            remaining -= width
+            for _ in range(width):
+                leaf = leaves.popleft()
+                for near in adjacent[leaf]:
+                    degree[near] -= 1
+                    if degree[near] == 1:
+                        leaves.append(near)
+        return list(leaves)[:1]
+- why: 把每个节点都试作根，各自遍历全树求高。
+  code: |
+    def shortest_roots(n: int, edges: list[list[int]]) -> list[int]:
+        graph = [[] for _ in range(n)]
+        for a, b in edges:
+            graph[a].append(b)
+            graph[b].append(a)
+        heights = []
+        for root in range(n):
+            height = 0
+            stack = [(root, -1, 0)]
+            while stack:
+                node, parent, depth = stack.pop()
+                height = max(height, depth)
+                for other in graph[node]:
+                    if other != parent:
+                        stack.append((other, node, depth + 1))
+            heights.append(height)
+        best = min(heights)
+        return [i for i, h in enumerate(heights) if h == best]
+hints:
+- 从一棵长链开始试。若同时剥掉最外层的叶子，哪些点仍最靠近中心？

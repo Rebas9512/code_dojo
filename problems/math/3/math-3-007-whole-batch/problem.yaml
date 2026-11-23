@@ -1,0 +1,21 @@
+id: math-3-007-whole-batch
+title: 整批读数怎么除
+track: math
+stage: '3'
+order: 70
+format: predict
+mode: predict
+difficulty: 27
+skills:
+  requires:
+    - py.genexp
+    - math.function-table
+    - py.list-builtins
+  introduces: math.spread
+source: original
+wrong_examples:
+  - why: 用了估计时的 n−1 分母。
+    code: |
+      xs = [1, 5]
+      m = sum(xs) / len(xs)
+      print(sum((x-m)**2 for x in xs) / (len(xs)-1))

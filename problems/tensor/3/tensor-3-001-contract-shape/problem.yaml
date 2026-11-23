@@ -1,0 +1,16 @@
+id: tensor-3-001-contract-shape
+title: 材料轴去了哪里
+track: tensor
+stage: '3'
+order: 10
+format: predict
+mode: predict
+difficulty: 27
+skills:
+  requires: []
+  introduces: tensor.contract
+source: original
+wrong_examples:
+  - why: 交换了班级轴与规格轴。
+    code: |
+      print('(1, 2)\n[[13, 15]]')

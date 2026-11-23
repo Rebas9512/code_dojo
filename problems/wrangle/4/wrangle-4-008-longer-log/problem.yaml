@@ -1,0 +1,16 @@
+id: wrangle-4-008-longer-log
+title: 登记为什么多出几行
+track: wrangle
+stage: '4'
+order: 80
+format: predict
+mode: predict
+difficulty: 32
+skills:
+  requires: []
+  introduces: wrangle.melt
+source: original
+wrong_examples:
+  - why: 误以为叠成长表仍保留原来行数。
+    code: |
+      print('(2, 4)')

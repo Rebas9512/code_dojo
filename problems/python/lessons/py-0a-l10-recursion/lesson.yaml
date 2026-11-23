@@ -1,0 +1,103 @@
+id: py-0a-l10-recursion
+title: 跟踪递归的去程和回程
+track: python
+skills:
+  - py.recursion
+  - py.recursion-seq
+  - py.recursion-multi
+steps:
+  - type: read
+    skill: py.recursion
+    md: |
+      一层楼想知道自己到地面有几级，可以问低一层，再给它的答案加一。让函数以更小的参数调用自己，就是递归。每次调用都保留自己那份参数，以及拿到答案以后要接着做的事。
+
+      先确定直接交回答案的最小情形，再确认每一步都靠近它。对 height(2)，试填三层：height(0) 交回 0，height(1) 收到 0 交回 1，height(2) 收到 1 交回 2。
+
+      **“调用自己就是跳回开头”（PM48）**、**“最里层一 return 就全部结束”（PM49）** 都会漏掉回程。**“调用过就自动返回它的结果”（PM50）** 则会让外层丢掉结果。
+  - type: example
+    skill: py.recursion
+    code: |
+      # ① 地面直接交回答案
+      def height(floor):
+          if floor == 0:
+              return 0
+          # ② 等低一层回来，再拼出自己的答案
+          lower = height(floor - 1)
+          print("算", floor)
+          return lower + 1
+
+
+      print(height(2))  # 依次输出 算 1、算 2、2
+    md: 把入口改成 height(3)，在运行前写出每次“算”后面的数。
+  - type: quiz
+    skill: py.recursion
+    q: height(0) 刚刚 return 0，接下来在哪里继续？
+    options:
+      - 所有调用都结束了
+      - height(1) 接住结果，继续打印与加一
+      - 重新执行 height(2) 的第一行
+    answer: 1
+    explain: return 只回到直接调用它的那一层，各层依次恢复。
+  - type: read
+    skill: py.recursion-seq
+    md: |
+      把同一张列表和一个下标一起传下去，就能用下标说明“从哪里开始的剩余部分”。例如 total(nums, 1) 只负责从下标 1 到末尾的和，前面的项目由外层负责。这样每层都能共用原列表。
+
+      当前下标小于长度，先取这一项，再加上下标加一的后缀和。当下标恰好等于长度，剩余部分为空，直接返回 0。先检查这一条，才不会读取越界的位置。
+
+      **“下标等于 len(nums) − 1 就什么也不剩”（PM67）**。那里还留有最后一项，它也需要参加计算。
+  - type: example
+    skill: py.recursion-seq
+    code: |
+      # ① 空后缀的和是零
+      def total(nums, i):
+          if i == len(nums):
+              return 0
+          # ② 留住本项，加上后缀交回的值
+          tail = total(nums, i + 1)
+          return nums[i] + tail
+
+
+      print(total([3, 1, 4], 1))  # 5
+      print(total([3, 1, 4], 3))  # 0
+    md: 把第一行调用的 1 改成 2，先猜最后一层应该交回几。
+  - type: quiz
+    skill: py.recursion-seq
+    q: 长度为 3，下标 i = 2。当前后缀还有几项？
+    options:
+      - 0 项
+      - 1 项
+      - 2 项
+    answer: 1
+    explain: 还有下标 2 处的最后一项。移动到 3 时才为空。
+  - type: read
+    skill: py.recursion-multi
+    md: |
+      把一次调用画成一个点，它发出的每个调用都往下连一条线。求 fib(3) 时，先算 fib(2)，再算 fib(1)；而 fib(2) 又会分别算 fib(1) 和 fib(0)。两处 fib(1) 各有自己的来路。
+
+      沿左边走到底再回来，接着走右边。可以给每个点写上返回值：左右孩子交回 1 和 0，fib(2) 交回 1；根节点最终得到 1 加 1。重复的分支多了，运行时间会很快增长。
+
+      **“相同参数的结果会自动记住，因此同一个点只算一次”（PM68）**。普通函数每次调用都会进入函数体。
+  - type: example
+    skill: py.recursion-multi
+    code: |
+      # ① 到达叶子时只数本次调用
+      def calls(n):
+          if n < 2:
+              return 1
+          # ② 分别数两棵子树，加上当前这一次
+          return 1 + calls(n - 1) + calls(n - 2)
+
+
+      print(calls(2))  # 3
+      print(calls(3))  # 5
+    md: 在函数开头打印 n，检查 calls(3) 里 1 出现几次。
+  - type: quiz
+    skill: py.recursion-multi
+    q: 单独计算 fib(3)，fib(1) 的函数体运行几次？
+    options:
+      - 一次，结果会复用
+      - 两次，一次来自 fib(2)，一次来自 fib(3)
+      - 三次
+    answer: 1
+    explain: 画出 fib(3) 的两个孩子，再展开 fib(2)，能沿两条不同路径走到 fib(1)。

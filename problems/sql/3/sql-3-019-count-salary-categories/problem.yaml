@@ -1,0 +1,32 @@
+id: sql-3-019-count-salary-categories
+title: 三个收入档各有几人
+track: sql
+stage: '3'
+order: 190
+format: write
+difficulty: 50
+skills:
+  requires:
+    - sql.between
+    - sql.count
+    - sql.self-join
+    - sql.set-ops
+  introduces: null
+source: sql50
+leetcode: count-salary-categories
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/middle-only.sql
+  - datasets/sample.sql + datasets/empty.sql
+ordered: false
+hints:
+  - 每个档单独数，再接成三行。整张表为空时应交几行？
+wrong_examples:
+  - why: 把 50000 同时计入高档
+    sql: |
+      SELECT 'low' AS band, COUNT(*) AS accounts FROM accounts WHERE income < 20000
+      UNION ALL
+      SELECT 'middle', COUNT(*) FROM accounts WHERE income BETWEEN 20000 AND 50000
+      UNION ALL
+      SELECT 'high', COUNT(*) FROM accounts WHERE income >= 50000;

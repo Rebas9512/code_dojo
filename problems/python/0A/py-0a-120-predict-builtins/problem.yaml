@@ -1,0 +1,17 @@
+id: py-0a-120-predict-builtins
+title: 内置函数的结果
+track: python
+stage: 0A
+order: 360
+format: predict
+mode: predict
+difficulty: 6
+skills:
+  requires: [py.print]
+  introduces: py.minmax-abs
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "-2 和 -9 哪个大？"
+  - "最后两行看题面的第三条。"

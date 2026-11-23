@@ -1,0 +1,24 @@
+id: py-0a-302-complete-direction
+title: 补全升降标记
+track: python
+stage: 0A
+order: 4220
+format: complete
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - py.func-return
+    - py.ternary
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: trend
+signature: 'def trend(old: int, new: int) -> str:'
+compare: exact
+wrong_examples:
+  - why: 把两个读数相等也算成上升。
+    code: |
+      def trend(old: int, new: int) -> str:
+          return "升" if new >= old else "平或降"

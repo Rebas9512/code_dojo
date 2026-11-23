@@ -1,0 +1,694 @@
+# SQL 技能图（code-dojo）。方言：PostgreSQL 18（判题用 PGlite）。
+# 设计说明见 docs/curriculum.md；格式见 docs/problem-format.md。
+# 阶段 0 的技能配完整知识卡；阶段 1–5 先写要点，做到该阶段时再扩写。
+track: sql
+skills:
+  # ===================== 阶段 0：单表查询 =====================
+  - id: sql.select-star
+    name: 用 SELECT * 看整张表
+    stage: "0"
+    prereqs: [data.table-intro]
+    card: |
+      `SELECT * FROM users;` 读出 users 表里的每一行、每一列。
+      FROM 后面写表名，星号在这里表示全部列。结果的表头显示这些列的名字。
+      一名用户占一行。即使两个人姓名相同，也会有两行记录。
+      常见坑：只写一个列名，会少掉这张表的其他字段。
+
+  - id: sql.schema-types
+    name: 读表结构：类型、NOT NULL 和主键
+    stage: "0"
+    prereqs: [sql.select-star, data.column-type-key, data.missing]
+    card: |
+      表结构给每列定规则：叫什么、存哪类值、可否为空、是否属于主键。
+      integer 存整数，numeric 存精确的数值（可以有小数），text 存文字，date 存日期。
+      books.stock 是 integer 且有 NOT NULL，库存可以等于 0，每行都要填。
+      books.published_on 是 date，允许缺少出版日期。book_id 是主键，编号必须唯一且有值。
+
+  - id: sql.select-basic
+    name: SELECT 列 FROM 表
+    stage: "0"
+    prereqs: [sql.select-star]
+    card: |
+      从一张表里取出想要的列，结果也是一张"表"。
+      ```sql
+      SELECT title, price
+      FROM books;
+      ```
+      - 列名之间用逗号分隔；`SELECT *` 取所有列（练习时少用，写清楚要哪些列）。
+      - 结果的**列顺序**就是你写的顺序；判题会比较列数和每一列的值，不比较列名。
+      - 关键字大小写都行，习惯上关键字大写；语句末尾的分号可有可无。
+      常见坑：列名拼错会报 `column ... does not exist`——先看清表结构。
+
+  - id: sql.select-expr
+    name: 计算列与 AS 别名
+    stage: "0"
+    prereqs: [sql.select-basic]
+    card: |
+      SELECT 里可以写表达式，每一行算一次：
+      ```sql
+      SELECT title, price * stock AS stock_value, price * 0.8 AS sale_price
+      FROM books;
+      ```
+      - 算术：`+ - * /` 和取余 `%`。
+      - `AS 名字` 给结果列起名，方便阅读，也能在 ORDER BY 里引用。
+      常见坑：**整数除法**——`7 / 2` 在 PostgreSQL 里是 `3`。要小数写 `7 / 2.0` 或 `7::numeric / 2`。
+
+  - id: sql.where
+    name: WHERE 过滤与比较
+    stage: "0"
+    prereqs: [sql.select-basic]
+    card: |
+      WHERE 写条件，只保留条件为真的行：
+      ```sql
+      SELECT title FROM books WHERE category = 'scifi';
+      SELECT title FROM books WHERE price < 30;
+      ```
+      比较运算：`=  <>（或 !=）  <  >  <=  >=`。
+      - 字符串和日期用**单引号**：`'scifi'`、`'2025-03-01'`；双引号是给列名用的。
+      - 字符串比较区分大小写：`'Scifi'` 不等于 `'scifi'`。
+      常见坑：写成 `==`；字符串忘了加引号。
+
+  - id: sql.and-or
+    name: AND / OR / NOT 与括号
+    stage: "0"
+    prereqs: [sql.where]
+    card: |
+      多个条件用 `AND`（都要满足）、`OR`（满足一个即可）、`NOT`（取反）组合。
+      **优先级：NOT > AND > OR**，混用时一定加括号：
+      ```sql
+      -- 想要：fantasy 或 scifi，并且价格低于 35
+      WHERE (category = 'fantasy' OR category = 'scifi') AND price < 35
+      -- 不加括号会被理解成：category = 'fantasy' OR (category = 'scifi' AND price < 35)
+      ```
+      常见坑：漏括号导致条件"吃掉"了一半。拿不准就加括号。
+
+  - id: sql.in-list
+    name: IN (...) 列表
+    stage: "0"
+    prereqs: [sql.where]
+    card: |
+      `x IN (a, b, c)` 等于 `x = a OR x = b OR x = c`，更短也不容易写错。
+      ```sql
+      WHERE category IN ('history', 'cooking', 'kids')
+      WHERE status NOT IN ('cancelled')
+      ```
+      常见坑：`NOT IN` 的列表里如果有 NULL，结果永远为空（三值逻辑，见 IS NULL 卡片）。
+
+  - id: sql.between
+    name: BETWEEN 范围（含两端）
+    stage: "0"
+    prereqs: [sql.where]
+    card: |
+      `x BETWEEN a AND b` 等于 `x >= a AND x <= b`，**两端都包含**。
+      ```sql
+      WHERE price BETWEEN 30 AND 45
+      WHERE order_date BETWEEN '2025-03-01' AND '2025-03-31'   -- order_date 是 DATE
+      ```
+      日期字符串 `'2025-03-01'` 和 DATE 列比较时会自动转成日期。
+      常见坑：如果列是带时间的 TIMESTAMP，`BETWEEN ... AND '2025-03-31'` 只到 31 日 00:00，
+      会漏掉当天其余时间；这时写 `>= '2025-03-01' AND < '2025-04-01'`。
+
+  - id: sql.like
+    name: LIKE 模糊匹配
+    stage: "0"
+    prereqs: [sql.where]
+    card: |
+      `%` 匹配任意长度（含 0）的字符，`_` 匹配恰好一个字符。
+      ```sql
+      WHERE title LIKE 'The %'      -- 以 "The " 开头（注意空格）
+      WHERE title LIKE '%Moon%'     -- 包含 Moon
+      WHERE email LIKE '%@example.com'
+      ```
+      - PostgreSQL 的 LIKE **区分大小写**；不区分用 `ILIKE`。
+      常见坑：`'The%'` 也会匹配 `Theory ...`；想要整词要把空格写进模式里。
+
+  - id: sql.is-null
+    name: NULL 与 IS NULL
+    stage: "0"
+    prereqs: [sql.where]
+    card: |
+      NULL 表示"未知 / 没有值"。任何值和 NULL 比较（`=`、`<>`、`<`）结果都是 **未知**，
+      WHERE 只保留"真"，所以这些行会被丢掉。判断 NULL 只能用：
+      ```sql
+      WHERE phone IS NULL
+      WHERE phone IS NOT NULL
+      ```
+      常见坑：
+      - `WHERE phone = NULL` 永远查不到任何行。
+      - `WHERE publisher <> 'Harbor Press'` **不会**返回 publisher 为 NULL 的行；
+        要包含它们写 `publisher <> 'Harbor Press' OR publisher IS NULL`
+        （或 `publisher IS DISTINCT FROM 'Harbor Press'`）。
+
+  - id: sql.coalesce
+    name: COALESCE 默认值
+    stage: "0"
+    prereqs: [sql.is-null, sql.select-expr]
+    card: |
+      `COALESCE(a, b, ...)` 返回第一个不是 NULL 的参数：
+      ```sql
+      SELECT name, COALESCE(city, 'unknown') AS city FROM users;
+      SELECT COALESCE(discount, 0) * price ...
+      ```
+      常见用途：显示时给空值一个默认文字；计算前把 NULL 当 0（NULL 参与运算结果还是 NULL）。
+      常见坑：参数类型要一致，`COALESCE(price, 'none')` 会报类型错误。
+
+  - id: sql.order-by
+    name: ORDER BY 排序
+    stage: "0"
+    prereqs: [sql.select-basic]
+    card: |
+      ```sql
+      SELECT title, price FROM books
+      ORDER BY price DESC, title ASC;   -- 先按价格降序，价格相同再按书名升序
+      ```
+      - 默认 `ASC`（升序），`DESC` 降序，每一列单独指定。
+      - 可以按别名或表达式排序。
+      - 升序时 NULL 排在最后，可以用 `NULLS FIRST / NULLS LAST` 改。
+      常见坑：只写一个排序键，并列的行顺序是**不确定**的；题目要求确定顺序时要加"决胜"列。
+      不写 ORDER BY 时，行的顺序没有任何保证。
+
+  - id: sql.limit
+    name: LIMIT / OFFSET
+    stage: "0"
+    prereqs: [sql.order-by]
+    card: |
+      `LIMIT n` 只要前 n 行，`OFFSET k` 先跳过 k 行（分页）。几乎总是和 ORDER BY 一起用：
+      ```sql
+      SELECT book_id, title, price FROM books
+      ORDER BY price DESC, book_id
+      LIMIT 3;                 -- 最贵的 3 本
+      ... LIMIT 5 OFFSET 5;    -- 第 2 页（每页 5 行）
+      ```
+      常见坑：
+      - 没有 ORDER BY 的 LIMIT 拿到的是"随便哪几行"。
+      - 第 n 名有并列时，LIMIT 会硬切掉一部分——题目说"并列都要"时要用子查询或窗口函数（阶段 3、4）。
+      - MySQL 的 `LIMIT 5, 10` 在 PostgreSQL 里写作 `LIMIT 10 OFFSET 5`。
+
+  - id: sql.distinct
+    name: DISTINCT 去重
+    stage: "0"
+    prereqs: [sql.select-basic]
+    card: |
+      `SELECT DISTINCT` 去掉**整行**完全相同的重复行：
+      ```sql
+      SELECT DISTINCT category FROM books;
+      SELECT DISTINCT user_id, status FROM orders;   -- 按 (user_id, status) 组合去重
+      ```
+      - NULL 和 NULL 在去重时视为相同。
+      常见坑：
+      - DISTINCT 作用于所有选中的列，不是只作用于第一列。
+      - 同时用 ORDER BY 时，排序的列必须出现在 SELECT 里。
+
+  - id: sql.case
+    name: CASE WHEN 条件表达式
+    stage: "0"
+    prereqs: [sql.select-expr, sql.and-or]
+    card: |
+      按条件给出不同的值，相当于 SQL 里的 if / elif / else：
+      ```sql
+      SELECT title,
+             CASE
+               WHEN price < 30 THEN 'budget'
+               WHEN price < 50 THEN 'standard'   -- 走到这里说明 price >= 30
+               ELSE 'premium'
+             END AS price_band
+      FROM books;
+      ```
+      从上往下，第一个为真的 WHEN 生效；没有 ELSE 且都不满足时结果是 NULL。
+      常见坑：边界值（30、50 正好落在哪一档）；漏写 END。
+
+  - id: sql.string-funcs
+    name: 字符串函数
+    stage: "0"
+    prereqs: [sql.select-expr]
+    card: |
+      ```sql
+      LENGTH(s)  UPPER(s)  LOWER(s)  INITCAP(s)
+      SUBSTRING(s FROM 2 FOR 3)   LEFT(s, 1)   RIGHT(s, 3)
+      TRIM(s)   REPLACE(s, 'a', 'b')   POSITION('@' IN s)   SPLIT_PART(s, '@', 2)
+      'a' || 'b'   CONCAT(a, b)   -- 拼接
+      ```
+      - 下标从 1 开始。
+      常见坑：`||` 遇到 NULL 结果是 NULL，`CONCAT` 会把 NULL 当空串。
+
+  - id: sql.date-funcs
+    name: 日期函数
+    stage: "0"
+    prereqs: [sql.select-expr, sql.between]
+    card: |
+      ```sql
+      EXTRACT(YEAR FROM d)  EXTRACT(MONTH FROM d)  EXTRACT(DOW FROM d)
+      DATE_TRUNC('month', d)          -- 截到月初（返回 timestamp）
+      TO_CHAR(d, 'YYYY-MM')           -- 格式化成字符串
+      d + 1   d - INTERVAL '30 days'  d2 - d1（两个 DATE 相减得天数）
+      CURRENT_DATE
+      ```
+      常见坑：MySQL 的 `DATE_ADD`、`DATEDIFF`、`DATE_FORMAT` 在 PostgreSQL 里不存在，
+      分别改用 `+ INTERVAL`、日期相减、`TO_CHAR`。
+
+  - id: sql.round-cast
+    name: ROUND 与类型转换
+    stage: "0"
+    prereqs: [sql.select-expr]
+    card: |
+      ```sql
+      ROUND(x, 2)            -- x 必须是 numeric；double precision 只能 ROUND(x)
+      CAST(x AS numeric)  或  x::numeric
+      ABS(x)  CEIL(x)  FLOOR(x)  MOD(a, b)
+      ```
+      常见坑：`ROUND(AVG(x)::float, 2)` 报错——PostgreSQL 的两参数 ROUND 只接受 numeric，
+      写 `ROUND(AVG(x)::numeric, 2)`；整数相除先转 numeric 再除。
+
+  - id: sql.regex
+    name: 正则匹配
+    stage: "0"
+    prereqs: [sql.like]
+    card: |
+      `s ~ '模式'` 区分大小写，`~*` 不区分，`!~` 取反。
+      ```sql
+      WHERE email ~ '^[A-Za-z][A-Za-z0-9_.-]*@example\.com$'
+      ```
+      `^` 开头、`$` 结尾、`[...]` 字符集合、`*` 零个或多个、`\.` 字面上的点。
+      常见坑：忘了 `^ $`，模式只要出现在中间就算匹配。
+
+  # ===================== 阶段 1：聚合 =====================
+  - id: sql.count
+    name: COUNT 计数
+    stage: "1"
+    prereqs: [sql.select-basic, sql.is-null]
+    card: |
+      一行对应一个读者时，`COUNT(*)` 得到读者人数。把星号换成列名，就只数这一列有值的行。
+      ```sql
+      SELECT COUNT(*) AS readers, COUNT(phone) AS phones FROM users;
+      ```
+      三行的电话依次为 NULL、'123'、'123'，两个计数分别为 3 和 2。重复的电话仍按填写次数计数。
+      过滤后即使一行也没有，不加 GROUP BY 的两个计数仍返回一行，都是 0。
+
+  - id: sql.sum-avg
+    name: SUM / AVG / MIN / MAX
+    stage: "1"
+    prereqs: [sql.count, sql.select-expr]
+    card: |
+      要汇总一批数字，用 SUM 求和，AVG 求平均，MIN 和 MAX 取两端的值。
+      ```sql
+      SELECT SUM(quantity), AVG(quantity), MIN(quantity), MAX(quantity)
+      FROM order_items;
+      ```
+      AVG 的分母是有值的行数。2、NULL、4 的平均值是 3；真正的 0 会参与平均。
+      没有输入行或整列都为空时，这四个结果都是 NULL。是否显示成 0 由题意决定。
+
+  - id: sql.group-by
+    name: GROUP BY 分组
+    stage: "1"
+    prereqs: [sql.count, sql.order-by]
+    card: |
+      先决定输出一行代表谁，再用 GROUP BY 指定对应的列。每组只交一行。
+      ```sql
+      SELECT book_id, COUNT(*) AS votes
+      FROM ratings GROUP BY book_id;
+      ```
+      有三票的书得到一个计数 3，没有票的书没有对应组。分组键中的 NULL 归为同一组。
+      同组里可能出现多个评分人。选出具体 user_id 需要再按人分组或说明怎样汇总。
+
+  - id: sql.having
+    name: HAVING 过滤分组
+    stage: "1"
+    prereqs: [sql.group-by, sql.where]
+    card: |
+      WHERE 从原始记录里选行，HAVING 从已经算好的组里选组。
+      ```sql
+      SELECT book_id, COUNT(*) FROM ratings
+      WHERE stars = 5 GROUP BY book_id HAVING COUNT(*) >= 2;
+      ```
+      先只收五星评分，再保留至少收到两张五星票的书。
+      把 COUNT 写进 WHERE 会报错，那时还没有组。门槛说“至少两票”时，正好两票也保留。
+
+  - id: sql.count-distinct
+    name: COUNT(DISTINCT ...)
+    stage: "1"
+    prereqs: [sql.group-by, sql.distinct]
+    card: |
+      数不同读者、不同课程等对象时，先确定对象的编号，然后在组内去重计数。
+      ```sql
+      SELECT book_id, COUNT(DISTINCT stars) AS score_kinds
+      FROM ratings GROUP BY book_id;
+      ```
+      三条评分的星数为 5、5、3 时得到 2。NULL 总是跳过，全为空的一组得到 0。
+      外层 SELECT DISTINCT 只去掉最终结果中相同的行，无法消除计数时已经算入的重复值。
+
+  - id: sql.conditional-agg
+    name: 条件聚合
+    stage: "1"
+    prereqs: [sql.group-by, sql.case]
+    card: |
+      让每一行按条件贡献 1 或 0，再在组内求和，可以同时得到几种不同的计数。
+      ```sql
+      SELECT book_id, SUM(CASE WHEN stars = 5 THEN 1 ELSE 0 END) AS top_votes
+      FROM ratings GROUP BY book_id;
+      ```
+      全是低分的书仍有一行，五星票数为 0。先用 WHERE 筛五星会让这样的书整个消失。
+      用 COUNT 时要注意：COUNT(0) 也计数。要求比例时可对一列 0 和 1 求 AVG。
+
+  - id: sql.string-agg
+    name: STRING_AGG 拼接
+    stage: "1"
+    prereqs: [sql.group-by, sql.order-by]
+    card: |
+      STRING_AGG 把一组文字拼成一个值，第二个参数决定文字之间放什么。
+      ```sql
+      SELECT category, STRING_AGG(DISTINCT title, ', ' ORDER BY title)
+      FROM books GROUP BY category;
+      ```
+      同名书只保留一个名字，NULL 会被跳过。上例在逗号后留一个空格；题目要求紧挨着就用 `','`。
+      括号内的 ORDER BY 决定名字的顺序，查询末尾的 ORDER BY 决定各组的行序。
+
+  - id: sql.nullif
+    name: NULLIF 防除零
+    stage: "1"
+    prereqs: [sql.sum-avg, sql.coalesce]
+    card: |
+      算退货率前，先区分“售出了一些、无人退货”和“总共售出零本”。前者的比例是 0，后者没有定义。
+      ```sql
+      SELECT 1.0 * 2 / NULLIF(8, 0) AS rate, 1.0 * 0 / NULLIF(0, 0) AS missing;
+      ```
+      `NULLIF(x, 0)` 在 x 为 0 时返回 NULL，其他时候保留 x。上例得到 0.25 和 NULL。
+      把保护放在除号右侧，分组仍保留。题意要求缺失显示为 0 时，再给整个比例用 COALESCE。
+
+  # ===================== 阶段 2：连接 =====================
+  - id: sql.inner-join
+    name: INNER JOIN
+    stage: "2"
+    prereqs: [sql.where, sql.select-expr]
+    card: |
+      INNER JOIN 输出每一对成功配上的行。用 ON 写下两侧代表同一事物的键。
+      ```sql
+      SELECT o.order_id, u.name FROM orders o
+      JOIN users u ON u.user_id = o.user_id;
+      ```
+      一位用户有三笔订单，就在三行里出现。没有订单的用户在这份清单里没有匹配。
+      同名用户可以是不同的人，连接时认编号。别名 o、u 用来说明每一列来自哪张表。
+
+  - id: sql.left-join
+    name: LEFT JOIN
+    stage: "2"
+    prereqs: [sql.inner-join, sql.is-null]
+    card: |
+      LEFT JOIN 先保留左侧名单。右侧有几条匹配就给几行；一条都没有时给一行，右侧各列填 NULL。
+      ```sql
+      SELECT u.user_id, o.order_id FROM users u
+      LEFT JOIN orders o ON o.user_id = u.user_id;
+      ```
+      一个有两单的用户贡献两行，一个没订单的用户也贡献一行。后者的订单号为 NULL。
+      补行之后再用 WHERE 限制订单状态，会丢掉补位。只想限制匹配范围时把右表条件放在 ON。
+
+  - id: sql.anti-join
+    name: 反连接（找"没有"的）
+    stage: "2"
+    prereqs: [sql.left-join]
+    card: |
+      要找从没发生过某事的人，先把完整名单放在左侧，再留下右侧只有补位的行。
+      ```sql
+      SELECT u.user_id FROM users u
+      LEFT JOIN orders o ON o.user_id = u.user_id
+      WHERE o.order_id IS NULL;
+      ```
+      真实订单一定有订单号，所以结果中每位用户都确实没下过单。
+      优惠码本来就能是 NULL。把判断改成 o.coupon_code IS NULL，会混进下过原价订单的人。
+
+  - id: sql.self-join
+    name: 自连接
+    stage: "2"
+    prereqs: [sql.inner-join]
+    card: |
+      同一张表可以在一次查询里读两次。分别为两个角色起名，再沿着关系的方向连接。
+      ```sql
+      SELECT u.name, ref.name AS referrer FROM users u
+      LEFT JOIN users ref ON ref.user_id = u.referrer_id;
+      ```
+      从 u 的推荐人编号找到 ref 自己的编号。等号两侧的角色选反，就查成了 u 推荐的人。
+      用 INNER JOIN 时无推荐人的用户消失；用 LEFT JOIN 时推荐人那一列留空。
+
+  - id: sql.cross-join
+    name: CROSS JOIN
+    stage: "2"
+    prereqs: [sql.inner-join]
+    card: |
+      先造出所有格子，再给它们填数。CROSS JOIN 中，左表每一行和右表每一行都配一次。
+      ```sql
+      SELECT u.user_id, b.book_id FROM users u CROSS JOIN books b;
+      ```
+      两位读者和三本书产生六对。若一侧为空，组合数为 0。
+      要展示从未发生的组合，先得到完整清单，再 LEFT JOIN 实际记录。只从实际记录开始分组会漏掉空格。
+
+  - id: sql.multi-join
+    name: 多表连接
+    stage: "2"
+    prereqs: [sql.inner-join, sql.left-join]
+    card: |
+      一次连接沿一条关系走。取订单日期、购买册数和书名，需要从订单经明细走到书目。
+      ```sql
+      SELECT o.order_date, i.quantity, b.title FROM orders o
+      JOIN order_items i ON i.order_id = o.order_id
+      JOIN books b ON b.book_id = i.book_id;
+      ```
+      一单有两条明细，第一步得到两行。每条明细只对应一本书，第二步还是两行。
+      若同一键在两侧各有两行和三行，就会得到六对。每加一步都要检查结果一行代表什么。
+
+  - id: sql.join-conditions
+    name: 多条件 / 范围连接
+    stage: "2"
+    prereqs: [sql.inner-join, sql.between, sql.and-or]
+    card: |
+      书号告诉你是哪种书，销售日期告诉你用哪一次定价。多个匹配条件在 ON 里用 AND 连起来。
+      ```sql
+      SELECT s.sale_id, p.price FROM counter_sales s
+      JOIN price_tags p ON p.book_id = s.book_id
+                       AND s.sold_on BETWEEN p.starts_on AND p.ends_on;
+      ```
+      有效期包含两端。两段定价期若有交叠，一笔销售可能配上两行；中间有空档就可能配不上。
+      只按书号会串价期，只按日期会串书。
+
+  - id: sql.join-aggregate
+    name: 连接后聚合
+    stage: "2"
+    prereqs: [sql.inner-join, sql.group-by]
+    card: |
+      连接后先问一行代表哪件事，再选计数或求和的单位。
+      ```sql
+      SELECT o.user_id, COUNT(DISTINCT o.order_id) AS orders_with_items,
+             SUM(i.quantity * i.unit_price) AS amount
+      FROM orders o JOIN order_items i ON i.order_id = o.order_id GROUP BY o.user_id;
+      ```
+      一单可含几种书，订单号在明细里会重复。同一订单只数一次，每条明细的金额则应各加一次。
+      多接一张评分表会复制明细。用 SUM(DISTINCT 金额) 也会误删数值相等的真实成交。
+
+  # ===================== 阶段 3：子查询和 CTE =====================
+  - id: sql.subquery-scalar
+    name: 标量子查询
+    stage: "3"
+    prereqs: [sql.sum-avg, sql.where]
+    card: |
+      标量子查询交出一列、至多一行，可以放进一个需要数值的格子。
+      `WHERE price > (SELECT AVG(price) FROM books)` 先取得一个均价，再逐本比较。
+      没有行时该格是 NULL，多行会报错。外层 MAX 即使没有输入也交一行 NULL，适合“缺第二档”的情况。
+
+  - id: sql.subquery-in
+    name: IN (子查询)
+    stage: "3"
+    prereqs: [sql.in-list, sql.group-by]
+    card: |
+      IN 的右边可以是一列查询结果。外层值与其中任一已知值相同即可入选，多次匹配也只保留该外行一次。
+      `WHERE book_id IN (SELECT book_id FROM ratings)` 筛出收过评分的书。
+      反过来用 NOT IN 时，右侧的 NULL 会使未命中的比较成为未知；先核对右列能否为空。
+
+  - id: sql.derived-table
+    name: FROM 子查询（派生表）
+    stage: "3"
+    prereqs: [sql.group-by]
+    card: |
+      把查询放在 FROM 中，括号内的结果就能当作一张表。为表和计算列起名，外层才能清楚地引用它们。
+      `SELECT MAX(n) FROM (SELECT COUNT(*) AS n FROM orders GROUP BY user_id) AS counts;`
+      内层从订单变成每位买家一行，外层再汇成一个数。先确定各层的一行分别代表什么。
+
+  - id: sql.correlated-subquery
+    name: 相关子查询
+    stage: "3"
+    prereqs: [sql.subquery-scalar]
+    card: |
+      内层可以使用外层当前行的列。给同一张表的两次读取取不同别名。
+      `WHERE b.price > (SELECT AVG(p.price) FROM books p WHERE p.category=b.category)` 逐本使用本类均价。
+      若删掉关联条件，每本书都将与同一个全店均价比较。只有一行的分类中，自己的价格等于本类均价。
+
+  - id: sql.exists
+    name: EXISTS / NOT EXISTS
+    stage: "3"
+    prereqs: [sql.correlated-subquery]
+    card: |
+      EXISTS 检查子查询能否找到至少一行，SELECT 1 只表示找到了一行。
+      `WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.user_id=u.user_id)` 筛出没下单的人。
+      另一张订单即使读者号为 NULL，也匹配不到当前读者。漏写关联条件则只是在问整张订单表是否为空。
+
+  - id: sql.cte
+    name: WITH（CTE）
+    stage: "3"
+    prereqs: [sql.derived-table]
+    card: |
+      WITH 给本条语句的一张中间结果命名。`WITH counts AS (...) SELECT ... FROM counts`。
+      可按依赖顺序用逗号定义多张表，再用最后一个 SELECT 选择输出。每层都可以临时成为最终查询来检查。
+      先写清一行的单位。分类均价表一类一行，再配回书目仍是一本书一行。
+
+  - id: sql.set-ops
+    name: UNION / INTERSECT / EXCEPT
+    stage: "3"
+    prereqs: [sql.select-basic, sql.order-by]
+    card: |
+      UNION ALL 把两份结果上下接起来，UNION 还会去掉整行完全相同的记录。
+      INTERSECT 留下两边都有的行，EXCEPT 留下只在左边的行。两侧列数相同，对应位置的类型应当兼容。
+      若结果要求两份名单依次出现，先加来源序号，最外层 ORDER BY 来源。
+
+  - id: sql.dml
+    name: DELETE / UPDATE 语句
+    stage: "3"
+    prereqs: [sql.exists, sql.and-or]
+    card: |
+      DELETE 按条件删除整行，UPDATE 按条件修改指定列。以另一行作为证据时，PostgreSQL 可以写 USING。
+      `DELETE FROM imports p USING imports q WHERE q.email=p.email AND q.id<p.id;`
+      `FORMAT($sql$DELETE FROM imports WHERE id = %s;$sql$, id)` 将整数编号填进命令，生成可逐行核对的清理单。
+      先用相同匹配条件 SELECT 出待改主键；执行后查剩余表。漏掉限定条件会扩大写入范围。题库以查询核对去留。
+
+  # ===================== 阶段 4：窗口函数 =====================
+  - id: sql.window-agg
+    name: 窗口函数入门：聚合 OVER ()
+    stage: "4"
+    prereqs: [sql.sum-avg, sql.group-by]
+    card: |
+      普通聚合把一组输入折成一行。窗口聚合把统计值贴回组内每一行，保留每张价签。
+      `SELECT book_id,price,SUM(price) OVER () FROM books;` 空括号表示所有输入行共用一个窗口。
+      WHERE 先决定哪些行进入窗口。最外层 ORDER BY 决定展示顺序。
+
+  - id: sql.row-number
+    name: ROW_NUMBER
+    stage: "4"
+    prereqs: [sql.window-agg, sql.order-by]
+    card: |
+      ROW_NUMBER() 在窗口顺序中逐行发号，从 1 起。相同的价格也会拿到不同号码。
+      `ROW_NUMBER() OVER (ORDER BY price DESC NULLS LAST, book_id)` 先按标价，再按唯一书号打破并列。
+      降序的 PostgreSQL 默认将 NULL 排在前面；要让未知排最后就明确写 NULLS LAST。
+
+  - id: sql.partition-by
+    name: PARTITION BY
+    stage: "4"
+    prereqs: [sql.row-number, sql.group-by]
+    card: |
+      PARTITION BY 指定在哪些伙伴中计算。换一个分区，编号重新从 1 起。
+      `SUM(price) OVER (PARTITION BY category)` 把分类总价贴到每本书旁。
+      在同一数据上 GROUP BY category 得到一类一行，窗口保留一书一行。分区内仅一行时，它独自组成一组。
+
+  - id: sql.rank
+    name: RANK / DENSE_RANK
+    stage: "4"
+    prereqs: [sql.partition-by]
+    card: |
+      对 30、30、10 降序排名，RANK 得到 1、1、3，DENSE_RANK 得到 1、1、2。
+      `DENSE_RANK() OVER (PARTITION BY category ORDER BY price DESC NULLS LAST)` 按不同价格发档号。
+      在这个窗口再加唯一的书号会拆散并列；要整齐展示同档书，请把书号放到最外层排序。
+
+  - id: sql.top-n-per-group
+    name: 分组 Top N
+    stage: "4"
+    prereqs: [sql.rank, sql.cte]
+    card: |
+      先在 CTE 中划分组、计算名次，在外层筛名次。WHERE 执行时，同层的窗口列还不存在。
+      每组恰好两件用 ROW_NUMBER 并补齐择优规则；最高两档价格并列都要时用 DENSE_RANK。
+      `WITH ranked AS (...) SELECT book_id FROM ranked WHERE tier<=2;`
+
+  - id: sql.lag-lead
+    name: LAG / LEAD
+    stage: "4"
+    prereqs: [sql.partition-by]
+    card: |
+      LAG(x) 取当前分区的前一行，LEAD(x) 取后一行。必须说明业务顺序，并列时用唯一键定先后。
+      `LAG(order_date) OVER (PARTITION BY user_id ORDER BY order_date,order_id)`
+      分区首行没有前一行，默认 NULL。LAG(x,1,0) 只对越界返回 0；前一条真实记录中的 NULL 仍是 NULL。
+
+  - id: sql.running-total
+    name: 累计求和
+    stage: "4"
+    prereqs: [sql.partition-by, sql.sum-avg]
+    card: |
+      有序窗口中的 SUM 可以累计到当前排序位置。`SUM(amount) OVER (ORDER BY day)` 用于每天一行的账本。
+      默认帧会一起纳入与当前排序键相同的伙伴，同日两笔会同时跳到同一个累计数。
+      若要逐笔核账，把唯一流水号加入排序，或显式写 ROWS 并规定同日先后。
+
+  - id: sql.window-frame
+    name: 窗口框架（滑动窗口）
+    stage: "4"
+    prereqs: [sql.running-total]
+    card: |
+      窗口 = 分区 + 排序 + 帧。ROWS BETWEEN 1 PRECEDING AND CURRENT ROW 表示当前行和紧前一行。
+      `AVG(amount) OVER (ORDER BY day ROWS BETWEEN 6 PRECEDING AND CURRENT ROW)` 至多取七行，开头可不足七行。
+      ROWS 按记录数移动。做七个日历日的平均时，先保证日表逐日连续且一天一行。
+
+  - id: sql.gaps-islands
+    name: 连续区间（gaps and islands）
+    stage: "4"
+    prereqs: [sql.partition-by, sql.distinct, sql.select-expr]
+    card: |
+      按人按日去重，再给每人的日期按升序编号。连续两日中日序和行号都加 1，两者差保持相同。
+      `(day - DATE '2000-01-01') - ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY day)`
+      按人和差值分组，MIN、MAX、COUNT 给出该段的起止与长度。跨月仍连续，缺一天就换段。
+
+  # ===================== 阶段 5：综合 =====================
+  - id: sql.retention
+    name: 留存
+    stage: "5"
+    prereqs: [sql.left-join, sql.cte, sql.count-distinct]
+    card: |
+      先定义起点与观察窗口，按首次登录日或注册月分批。分母是该批全部人数，分子是目标窗口回来的不同人数。
+      `a.day=c.first_day+7` 查第七天；次月用下月月初到下下月月初的左闭右开区间。
+      从批次名单 LEFT JOIN 已去重的活动，保留零返回批次。用 1.0 * 返回人数 / 批次人数保留小数。
+
+  - id: sql.funnel
+    name: 漏斗
+    stage: "5"
+    prereqs: [sql.conditional-agg, sql.cte]
+    card: |
+      浏览、加购、付款是有先后的步骤。每步输出一行一人，下一步只在上一步合格者中寻找更晚的事件。
+      `MIN(e.happened_at)` 配合 `e.happened_at>previous_time` 取最早有效时刻，能保留后续的所有可能路径。
+      同人重复操作按人计一次。相同时刻能否算下一步，以及转化率的分母，都依题目口径。
+
+  - id: sql.median
+    name: 中位数与分位数
+    stage: "5"
+    prereqs: [sql.sum-avg, sql.group-by]
+    card: |
+      将已知值从小到大排好。奇数取正中，偶数取中间两个的平均；重复观测各占一位。
+      `PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price)` 在相邻位置之间插值。全是 NULL 时返回 NULL。
+      手写时用组内行号 pos 和有效数 n，筛 2*pos 在 n 与 n+2 之间，再 AVG 两个或一个中点。
+
+  - id: sql.pivot
+    name: 行列转换
+    stage: "5"
+    prereqs: [sql.conditional-agg]
+    card: |
+      结果的一行先由 GROUP BY 定义，再为每个要展示的类别写一个条件聚合。
+      `SUM(CASE WHEN category='kids' THEN quantity ELSE 0 END) AS kids` 把该类的册数汇到一格。
+      类别缺席要填零，维度本身没有明细要从完整名册 LEFT JOIN。反过来把宽表摊成多行，可以用 UNION ALL。
+
+  - id: sql.generate-series
+    name: generate_series 补全日期
+    stage: "5"
+    prereqs: [sql.left-join, sql.select-expr]
+    card: |
+      generate_series(起点, 终点) 可以生成连续整数，默认步长为 1，含可达的两端。
+      `SELECT DATE '2025-02-27'+i FROM generate_series(0,3) AS offsets(i);` 跨月也逐日推进。
+      用完整日历作左表，数右表非空主键。COUNT(*) 会把无订单日补出的空行计成一笔。
+
+  - id: sql.recursive-cte
+    name: 递归 CTE
+    stage: "5"
+    prereqs: [sql.cte, sql.set-ops]
+    card: |
+      WITH RECURSIVE 分两部分：锚点给出第一层，递归项读取上一层去找下一层，用 UNION ALL 接起来。
+      推荐树从没有推荐人的根出发，根深度为 0。若 child.referrer_id=parent.user_id，则 child.depth=parent.depth+1。
+      递归项没有新行时结束。题里保证无环；若数据可能成环，要设计访问记录或明确的停止条件。

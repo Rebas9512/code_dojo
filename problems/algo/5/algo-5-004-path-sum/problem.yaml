@@ -1,0 +1,35 @@
+id: algo-5-004-path-sum
+title: 从根走到叶子能否恰好用完额度
+track: algo
+stage: '5'
+order: 40
+format: fix
+mode: function
+difficulty: 73
+week: 1
+skills:
+  requires:
+  - algo.tree-basics
+  - py.bool-ops
+  - py.recursion-multi
+  introduces: null
+source: top-interview-150
+leetcode: path-sum
+milestones: []
+entry: has_path
+signature: 'def has_path(root: TreeNode | None, target: int) -> bool:'
+compare: exact
+time_limit_ms: 800
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 一旦凑够就提前结束，忽略是否为叶子。
+  code: |
+    def has_path(root: TreeNode | None, target: int) -> bool:
+        if root is None:
+            return False
+        remaining = target - root.val
+        if remaining == 0 or (root.left is None and root.right is None):
+            return remaining == 0
+        return has_path(root.left, remaining) or has_path(root.right, remaining)

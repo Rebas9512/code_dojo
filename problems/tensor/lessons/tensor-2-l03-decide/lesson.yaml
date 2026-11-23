@@ -1,0 +1,59 @@
+id: tensor-2-l03-decide
+title: 按条件和名次选择
+track: tensor
+skills:
+  - tensor.where
+  - tensor.rank
+steps:
+  - type: read
+    skill: tensor.where
+    md: |-
+      两只传感器同一时刻各给一个数。主探头失效时，可以让备用探头只接替那一个时刻。例如主记录 [3, −1]，备用 [8, 5]，按非负为有效的规则合成 [3, 5]。结果与输入逐格对应。
+
+      `torch.where(条件, 真分支, 假分支)` 同时读取相应位置的两个候选值；真假与候选值都可按广播规则对齐。若每个位置都有不同的备选值，就把整个备用张量交给分支。
+
+      **TM11 常见误解：把真假分支的候选顺序颠倒**。主读数 [0, -2]、备用 [6, 7]，以主读数非负为有效，真假分支依次给出 0、7。
+  - type: example
+    skill: tensor.where
+    code: |
+      import torch
+      # ① 有效处沿用主探头，其余读备用
+      x = torch.tensor([3, -1])
+      b = torch.tensor([8, 5])
+      print(torch.where(x >= 0, x, b).tolist())  # 输出 [3, 5]
+    md: 把主探头的 -1 改为 0，再看备用探头是否接管。
+  - type: quiz
+    skill: tensor.where
+    q: 主记录是 [0, -2]，备用是 [6, 7]，非负有效时输出什么？
+    options:
+      - '[6, -2]'
+      - '[0, 7]'
+      - '[6, 7]'
+    answer: 1
+    explain: 零有效，第一格保留；第二格失效，取备用的 7。（TM11）
+  - type: read
+    skill: tensor.rank
+    md: |-
+      挑最快的两台机器要报告速度；要给最快的一台发指令则要知道位置。[4, 9, 6] 里最高读数是 9，它的位置是 1。值、位置、名次回答三个不同的问题。
+
+      `torch.topk(x, k, dim=1)` 每行选出 k 个最大的数，默认从大到小排列，取 .values 得分数，.indices 得原列号。并列时 topk 的列号顺序不保证。`torch.argmax(x, dim=1)` 每行给一个最大值的位置，并列时取最先出现的位置。
+
+      **TM12 常见误解：把最大值当作它的位置**。读数 [7, 7, 2] 的最大值是 7，argmax 给位置 0，相同最大值选择先遇到的那格。
+  - type: example
+    skill: tensor.rank
+    code: |
+      import torch
+      # ① 从同一张读数表分别取分数和地址
+      x = torch.tensor([[4, 9, 6]])
+      print(torch.topk(x, 2, dim=1).values.tolist())  # 输出 [[9, 6]]
+      print(torch.argmax(x, dim=1).tolist())  # 输出 [1]
+    md: 把 6 改成 9，再看 argmax 的位置。
+  - type: quiz
+    skill: tensor.rank
+    q: '[7, 7, 2] 的 argmax 是多少？'
+    options:
+      - '7'
+      - '1'
+      - '0'
+    answer: 2
+    explain: 最大读数为 7，最早遇到它的是第零格。（TM12）

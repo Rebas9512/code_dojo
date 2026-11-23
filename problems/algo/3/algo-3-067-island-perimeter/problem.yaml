@@ -1,0 +1,36 @@
+id: algo-3-067-island-perimeter
+title: 陆地边缘的总长度
+track: algo
+stage: '3'
+order: 670
+format: write
+mode: function
+difficulty: 64
+skills:
+  requires:
+  - py.bool-ops
+  - py.enumerate
+  - py.if-else
+  - py.nested-list
+  introduces: null
+source: neetcode250
+leetcode: island-perimeter
+milestones: []
+unit: 4
+entry: perimeter
+signature: 'def perimeter(grid: list[list[int]]) -> int:'
+compare: exact
+wrong_examples:
+- why: 一条公共边只扣一次。
+  code: |
+    def perimeter(grid: list[list[int]]) -> int:
+        total = 0
+        for r, row in enumerate(grid):
+            for c, cell in enumerate(row):
+                if cell == 1:
+                    total += 4
+                    if r > 0 and grid[r-1][c]:
+                        total -= 1
+                    if c > 0 and row[c-1]:
+                        total -= 2
+        return total

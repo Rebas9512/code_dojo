@@ -1,0 +1,36 @@
+id: algo-4-062-best-time-to-buy-and-sell-stock-with-cooldown
+title: 卖出后要休息一天的交易
+track: algo
+stage: '4'
+order: 620
+format: write
+mode: function
+difficulty: 77
+skills:
+  requires:
+  - algo.dp-2d
+  - py.minmax-abs
+  - py.multi-assign
+  - py.slice
+  - py.type-convert
+  introduces: null
+source: neetcode250
+leetcode: best-time-to-buy-and-sell-stock-with-cooldown
+milestones:
+- nc150
+entry: cooldown_profit
+signature: 'def cooldown_profit(prices: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 刚卖完的第二天就再次买入。
+  code: |
+    def cooldown_profit(prices: list[int]) -> int:
+        holding = -prices[0]
+        sold = float("-inf")
+        free = 0
+        for price in prices[1:]:
+            holding, sold, free = (max(holding, free - price, sold - price),
+                                   holding + price, max(free, sold))
+        return max(sold, free)
+hints:
+- 在纸上分三栏记今天收盘的最高收益：持有、当天卖出、空手且当天没有卖出。从昨天哪几栏可以转到今天？

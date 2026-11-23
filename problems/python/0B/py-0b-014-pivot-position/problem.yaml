@@ -1,0 +1,29 @@
+id: py-0b-014-pivot-position
+title: 寻找左右平衡的位置
+track: python
+stage: 0B
+order: 140
+format: write
+mode: function
+difficulty: 28
+skills:
+  requires: [py.prefix-sum, py.list-builtins, py.enumerate, py.early-return]
+  introduces: null
+source: leetcode75
+leetcode: find-pivot-index
+milestones: []
+entry: pivot_position
+signature: 'def pivot_position(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+  - why: "把被遮住的数也算入右侧。"
+    code: |
+      def pivot_position(nums: list[int]) -> int:
+          total = sum(nums)
+          left = 0
+          for i, value in enumerate(nums):
+              right = total - left
+              if left == right:
+                  return i
+              left += value
+          return -1

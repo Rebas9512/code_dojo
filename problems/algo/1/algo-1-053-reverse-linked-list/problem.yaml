@@ -1,0 +1,35 @@
+id: algo-1-053-reverse-linked-list
+title: 将传递方向反过来
+track: algo
+stage: '1'
+order: 530
+format: write
+mode: function
+difficulty: 58
+skills:
+  requires: []
+  introduces: algo.ll-reverse
+source: neetcode250
+leetcode: reverse-linked-list
+milestones:
+- blind75
+- top100
+entry: reverse_list
+signature: 'def reverse_list(head: ListNode | None) -> ListNode | None:'
+compare: exact
+convert:
+  args:
+    '0': listnode
+  returns: listnode
+wrong_examples:
+- why: 最后仍交回原来的头，反转后它只剩一个节点。
+  code: |
+    def reverse_list(head: ListNode | None) -> ListNode | None:
+        previous = None
+        current = head
+        while current:
+            following = current.next
+            current.next = previous
+            previous = current
+            current = following
+        return head

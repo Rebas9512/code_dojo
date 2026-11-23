@@ -1,0 +1,16 @@
+id: py-0a-113-predict-if-else
+title: 走哪条路
+track: python
+stage: 0A
+order: 230
+format: predict
+mode: predict
+difficulty: 5
+skills:
+  requires: [py.compare-bool]
+  introduces: py.if-else
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "一共 4 行输出。"

@@ -1,0 +1,32 @@
+id: algo-2-078-bitwise-and-of-numbers-range
+title: 一段连续编号的按位与
+track: algo
+stage: '2'
+order: 780
+format: write
+mode: function
+difficulty: 69
+skills:
+  requires:
+  - algo.bit-ops
+  - py.func-return
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: bitwise-and-of-numbers-range
+milestones: []
+entry: range_and
+signature: 'def range_and(left: int, right: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 只与两个端点，忽略中间出现过的零。
+  code: |
+    def range_and(left: int, right: int) -> int:
+        return left & right
+- why: 枚举区间，逐个取按位与。
+  code: |
+    def range_and(left: int, right: int) -> int:
+        result = left
+        for value in range(left + 1, right + 1):
+            result &= value
+        return result

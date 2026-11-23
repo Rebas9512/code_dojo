@@ -1,0 +1,26 @@
+id: math-2-006-successive-rates
+title: 计算每一段的升降速度
+track: math
+stage: '2'
+order: 60
+format: write
+mode: function
+difficulty: 24
+skills:
+  requires:
+    - py.list-append
+    - math.function-table
+    - math.slope
+  introduces: null
+source: original
+entry: water_rates
+signature: 'def water_rates(times: list[float], levels: list[float]) -> list[float]:'
+compare: float
+wrong_examples:
+  - why: 没有除以各段实际时长。
+    code: |
+      def water_rates(times: list[float], levels: list[float]) -> list[float]:
+          out = []
+          for i in range(1, len(times)):
+              out.append(levels[i] - levels[i - 1])
+          return out

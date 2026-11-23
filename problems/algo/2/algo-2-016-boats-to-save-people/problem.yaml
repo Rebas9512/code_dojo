@@ -1,0 +1,32 @@
+id: algo-2-016-boats-to-save-people
+title: 最少要派几条船
+track: algo
+stage: '2'
+order: 160
+format: write
+mode: function
+difficulty: 54
+skills:
+  requires:
+  - algo.two-pointers
+  - py.if-else
+  introduces: null
+source: neetcode250
+leetcode: boats-to-save-people
+milestones: []
+entry: boat_count
+signature: 'def boat_count(people: list[int], limit: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 最后一人漏发船。
+  code: |
+    def boat_count(people: list[int], limit: int) -> int:
+        weights = sorted(people)
+        left, right = 0, len(weights) - 1
+        boats = 0
+        while left < right:
+            if weights[left] + weights[right] <= limit:
+                left += 1
+            right -= 1
+            boats += 1
+        return boats

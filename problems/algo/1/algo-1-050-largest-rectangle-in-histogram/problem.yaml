@@ -1,0 +1,41 @@
+id: algo-1-050-largest-rectangle-in-histogram
+title: 连续柱子能托起的最大矩形
+track: algo
+stage: '1'
+order: 500
+format: combine
+mode: function
+difficulty: 64
+skills:
+  requires:
+  - py.bool-ops
+  - py.minmax-abs
+  - py.while
+  - py.running-max
+  - py.enumerate
+  - py.list-concat-repeat
+  - py.nested-list
+  - py.tuple
+  - algo.monotonic-stack
+  introduces: null
+source: neetcode250
+leetcode: largest-rectangle-in-histogram
+milestones:
+- nc150
+- top100
+entry: largest_rectangle
+signature: 'def largest_rectangle(heights: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 没用末尾的零结算仍在栈中的柱子。
+  code: |
+    def largest_rectangle(heights: list[int]) -> int:
+        stack = []
+        best = 0
+        for i, height in enumerate(heights):
+            start = i
+            while stack and stack[-1][1] > height:
+                start, old = stack.pop()
+                best = max(best, old * (i - start))
+            stack.append((start, height))
+        return best

@@ -1,0 +1,16 @@
+id: wrangle-4-005-join-expands
+title: 一本书为什么占了两行
+track: wrangle
+stage: '4'
+order: 50
+format: predict
+mode: predict
+difficulty: 30
+skills:
+  requires: []
+  introduces: wrangle.merge
+source: original
+wrong_examples:
+  - why: 认为连接之后最多一书一行。
+    code: |
+      print('2')

@@ -1,0 +1,16 @@
+id: tensor-2-016-podium-shapes
+title: 榜单与冠军位置
+track: tensor
+stage: '2'
+order: 160
+format: predict
+mode: predict
+difficulty: 30
+skills:
+  requires: []
+  introduces: tensor.rank
+source: original
+wrong_examples:
+  - why: 把位置报告成最高分。
+    code: |
+      print('(2, 2)\n[9, 8]')

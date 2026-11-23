@@ -1,0 +1,221 @@
+id: py-0a-l02-conditions
+title: 条件和布尔逻辑
+track: python
+skills: [py.if-else, py.early-return, py.elif, py.bool-ops, py.minmax-abs]
+steps:
+  - type: read
+    skill: py.if-else
+    md: |
+      有了 True / False，就可以让程序**分岔**：条件成立走一条路，否则走另一条。
+
+      ```python
+      if 条件:
+          条件为 True 时执行的代码
+      else:
+          条件为 False 时执行的代码
+      ```
+      - 条件后面有**冒号**；属于这个分支的代码都**缩进 4 个空格**；
+      - 两个分支**只会执行一个**；
+      - if / else 结束后、没有缩进的代码，不管走哪条路都会执行；
+      - else 可以不写：条件不成立就什么也不做。
+
+      写分支前先想三件事：① 判断什么条件 ② 两条路各做什么 ③ 之后在哪里汇合（比如两条路都把结果存进同一个变量，最后统一 return）。
+
+      常见误解：
+      - **"缩进只是为了好看"**：在 Python 里缩进决定哪些代码属于这个分支，缩错了意思就变了。
+      - **"边界会自己算对"**：`if age < 12` 不包含 12，写之前先想好边界值归哪一边。
+  - type: example
+    skill: py.if-else
+    code: |
+      def ticket_price(age):
+          # ① 判断条件
+          if age < 12:
+              # ② 条件成立：儿童票
+              price = 50
+          else:
+              # ② 条件不成立：成人票
+              price = 100
+          # ③ 两条路在这里汇合
+          return price
+
+      print(ticket_price(8))
+      print(ticket_price(12))
+    md: "把 `<` 改成 `<=` 再运行，12 岁的票价变了吗？"
+  - type: quiz
+    skill: py.if-else
+    q: |
+      x = 3 时，下面的代码打印几行？
+      ```python
+      if x > 5:
+          print("大")
+      else:
+          print("小")
+      print("完")
+      ```
+    options: ["1 行", "2 行", "3 行"]
+    answer: 1
+    explain: "if / else 只走一边（打印\"小\"）；最后一行没有缩进，总会执行。一共 2 行。"
+  - type: read
+    skill: py.early-return
+    md: |
+      函数执行到 `return` 时会**立刻结束**——不管它在 if 里还是在循环里，后面的代码都不再运行，结果直接交回去。
+
+      利用这一点，可以先处理特殊情况，处理完马上 return，剩下的代码只需要考虑正常情况。这种写法叫"守卫"：
+
+      ```python
+      def safe_divide(a, b):
+          if b == 0:
+              return 0        # 特殊情况：直接结束
+          return a // b       # 能走到这里，说明 b 不是 0
+      ```
+
+      多个 if 依次 return 也很常见，比如判断正负号：先 `if n > 0: return 1`，再 `if n < 0: return -1`，最后 `return 0`。
+
+      常见误解：
+      - **"return 之后还会往下执行"**：不会，函数已经结束了。
+      - **"每条路都会自动返回点什么"**：如果某条路一直走到函数末尾都没有 return，函数返回的是 None（"没有值"），判题会判错。
+  - type: example
+    skill: py.early-return
+    code: |
+      def describe(n):
+          # ① 先处理特殊情况，处理完立刻返回
+          if n == 0:
+              return "零"
+          # ② 走到这里说明 n 不是 0
+          if n > 0:
+              return "正数"
+          # ③ 前面都没返回，只剩负数
+          return "负数"
+
+      print(describe(0))
+      print(describe(5))
+      print(describe(-2))
+    md: "在第 ① 步的 return 下面加一行 `print(\"看得到我吗\")`，运行看看它会不会出现。"
+  - type: quiz
+    skill: py.early-return
+    q: "`describe(0)` 一共执行了几个 return？"
+    options: ["1 个", "2 个", "3 个"]
+    answer: 0
+    explain: "第一个 return 执行后函数就结束了，后面的代码根本不会运行。"
+  - type: read
+    skill: py.elif
+    md: |
+      选项不止两个时（比如分数转 A / B / C / F），用 `elif`（else if 的缩写）把多个条件串起来：
+
+      ```python
+      if score >= 90:
+          grade = "A"
+      elif score >= 80:
+          grade = "B"
+      else:
+          grade = "F"
+      ```
+      规则：从上往下**一个一个检查**，遇到**第一个**成立的条件就执行它的代码，然后**整串都结束**，后面的 elif 不再检查。所以走到 `elif score >= 80` 时，已经知道 score < 90，只需要写下限。
+
+      常见误解：
+      - **"三个 if 和 if / elif / elif 一样"**：三个独立的 if 每一个都会检查，95 分会同时打印 A 和 B；用 elif 才是"只选一个"。
+      - **"条件的顺序无所谓"**：如果先写 `score >= 60`，90 分也会被它先抓住。按区间判断时，要么从大到小写 `>=`，要么从小到大写 `<`。
+  - type: example
+    skill: py.elif
+    code: |
+      def letter_grade(score):
+          # ① 从最高的区间开始判断
+          if score >= 90:
+              grade = "A"
+          # ② 走到这里说明 score < 90，只写下限
+          elif score >= 80:
+              grade = "B"
+          elif score >= 60:
+              grade = "C"
+          # ③ 前面都不满足
+          else:
+              grade = "F"
+          return grade
+
+      print(letter_grade(95), letter_grade(85), letter_grade(60), letter_grade(10))
+    md: "把 `score >= 90` 和 `score >= 60` 两个条件对调，再看 95 分的结果。"
+  - type: quiz
+    skill: py.elif
+    q: |
+      score = 95，下面的代码打印几行？
+      ```python
+      if score >= 90:
+          print("A")
+      if score >= 80:
+          print("B")
+      ```
+    options: ["1 行", "2 行", "0 行"]
+    answer: 1
+    explain: "两个独立的 if 都会检查，95 两个都满足，打印 A 和 B。第二个换成 elif 才只打印 A。"
+  - type: read
+    skill: py.bool-ops
+    md: |
+      一个条件不够时，用逻辑运算把条件组合起来：
+      - `a and b`：两个都为 True，结果才是 True（"并且"）；
+      - `a or b`：至少一个为 True，结果就是 True（"或者"）；
+      - `not a`：取反。
+
+      ```python
+      age >= 6 and height >= 120      # 两个条件都要满足
+      day == "六" or day == "日"        # 满足一个就行
+      ```
+      优先级：`not` 先算，然后 `and`，最后 `or`。混着用时加括号最清楚：`(a and b) or c`。
+
+      **短路**：`and` 左边已经是 False，右边就不再计算（结果一定是 False）；`or` 左边已经是 True，右边也不算。以后检查"下标没越界、并且这个位置的值是……"时就靠它。
+
+      常见误解：
+      - **"`x == 1 or 2` 是'x 等于 1 或 2'"**：它的意思是 `(x == 1) or 2`，右边的 2 总被当成"真"。要写 `x == 1 or x == 2`。
+      - **"and、or 两边都会计算"**：会短路。
+  - type: example
+    skill: py.bool-ops
+    code: |
+      # ① 准备数据
+      year = 2024
+      # ② 第一条规则：能被 4 整除，并且不能被 100 整除
+      rule1 = year % 4 == 0 and year % 100 != 0
+      # ③ 第二条规则：能被 400 整除
+      rule2 = year % 400 == 0
+      # ④ 两条规则满足其一就是闰年
+      print(rule1 or rule2)
+      print(not rule2)
+    md: "把 year 改成 1900、2000 再运行，看两条规则分别是 True 还是 False。"
+  - type: quiz
+    skill: py.bool-ops
+    q: "x = 5 时，`print(x == 1 or 2)` 显示什么？"
+    options: ["False", "True", "2"]
+    answer: 2
+    explain: "它的意思是 `(x == 1) or 2`：左边是 False，or 的结果就是右边的值 2。判断\"等于 1 或 2\"要写 `x == 1 or x == 2`。"
+  - type: read
+    skill: py.minmax-abs
+    md: |
+      Python 自带一些常用的数学小工具，叫**内置函数**，直接调用就行：
+      - `abs(x)`：绝对值，`abs(-7)` 是 7；
+      - `min(a, b, ...)`、`max(a, b, ...)`：几个数里最小、最大的，一次可以比较很多个；
+      - `round(x, n)`：保留 n 位小数，`round(2.567, 2)` 是 2.57。
+
+      为什么学？很多判断可以用它们一行写完。比如"把 x 限制在 [low, high] 里"：`max(low, min(x, high))`——`min(x, high)` 保证不超过上限，外面的 `max(low, ...)` 保证不低于下限。
+
+      常见误解：
+      - **"round 就是四舍五入"**：正好 .5 时 Python 取**偶数**：`round(2.5)` 是 2，`round(3.5)` 是 4。只是想显示几位小数，用 f-string 的 `{x:.2f}` 更直观。
+      - **"min / max 只能比两个数"**：可以比任意多个。
+  - type: example
+    skill: py.minmax-abs
+    code: |
+      # ① 绝对值：两点之间的距离
+      a = 3
+      b = 8
+      print(abs(a - b))
+      # ② 几个数里最大、最小
+      print(max(4, 9, 1), min(4, 9, 1))
+      # ③ 把 x 限制在 [0, 10] 里
+      x = 15
+      print(max(0, min(x, 10)))
+      # ④ round 遇到正好 .5 时取偶数
+      print(round(2.5), round(3.5), round(2.567, 2))
+    md: "把 x 改成 -3、7 再运行第 ③ 步。"
+  - type: quiz
+    skill: py.minmax-abs
+    q: "`round(2.5)` 的结果是？"
+    options: ["3", "2", "2.5"]
+    answer: 1
+    explain: "正好 .5 时取最近的偶数，所以是 2（`round(3.5)` 是 4）。"

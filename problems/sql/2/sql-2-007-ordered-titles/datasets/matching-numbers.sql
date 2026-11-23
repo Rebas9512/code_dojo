@@ -1,0 +1,2 @@
+INSERT INTO orders VALUES (6,1,'2026-01-02','paid',NULL);
+INSERT INTO order_items VALUES (6,3,2,50);

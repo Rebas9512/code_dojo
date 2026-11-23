@@ -1,0 +1,23 @@
+id: py-0a-300-score-pairs
+title: 把姓名与成绩配成对
+track: python
+stage: 0A
+order: 4200
+format: write
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - py.zip
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: score_pairs
+signature: 'def score_pairs(names: list[str], scores: list[int]) -> list[tuple[str, int]]:'
+compare: exact
+wrong_examples:
+  - why: 把每对的姓名和成绩颠倒了。
+    code: |
+      def score_pairs(names: list[str], scores: list[int]) -> list[tuple[str, int]]:
+          return list(zip(scores, names))

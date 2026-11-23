@@ -1,0 +1,54 @@
+id: algo-2-030-minimum-window-substring
+title: 覆盖整份字符清单的最短片段
+track: algo
+stage: '2'
+order: 300
+format: combine
+mode: function
+difficulty: 60
+skills:
+  requires:
+  - algo.counter
+  - algo.window-variable
+  - py.enumerate
+  - py.multi-assign
+  - py.nested-loop
+  - py.slice
+  - py.ternary
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: minimum-window-substring
+milestones:
+- blind75
+- top100
+entry: min_cover
+signature: 'def min_cover(text: str, need: str) -> str:'
+compare: exact
+wrong_examples:
+- why: 把缺少的总张数初始化为种类数。
+  code: |
+    from collections import Counter
+
+
+    def min_cover(text: str, need: str) -> str:
+        debt = Counter(need)
+        missing = len(debt)
+        left = start = 0
+        size = len(text) + 1
+        for right, char in enumerate(text):
+            if debt[char] > 0:
+                missing -= 1
+            debt[char] -= 1
+            while missing == 0:
+                if right - left + 1 < size:
+                    start, size = left, right - left + 1
+                leaving = text[left]
+                debt[leaving] += 1
+                if debt[leaving] > 0:
+                    missing += 1
+                left += 1
+        return text[start:start + size] if size <= len(text) else ""
+hints:
+- 用每个字母尚缺的份数判断覆盖。need 里重复的字母也要重复满足。
+- 覆盖后先记录长度，再挪左端试着缩短；新字符过量的份数也要记住。

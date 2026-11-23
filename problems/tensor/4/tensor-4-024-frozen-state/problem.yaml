@@ -1,0 +1,25 @@
+id: tensor-4-024-frozen-state
+title: 保存可独立查看的参数快照
+track: tensor
+stage: '4'
+order: 240
+format: write
+mode: function
+difficulty: 44
+skills:
+  requires:
+    - tensor.state
+    - py.dict-set-comp
+  introduces: null
+source: original
+entry: snapshot
+signature: 'def snapshot(layer):'
+compare: checker
+wrong_examples:
+  - why: 提取字典却仍共享原参数存储。
+    code: |
+      import torch
+
+
+      def snapshot(layer):
+          return {name: value for name, value in layer.state_dict().items()}

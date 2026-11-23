@@ -1,0 +1,28 @@
+id: algo-2-075-missing-number
+title: 找出缺席的编号
+track: algo
+stage: '2'
+order: 750
+format: write
+mode: function
+difficulty: 66
+skills:
+  requires:
+  - algo.bit-ops
+  - py.enumerate
+  introduces: null
+source: neetcode250
+leetcode: missing-number
+milestones:
+- blind75
+entry: missing_number
+signature: 'def missing_number(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 只消掉 0 到 n−1，没算编号 n。
+  code: |
+    def missing_number(nums: list[int]) -> int:
+        missing = 0
+        for i, value in enumerate(nums):
+            missing ^= i ^ value
+        return missing

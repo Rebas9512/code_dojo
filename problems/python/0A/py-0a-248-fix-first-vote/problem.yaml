@@ -1,0 +1,26 @@
+id: py-0a-248-fix-first-vote
+title: 修好第一张选票
+track: python
+stage: 0A
+order: 3080
+format: fix
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - py.dict-counting
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: tally
+signature: 'def tally(votes: list[str]) -> dict[str, int]:'
+compare: exact
+wrong_examples:
+  - why: PM42：还没为新键存入次数，就先读取它。
+    code: |
+      def tally(votes: list[str]) -> dict[str, int]:
+          counts = {}
+          for name in votes:
+              counts[name] += 1
+          return counts

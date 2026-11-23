@@ -1,0 +1,23 @@
+id: py-0a-297-sign-checks
+title: 两格体检单
+track: python
+stage: 0A
+order: 4170
+format: write
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - py.genexp
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: signs
+signature: 'def signs(nums: list[int]) -> list[bool]:'
+compare: exact
+wrong_examples:
+  - why: 把 0 当成了正数。
+    code: |
+      def signs(nums: list[int]) -> list[bool]:
+          return [all(x >= 0 for x in nums), any(x < 0 for x in nums)]

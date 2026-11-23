@@ -1,0 +1,20 @@
+id: py-0a-021-sum-to-n
+title: 从 1 加到 n
+track: python
+stage: 0A
+order: 450
+format: complete
+mode: function
+difficulty: 8
+skills:
+  requires: [py.for-range, py.func-return, py.accumulator]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: sum_to_n
+signature: "def sum_to_n(n: int) -> int:"
+compare: exact
+hints:
+  - "求和的初始值是 0。"
+  - "每一轮：新的 total = 旧的 total + i。"

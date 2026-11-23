@@ -1,0 +1,50 @@
+id: sql-1-011-queries-quality-and-percentage
+title: 检索词的质量和低分占比
+track: sql
+stage: '1'
+order: 110
+format: combine
+difficulty: 29
+skills:
+  requires:
+    - sql.group-by
+    - sql.conditional-agg
+    - sql.sum-avg
+    - sql.select-expr
+    - sql.round-cast
+  introduces: null
+source: sql50
+leetcode: queries-quality-and-percentage
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/repeated-hits.sql
+  - datasets/sample.sql + datasets/rating-boundary.sql
+ordered: false
+hints:
+  - 先在每条记录上计算质量，再在组内取平均。低分贡献 100，其余贡献 0。
+wrong_examples:
+  - why: 先整除丢掉了小数
+    sql: |
+      SELECT term, ROUND(AVG(rating / position), 2) AS quality,
+             ROUND(AVG(CASE WHEN rating < 3 THEN 100 ELSE 0 END), 2) AS poor_pct
+      FROM search_hits
+      GROUP BY term;
+  - why: 分数恰好为 3 也算低分
+    sql: |
+      SELECT term, ROUND(AVG(rating::numeric / position), 2) AS quality,
+             ROUND(AVG(CASE WHEN rating <= 3 THEN 100 ELSE 0 END), 2) AS poor_pct
+      FROM search_hits
+      GROUP BY term;
+  - why: 平均质量忘了四舍五入
+    sql: |
+      SELECT term, AVG(rating::numeric / position) AS quality,
+             ROUND(AVG(CASE WHEN rating < 3 THEN 100 ELSE 0 END), 2) AS poor_pct
+      FROM search_hits
+      GROUP BY term;
+  - why: 低分百分比忘了四舍五入
+    sql: |
+      SELECT term, ROUND(AVG(rating::numeric / position), 2) AS quality,
+             AVG(CASE WHEN rating < 3 THEN 100 ELSE 0 END) AS poor_pct
+      FROM search_hits
+      GROUP BY term;

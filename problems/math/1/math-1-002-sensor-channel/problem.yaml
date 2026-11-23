@@ -1,0 +1,21 @@
+id: math-1-002-sensor-channel
+title: 读取一条传感器通道
+track: math
+stage: '1'
+order: 20
+format: complete
+mode: function
+difficulty: 16
+skills:
+  requires:
+    - math.vector
+  introduces: null
+source: original
+entry: read_channel
+signature: 'def read_channel(values: list[int], index: int) -> int:'
+compare: exact
+wrong_examples:
+  - why: 固定读取第一格。
+    code: |
+      def read_channel(values: list[int], index: int) -> int:
+          return values[0]

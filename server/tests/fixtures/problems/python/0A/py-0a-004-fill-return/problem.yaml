@@ -1,0 +1,11 @@
+id: py-0a-004-fill-return
+title: 补上 return
+track: python
+stage: 0A
+order: 25
+format: complete
+mode: function
+difficulty: 2
+skills: {requires: [py.function-return], introduces: null}
+entry: double
+signature: "def double(x: int) -> int:"

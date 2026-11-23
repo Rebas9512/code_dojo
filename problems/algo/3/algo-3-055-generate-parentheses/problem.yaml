@@ -1,0 +1,36 @@
+id: algo-3-055-generate-parentheses
+title: 排出所有能闭合的括号串
+track: algo
+stage: '3'
+order: 550
+format: write
+mode: function
+difficulty: 63
+skills:
+  requires:
+  - algo.backtracking
+  - algo.nested-func
+  introduces: null
+source: neetcode250
+leetcode: generate-parentheses
+milestones:
+- nc150
+- top100
+entry: parentheses
+signature: 'def parentheses(n: int) -> list[str]:'
+compare: unordered
+wrong_examples:
+- why: 允许先闭合再打开。
+  code: |
+    def parentheses(n: int) -> list[str]:
+        answers = []
+        def visit(opened, closed, word):
+            if closed == n:
+                answers.append(word)
+                return
+            if opened < n:
+                visit(opened + 1, closed, word + '(')
+            if closed <= opened:
+                visit(opened, closed + 1, word + ')')
+        visit(0, 0, '')
+        return answers

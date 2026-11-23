@@ -1,0 +1,16 @@
+id: py-0a-020-print-squares
+title: 打印平方数
+track: python
+stage: 0A
+order: 430
+format: write
+mode: stdio
+difficulty: 8
+skills:
+  requires: [py.for-range, py.stdio-input]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "要包含 n，range 的终点要写 n + 1。"

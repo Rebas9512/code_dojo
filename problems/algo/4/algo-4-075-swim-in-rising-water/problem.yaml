@@ -1,0 +1,52 @@
+id: algo-4-075-swim-in-rising-water
+title: 水涨到多高才能过河
+track: algo
+stage: '4'
+order: 750
+format: variant
+mode: function
+difficulty: 84
+skills:
+  requires:
+  - algo.dijkstra
+  - py.bool-ops
+  - py.break-continue
+  - py.early-return
+  - py.list-comp
+  - py.list-concat-repeat
+  - py.minmax-abs
+  - py.nested-list
+  - py.type-convert
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: swim-in-rising-water
+milestones:
+- nc150
+entry: swim_time
+signature: 'def swim_time(grid: list[list[int]]) -> int:'
+compare: exact
+wrong_examples:
+- why: 默认起点在水下，忘记起点也需要等到相应水位。
+  code: |
+    import heapq
+
+
+    def swim_time(grid: list[list[int]]) -> int:
+        rows, cols = len(grid), len(grid[0])
+        best = [[float("inf")] * cols for _ in range(rows)]
+        best[0][0] = 0
+        heap = [(0, 0, 0)]
+        while heap:
+            cost, r, c = heapq.heappop(heap)
+            if cost != best[r][c]:
+                continue
+            if (r, c) == (rows - 1, cols - 1):
+                return cost
+            for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < rows and 0 <= nc < cols:
+                    candidate = max(cost, grid[nr][nc])
+                    if candidate < best[nr][nc]:
+                        best[nr][nc] = candidate
+                        heapq.heappush(heap, (candidate, nr, nc))

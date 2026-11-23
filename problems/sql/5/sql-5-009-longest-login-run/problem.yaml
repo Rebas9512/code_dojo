@@ -1,0 +1,51 @@
+id: sql-5-009-longest-login-run
+title: 找回沉寂读者最长的登录段
+track: sql
+stage: '5'
+order: 90
+format: combine
+difficulty: 69
+skills:
+  requires:
+    - sql.gaps-islands
+    - sql.top-n-per-group
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/tied-runs.sql
+  - db:bookstore + datasets/as-of-day.sql
+ordered: false
+hints:
+  - 先确定观察日之前每个人的最后一次登录，再排各段。
+wrong_examples:
+  - why: 并列选了最近的一段
+    sql: |
+      WITH days AS (
+          SELECT DISTINCT user_id, logged_on AS day FROM reader_logins WHERE logged_on <= DATE '2025-03-31'
+      ), tagged AS (
+          SELECT user_id, day, (day - DATE '2000-01-01') - ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY day) AS block,
+                 MAX(day) OVER (PARTITION BY user_id) AS last_seen FROM days
+      ), runs AS (
+          SELECT user_id, MIN(day) AS start_day, MAX(day) AS end_day, COUNT(*) AS length
+          FROM tagged WHERE last_seen < DATE '2025-03-01' GROUP BY user_id, block
+      ), ranked AS (
+          SELECT runs.*, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY length DESC, start_day DESC) AS pos FROM runs
+      )
+      SELECT user_id, start_day, end_day, length FROM ranked WHERE pos = 1;
+  - why: 未先按人按日去重
+    sql: |
+      WITH days AS (
+          SELECT user_id, logged_on AS day FROM reader_logins WHERE logged_on <= DATE '2025-03-31'
+      ), tagged AS (
+          SELECT user_id, day, (day - DATE '2000-01-01') - ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY day) AS block,
+                 MAX(day) OVER (PARTITION BY user_id) AS last_seen FROM days
+      ), runs AS (
+          SELECT user_id, MIN(day) AS start_day, MAX(day) AS end_day, COUNT(*) AS length
+          FROM tagged WHERE last_seen < DATE '2025-03-01' GROUP BY user_id, block
+      ), ranked AS (
+          SELECT runs.*, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY length DESC, start_day) AS pos FROM runs
+      )
+      SELECT user_id, start_day, end_day, length FROM ranked WHERE pos = 1;

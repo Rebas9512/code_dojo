@@ -1,0 +1,28 @@
+id: tensor-4-007-fix-fresh-slope
+title: 第二次只读新斜率
+track: tensor
+stage: '4'
+order: 70
+format: fix
+mode: function
+difficulty: 35
+skills:
+  requires:
+    - tensor.accumulate
+  introduces: null
+source: original
+entry: fresh
+signature: 'def fresh(value):'
+compare: allclose
+wrong_examples:
+  - why: 两次反向之间未清零。
+    code: |
+      import torch
+
+
+      def fresh(value):
+          x = torch.tensor(value, dtype=torch.float32, requires_grad=True)
+          (x * x).backward()
+          first = x.grad.item()
+          (5 * x).backward()
+          return [first, x.grad.item()]

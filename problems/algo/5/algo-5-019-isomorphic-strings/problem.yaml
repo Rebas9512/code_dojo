@@ -1,0 +1,39 @@
+id: algo-5-019-isomorphic-strings
+title: 两串标记能否逐字替换
+track: algo
+stage: '5'
+order: 190
+format: write
+mode: function
+difficulty: 74
+week: 2
+skills:
+  requires:
+  - algo.hash-index-map
+  - py.early-return
+  - py.set-basics
+  - py.zip
+  introduces: null
+source: top-interview-150
+leetcode: isomorphic-strings
+milestones: []
+entry: same_shape
+signature: 'def same_shape(s: str, t: str) -> bool:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 只查同一源字符的一致性，遗漏目标端冲突。
+  code: |
+    def same_shape(s: str, t: str) -> bool:
+        forward = {}
+        taken = set()
+        for a, b in zip(s, t):
+            if a in forward:
+                if forward[a] != b:
+                    return False
+            else:
+                if a in forward:
+                    return False
+                forward[a] = b
+                taken.add(b)
+        return True

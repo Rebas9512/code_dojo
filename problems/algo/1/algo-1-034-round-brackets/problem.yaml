@@ -1,0 +1,32 @@
+id: algo-1-034-round-brackets
+title: 只有一种括号：计数器判断是否匹配
+track: algo
+stage: '1'
+order: 340
+unit: 2
+format: fix
+mode: function
+difficulty: 48
+skills:
+  requires:
+  - py.early-return
+  - py.accumulator
+  - py.for-each
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: balanced
+signature: 'def balanced(text: str) -> bool:'
+compare: exact
+wrong_examples:
+- why: 只查看最后的余额。
+  code: |
+    def balanced(text: str) -> bool:
+        depth = 0
+        for char in text:
+            if char == '(':
+                depth += 1
+            else:
+                depth -= 1
+        return depth == 0

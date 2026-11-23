@@ -1,0 +1,25 @@
+id: sql-4-012-running-book-revenue
+title: 补全：从第一天累计售书额
+track: sql
+stage: '4'
+order: 120
+format: complete
+difficulty: 59
+skills:
+  requires: []
+  introduces: sql.running-total
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/same-day.sql
+  - db:bookstore + datasets/sample.sql + datasets/across-month.sql
+ordered: true
+hints:
+  - 只希望窗口的右端随着日期移动，应在哪一对括号里排序？
+wrong_examples:
+  - why: 把最终总额填到每一天
+    sql: |
+      SELECT day, amount, SUM(amount) OVER () AS total
+      FROM daily_sales ORDER BY day;

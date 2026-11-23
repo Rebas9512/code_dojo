@@ -1,0 +1,132 @@
+id: py-0a-l06-functions
+title: 把工作拆给函数
+track: python
+skills:
+  - py.helper-func
+  - py.default-args
+  - py.none
+  - py.aliasing
+steps:
+  - type: read
+    skill: py.helper-func
+    md: |
+      收银时，两件商品可以分别算折后价，再把两个结果相加。把重复的那一步写成有名字的小函数，主函数就可以直接用它的结果。每调用一次，函数都拿到自己的一套参数名字。
+
+      读到 `price_after(8)`，先暂时停在调用处，让小函数算完；把返回值放回原来的位置，再继续运算。
+
+      **“改了小函数里的 price，外面的 price 也跟着变”（PM41）**。给参数重新赋值只改变本次调用里的名字。
+  - type: example
+    skill: py.helper-func
+    code: |
+      # ① 给单件商品减价
+      def price_after(price):
+          price = price - 1
+          return price
+
+
+      # ② 用两次调用的结果结账
+      def bill(price):
+          return price_after(price) + price_after(price)
+
+
+      price = 8
+      print(bill(price))  # 14
+      print(price)        # 8
+    md: 把第二次调用的实参改成 5，看看哪一行输出改变。
+  - type: quiz
+    skill: py.helper-func
+    q: 外面有 n = 4，小函数接到它后执行 n = 1。回到外面，原来的 n 是多少？
+    options:
+      - '1'
+      - '4'
+      - 没有值
+    answer: 1
+    explain: 小函数里的参数是本次调用的局部名字。外面的名字仍指向 4。
+  - type: read
+    skill: py.default-args
+    md: |
+      有些参数几乎每次都填同一个值。写函数时给它约定一个默认值，调用者就可以省下这个参数；遇到例外，再用参数名明确指定。
+
+      例如 `def label(word, times=2)` 允许写 `label('鱼')` 或 `label('鱼', times=3)`。带默认值的普通参数放在必填参数后。
+
+      **“每次省略参数都会新建默认列表”（PM40）**。默认值在定义函数时就准备好了；如果默认值是列表，一次调用追加的内容会留给另一次省略参数的调用。
+  - type: example
+    skill: py.default-args
+    code: |
+      # ① 用默认的分隔线与份数制标签
+      def labels(word, times=2, sep="/"):
+          return sep.join([word] * times)
+
+
+      # ② 只按名字更换分隔线
+      print(labels("云"))            # 云/云
+      print(labels("云", sep="-"))   # 云-云
+    md: 把第二次调用加上 times=3，再观察分隔线出现几次。
+  - type: quiz
+    skill: py.default-args
+    q: 函数 def add(x, bag=[]) 每次往 bag 追加 x 并返回长度。连续两次只传 x，得到什么？
+    options:
+      - 1、1
+      - 1、2
+      - 2、2
+    answer: 1
+    explain: 两次省略 bag，都使用定义时创建的同一个列表。
+  - type: read
+    skill: py.none
+    md: |
+      调用函数后可以把结果存进一个名字。要知道调用者接到了什么，就看实际走到的那条路径：遇到带值的 return，就带回那个值；一路走到函数末尾，就带回 None。
+
+      如果有效读数里包含 0，可以用 `reading is None` 单独识别没有返回读数的情况。
+
+      **“只要屏幕上显示了一个数，函数就把它交回了”（PM01）**。print 负责显示，调用结果取决于 return；同一次调用里能同时看到打印的数和返回的 None。
+  - type: example
+    skill: py.none
+    code: |
+      # ① 有读数时交回，负数只作提示
+      def reading(n):
+          if n >= 0:
+              return n
+          print("缺一条")
+
+
+      # ② 单独检查是否得到 None
+      print(reading(0) is None)   # False
+      print(reading(-1) is None)  # 先显示 缺一条，再显示 True
+    md: 把负数改成 2，观察提示和判断结果。
+  - type: quiz
+    skill: py.none
+    q: 函数只执行 print(0) 就走到末尾。r = 函数调用 后，r is None 的结果是什么？
+    options:
+      - 'True'
+      - 'False'
+    answer: 0
+    explain: 显示的 0 在屏幕上。函数走到末尾，调用者拿到 None。
+  - type: read
+    skill: py.aliasing
+    md: |
+      需要保留昨天的名单，再试着往今天的名单里加人时，先判断手里究竟有几张名单。变量只给列表起名字，两个名字可以指向同一份内容。
+
+      写 `b = a` 后，顺着 a 或 b 都能找到原列表。在 b 上 append，一会儿通过 a 查看时也会看见改动。写 `b = a.copy()` 才单独建一张外层列表。
+
+      **“赋值会复制整张表”（PM39）**。画图时先给列表画一个框，再从两个名字各画一支箭头。这里的复制只复制外层，本例的元素都是整数。
+  - type: example
+    skill: py.aliasing
+    code: |
+      # ① 一份名单，两个名字
+      a = [8]
+      b = a
+      # ② 在改动前保留一份快照
+      before = a.copy()
+      b.append(9)
+      print(a)       # [8, 9]
+      print(before)  # [8]
+    md: 把 before = a.copy() 改成 before = a，比较两行输出。
+  - type: quiz
+    skill: py.aliasing
+    q: a = [1]；b = a；b.append(2)。现在从 a 看见什么？
+    options:
+      - '[1]'
+      - '[1, 2]'
+      - '[2]'
+    answer: 1
+    explain: b 与 a 指向同一个列表，append 改动其中的内容。

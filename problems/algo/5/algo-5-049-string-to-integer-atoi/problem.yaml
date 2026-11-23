@@ -1,0 +1,43 @@
+id: algo-5-049-string-to-integer-atoi
+title: 从文字开头读一个有符号数
+track: algo
+stage: '5'
+order: 490
+format: write
+mode: function
+difficulty: 78
+week: 6
+skills:
+  requires:
+  - py.str-methods
+  - py.bool-ops
+  - py.in-membership
+  - py.minmax-abs
+  - py.ternary
+  - py.type-convert
+  - py.while
+  introduces: null
+source: grind169
+leetcode: string-to-integer-atoi
+milestones: []
+entry: parse_int
+signature: 'def parse_int(text: str) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 正数上限大了一位。
+  code: |
+    def parse_int(text: str) -> int:
+        i = 0
+        while i < len(text) and text[i] == " ":
+            i += 1
+        sign = 1
+        if i < len(text) and text[i] in "+-":
+            sign = -1 if text[i] == "-" else 1
+            i += 1
+        value = 0
+        bound = 2**31 if sign == -1 else 2**31
+        while i < len(text) and "0" <= text[i] <= "9":
+            value = min(bound, value * 10 + int(text[i]))
+            i += 1
+        return sign * value

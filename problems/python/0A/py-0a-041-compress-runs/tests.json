@@ -1,0 +1,13 @@
+{
+  "examples": [
+    {"args": ["aaabcc"], "expected": "a3b1c2"},
+    {"args": ["a"], "expected": "a1"}
+  ],
+  "hidden": [
+    {"args": [""], "expected": ""},
+    {"args": ["abc"], "expected": "a1b1c1"},
+    {"args": ["zzzz"], "expected": "z4"},
+    {"args": ["aabbaa"], "expected": "a2b2a2"},
+    {"args": ["aaaaaaaaaaaa"], "expected": "a12"}
+  ]
+}

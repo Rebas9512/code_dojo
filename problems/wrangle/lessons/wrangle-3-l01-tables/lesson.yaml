@@ -1,0 +1,63 @@
+id: wrangle-3-l01-tables
+title: 从列到表与 CSV
+track: wrangle
+skills:
+  - wrangle.table
+  - wrangle.csv
+steps:
+  - type: read
+    skill: wrangle.table
+    md: |-
+      Series 是带行标签的一列值，适合单独记录一批价格。DataFrame 把若干列并排成表，同一行的几列描述同一条记录。例如两行分别是甲架有 3 本、乙架有 7 本，就可以同时比较位置和数量。
+
+      pd.Series([3, 7], name='stock') 建立具名的一列。pd.DataFrame 可以接收列名到各列数值的字典，也能接收一行一行的数据并另给 columns。表用一个列名取出 Series，用列名列表保留 DataFrame。
+
+      **WM12 选一列总会得到表**。传入列名列表时保留列轴；传入单个列名时得到带名字的 Series。
+  - type: example
+    skill: wrangle.table
+    code: |
+      import pandas as pd
+      # ① 把位置和册数并排
+      t = pd.DataFrame({"shelf": ["甲", "乙"], "stock": [3, 7]})
+      # ② 分别取一列、取只有一列的表
+      print(t["stock"].shape)  # 输出 (2,)
+      print(t[["stock"]].shape)  # 输出 (2, 1)
+    md: 在列名列表里再加上 shelf，观察结果的第二个长度。
+  - type: quiz
+    skill: wrangle.table
+    q: 有 3 行的表，t[['stock']] 有几个轴？
+    options:
+      - '1'
+      - '2'
+      - '3'
+    answer: 1
+    explain: 双层方括号里的列表用来选列，结果仍是二维表。（WM12）
+  - type: read
+    skill: wrangle.csv
+    md: |-
+      CSV 把一批记录写成文本，表头一行给列起名，其余每行是一条记录。比如表头写 shelf,stock，下一行写 A,3，意思是 A 架有 3 本。字段自己带逗号时，可以用一对双引号保护整个字段。
+
+      pd.read_csv 会识别表头、分隔符和引号，并推断列类型。StringIO 把题目传入的文字包装成可读取的对象，运行示例时不需要打开本机文件。
+
+      **WM13 遇到逗号就拆列**。CSV 书名字段写成双引号包住的 A,B 时，整段书名只有一格。
+  - type: example
+    skill: wrangle.csv
+    code: |
+      from io import StringIO
+
+      import pandas as pd
+      # ① 第二个字段内含逗号，用双引号包住
+      text = 'id,title\n1,"海,风"\n'
+      # ② 按 CSV 规则读出书名
+      books = pd.read_csv(StringIO(text))
+      print(books["title"].tolist())  # 输出 ['海,风']
+    md: 删掉书名中的逗号，再加一行新书。
+  - type: quiz
+    skill: wrangle.csv
+    q: CSV 字段写成双引号包住的 A,B，解析后占几格？
+    options:
+      - '1'
+      - '2'
+      - '3'
+    answer: 0
+    explain: 引号里的逗号属于字段内容。（WM13）

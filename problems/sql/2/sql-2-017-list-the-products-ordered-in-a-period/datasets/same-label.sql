@@ -1,0 +1,2 @@
+INSERT INTO products VALUES (9,'夜航');
+INSERT INTO requests VALUES (9,'2025-04-12',65),(2,'2025-04-30',81);

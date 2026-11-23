@@ -1,0 +1,37 @@
+id: algo-3-011-balanced-binary-tree
+title: 每个分叉都平衡吗
+track: algo
+stage: '3'
+order: 110
+format: write
+mode: function
+difficulty: 50
+skills:
+  requires:
+  - algo.tree-postorder
+  - py.bool-ops
+  - py.minmax-abs
+  - py.recursion-multi
+  introduces: null
+source: neetcode250
+leetcode: balanced-binary-tree
+milestones:
+- nc150
+entry: is_balanced
+signature: 'def is_balanced(root: TreeNode | None) -> bool:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 只核对根的高度差。
+  code: |
+    def balance_info(root: TreeNode | None) -> tuple[int, bool]:
+        if root is None:
+            return 0, True
+        left, left_ok = balance_info(root.left)
+        right, right_ok = balance_info(root.right)
+        return 1 + max(left, right), abs(left - right) <= 1
+
+    def is_balanced(root: TreeNode | None) -> bool:
+        return balance_info(root)[1]

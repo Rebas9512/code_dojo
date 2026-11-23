@@ -1,0 +1,33 @@
+id: algo-3-010-height-and-balance
+title: 递归同时返回（高度，是否平衡）
+track: algo
+stage: '3'
+order: 100
+format: complete
+mode: function
+difficulty: 50
+skills:
+  requires:
+  - algo.tree-basics
+  - py.bool-ops
+  - py.minmax-abs
+  - py.recursion-multi
+  introduces: algo.tree-postorder
+source: original
+leetcode: null
+milestones: []
+entry: balance_info
+signature: 'def balance_info(root: TreeNode | None) -> tuple[int, bool]:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 允许的高度差多算了一层。
+  code: |
+    def balance_info(root: TreeNode | None) -> tuple[int, bool]:
+        if root is None:
+            return 0, True
+        left, left_ok = balance_info(root.left)
+        right, right_ok = balance_info(root.right)
+        return 1 + max(left, right), left_ok and right_ok and abs(left - right) <= 2

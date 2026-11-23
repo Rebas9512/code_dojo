@@ -1,0 +1,25 @@
+id: math-3-022-label-loss
+title: 按真实标签记代价
+track: math
+stage: '3'
+order: 220
+format: complete
+mode: function
+difficulty: 36
+skills:
+  requires:
+    - math.log
+    - math.cross-entropy
+  introduces: null
+source: original
+entry: label_loss
+signature: 'def label_loss(predicted: list[float], label: int) -> float:'
+compare: float
+wrong_examples:
+  - why: 用最大概率替代真实类的概率。
+    code: |
+      from math import log
+
+
+      def label_loss(predicted: list[float], label: int) -> float:
+          return -log(max(predicted))

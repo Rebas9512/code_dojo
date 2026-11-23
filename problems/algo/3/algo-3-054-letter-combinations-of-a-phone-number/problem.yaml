@@ -1,0 +1,39 @@
+id: algo-3-054-letter-combinations-of-a-phone-number
+title: 从数字键读出字母串
+track: algo
+stage: '3'
+order: 540
+format: write
+mode: function
+difficulty: 63
+skills:
+  requires:
+  - algo.backtracking
+  - algo.nested-func
+  - py.bool-ops
+  - py.type-convert
+  introduces: null
+source: neetcode250
+leetcode: letter-combinations-of-a-phone-number
+milestones:
+- nc150
+- top100
+entry: keypad
+signature: 'def keypad(digits: str) -> list[str]:'
+compare: unordered
+wrong_examples:
+- why: 漏掉 7 键上的第四个字母。
+  code: |
+    def keypad(digits: str) -> list[str]:
+        groups = ['abc', 'def', 'ghi', 'jkl', 'mno', 'pqr', 'tuv', 'wxyz']
+        if not digits:
+            return []
+        answers = []
+        def fill(i, prefix):
+            if i == len(digits):
+                answers.append(prefix)
+                return
+            for ch in groups[int(digits[i]) - 2]:
+                fill(i + 1, prefix + ch)
+        fill(0, '')
+        return answers

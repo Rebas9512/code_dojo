@@ -1,0 +1,56 @@
+id: algo-2-l03-prefix-counts
+title: 今天的前缀和能配几个旧起点
+track: algo
+skills:
+- algo.prefix-hash
+steps:
+- type: read
+  skill: algo.prefix-hash
+  md: |-
+    看到“和恰好为 k 的连续段有几个”，尤其允许负数时，可以记下每个切口之前的合计。到右侧切口的合计为 cur，若旧切口的合计是 cur-k，减去旧合计就恰为 k。相同合计可能出现在多个切口，每个都是不同起点。
+
+    在读第一格前登记一次合计 0。加入新值后，先查 cur-k 有几份，把份数加进答案，再把 cur 的次数加一。查的时候表里只含严格更早的切口，所以找到的段一定非空。用字典平均 O(n) 时间，最多保存 n+1 种合计。
+
+    **只保存有没有见过**会少算不同起点；**先登记再查**会让 k=0 的查询把当前切口配给自己。区间反复查询但不数配对时，一份按下标保存的前缀数组就足够。
+- type: example
+  skill: algo.prefix-hash
+  code: |
+    # ① 空前缀也是一个旧切口
+    counts = {0: 1}
+    cur = answer = 0
+    for value in [2, -2, 0]:
+        cur += value
+        # ② 找能与右端配对的旧切口（目标为零）
+        matches = counts.get(cur, 0)
+        answer += matches
+        # ③ 查完才登记本次切口
+        counts[cur] = counts.get(cur, 0) + 1
+        print(cur, matches, answer)
+
+    # 输出
+    # 2 0 0
+    # 0 1 1
+    # 0 2 3
+  md: |-
+    | 加入的数 | 2 | -2 | 0 |
+    |---|---:|---:|---:|
+    | 本轮新配对 | 0 | 1 | 2 |
+
+    把初始字典改为 {}，检查哪些从开头起算的段消失了。
+- type: quiz
+  skill: algo.prefix-hash
+  q: 读 [0,0] 的第二个零之前，已有几次合计为零？
+  options:
+  - 1 次
+  - 2 次
+  - 3 次
+  answer: 1
+  explain: 一次是空前缀，一次是读完第一格，第二格还没登记。
+- type: quiz
+  skill: algo.prefix-hash
+  q: 只问一个指定区间的和，需要用字典统计各种前缀出现几次吗？
+  options:
+  - 需要
+  - 不用，两个切口的前缀和相减即可
+  answer: 1
+  explain: 区间两端已经给定。计数表用于右端确定而左端尚待查找的情况。

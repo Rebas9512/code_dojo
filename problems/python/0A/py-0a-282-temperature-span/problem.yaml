@@ -1,0 +1,29 @@
+id: py-0a-282-temperature-span
+title: 一趟取出最低温和最高温
+track: python
+stage: 0A
+order: 4020
+format: write
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - py.minmax-abs
+    - py.running-max
+    - py.tuple
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: extremes
+signature: 'def extremes(values: list[int]) -> tuple[int, int]:'
+compare: exact
+wrong_examples:
+  - why: 把两个界限从 0 起步，可能带入一个没有出现过的温度。
+    code: |
+      def extremes(values: list[int]) -> tuple[int, int]:
+          low = high = 0
+          for value in values:
+              low = min(low, value)
+              high = max(high, value)
+          return low, high

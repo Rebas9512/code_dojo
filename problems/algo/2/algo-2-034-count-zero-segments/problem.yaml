@@ -1,0 +1,28 @@
+id: algo-2-034-count-zero-segments
+title: 有多少段的合计为零
+track: algo
+stage: '2'
+order: 340
+format: fix
+mode: function
+difficulty: 56
+skills:
+  requires: []
+  introduces: algo.prefix-hash
+source: original
+leetcode: null
+milestones: []
+entry: zero_segments
+signature: 'def zero_segments(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 忘了开头之前还有一个合计为零的前缀。
+  code: |
+    def zero_segments(nums: list[int]) -> int:
+        counts = {}
+        prefix = answer = 0
+        for value in nums:
+            prefix += value
+            answer += counts.get(prefix, 0)
+            counts[prefix] = counts.get(prefix, 0) + 1
+        return answer

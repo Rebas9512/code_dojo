@@ -1,0 +1,44 @@
+id: algo-1-048-decode-string
+title: 展开带次数的文字
+track: algo
+stage: '1'
+order: 480
+format: write
+mode: function
+difficulty: 58
+skills:
+  requires:
+  - py.type-convert
+  - py.elif
+  - py.str-methods
+  - py.tuple
+  - py.stack-list
+  - algo.stack-matching
+  introduces: null
+source: neetcode250
+leetcode: decode-string
+milestones:
+- top100
+entry: decode_string
+signature: 'def decode_string(text: str) -> str:'
+compare: exact
+wrong_examples:
+- why: 遇到连续数字只保留最后一位。
+  code: |
+    def decode_string(text: str) -> str:
+        frames = []
+        current = ''
+        count = 0
+        for char in text:
+            if char.isdigit():
+                count = int(char)
+            elif char == '[':
+                frames.append((current, count))
+                current = ''
+                count = 0
+            elif char == ']':
+                prefix, times = frames.pop()
+                current = prefix + current * times
+            else:
+                current += char
+        return current

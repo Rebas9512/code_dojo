@@ -1,0 +1,19 @@
+id: py-0a-292-predict-duplicate-initial
+title: 两张卡写在同一键上
+track: python
+stage: 0A
+order: 4120
+format: predict
+mode: predict
+difficulty: 18
+skills:
+  requires:
+    - py.dict-basics
+  introduces: py.dict-set-comp
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM61：以为字典推导式遇到旧键只保留第一项。
+    code: |
+      print('pen\n2')

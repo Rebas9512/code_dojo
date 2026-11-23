@@ -1,0 +1,17 @@
+id: py-0a-002-predict-variables
+title: 变量和算术
+track: python
+stage: 0A
+order: 25
+format: predict
+mode: predict
+difficulty: 2
+skills:
+  requires: [py.value-types]
+  introduces: py.var-arith
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "7 / 2 的结果带小数点。"
+  - "最后一行执行前，a 和 b 都已经被改过一次。"

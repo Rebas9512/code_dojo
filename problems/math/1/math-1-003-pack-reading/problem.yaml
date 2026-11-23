@@ -1,0 +1,21 @@
+id: math-1-003-pack-reading
+title: 把风速和温度装成一条记录
+track: math
+stage: '1'
+order: 30
+format: write
+mode: function
+difficulty: 18
+skills:
+  requires:
+    - math.vector
+  introduces: null
+source: original
+entry: pack_reading
+signature: 'def pack_reading(temperature: int, wind: int) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: 沿用输入顺序，设备的两列含义互换。
+    code: |
+      def pack_reading(temperature: int, wind: int) -> list[int]:
+          return [temperature, wind]

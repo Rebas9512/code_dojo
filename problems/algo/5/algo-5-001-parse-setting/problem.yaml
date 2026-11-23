@@ -1,0 +1,33 @@
+id: algo-5-001-parse-setting
+title: 读一行整数配置
+track: algo
+stage: '5'
+order: 10
+format: complete
+mode: function
+difficulty: 61
+skills:
+  requires:
+  - py.helper-func
+  - py.multi-assign
+  - py.split-join
+  - py.type-convert
+  introduces: algo.try-except
+source: original
+leetcode: null
+milestones: []
+entry: read_setting
+signature: 'def read_setting(line: str, fallback: int) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 把有效的零当作缺失值。
+  code: |
+    def read_setting(line: str, fallback: int) -> int:
+        try:
+            key, value = line.split("=")
+            if key.strip():
+                return int(value) or fallback
+        except ValueError:
+            return fallback
+        return fallback

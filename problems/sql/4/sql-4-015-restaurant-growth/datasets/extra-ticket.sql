@@ -1,0 +1,1 @@
+INSERT INTO checks VALUES (10, '2025-02-01', 7);

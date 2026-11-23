@@ -1,0 +1,54 @@
+id: sql-2-021-average-selling-price
+title: 按销量核算实际均价
+track: sql
+stage: '2'
+order: 210
+format: combine
+difficulty: 39
+skills:
+  requires:
+    - sql.left-join
+    - sql.join-conditions
+    - sql.join-aggregate
+    - sql.sum-avg
+    - sql.coalesce
+    - sql.nullif
+    - sql.between
+    - sql.and-or
+    - sql.select-expr
+    - sql.round-cast
+  introduces: null
+source: sql50
+leetcode: average-selling-price
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/mixed-products.sql
+  - datasets/sample.sql + datasets/no-sales.sql
+ordered: false
+hints:
+  - 一批卖 9 件、一批卖 1 件，对均价的影响分别有多大？
+wrong_examples:
+  - why: 按价签取平均，没按销售件数加权
+    sql: |
+      SELECT p.product_id,
+             ROUND(COALESCE(AVG(CASE WHEN s.units > 0 THEN p.price END), 0), 2) AS mean_price
+      FROM prices p
+      LEFT JOIN unit_sales s ON s.product_id = p.product_id
+                            AND s.sold_on BETWEEN p.first_day AND p.last_day
+      GROUP BY p.product_id;
+  - why: 日期吻合就配对，混入别的商品
+    sql: |
+      SELECT p.product_id,
+             ROUND(COALESCE(SUM(p.price * s.units) / NULLIF(SUM(s.units), 0), 0), 2) AS mean_price
+      FROM prices p
+      LEFT JOIN unit_sales s ON s.sold_on BETWEEN p.first_day AND p.last_day
+      GROUP BY p.product_id;
+  - why: 用总收入除以总件数后忘了把均价四舍五入到分
+    sql: |
+      SELECT p.product_id,
+             COALESCE(SUM(p.price * s.units) / NULLIF(SUM(s.units), 0), 0) AS mean_price
+      FROM prices p
+      LEFT JOIN unit_sales s ON s.product_id = p.product_id
+                            AND s.sold_on BETWEEN p.first_day AND p.last_day
+      GROUP BY p.product_id;

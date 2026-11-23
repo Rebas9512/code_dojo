@@ -1,0 +1,13 @@
+{
+  "examples": [
+    {"ops":["RecentCounter","ping","ping","ping","ping"],"args":[[],[2],[5],[3002],[3006]],"expected":[null,1,2,3,2]},
+    {"ops":["RecentCounter","ping","ping"],"args":[[],[10],[8000]],"expected":[null,1,1]}
+  ],
+  "hidden": [
+    {"ops":["RecentCounter"],"args":[[]],"expected":[null]},
+    {"ops":["RecentCounter","ping"],"args":[[],[1]],"expected":[null,1]},
+    {"ops":["RecentCounter","ping","ping","ping"],"args":[[],[1],[3001],[3002]],"expected":[null,1,2,2]},
+    {"ops":["RecentCounter","ping","ping","ping","ping"],"args":[[],[5],[6],[7],[3008]],"expected":[null,1,2,3,1]},
+    {"ops":["RecentCounter","ping","ping"],"args":[[],[999999998],[1000000000]],"expected":[null,1,2]}
+  ]
+}

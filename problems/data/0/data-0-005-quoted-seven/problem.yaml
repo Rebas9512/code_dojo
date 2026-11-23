@@ -1,0 +1,26 @@
+id: data-0-005-quoted-seven
+title: 哪一格存着一个字符
+track: data
+stage: '0'
+order: 50
+format: inspect
+mode: inspect
+difficulty: 2
+skills:
+  requires:
+    - data.value-kinds
+  introduces: null
+data:
+  - kind: values
+    title: 同一编号的三种写法
+    file: values.json
+answer:
+  type: short
+  accept:
+    - '2'
+    - 二
+    - 第2格
+  misconceptions:
+    都不是: DM01
+    没有: DM01
+explain: 中间的引号标出文字的边界。第一格是整数，第三格用小数写法表示七。

@@ -1,0 +1,25 @@
+id: py-0a-390-stair-routes
+title: 楼梯上有几种走法
+track: python
+stage: 0A
+order: 5100
+format: write
+mode: function
+difficulty: 23
+skills:
+  requires:
+    - py.recursion-multi
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: routes
+signature: 'def routes(n: int) -> int:'
+compare: exact
+wrong_examples:
+  - why: 照抄斐波那契数的基线，把原地不动漏掉。
+    code: |
+      def routes(n: int) -> int:
+          if n <= 1:
+              return n
+          return routes(n - 1) + routes(n - 2)

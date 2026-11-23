@@ -1,0 +1,56 @@
+id: algo-3-078-village-road-tree
+title: 修的路能连成一棵树吗
+track: algo
+stage: '3'
+order: 780
+format: write
+mode: function
+difficulty: 69
+skills:
+  requires:
+  - algo.graph-adj-list
+  - py.bool-ops
+  - py.break-continue
+  - py.helper-func
+  - py.list-comp
+  - py.list-pop
+  - py.nested-loop
+  - py.set-basics
+  - py.while
+  introduces: null
+source: original
+leetcode: graph-valid-tree
+milestones:
+- blind75
+replaces_premium: graph-valid-tree
+entry: road_tree
+signature: 'def road_tree(n: int, roads: list[list[int]]) -> bool:'
+compare: exact
+wrong_examples:
+- why: 只数路，漏查村子是否全部连通。
+  code: |
+    def components(n: int, edges: list[list[int]]) -> int:
+        neighbors = [[] for _ in range(n)]
+        for a, b in edges:
+            neighbors[a].append(b)
+            neighbors[b].append(a)
+        seen = set()
+        groups = 0
+        for start in range(n):
+            if start in seen:
+                continue
+            groups += 1
+            stack = [start]
+            seen.add(start)
+            while stack:
+                node = stack.pop()
+                for other in neighbors[node]:
+                    if other not in seen:
+                        seen.add(other)
+                        stack.append(other)
+        return groups
+
+    def road_tree(n: int, roads: list[list[int]]) -> bool:
+        return len(roads) == n - 1
+hints:
+- 边数正好等于村数减一，还要排除一边有环、另一边孤立的情形。

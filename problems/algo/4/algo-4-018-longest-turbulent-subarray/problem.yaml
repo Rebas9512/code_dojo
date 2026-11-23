@@ -1,0 +1,34 @@
+id: algo-4-018-longest-turbulent-subarray
+title: 找相邻高低交替的最长段
+track: algo
+stage: '4'
+order: 180
+format: write
+mode: function
+difficulty: 66
+skills:
+  requires:
+  - algo.greedy
+  - py.elif
+  - py.multi-assign
+  introduces: null
+source: neetcode250
+leetcode: longest-turbulent-subarray
+milestones: []
+entry: turbulence
+signature: 'def turbulence(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 把两个相等元素也认作新的交替段。
+  code: |
+    def turbulence(nums: list[int]) -> int:
+        up = down = best = 1
+        for i in range(1, len(nums)):
+            if nums[i] > nums[i - 1]:
+                up, down = down + 1, 1
+            elif nums[i] < nums[i - 1]:
+                up, down = 1, up + 1
+            else:
+                up = down = 2
+            best = max(best, up, down)
+        return best

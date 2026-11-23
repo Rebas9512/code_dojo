@@ -1,0 +1,111 @@
+id: math-3-l02-statistics
+title: 波动与随机结果
+track: math
+skills:
+  - math.spread
+  - math.frequency
+  - math.expectation
+steps:
+  - type: read
+    skill: math.spread
+    md: |-
+      三天的等待时间是 2、4、6 分钟。总共 12 分钟，平分到三天，均值是 4。可均值看不出等候稳不稳定。每次与均值之差是 −2、0、2，直接相加会抵消；平方后得到 4、0、4，就能量出偏离的大小。
+
+      把这批数据看成整个总体。总体方差 = 偏差平方和 / 个数，标准差 = 方差的平方根。方差单位是分钟的平方，标准差又回到分钟。
+
+      ```python
+      xs = [2, 4, 6]
+      mean = sum(xs)/len(xs)
+      var = sum((x-mean)**2 for x in xs)/len(xs)
+      std = var**0.5
+      ```
+
+      **MM20 把总体方差的分母写成 n−1**。题目给出整批数据并要求总体方差时，分母就是 n。用样本估计总体方差时常见的 n−1 是另一种约定。
+  - type: example
+    skill: math.spread
+    code: |
+      # ① 求出两天的典型等待时间
+      waits = [2, 6]
+      mean = sum(waits) / len(waits)
+      # ② 量偏差，平方后取总体平均，再换回分钟
+      variance = sum((x-mean)**2 for x in waits) / len(waits)
+      print([mean, variance, variance**0.5])  # 输出 [4.0, 4.0, 2.0]
+    md: 把两天都改为 4 分钟，预测均值和方差各会怎样。
+  - type: quiz
+    skill: math.spread
+    q: 给出的全部读数只有 [8]。按总体定义，方差是多少？
+    options:
+      - '0'
+      - '8'
+      - 无法计算
+    answer: 0
+    explain: 均值为 8，唯一的偏差是 0，总体分母为 1。（MM20 把总体方差的分母写成 n−1）
+  - type: read
+    skill: math.frequency
+    md: |-
+      一枚公平硬币的正反面机会相同，理论上正面的概率是二分之一。可是实际抛 5 次，只出现 2 次正面也很平常。这次实验的正面频率就是 2/5。想知道某个事件在这次模拟里多常见，可以先计数，再除以总试验数。
+
+      用 randint(0, 1) 等可能地产生 0 或 1，约定 1 为正面。seed 固定随机数的起点，相同种子、相同调用顺序能重放整次实验。
+
+      ```python
+      from random import seed, randint
+      seed(7)
+      flips = [randint(0, 1) for i in range(5)]
+      freq = sum(flips)/len(flips)
+      ```
+
+      **MM21 把有限次试验的频率当作理论概率**。每次抛之前重设种子会反复抽到同一个结果。种子在实验开头设一次，理论概率与本次的命中频率分别记录。
+  - type: example
+    skill: math.frequency
+    code: |
+      # ① 只在实验开头设种子
+      from random import seed, randint
+      seed(7)
+      # ② 把五次抛掷逐个记下，再算正面占比
+      flips = [randint(0, 1) for i in range(5)]
+      print(flips)  # 输出 [1, 0, 1, 0, 0]
+      print(sum(flips)/len(flips))  # 输出 0.4
+    md: 换一个种子再运行两次，比较同一种子和不同种子的记录。
+  - type: quiz
+    skill: math.frequency
+    q: 公平骰子掷 4 次没有出现 6，这次「掷出 6」的频率是多少？
+    options:
+      - 1/6
+      - '0'
+      - '1'
+    answer: 1
+    explain: 这 4 次有 0 次命中；公平骰子下一次掷出 6 的概率仍是 1/6。（MM21 把有限次试验的频率当作理论概率）
+  - type: read
+    skill: math.expectation
+    md: |-
+      每次抽奖有四分之一的机会得 8 元，其余时候得 0 元。玩很多次，每四次平均大约有一次拿到 8 元，把收入摊给四次，每次约 2 元。事前把每个可能结果按出现概率加权所得的平均值，叫期望值。
+
+      把每个结果乘上它的概率，再把各项相加。概率非负、合计为 1；结果可以是负的，比如扣除成本之后的净收益。
+
+      ```python
+      rewards = [8, 0]
+      probs = [0.25, 0.75]
+      expected = sum(rewards[i]*probs[i] for i in range(2))
+      ```
+
+      **MM22 给不同概率的结果同样的权重**。等可能时才能直接平均结果。期望可以是一次都不能实际抽到的数。
+  - type: example
+    skill: math.expectation
+    code: |
+      # ① 对齐奖金额和概率
+      values = [8, 0]
+      probs = [0.25, 0.75]
+      # ② 每种结果按自己的机会贡献
+      parts = [v*p for v, p in zip(values, probs)]
+      print(parts)  # 输出 [2.0, 0.0]
+      print(sum(parts))  # 输出 2.0
+    md: 把概率改成 [0.5, 0.5]，预测每次平均收入。
+  - type: quiz
+    skill: math.expectation
+    q: 抽奖只能得 0 或 10 元，得 10 元的概率为 0.1，期望是多少元？
+    options:
+      - '5'
+      - '10'
+      - '1'
+    answer: 2
+    explain: 10 元按 0.1 加权贡献 1 元，其余贡献 0 元。（MM22 给不同概率的结果同样的权重）

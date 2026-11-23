@@ -1,0 +1,38 @@
+id: algo-3-037-kth-largest-element-in-a-stream
+title: 每次新报数后的第 k 大
+track: algo
+stage: '3'
+order: 370
+format: write
+mode: class
+difficulty: 57
+skills:
+  requires:
+  - algo.class-design
+  - algo.heap-topk
+  - py.set-basics
+  introduces: null
+source: neetcode250
+leetcode: kth-largest-element-in-a-stream
+milestones:
+- nc150
+entry: KthLargest
+compare: exact
+wrong_examples:
+- why: 返回刚到的值。
+  code: |
+    import heapq
+
+
+    class KthLargest:
+        def __init__(self, k: int, nums: list[int]):
+            self.k = k
+            self.heap = []
+            for value in nums:
+                self.add(value)
+
+        def add(self, value: int) -> int:
+            heapq.heappush(self.heap, value)
+            if len(self.heap) > self.k:
+                heapq.heappop(self.heap)
+            return value

@@ -1,0 +1,12 @@
+{
+  "examples": [
+    {"args":["AAAAAAAA","AAAAAAGC",["AAAAAAAC","AAAAAAGC"]],"expected":2},
+    {"args":["CCCCCCCC","CCCCCCCT",[]],"expected":-1}
+  ],
+  "hidden": [
+    {"args":["GGGGGGGG","GGGGGGGG",[]],"expected":0},
+    {"args":["AAAAAAAA","AAAAAAAT",["AAAAAAAT"]],"expected":1},
+    {"args":["AAAAAAAA","CCCCCCCC",["CCCCCCCC"]],"expected":-1},
+    {"args":["AAAAAAAA","TTTTTTTT",["TAAAAAAA","TTAAAAAA","TTTAAAAA","TTTTAAAA","TTTTTAAA","TTTTTTAA","TTTTTTTA","TTTTTTTT","CAAAAAAA","GAAAAAAA"]],"expected":8}
+  ]
+}

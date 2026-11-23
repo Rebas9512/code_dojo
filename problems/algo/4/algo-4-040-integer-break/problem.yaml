@@ -1,0 +1,30 @@
+id: algo-4-040-integer-break
+title: 把正整数拆开后乘积最大
+track: algo
+stage: '4'
+order: 400
+format: write
+mode: function
+difficulty: 72
+skills:
+  requires:
+  - algo.dp-1d
+  - py.minmax-abs
+  - py.nested-loop
+  introduces: null
+source: neetcode250
+leetcode: integer-break
+milestones: []
+entry: break_product
+signature: 'def break_product(n: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 只尝试分成两块。
+  code: |
+    def break_product(n: int) -> int:
+        best = [0] * (n + 1)
+        for total in range(2, n + 1):
+            for first in range(1, total):
+                rest = total - first
+                best[total] = max(best[total], first * rest, first * rest)
+        return best[n]

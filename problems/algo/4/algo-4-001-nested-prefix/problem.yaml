@@ -1,0 +1,35 @@
+id: algo-4-001-nested-prefix
+title: 用嵌套字典存单词、判断前缀是否存在
+track: algo
+stage: '4'
+order: 10
+format: complete
+mode: function
+difficulty: 56
+skills:
+  requires:
+  - py.dict-get
+  - py.nested-loop
+  introduces: algo.trie
+source: original
+leetcode: null
+milestones: []
+entry: has_prefix
+signature: 'def has_prefix(words: list[str], prefix: str) -> bool:'
+compare: exact
+wrong_examples:
+- why: 只承认已经完整入柜的词。
+  code: |
+    def has_prefix(words: list[str], prefix: str) -> bool:
+        root = {}
+        for word in words:
+            node = root
+            for letter in word:
+                node = node.setdefault(letter, {})
+            node["#"] = True
+        node = root
+        for letter in prefix:
+            if letter not in node:
+                return False
+            node = node[letter]
+        return prefix in words

@@ -1,0 +1,136 @@
+id: sql-4-l01-rows-and-ranks
+title: 四张价签怎样分区、编号和排名
+track: sql
+skills:
+  - sql.window-agg
+  - sql.row-number
+  - sql.partition-by
+  - sql.rank
+steps:
+  - type: read
+    skill: sql.window-agg
+    md: |
+      桌上放四张价签：东架 30、30、10 元，西架 20 元。GROUP BY aisle 把东架折成 70、西架折成 20，只交两行。若店员希望逐张核价时还能看见总价，就要保留原来的四行。SUM(price) OVER () 会在每行旁边都写上全店合计 90。
+
+      窗口 = 分区 + 排序 + 帧。分区决定一起计算的是哪些伙伴，排序决定在这些伙伴中的前后，帧决定站在当前行能看哪一段。这一步用空括号，从整份输入中取总和。先比较下面两个查询的行数。
+  - type: example
+    skill: sql.window-agg
+    db: bookstore
+    patch: |
+      CREATE TABLE tags(id int PRIMARY KEY, aisle text, price int);
+      INSERT INTO tags VALUES (1, '东', 30), (2, '东', 30), (3, '东', 10), (4, '西', 20);
+    code: |
+      -- ① 同一批四张价签先按货架汇总
+      SELECT aisle, SUM(price) AS shelf_sum FROM tags GROUP BY aisle ORDER BY aisle;
+    md: 东架的三张价签合成几行？再运行下一例。
+  - type: quiz
+    skill: sql.window-agg
+    q: 四张价签计算 SUM(price) OVER ()，会交几行？
+    options:
+      - 1 行
+      - 2 行
+      - 4 行
+    answer: 2
+    explain: 每张价签仍占一行，总数 90 被贴回四次。
+  - type: example
+    skill: sql.window-agg
+    db: bookstore
+    patch: |
+      CREATE TABLE tags(id int PRIMARY KEY, aisle text, price int);
+      INSERT INTO tags VALUES (1, '东', 30), (2, '东', 30), (3, '东', 10), (4, '西', 20);
+    code: |
+      -- ② 原样读取四张价签，把统计结果贴回每一行
+      SELECT id, aisle, price, SUM(price) OVER () AS all_tags FROM tags ORDER BY id;
+    md: 加上 WHERE aisle='东' 再按编号排序，检查总价和行数。
+  - type: read
+    skill: sql.row-number
+    md: |
+      给书展的书贴上从 1 开始的号，先贴价格高的。一旦两本价格相同，只写价格就没有说明谁该拿较小的号。ROW_NUMBER 仍会给它们两个不同的数，但我们需要一个可复现的规则。把唯一的编号接在价格后面作为第二把排序尺。
+
+      若标价缺失也要发号，先约定未知值排在哪端。在 PostgreSQL 中降序时要让它排最后，应写 DESC NULLS LAST。窗口中的 ORDER BY 决定发号；想让结果表依号排列还要在查询末尾再指定。
+  - type: example
+    skill: sql.row-number
+    db: bookstore
+    patch: |
+      CREATE TABLE tags(id int PRIMARY KEY, aisle text, price int);
+      INSERT INTO tags VALUES (1, '东', 30), (2, '东', 30), (3, '东', 10), (4, '西', 20);
+    code: |
+      -- ① 先按价格，再用价签号打破并列
+      -- ② 按发出的号码展示
+      SELECT id, price, ROW_NUMBER() OVER (ORDER BY price DESC NULLS LAST, id) AS pos
+      FROM tags ORDER BY pos;
+    md: 把第二排序键 id 改为 id DESC。哪些书互换了号？
+  - type: quiz
+    skill: sql.row-number
+    q: 30、30、10 三张价签用 ROW_NUMBER 编号，得到什么？
+    options:
+      - 1、1、3
+      - 1、2、3
+      - 1、1、2
+    answer: 1
+    explain: 行号每遇一行增加一，不给并列者发同一个号。
+  - type: read
+    skill: sql.partition-by
+    md: |
+      东架和西架各自印一套号码。遇到西架的第一本就应该重新从 1 开始，这就是 PARTITION BY aisle 的作用。也可以把价格按架相加后写回每本书，一架里的伙伴会看见相同的小计。
+
+      再用第一步的四张价签：普通分组只有东 70、西 20 两行。下面的窗口返回四行，东架的三行旁边都有 70，西架只有一行，小计就是自己的 20。用编号区分并列时，只在发号的窗口加编号；求整架小计的窗口无须排序。
+  - type: example
+    skill: sql.partition-by
+    db: bookstore
+    patch: |
+      CREATE TABLE tags(id int PRIMARY KEY, aisle text, price int);
+      INSERT INTO tags VALUES (1, '东', 30), (2, '东', 30), (3, '东', 10), (4, '西', 20);
+    code: |
+      -- ① 同架的价签共享小计，仍然一张价签一行
+      SELECT id, aisle, price, SUM(price) OVER (PARTITION BY aisle) AS shelf_sum,
+             ROW_NUMBER() OVER (PARTITION BY aisle ORDER BY price DESC, id) AS position
+      FROM tags ORDER BY id;
+    md: 只删 ROW_NUMBER 内的 PARTITION BY aisle，观察西架的序号。
+  - type: quiz
+    skill: sql.partition-by
+    q: 四张价签分在两个架上，按架求窗口 SUM 的行数是？
+    options:
+      - '2'
+      - '4'
+      - '6'
+    answer: 1
+    explain: 分区只圈定伙伴，四张原价签都留下。
+  - type: example
+    skill: sql.partition-by
+    db: bookstore
+    code: |
+      -- ② 再用窗口求本类均价，和上一阶段的相关子查询、CTE 对照
+      WITH priced AS (
+          SELECT book_id, price, AVG(price) OVER (PARTITION BY category) AS mean_price FROM books
+      )
+      SELECT book_id, price FROM priced WHERE price > mean_price;
+    md: 把窗口括号清空，观察基准如何由分类均价变成全店均价。
+  - type: read
+    skill: sql.rank
+    md: |
+      价格榜里，两本书都卖 30 元，另一本卖 10 元。问“前面有多少本比它贵”时，10 元前面有两本，所以它在竞赛榜排第三；问“这是第几种价格”时，前面只有一种价，所以它是第二档。RANK 和 DENSE_RANK 分别回答这两个问题。
+
+      并列依据是窗口中所有排序键。若为了让画面整齐把唯一的编号也加入窗口，原本并列的两本就会被拆开。展示顺序可以留到查询尾部单独处理。
+  - type: example
+    skill: sql.rank
+    db: bookstore
+    patch: |
+      CREATE TABLE tags(id int PRIMARY KEY, aisle text, price int);
+      INSERT INTO tags VALUES (1, '东', 30), (2, '东', 30), (3, '东', 10), (4, '西', 20);
+    code: |
+      -- ① 排名只比较价格
+      -- ② 最后才按编号稳定展示
+      SELECT id, price, RANK() OVER (ORDER BY price DESC) AS place,
+             DENSE_RANK() OVER (ORDER BY price DESC) AS tier
+      FROM tags WHERE aisle = '东' ORDER BY place, id;
+    md: 给两个窗口的排序都加上 id，比较原来同价的两行。
+  - type: quiz
+    skill: sql.rank
+    q: 两件商品并列最高，接下来一种价格的 RANK 与 DENSE_RANK 是？
+    options:
+      - 2 和 2
+      - 2 和 3
+      - 3 和 2
+    answer: 2
+    explain: 前面有两行但只有一个不同价格。

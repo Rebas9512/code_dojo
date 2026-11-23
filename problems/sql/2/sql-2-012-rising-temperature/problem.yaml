@@ -1,0 +1,36 @@
+id: sql-2-012-rising-temperature
+title: 暖过昨天的观测记录
+track: sql
+stage: '2'
+order: 120
+format: write
+difficulty: 33
+skills:
+  requires:
+    - sql.self-join
+    - sql.where
+    - sql.select-expr
+  introduces: null
+source: sql50
+leetcode: rising-temperature
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/tie.sql
+  - datasets/sample.sql + datasets/gap.sql
+ordered: false
+hints:
+  - 让同一张日记分别扮演今天和昨天，算出昨天对应的下一天。
+wrong_examples:
+  - why: 把编号相邻误作日期相邻
+    sql: |
+      SELECT today.log_id
+      FROM weather today
+      JOIN weather prev ON today.log_id = prev.log_id + 1
+      WHERE today.degrees > prev.degrees;
+  - why: 等温也算升温
+    sql: |
+      SELECT today.log_id
+      FROM weather today
+      JOIN weather prev ON today.day = prev.day + 1
+      WHERE today.degrees >= prev.degrees;

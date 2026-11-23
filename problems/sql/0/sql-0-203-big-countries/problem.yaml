@@ -1,0 +1,29 @@
+id: sql-0-203-big-countries
+title: 按面积或人口挑选国家
+track: sql
+stage: "0"
+order: 430
+format: write
+difficulty: 16
+skills:
+  requires: [sql.and-or]
+  introduces: null
+source: sql50
+leetcode: big-countries
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/exact-thresholds.sql
+  - datasets/sample.sql + datasets/both-or-neither.sql
+ordered: false
+hints:
+  - 分别写出两条含边界的条件，想想只满足其中一条的国家该不该保留。
+wrong_examples:
+  - why: 要求两个门槛同时达到。
+    sql: |
+      SELECT name, population, area FROM world
+      WHERE area >= 3000000 AND population >= 25000000;
+  - why: 使用严格大于，漏掉了刚好达标的国家。
+    sql: |
+      SELECT name, population, area FROM world
+      WHERE area > 3000000 OR population > 25000000;

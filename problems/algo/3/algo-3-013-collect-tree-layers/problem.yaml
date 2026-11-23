@@ -1,0 +1,45 @@
+id: algo-3-013-collect-tree-layers
+title: 按层打印一棵树（deque）
+track: algo
+stage: '3'
+order: 130
+format: complete
+mode: function
+difficulty: 51
+skills:
+  requires:
+  - algo.tree-basics
+  - py.nested-loop
+  - py.while
+  introduces: algo.tree-bfs
+source: original
+leetcode: null
+milestones: []
+entry: levels
+signature: 'def levels(root: TreeNode | None) -> list[list[int]]:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 把每一个节点都当作单独的一层。
+  code: |
+    from collections import deque
+
+
+    def levels(root: TreeNode | None) -> list[list[int]]:
+        if root is None:
+            return []
+        queue = deque([root])
+        result = []
+        while queue:
+            layer = []
+            for _ in range(1):
+                node = queue.popleft()
+                layer.append(node.val)
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+            result.append(layer)
+        return result

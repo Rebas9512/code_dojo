@@ -1,0 +1,25 @@
+id: py-0a-205-complete-repeat
+title: 补全名字贴纸
+track: python
+stage: 0A
+order: 2050
+format: complete
+mode: function
+difficulty: 17
+skills:
+  requires:
+    - py.list-concat-repeat
+    - py.split-join
+    - py.default-args
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: repeat_word
+signature: 'def repeat_word(word: str, times: int = 2, sep: str = " ") -> str:'
+compare: exact
+wrong_examples:
+  - why: 把默认次数写成一次。
+    code: |
+      def repeat_word(word: str, times: int = 1, sep: str = " ") -> str:
+          return sep.join([word] * times)

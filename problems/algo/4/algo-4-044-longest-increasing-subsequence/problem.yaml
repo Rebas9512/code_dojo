@@ -1,0 +1,39 @@
+id: algo-4-044-longest-increasing-subsequence
+title: 可跳项的最长严格上升序列
+track: algo
+stage: '4'
+order: 440
+format: combine
+mode: function
+difficulty: 73
+skills:
+  requires:
+  - algo.dp-1d
+  - algo.binary-search
+  - py.list-append
+  introduces: null
+source: neetcode250
+leetcode: longest-increasing-subsequence
+milestones:
+- blind75
+- top100
+entry: lis_length
+signature: 'def lis_length(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 把相等的值放到了已有末尾之后。
+  code: |
+    import bisect
+
+
+    def lis_length(nums: list[int]) -> int:
+        tails = []
+        for value in nums:
+            i = bisect.bisect_right(tails, value)
+            if i == len(tails):
+                tails.append(value)
+            else:
+                tails[i] = value
+        return len(tails)
+hints:
+- 按子序列长度分别记当前最小末尾。新值可替换第一个不小于它的末尾，使将来的延长更容易。

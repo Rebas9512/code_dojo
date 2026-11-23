@@ -1,0 +1,34 @@
+id: algo-1-065-find-the-duplicate-number
+title: 只读号码簿里的重号
+track: algo
+stage: '1'
+order: 650
+format: write
+mode: function
+difficulty: 68
+skills:
+  requires:
+  - algo.fast-slow
+  introduces: null
+source: neetcode250
+leetcode: find-the-duplicate-number
+milestones:
+- nc150
+- top100
+entry: find_duplicate
+signature: 'def find_duplicate(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 第一次快慢相遇就结束，可能落在环内其他号码。
+  code: |
+    def find_duplicate(nums: list[int]) -> int:
+        slow = nums[0]
+        fast = nums[nums[0]]
+        while slow != fast:
+            slow = nums[slow]
+            fast = nums[nums[fast]]
+        probe = slow
+        while probe != slow:
+            probe = nums[probe]
+            slow = nums[slow]
+        return probe

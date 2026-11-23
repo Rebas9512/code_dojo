@@ -1,0 +1,40 @@
+id: algo-5-028-odd-even-linked-list
+title: 先接奇数位置再接偶数位置
+track: algo
+stage: '5'
+order: 280
+format: fix
+mode: function
+difficulty: 76
+week: 4
+skills:
+  requires:
+  - algo.ll-traverse
+  - py.bool-ops
+  introduces: null
+source: grind169
+leetcode: odd-even-linked-list
+milestones: []
+entry: regroup
+signature: 'def regroup(head: ListNode | None) -> ListNode | None:'
+compare: exact
+time_limit_ms: 800
+convert:
+  args:
+    '0': listnode
+  returns: listnode
+wrong_examples:
+- why: 接回已经走到链尾的指针，丢掉偶数位置组。
+  code: |
+    def regroup(head: ListNode | None) -> ListNode | None:
+        if head is None:
+            return None
+        odd = head
+        even = even_head = head.next
+        while even and even.next:
+            odd.next = even.next
+            odd = odd.next
+            even.next = odd.next
+            even = even.next
+        odd.next = even
+        return head

@@ -1,0 +1,22 @@
+id: math-2-002-square-table
+title: 补上每一行的面积
+track: math
+stage: '2'
+order: 20
+format: complete
+mode: function
+difficulty: 20
+skills:
+  requires:
+    - py.list-comp
+    - math.function-table
+  introduces: null
+source: original
+entry: area_table
+signature: 'def area_table(sizes: list[int]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+  - why: 把平方当作乘二。
+    code: |
+      def area_table(sizes: list[int]) -> list[list[int]]:
+          return [[x, 2 * x] for x in sizes]

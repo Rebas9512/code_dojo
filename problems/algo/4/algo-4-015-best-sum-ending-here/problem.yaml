@@ -1,0 +1,29 @@
+id: algo-4-015-best-sum-ending-here
+title: 最大子数组和：接上还是重新开始
+track: algo
+stage: '4'
+order: 150
+format: complete
+mode: function
+difficulty: 59
+skills:
+  requires:
+  - py.list-append
+  - py.slice
+  introduces: algo.greedy
+source: original
+leetcode: null
+milestones: []
+entry: ending_sums
+signature: 'def ending_sums(nums: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 允许空段，负数位置会错报零。
+  code: |
+    def ending_sums(nums: list[int]) -> list[int]:
+        ending = nums[0]
+        record = [ending]
+        for value in nums[1:]:
+            ending = max(0, ending + value)
+            record.append(ending)
+        return record

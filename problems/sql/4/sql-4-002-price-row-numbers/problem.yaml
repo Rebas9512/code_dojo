@@ -1,0 +1,29 @@
+id: sql-4-002-price-row-numbers
+title: 补全：按标价给图书编号
+track: sql
+stage: '4'
+order: 20
+format: complete
+difficulty: 54
+skills:
+  requires: []
+  introduces: sql.row-number
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/ties-and-null.sql
+  - db:bookstore + datasets/sample.sql + datasets/singletons.sql
+ordered: false
+hints:
+  - 并列时，要再读哪一列才能确定一个人的位置？
+wrong_examples:
+  - why: 降序采用默认空值位置
+    sql: |
+      SELECT book_id, ROW_NUMBER() OVER (ORDER BY price DESC, book_id) AS position
+      FROM shelf;
+  - why: 同价时倒着排书号
+    sql: |
+      SELECT book_id, ROW_NUMBER() OVER (ORDER BY price DESC NULLS LAST, book_id DESC) AS position
+      FROM shelf;

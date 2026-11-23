@@ -1,0 +1,17 @@
+id: py-0a-009-predict-compare
+title: 比较的结果
+track: python
+stage: 0A
+order: 90
+format: predict
+mode: predict
+difficulty: 4
+skills:
+  requires: [py.var-arith, py.value-types]
+  introduces: py.compare-bool
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "一共 8 行，每行是 True 或 False。"
+  - "整数 5 和小数 5.0 相等。"

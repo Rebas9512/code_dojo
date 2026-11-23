@@ -1,0 +1,25 @@
+id: py-0a-381-complete-block-tower
+title: 补全积木塔的总块数
+track: python
+stage: 0A
+order: 5010
+format: complete
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - py.recursion
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: blocks
+signature: 'def blocks(n: int) -> int:'
+compare: exact
+wrong_examples:
+  - why: 每次仍请求同样层数，始终到不了 0 层。
+    code: |
+      def blocks(n: int) -> int:
+          if n == 0:
+              return 0
+          return n + blocks(n)

@@ -1,0 +1,38 @@
+id: algo-1-032-first-missing-positive
+title: 第一个缺席的正整数
+track: algo
+stage: '1'
+order: 320
+format: write
+mode: function
+difficulty: 54
+skills:
+  requires:
+  - py.early-return
+  - py.break-continue
+  - py.nested-loop
+  - py.enumerate
+  - py.swap-reverse
+  introduces: null
+source: neetcode250
+leetcode: first-missing-positive
+milestones:
+- top100
+entry: first_missing_positive
+signature: 'def first_missing_positive(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 所有数都归位时返回了最后一个已存在的数。
+  code: |
+    def first_missing_positive(nums: list[int]) -> int:
+        n = len(nums)
+        for i in range(n):
+            while 1 <= nums[i] <= n:
+                target = nums[i] - 1
+                if nums[target] == nums[i]:
+                    break
+                nums[i], nums[target] = nums[target], nums[i]
+        for i, value in enumerate(nums):
+            if value != i + 1:
+                return i + 1
+        return n

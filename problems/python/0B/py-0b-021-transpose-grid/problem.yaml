@@ -1,0 +1,30 @@
+id: py-0b-021-transpose-grid
+title: 把座位表按列抄成新行
+track: python
+stage: 0B
+order: 210
+format: write
+mode: function
+difficulty: 28
+skills:
+  requires: [py.nested-loop, py.list-append, py.early-return, py.bool-ops]
+  introduces: py.matrix-traverse
+source: original
+leetcode: null
+milestones: []
+entry: transpose
+signature: 'def transpose(grid: list[list[int]]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+  - why: "把行数当成列数，长方形表会缺列或越界。"
+    code: |
+      def transpose(grid: list[list[int]]) -> list[list[int]]:
+          if not grid:
+              return []
+          result = []
+          for col in range(len(grid)):
+              new_row = []
+              for row in grid:
+                  new_row.append(row[col])
+              result.append(new_row)
+          return result

@@ -1,0 +1,35 @@
+id: sql-2-013-sale-price-period
+title: 补全：成交日用哪张价签
+track: sql
+stage: '2'
+order: 130
+format: complete
+difficulty: 32
+skills:
+  requires:
+    - sql.inner-join
+    - sql.between
+    - sql.and-or
+  introduces: sql.join-conditions
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/gap.sql
+  - db:bookstore + datasets/sample.sql + datasets/one-day.sql
+ordered: false
+hints:
+  - 书号和日期都要对上。先用书号找候选价签，再用生效期缩小到一张。
+wrong_examples:
+  - why: 只对书号，会配上其他月份的价格
+    sql: |
+      SELECT s.sale_id, p.price
+      FROM counter_sales s
+      JOIN price_tags p ON p.book_id = s.book_id;
+  - why: 遗漏价签最后一天
+    sql: |
+      SELECT s.sale_id, p.price
+      FROM counter_sales s
+      JOIN price_tags p ON p.book_id = s.book_id
+                       AND s.sold_on >= p.starts_on AND s.sold_on < p.ends_on;

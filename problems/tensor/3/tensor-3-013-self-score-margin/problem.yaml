@@ -1,0 +1,29 @@
+id: tensor-3-013-self-score-margin
+title: 与自己的匹配分数相差多少
+track: tensor
+stage: '3'
+order: 130
+format: combine
+mode: function
+difficulty: 33
+skills:
+  requires:
+    - tensor.pair-scores
+    - tensor.relabel
+    - tensor.singleton
+    - tensor.contract
+  introduces: null
+source: original
+entry: margins
+signature: 'def margins(x):'
+compare: checker
+wrong_examples:
+  - why: 每个查询应减自己的基准；换轴就成了每个键减自己的基准。
+    code: |
+      import torch
+
+
+      def margins(x):
+          scores = torch.einsum("bid,bjd->bij", x, x)
+          own = torch.einsum("bii->bi", scores)
+          return scores - own.unsqueeze(1)

@@ -1,0 +1,46 @@
+id: algo-5-060-smallest-range-covering-elements-from-k-lists
+title: 覆盖每个采样组的最短区间
+track: algo
+stage: '5'
+order: 600
+format: combine
+mode: function
+difficulty: 84
+week: 8
+skills:
+  requires:
+  - algo.heapq
+  - algo.intervals
+  - py.early-return
+  - py.enumerate
+  - py.genexp
+  - py.nested-list
+  - py.while
+  introduces: null
+source: grind169
+leetcode: smallest-range-covering-elements-from-k-lists
+milestones: []
+entry: cover
+signature: 'def cover(groups: list[list[int]]) -> list[int]:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 同宽时替换了先找到的较小左端。
+  code: |
+    import heapq
+
+
+    def cover(groups: list[list[int]]) -> list[int]:
+        heap = [(row[0], i, 0) for i, row in enumerate(groups)]
+        heapq.heapify(heap)
+        high = max(row[0] for row in groups)
+        best = [heap[0][0], high]
+        while True:
+            low, i, j = heapq.heappop(heap)
+            if high - low <= best[1] - best[0]:
+                best = [low, high]
+            if j + 1 == len(groups[i]):
+                return best
+            value = groups[i][j + 1]
+            high = max(high, value)
+            heapq.heappush(heap, (value, i, j + 1))

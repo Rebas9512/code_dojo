@@ -1,0 +1,47 @@
+id: algo-5-054-rotate-list
+title: 将链尾绕回链头
+track: algo
+stage: '5'
+order: 540
+format: write
+mode: function
+difficulty: 79
+week: 7
+skills:
+  requires:
+  - algo.ll-traverse
+  - py.bool-ops
+  - py.floordiv-mod
+  introduces: null
+source: grind169
+leetcode: rotate-list
+milestones: []
+entry: rotate
+signature: 'def rotate(head: ListNode | None, k: int) -> ListNode | None:'
+compare: exact
+time_limit_ms: 800
+convert:
+  args:
+    '0': listnode
+  returns: listnode
+wrong_examples:
+- why: 按左转距离切开链表。
+  code: |
+    def rotate(head: ListNode | None, k: int) -> ListNode | None:
+        if not head:
+            return None
+        tail = head
+        length = 1
+        while tail.next:
+            tail = tail.next
+            length += 1
+        steps = k % length
+        if not steps:
+            return head
+        cut = head
+        for _ in range(steps - 1):
+            cut = cut.next
+        start = cut.next
+        cut.next = None
+        tail.next = head
+        return start

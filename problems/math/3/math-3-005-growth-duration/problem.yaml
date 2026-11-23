@@ -1,0 +1,25 @@
+id: math-3-005-growth-duration
+title: 从观测值还原时间
+track: math
+stage: '3'
+order: 50
+format: complete
+mode: function
+difficulty: 26
+skills:
+  requires:
+    - math.exp
+    - math.log
+  introduces: null
+source: original
+entry: elapsed_time
+signature: 'def elapsed_time(start: float, end: float, k: float) -> float:'
+compare: float
+wrong_examples:
+  - why: 忘记对初始数量归一化。
+    code: |
+      from math import log
+
+
+      def elapsed_time(start: float, end: float, k: float) -> float:
+          return log(end) / k

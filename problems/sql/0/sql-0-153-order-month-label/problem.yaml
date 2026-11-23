@@ -1,0 +1,27 @@
+id: sql-0-153-order-month-label
+title: 给订单贴上年月标签
+track: sql
+stage: "0"
+order: 350
+format: write
+difficulty: 13
+skills: {requires: [sql.date-funcs], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/same-month-different-years.sql
+ordered: false
+hints:
+  - TO_CHAR 可以按指定格式把日期写成文字。YYYY 表示四位年份，MM 表示两位月份。
+wrong_examples:
+  - why: 只写月号，隔年同月也会得到同一个标签。
+    sql: |
+      SELECT order_id, TO_CHAR(order_date, 'MM') AS order_month FROM orders;
+  - why: 用日号代替月号，月初第一天都会显示为 01。
+    sql: |
+      SELECT order_id, TO_CHAR(order_date, 'YYYY-DD') AS order_month FROM orders;
+  - why: 省掉月份前面的零，九月会显示为 9。
+    sql: |
+      SELECT order_id, TO_CHAR(order_date, 'YYYY-FMMM') AS order_month FROM orders;

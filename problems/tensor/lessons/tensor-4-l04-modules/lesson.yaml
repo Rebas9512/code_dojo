@@ -1,0 +1,74 @@
+id: tensor-4-l04-modules
+title: 自定义层与保存状态
+track: tensor
+skills:
+  - tensor.module
+  - tensor.state
+steps:
+  - type: read
+    skill: tensor.module
+    md: |-
+      一层可以把「有哪些旋钮」和「读数怎样通过」放在一起。若两个通道的增益是 [2, 3]，输入 [4, 5] 通过这层便得到 [8, 15]。下一批输入还能使用同一组旋钮，无需重新创建权重。
+
+      继承 nn.Module，在 __init__ 中先初始化父类，再把 nn.Parameter 存在 self 的属性上，框架会登记它。forward(self, x) 写输入怎样得到输出。调用 layer(x) 就会运行 forward。把普通张量存在同名属性上也能算出数值，但框架不会把它列作训练参数。
+
+      **TM23 常见误解：只写出正确的前向值，漏登记可训练参数**。给 [4, 5] 乘增益 [2, 3]，普通张量与参数都能算出 [8, 15]。只有把增益作为 Parameter 挂到层上，训练时才能从参数清单找到这两个旋钮。
+  - type: example
+    skill: tensor.module
+    code: |
+      import torch
+      import torch.nn as nn
+      # ① 在构造时装一次旋钮，每次前向都复用
+      class ChannelGain(nn.Module):
+          def __init__(self, initial):
+              nn.Module.__init__(self)
+              self.gain = nn.Parameter(torch.tensor(initial, dtype=torch.float32))
+
+          def forward(self, x):
+              return x * self.gain
+
+      layer = ChannelGain([2, 3])
+      print(layer(torch.tensor([4., 5.])).tolist())  # 输出 [8.0, 15.0]
+    md: 用同一个 layer 再算 [1., 2.]，看两个通道如何复用增益。
+  - type: quiz
+    skill: tensor.module
+    q: 应在哪一步创建需要在多批输入间复用的参数？
+    options:
+      - 每次 forward 开始时
+      - 构造层时存到 self 上
+      - 每次打印后
+    answer: 1
+    explain: 构造时登记一次，所有前向计算都读取同一份可学习参数。（TM23）
+  - type: read
+    skill: tensor.state
+    md: |-
+      更新参数时，要找到每个可以学习的张量；保存模型时，还要有稳定的名字以便将数值放回原处。一个从两个特征到一个输出的线性层有一张含两格的权重和一格偏置，共两个参数张量、三个标量。
+
+      `parameters()` 给出已登记的参数，`numel()` 数张量里的标量格。`state_dict()` 是名字到张量的映射，包括参数和持久缓冲区（随层保存的辅助数值）。映射里的张量可能与原层共享存储。保存独立快照时逐项 clone；同结构层可用 load_state_dict 恢复。
+
+      **TM24 常见误解：以为 state_dict 自动冻结了旧值**。权重从 2 改成 5，直接留着的 state_dict 也会读到 5；更新前单独 clone 的权重仍是 2。
+  - type: example
+    skill: tensor.state
+    code: |
+      import torch
+      import torch.nn as nn
+      # ① 保存两个版本，再修改原参数
+      torch.manual_seed(0)
+      layer = nn.Linear(1, 1, bias=False)
+      with torch.no_grad():
+          layer.weight.fill_(2)
+      shared = layer.state_dict()
+      saved = shared["weight"].clone()
+      with torch.no_grad():
+          layer.weight.fill_(5)
+      print(shared["weight"].item(), saved.item())  # 输出 5.0 2.0
+    md: 把第二次填入的 5 改为 0，观察哪一份状态跟着变化。
+  - type: quiz
+    skill: tensor.state
+    q: 修改原层权重后，希望旧快照仍保留当时的值，应如何保存？
+    options:
+      - 只保存 state_dict 的键
+      - 只复制 Python 字典
+      - 逐个克隆状态张量
+    answer: 2
+    explain: 键和外层字典都不能隔离底层存储，逐项克隆才能单独保留旧值。（TM24）

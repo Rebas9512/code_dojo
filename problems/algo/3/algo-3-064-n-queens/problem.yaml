@@ -1,0 +1,52 @@
+id: algo-3-064-n-queens
+title: 所有互不攻击的皇后棋盘
+track: algo
+stage: '3'
+order: 640
+format: combine
+mode: function
+difficulty: 69
+skills:
+  requires:
+  - algo.backtracking
+  - algo.nested-func
+  - py.bool-ops
+  - py.break-continue
+  - py.list-comp
+  - py.multi-assign
+  - py.set-basics
+  introduces: null
+source: neetcode250
+leetcode: n-queens
+milestones:
+- nc150
+- top100
+entry: queen_boards
+signature: 'def queen_boards(n: int) -> list[list[str]]:'
+compare: unordered
+wrong_examples:
+- why: 误以为镜像只算一次，跳过首行左半边。
+  code: |
+    def queen_boards(n: int) -> list[list[str]]:
+        result, columns = [], []
+        used, down, up = set(), set(), set()
+        def place(row):
+            if row == n:
+                result.append(['.' * col + 'Q' + '.' * (n-col-1) for col in columns])
+                return
+            for col in range(n):
+                if (row == 0 and col < n // 2) or col in used or row-col in down or row+col in up:
+                    continue
+                used.add(col)
+                down.add(row-col)
+                up.add(row+col)
+                columns.append(col)
+                place(row + 1)
+                columns.pop()
+                used.remove(col)
+                down.remove(row-col)
+                up.remove(row+col)
+        place(0)
+        return result
+hints:
+- 一位皇后除了占用列，还占用行减列、行加列两种斜线编号。

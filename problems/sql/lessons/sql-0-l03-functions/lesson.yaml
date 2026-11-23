@@ -1,0 +1,133 @@
+id: sql-0-l03-functions
+title: 字符串、日期和数值函数
+track: sql
+skills: [sql.string-funcs, sql.date-funcs, sql.round-cast, sql.regex]
+steps:
+  - type: read
+    skill: sql.string-funcs
+    md: |
+      处理文字的常用函数：
+      - `LENGTH(s)` 长度；`UPPER(s)` / `LOWER(s)` 转大写 / 小写；`INITCAP(s)` 每个单词首字母大写；
+      - `SUBSTRING(s FROM 2 FOR 3)` 从第 2 个字符开始取 3 个；`LEFT(s, n)` / `RIGHT(s, n)` 取左边 / 右边 n 个；
+      - `TRIM(s)` 去掉首尾空格；`REPLACE(s, 'a', 'b')` 替换；`POSITION('@' IN s)` 找位置；`SPLIT_PART(s, '@', 2)` 按分隔符切开取第几段；
+      - 拼接：`'a' || 'b'` 或 `CONCAT(a, b)`。
+
+      注意：SQL 的字符串**下标从 1 开始**（Python 从 0 开始）。
+
+      常见误解：
+      - **"`||` 遇到 NULL 会忽略它"**：`'a' || NULL` 的结果是 NULL；`CONCAT('a', NULL)` 才把 NULL 当空串。
+      - **"LENGTH 数的是字节"**：数的是字符，一个汉字算 1。
+  - type: example
+    skill: sql.string-funcs
+    db: bookstore
+    code: |
+      -- ① 计算每个书名的长度和大写版本
+      -- ② 只保留短书名
+      SELECT title,
+             LENGTH(title) AS len,
+             UPPER(title) AS upper_title
+      FROM books
+      WHERE LENGTH(title) < 12;
+    md: "试试 `SELECT SPLIT_PART(email, '@', 1) FROM users;`，再试试 `SELECT 'a' || NULL;`。"
+  - type: quiz
+    skill: sql.string-funcs
+    q: "`SUBSTRING('python' FROM 1 FOR 2)` 是？"
+    options: ["'py'", "'yt'", "'p'"]
+    answer: 0
+    explain: "SQL 的字符串下标从 1 开始：从第 1 个字符起取 2 个。"
+  - type: read
+    skill: sql.date-funcs
+    md: |
+      日期是分析题的常客（按月统计、留存……）。PostgreSQL 的常用写法：
+      - 取出一部分：`EXTRACT(YEAR FROM d)`、`EXTRACT(MONTH FROM d)`、`EXTRACT(DOW FROM d)`（星期几，0 是周日）；
+      - 截到月初：`DATE_TRUNC('month', d)`；格式化成文字：`TO_CHAR(d, 'YYYY-MM')`；
+      - 加减：`d + 1`（加一天）、`d - INTERVAL '30 days'`；两个 DATE 相减得到相差的天数；
+      - 今天：`CURRENT_DATE`。
+
+      常见误解：
+      - **"MySQL 的写法也能用"**：`DATE_ADD`、`DATEDIFF`、`DATE_FORMAT` 在 PostgreSQL 里不存在，分别换成 `+ INTERVAL`、日期相减、`TO_CHAR`。
+      - **"按月份筛选写 EXTRACT(MONTH …) = 3 就够了"**：它会把每一年的 3 月都算进来，记得同时限定年份，或者直接用日期范围。
+  - type: example
+    skill: sql.date-funcs
+    db: bookstore
+    code: |
+      -- ① 拆出订单日期的月份
+      -- ② 格式化成 年-月 的文字
+      -- ③ 算出下单 7 天后的日期
+      SELECT order_id,
+             order_date,
+             EXTRACT(MONTH FROM order_date) AS month,
+             TO_CHAR(order_date, 'YYYY-MM') AS year_month,
+             order_date + 7 AS plus_week
+      FROM orders;
+    md: "试试 `SELECT DATE '2025-03-31' - DATE '2025-03-01';`。"
+  - type: quiz
+    skill: sql.date-funcs
+    q: "`DATE '2025-03-10' - DATE '2025-03-01'` 的结果是？"
+    options: ["9", "10", "'9 days'"]
+    answer: 0
+    explain: "两个 DATE 相减得到相差的天数（整数）：9。"
+  - type: read
+    skill: sql.round-cast
+    md: |
+      数值处理和类型转换：
+      - `ROUND(x, 2)` 保留两位小数；`CEIL(x)` 向上取整，`FLOOR(x)` 向下取整，`ABS(x)` 绝对值，`MOD(a, b)` 取余；
+      - 类型转换：`CAST(x AS numeric)`，或者简写 `x::numeric`。
+
+      两个最常见的坑都和类型有关：
+      1. **整数除法**：`3 / 4` 是 0。算比例前先转成小数：`3::numeric / 4` 是 0.75。
+      2. **两个参数的 ROUND 只接受 numeric**：`ROUND(3.14159::float, 2)` 会报错，要写 `ROUND(x::numeric, 2)`。
+
+      常见误解：
+      - **"ROUND 能把整数除法救回来"**：`ROUND(3 / 4, 2)` 是 0.00——除法已经先截断了，要在**除之前**转类型。
+  - type: example
+    skill: sql.round-cast
+    db: bookstore
+    code: |
+      -- ① 先把整数转成 numeric，再相除
+      -- ② 再保留两位小数
+      SELECT 3 / 4 AS int_div,
+             3::numeric / 4 AS real_div,
+             ROUND(3::numeric / 4, 2) AS rounded,
+             ROUND(price * 0.85, 2) AS member_price
+      FROM books
+      WHERE book_id = 1;
+    md: "试试 `SELECT ROUND(3 / 4, 2);`，结果为什么是 0？"
+  - type: quiz
+    skill: sql.round-cast
+    q: "`SELECT 3 / 4;` 的结果是？"
+    options: ["0", "0.75", "1"]
+    answer: 0
+    explain: "两个整数相除是整除，结果截断为 0。"
+  - type: read
+    skill: sql.regex
+    md: |
+      LIKE 只有 `%` 和 `_` 两种通配符。更复杂的规则（"只能由字母和数字组成""以 @example.com 结尾"）用**正则表达式**：
+
+      - `s ~ '模式'`：区分大小写的匹配；`~*` 不区分大小写；`!~` 表示不匹配；
+      - 常用符号：`^` 开头，`$` 结尾，`[a-z0-9]` 一个小写字母或数字，`*` 前一个出现 0 次或多次，`+` 出现 1 次或多次，`\.` 字面上的点。
+
+      ```sql
+      WHERE email ~ '^[a-z][a-z0-9]*@example\.com$'
+      ```
+      读法：以小写字母开头，后面跟任意多个小写字母或数字，然后是 @example.com，到此结束。
+
+      常见误解：
+      - **"模式要匹配整个字符串"**：没有 `^` 和 `$` 时，只要中间某一段匹配就算。
+      - **"`.` 就是点"**：在正则里 `.` 表示任意一个字符，字面上的点要写 `\.`。
+  - type: example
+    skill: sql.regex
+    db: bookstore
+    code: |
+      -- ① ^ 和 $：要求整个邮箱都符合规则
+      -- ② 用户名部分：小写字母开头，后面是小写字母或数字
+      SELECT name, email
+      FROM users
+      WHERE email ~ '^[a-z][a-z0-9]*@example\.com$';
+    md: "把模式里的 `[a-z0-9]*` 改成 `[a-z]*`，哪个邮箱不再匹配？"
+  - type: quiz
+    skill: sql.regex
+    q: "`'abc' ~ 'b'` 的结果是？"
+    options: ["true", "false"]
+    answer: 0
+    explain: "没有 ^ 和 $ 时，只要字符串里有某一段匹配就算。"

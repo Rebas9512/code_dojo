@@ -1,0 +1,28 @@
+id: sql-3-012-first-order-days
+title: 补全：每天新增多少位买家
+track: sql
+stage: '3'
+order: 120
+format: complete
+difficulty: 47
+skills:
+  requires:
+    - sql.sum-avg
+  introduces: sql.cte
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/earlier.sql
+  - db:bookstore + datasets/same-day.sql
+ordered: false
+hints:
+  - 先查 first_orders，确认每个买家只出现一次。
+wrong_examples:
+  - why: 用最近一次下单作首单
+    sql: |
+      WITH first_orders AS (
+          SELECT user_id, MAX(order_date) AS first_day FROM orders GROUP BY user_id
+      )
+      SELECT first_day, COUNT(*) AS buyers FROM first_orders GROUP BY first_day;

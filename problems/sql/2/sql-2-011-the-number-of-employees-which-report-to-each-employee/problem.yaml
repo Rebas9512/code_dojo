@@ -1,0 +1,41 @@
+id: sql-2-011-the-number-of-employees-which-report-to-each-employee
+title: 主管的直属团队画像
+track: sql
+stage: '2'
+order: 110
+format: combine
+difficulty: 33
+skills:
+  requires:
+    - sql.self-join
+    - sql.join-aggregate
+    - sql.sum-avg
+    - sql.count
+    - sql.order-by
+    - sql.round-cast
+  introduces: null
+source: sql50
+leetcode: the-number-of-employees-which-report-to-each-employee
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/namesake-boss.sql
+  - datasets/sample.sql + datasets/next-level.sql
+ordered: true
+hints:
+  - 同一张名册要读两次：一份找主管，一份找直属成员。
+wrong_examples:
+  - why: 算的是主管本人的年龄
+    sql: |
+      SELECT m.person_id, m.name, COUNT(*) AS reports, ROUND(AVG(m.age), 0) AS mean_age
+      FROM team m
+      JOIN team e ON e.leader_id = m.person_id
+      GROUP BY m.person_id, m.name
+      ORDER BY m.person_id;
+  - why: 求出成员的平均年龄后忘了四舍五入到整岁
+    sql: |
+      SELECT m.person_id, m.name, COUNT(*) AS reports, AVG(e.age) AS mean_age
+      FROM team m
+      JOIN team e ON e.leader_id = m.person_id
+      GROUP BY m.person_id, m.name
+      ORDER BY m.person_id;

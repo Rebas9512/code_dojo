@@ -1,0 +1,36 @@
+id: sql-2-005-employee-bonus
+title: 应列入小额补贴清单的人
+track: sql
+stage: '2'
+order: 50
+format: combine
+difficulty: 28
+skills:
+  requires:
+    - sql.left-join
+    - sql.coalesce
+    - sql.where
+  introduces: null
+source: sql50
+leetcode: employee-bonus
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/empty-bonus-list.sql
+  - datasets/sample.sql + datasets/zero-amount.sql
+ordered: false
+hints:
+  - 用于判断的缺省值可以是 0，但最终显示的仍应是原金额。
+wrong_examples:
+  - why: 直接比较金额，补出的 NULL 行被筛掉
+    sql: |
+      SELECT s.name, b.amount
+      FROM staff s
+      LEFT JOIN bonuses b ON b.staff_id = s.staff_id
+      WHERE b.amount < 1000;
+  - why: 把恰好 1000 元也留下
+    sql: |
+      SELECT s.name, b.amount
+      FROM staff s
+      LEFT JOIN bonuses b ON b.staff_id = s.staff_id
+      WHERE COALESCE(b.amount, 0) <= 1000;

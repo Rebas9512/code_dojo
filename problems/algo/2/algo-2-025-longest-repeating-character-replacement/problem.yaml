@@ -1,0 +1,39 @@
+id: algo-2-025-longest-repeating-character-replacement
+title: 改成同一个大写字母
+track: algo
+stage: '2'
+order: 250
+format: write
+mode: function
+difficulty: 56
+skills:
+  requires:
+  - algo.window-variable
+  - py.dict-iter
+  - py.enumerate
+  - py.list-builtins
+  - py.nested-loop
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: longest-repeating-character-replacement
+milestones:
+- blind75
+entry: longest_uniform
+signature: 'def longest_uniform(text: str, k: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 把恰好用完预算也判作超限。
+  code: |
+    def longest_uniform(text: str, k: int) -> int:
+        counts = {}
+        left = best = 0
+        for right, ch in enumerate(text):
+            counts[ch] = counts.get(ch, 0) + 1
+            while right - left + 1 - max(counts.values()) >= k and left < right:
+                counts[text[left]] -= 1
+                left += 1
+            best = max(best, right - left + 1)
+        return best
+hints:
+- 窗口长度减去窗口里最多字母的份数，就是至少要替换的格数。

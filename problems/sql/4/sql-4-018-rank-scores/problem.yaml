@@ -1,0 +1,30 @@
+id: sql-4-018-rank-scores
+title: 同分共享积分档
+track: sql
+stage: '4'
+order: 180
+format: write
+difficulty: 62
+skills:
+  requires:
+    - sql.rank
+  introduces: null
+source: leetcode-db
+leetcode: rank-scores
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more-ties.sql
+  - datasets/sample.sql + datasets/one-score.sql
+ordered: true
+hints:
+  - 若前两人同分，第三人的档次是多少？
+wrong_examples:
+  - why: 并列后跳号
+    sql: |
+      SELECT score, RANK() OVER (ORDER BY score DESC NULLS LAST) AS tier
+      FROM scores ORDER BY tier;
+  - why: 空分数排首位
+    sql: |
+      SELECT score, DENSE_RANK() OVER (ORDER BY score DESC) AS tier
+      FROM scores ORDER BY tier;

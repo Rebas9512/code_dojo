@@ -1,0 +1,71 @@
+id: algo-2-039-guess-number-higher-or-lower
+title: 按提示猜中秘密编号
+track: algo
+stage: '2'
+order: 390
+format: write
+mode: function
+difficulty: 57
+skills:
+  requires:
+  - algo.binary-search
+  - py.class-methods
+  - py.multi-assign
+  introduces: null
+source: neetcode250
+leetcode: guess-number-higher-or-lower
+milestones: []
+entry: run_case
+signature: 'def run_case(n: int, pick: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 提示方向理解反了。
+  code: |
+    def guess_number(n: int, guess) -> int:
+        lo, hi = 1, n + 1
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if guess(mid) < 0:
+                lo = mid + 1
+            else:
+                hi = mid
+        return lo
+
+
+    class GuessTable:
+        def __init__(self, pick: int):
+            self._pick = pick
+
+        def compare(self, value: int) -> int:
+            if value < self._pick:
+                return 1
+            if value > self._pick:
+                return -1
+            return 0
+
+
+    def run_case(n: int, pick: int) -> int:
+        return guess_number(n, GuessTable(pick).compare)
+- why: 用提示逐个递增猜数。
+  code: |
+    def guess_number(n: int, guess) -> int:
+        value = 1
+        while guess(value) != 0:
+            value += 1
+        return value
+
+
+    class GuessTable:
+        def __init__(self, pick: int):
+            self._pick = pick
+
+        def compare(self, value: int) -> int:
+            if value < self._pick:
+                return 1
+            if value > self._pick:
+                return -1
+            return 0
+
+
+    def run_case(n: int, pick: int) -> int:
+        return guess_number(n, GuessTable(pick).compare)

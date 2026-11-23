@@ -1,0 +1,24 @@
+id: tensor-2-017-first-winner
+title: 并列取最靠前的位置
+track: tensor
+stage: '2'
+order: 170
+format: complete
+mode: function
+difficulty: 30
+skills:
+  requires:
+    - tensor.rank
+  introduces: null
+source: original
+entry: winners
+signature: 'def winners(rows):'
+compare: allclose
+wrong_examples:
+  - why: 选出了各列的冠军行号。
+    code: |
+      import torch
+
+
+      def winners(rows):
+          return torch.argmax(torch.tensor(rows), dim=0)

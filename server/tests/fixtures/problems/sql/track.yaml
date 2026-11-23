@@ -1,0 +1,22 @@
+id: sql
+name: SQL
+summary: 从书店的一张表开始，练习筛选、聚合、连接和窗口查询。
+order: 3
+language: sql
+runtime: pglite
+status: active
+requires: [data]
+skill_prefix: sql
+stages:
+  - id: "0"
+    name: 单表查询
+  - id: "1"
+    name: 聚合
+  - id: "2"
+    name: 连接
+  - id: "3"
+    name: 子查询和 CTE
+  - id: "4"
+    name: 窗口函数
+  - id: "5"
+    name: 综合

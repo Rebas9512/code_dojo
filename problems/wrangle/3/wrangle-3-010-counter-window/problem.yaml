@@ -1,0 +1,25 @@
+id: wrangle-3-010-counter-window
+title: 截取队列中的号段
+track: wrangle
+stage: '3'
+order: 100
+format: write
+mode: function
+difficulty: 28
+skills:
+  requires:
+    - wrangle.loc
+  introduces: null
+source: original
+entry: queue_slice
+signature: 'def queue_slice(t, start, stop):'
+compare: frame
+leetcode: display-the-first-three-rows
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 用票号切片代替队列位置。
+    code: |
+      def queue_slice(t, start, stop):
+          return t.loc[start:stop]

@@ -1,0 +1,60 @@
+id: sql-2-l02-details-and-totals
+title: 沿订单明细连接，再做汇总
+track: sql
+skills:
+  - sql.multi-join
+  - sql.join-aggregate
+steps:
+  - type: read
+    skill: sql.multi-join
+    md: |
+      一张订单上有下单日期，一条明细上有购买册数，一本书上有书名。想把三样放在同一行，可以分两次配对：先从订单顺着订单号找到明细，再顺着明细的书号找到书。每次写 ON 时，看看等号两边是不是在说同一个东西。
+
+      加一张表之前先说出当前一行代表什么。一笔订单有两条明细，第一次连接就从一行变两行；每个书号在书目里唯一，第二次连接仍是两行。如果两侧同一键各出现两行和三行，就会得到六种配对。
+  - type: example
+    skill: sql.multi-join
+    db: bookstore
+    code: |
+      -- ① 先找 101 号订单的每一条明细
+      -- ② 每条明细各自取书名和册数
+      SELECT o.order_id, i.book_id, b.title, i.quantity
+      FROM orders o
+      JOIN order_items i ON i.order_id = o.order_id
+      JOIN books b ON b.book_id = i.book_id
+      WHERE o.order_id = 101;
+    md: 删去最后一次 JOIN，并从 SELECT 移除 b.title。比较两次查询的行数，看看哪次连接才把一单变成多行。
+  - type: quiz
+    skill: sql.multi-join
+    q: 同一本书有两条销售明细、三条评分。仅按书号把明细与评分接起来，会得到几行？
+    options:
+      - '2'
+      - '3'
+      - '6'
+    answer: 2
+    explain: 每条明细都配上三条评分，一共 2 × 3 对。
+  - type: read
+    skill: sql.join-aggregate
+    md: |
+      统计前先确定要数的单位。把读者连接到订单，结果里的一行可以是一个订单；再连接到订单明细，一行便是一单里的一种书。现在 COUNT(*) 数的是明细行。一单买了三种书就会被数三次，若要数订单应按订单号去重。
+
+      求和也要核对这一点。每条明细的成交单价乘册数才是这条的金额。如果再接上同一本书的多条评分，这条金额会跟着被复制。两份金额恰好相等的不同明细都应该算，SUM(DISTINCT 金额) 会误删真正的成交。
+  - type: example
+    skill: sql.join-aggregate
+    db: bookstore
+    code: |
+      -- ① 让读者的每笔订单展开成明细行
+      -- ② 分别数明细和不同订单，观察两列为何会不同
+      SELECT o.user_id, COUNT(*) AS lines, COUNT(DISTINCT o.order_id) AS orders_with_items
+      FROM orders o
+      JOIN order_items i ON i.order_id = o.order_id
+      GROUP BY o.user_id;
+    md: 把 COUNT(*) 换成 SUM(i.quantity)，比较册数、明细行数和订单数这三种口径。
+  - type: quiz
+    skill: sql.join-aggregate
+    q: 同一本书有两条 10 元的成交明细和三条评分。把明细和评分只按书号配对再求和，会得到多少元？
+    options:
+      - '10'
+      - '20'
+      - '60'
+    answer: 2
+    explain: 两条明细各出现三次，合计被放大到 60 元。真实销售额为 20 元。

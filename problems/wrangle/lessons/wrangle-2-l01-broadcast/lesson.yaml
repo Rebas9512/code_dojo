@@ -1,0 +1,70 @@
+id: wrangle-2-l01-broadcast
+title: 广播与整批运算
+track: wrangle
+skills:
+  - wrangle.broadcast
+  - wrangle.vectorize
+steps:
+  - type: read
+    skill: wrangle.broadcast
+    md: |-
+      广播让不同形状的读数共享同一套修正值。两天各有早中晚三次测量，每个时段都要加自己的偏差 [1, 0, 2]。把这三个偏差与每一天对齐，就能同时校正两行。
+
+      比较形状时从最右端开始。两边相等，或者有一边是 1，就能配对；缺少的前导轴当作 1。比如 (2, 3) 加 (3,) 得到 (2, 3)。若两个偏差分别属于两天，要先把它们排成 (2, 1)，让每行沿列展开。
+
+      **WM07 从左侧对齐形状**。两班三次测量加两班各自的偏差时，(2, 3) 与 (2,) 的末轴不能配对；先把偏差排成 (2, 1)。
+  - type: example
+    skill: wrangle.broadcast
+    code: |
+      import numpy as np
+      # ① 每一行属于一个班次
+      x = np.array([[2, 5, 1], [4, 0, 3]])
+      # ② 每班各加一个补记值
+      bonus = np.array([10, 20]).reshape(-1, 1)
+      print((x + bonus).tolist())  # 输出 [[12, 15, 11], [24, 20, 23]]
+    md: 把 bonus 改成一维的三个数，观察它们沿哪个方向重复。
+  - type: quiz
+    skill: wrangle.broadcast
+    q: (4, 3) 与 (4,) 相加，哪两个长度最先比较？
+    options:
+      - 4 与 4
+      - 3 与 4
+      - 1 与 4
+    answer: 1
+    explain: 先对齐最右一轴。3 和 4 不相等且都大于 1，不能广播。（WM07）
+  - type: read
+    skill: wrangle.vectorize
+    md: |-
+      向量化是把同一条计算规则交给数组一次执行。三份重量 [1, 3, 2] 都要翻倍，手算会一个个写出 2、6、4，数组乘 2 也会逐格得到相同的数。Python 循环每次都要进入循环体，大数组上的数值运算可以交给底层批量完成。
+
+      比较耗时，要用同一份输入，先确认结果一致，再量各段结束和开始时刻的差。机器负载会改变秒数；计时结果只用于观察。
+
+      **WM08 把推导式当成整批运算**。一行推导式也会让 Python 每个值执行一次表达式。先测同一任务的两种实现，再比较时间。
+  - type: example
+    skill: wrangle.vectorize
+    code: |
+      import numpy as np
+      import time
+
+      # ① 准备同一条输入，不把造数算进任一段
+      x = np.arange(50000)
+      # ② 给两个计算分别计时
+      start = time.perf_counter()
+      by_hand = [v * 2 for v in x]
+      middle = time.perf_counter()
+      by_array = x * 2
+      end = time.perf_counter()
+      # ③ 先核对答案，再比较这一轮的毫秒数
+      print(np.array_equal(by_hand, by_array))  # 输出 True
+      print("循环毫秒", round((middle - start) * 1000, 3))
+      print("数组毫秒", round((end - middle) * 1000, 3))
+    md: 把 50000 改成 50，再改回去。各运行两次，比较末两行的实测时间。
+  - type: quiz
+    skill: wrangle.vectorize
+    q: 做一次公平的计时，应该把哪一步放在两次测量之前？
+    options:
+      - 给第一种写法打印结果
+      - 给第二种写法扩大输入
+      - 准备双方共用的数据
+    answer: 2
+    explain: 同一份输入让两段时间都量到同一个计算任务。（WM08）

@@ -1,0 +1,2 @@
+INSERT INTO orders VALUES (820,1,'2026-01-17','paid',NULL),(821,2,'2026-01-17','paid',NULL);
+INSERT INTO order_items VALUES (820,3,1,68),(821,3,1,68),(821,12,1,49);

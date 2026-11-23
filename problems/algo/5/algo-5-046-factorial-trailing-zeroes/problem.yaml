@@ -1,0 +1,31 @@
+id: algo-5-046-factorial-trailing-zeroes
+title: 阶乘末尾写了几个零
+track: algo
+stage: '5'
+order: 460
+format: write
+mode: function
+difficulty: 78
+week: 6
+skills:
+  requires:
+  - algo.math-module
+  - py.func-return
+  - py.while
+  introduces: null
+source: top-interview-150
+leetcode: factorial-trailing-zeroes
+milestones: []
+entry: zeroes
+signature: 'def zeroes(n: int) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 只数能被 5 整除的数，漏掉了 25、125 等额外贡献。
+  code: |
+    def zeroes(n: int) -> int:
+        count = 0
+        if n:
+            n //= 5
+            count += n
+        return count

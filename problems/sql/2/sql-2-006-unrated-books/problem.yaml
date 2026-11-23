@@ -1,0 +1,30 @@
+id: sql-2-006-unrated-books
+title: 修一修：哪几种书还没有评分
+track: sql
+stage: '2'
+order: 60
+format: fix
+difficulty: 28
+skills:
+  requires:
+    - sql.left-join
+    - sql.is-null
+    - sql.where
+  introduces: sql.anti-join
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/silent-review.sql
+  - db:bookstore + datasets/no-reviews.sql
+ordered: false
+hints:
+  - 找一个在真实评分行中一定有值的右表列。
+wrong_examples:
+  - why: 用可为空的评语判断是否匹配
+    sql: |
+      SELECT b.book_id, b.title
+      FROM books b
+      LEFT JOIN ratings r ON r.book_id = b.book_id
+      WHERE r.review IS NULL;

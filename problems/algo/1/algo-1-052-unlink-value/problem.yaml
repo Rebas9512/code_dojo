@@ -1,0 +1,33 @@
+id: algo-1-052-unlink-value
+title: 删除所有值为 x 的节点（哨兵节点）
+track: algo
+stage: '1'
+order: 520
+format: complete
+mode: function
+difficulty: 51
+skills:
+  requires: []
+  introduces: algo.ll-dummy
+source: original
+leetcode: null
+milestones: []
+entry: unlink_value
+signature: 'def unlink_value(head: ListNode | None, x: int) -> ListNode | None:'
+compare: exact
+convert:
+  args:
+    '0': listnode
+  returns: listnode
+wrong_examples:
+- why: 仍返回可能已经删除的旧头。
+  code: |
+    def unlink_value(head: ListNode | None, x: int) -> ListNode | None:
+        dummy = ListNode(0, head)
+        previous = dummy
+        while previous.next:
+            if previous.next.val == x:
+                previous.next = previous.next.next
+            else:
+                previous = previous.next
+        return head

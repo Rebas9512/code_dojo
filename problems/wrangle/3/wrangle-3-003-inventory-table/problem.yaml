@@ -1,0 +1,25 @@
+id: wrangle-3-003-inventory-table
+title: 把手写盘点单建成表
+track: wrangle
+stage: '3'
+order: 30
+format: write
+mode: function
+difficulty: 24
+skills:
+  requires:
+    - wrangle.table
+  introduces: null
+source: original
+entry: inventory
+signature: 'def inventory(rows):'
+compare: frame
+leetcode: create-a-dataframe-from-list
+wrong_examples:
+  - why: 把两列的标题对调。
+    code: |
+      import pandas as pd
+
+
+      def inventory(rows):
+          return pd.DataFrame(rows, columns=['stock', 'shelf'])

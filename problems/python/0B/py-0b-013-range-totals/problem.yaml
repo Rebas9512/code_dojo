@@ -1,0 +1,28 @@
+id: py-0b-013-range-totals
+title: 建一次前缀和，查多段总和
+track: python
+stage: 0B
+order: 130
+format: write
+mode: function
+difficulty: 27
+skills:
+  requires: [py.multi-assign, py.for-each]
+  introduces: py.prefix-sum
+source: original
+leetcode: null
+milestones: []
+entry: range_totals
+signature: 'def range_totals(nums: list[int], queries: list[list[int]]) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: "闭区间的右端少取一天。"
+    code: |
+      def range_totals(nums: list[int], queries: list[list[int]]) -> list[int]:
+          pre = [0]
+          for value in nums:
+              pre.append(pre[-1] + value)
+          totals = []
+          for left, right in queries:
+              totals.append(pre[right] - pre[left])
+          return totals

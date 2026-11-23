@@ -1,0 +1,63 @@
+id: sql-5-l01-return-and-convert
+title: 先定一批人，再追踪他们
+track: sql
+skills:
+  - sql.retention
+  - sql.funnel
+steps:
+  - type: read
+    skill: sql.retention
+    md: |
+      周一来了四位新读者，下一周的周一只有一位回来，但他一天刷了三次卡。这一批的七日留存是四分之一。先写清起点是首次登录还是注册，接着画出观察窗口：第七天只看一个日期，次月则看整个下一个自然月。
+
+      做查询时，先把人压到每人一行的批次名单；另一侧压成每人每天一行的活动。用 LEFT JOIN 把名单完整保留下来，数匹配到的读者。若直接用登录流水做分母，刷卡勤的人会改变一个批次的比例。
+  - type: example
+    skill: sql.retention
+    db: bookstore
+    code: |
+      -- ① 固定每人的首登日，并将重复刷卡折成一天
+      WITH firsts AS (
+          SELECT user_id, MIN(logged_on) AS d FROM reader_logins GROUP BY user_id
+      ), days AS (SELECT DISTINCT user_id, logged_on FROM reader_logins)
+      -- ② 逐人查看第七天有没有回来，再按批次统计
+      SELECT f.d, COUNT(*) AS joined, COUNT(a.user_id) AS returned,
+             1.0 * COUNT(a.user_id) / COUNT(*) AS fraction
+      FROM firsts f LEFT JOIN days a ON a.user_id = f.user_id AND a.logged_on = f.d + 7 GROUP BY f.d;
+    md: 最后先改成 SELECT * FROM firsts，再改成 SELECT * FROM days，对照两张中间表。
+  - type: quiz
+    skill: sql.retention
+    q: 5 人首登，其中 2 人第七天各登录 3 次，留存率是多少？
+    options:
+      - 6/5
+      - 2/5
+      - 2/6
+    answer: 1
+    explain: 分子和分母都按人计，每位回访者只贡献一次。
+  - type: read
+    skill: sql.funnel
+    md: |
+      顾客先买了别的书，然后才浏览活动页并加购。这位顾客有三个动作，却没有走完“活动页浏览、加购、之后付款”这条路。先把最早浏览时间记在每位读者旁边，再从比它晚的加购里挑最早一条；此时才能继续找付款。
+
+      为什么挑最早的有效加购？它给后续付款留下的时间最多。直接在日志中分别数三种事件，既会把重复事件算多次，也可能把逆序操作拼成转化。遇到同一时间的两个动作，先读题目有没有“严格晚于”的约定。
+  - type: example
+    skill: sql.funnel
+    db: bookstore
+    code: |
+      -- ① 取得每位读者第一次浏览的时刻
+      WITH views AS (
+          SELECT user_id, MIN(happened_at) AS viewed FROM reader_events WHERE action = 'view' GROUP BY user_id
+      )
+      -- ② 只接上严格晚于浏览的加购；尚未加购也展示
+      SELECT v.user_id, v.viewed, MIN(e.happened_at) AS first_valid_cart
+      FROM views v LEFT JOIN reader_events e ON e.user_id = v.user_id
+        AND e.action = 'cart' AND e.happened_at > v.viewed GROUP BY v.user_id, v.viewed;
+    md: 把大于号换成大于等于，找出哪位读者多了一次有效加购。
+  - type: quiz
+    skill: sql.funnel
+    q: 先加购，后浏览，再付款。按严格三步漏斗，最深到哪步？
+    options:
+      - 浏览
+      - 加购
+      - 付款
+    answer: 0
+    explain: 浏览之后没有合法加购，先前那次不能接上浏览。

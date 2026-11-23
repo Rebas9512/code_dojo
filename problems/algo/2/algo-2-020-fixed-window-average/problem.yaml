@@ -1,0 +1,37 @@
+id: algo-2-020-fixed-window-average
+title: 连续 k 个读数的最大平均值
+track: algo
+stage: '2'
+order: 200
+format: complete
+mode: function
+difficulty: 53
+skills:
+  requires:
+  - py.genexp
+  - py.list-builtins
+  introduces: algo.window-fixed
+source: original
+leetcode: null
+milestones: []
+entry: max_average
+signature: 'def max_average(nums: list[int], k: int) -> float:'
+compare: float
+wrong_examples:
+- why: 把全负数的窗口输给虚构的零分。
+  code: |
+    def max_average(nums: list[int], k: int) -> float:
+        total = sum(nums[i] for i in range(k))
+        best = 0
+        for end in range(k, len(nums)):
+            total += nums[end] - nums[end - k]
+            best = max(best, total)
+        return best / k
+- why: 每次都从头求窗口的和。
+  code: |
+    def max_average(nums: list[int], k: int) -> float:
+        best = sum(nums[:k])
+        for start in range(1, len(nums) - k + 1):
+            total = sum(nums[start:start + k])
+            best = max(best, total)
+        return best / k

@@ -1,0 +1,24 @@
+id: wrangle-1-018-daily-sums
+title: 每天全店共售几册
+track: wrangle
+stage: '1'
+order: 180
+format: complete
+mode: function
+difficulty: 22
+skills:
+  requires:
+    - wrangle.axis
+  introduces: null
+source: original
+entry: daily
+signature: 'def daily(rows):'
+compare: allclose
+wrong_examples:
+  - why: 计算成每家店的总量。
+    code: |
+      import numpy as np
+
+
+      def daily(rows):
+          return np.sum(np.array(rows), axis=1)

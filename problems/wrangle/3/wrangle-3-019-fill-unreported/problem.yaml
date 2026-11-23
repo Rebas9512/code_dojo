@@ -1,0 +1,25 @@
+id: wrangle-3-019-fill-unreported
+title: 用约定值填补未报数
+track: wrangle
+stage: '3'
+order: 190
+format: complete
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - wrangle.missing
+  introduces: null
+source: original
+entry: fill_stock
+signature: 'def fill_stock(t, default):'
+compare: frame
+leetcode: fill-missing-data
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 无论约定值是多少都填零。
+    code: |
+      def fill_stock(t, default):
+          return t['n'].fillna(0)

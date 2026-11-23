@@ -1,0 +1,2 @@
+INSERT INTO price_tags VALUES (3,'2025-03-12','2025-03-12',32);
+INSERT INTO counter_sales VALUES (6,3,'2025-03-12');

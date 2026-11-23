@@ -1,0 +1,178 @@
+{
+  "examples": [
+    {
+      "args": [
+        {
+          "columns": [
+            "price",
+            "note"
+          ],
+          "data": [
+            [
+              0,
+              null
+            ],
+            [
+              null,
+              "待查"
+            ],
+            [
+              5,
+              "新"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "price",
+          "note",
+          "cents"
+        ],
+        "data": [
+          [
+            0,
+            null,
+            0
+          ],
+          [
+            5,
+            "新",
+            500
+          ]
+        ],
+        "index": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "price",
+            "note"
+          ],
+          "data": [
+            [
+              null,
+              null
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "price",
+          "note",
+          "cents"
+        ],
+        "data": [],
+        "index": []
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        {
+          "columns": [
+            "price",
+            "note"
+          ],
+          "data": []
+        }
+      ],
+      "expected": {
+        "columns": [
+          "price",
+          "note",
+          "cents"
+        ],
+        "data": [],
+        "index": []
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "price",
+            "note"
+          ],
+          "data": [
+            [
+              8,
+              null
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "price",
+          "note",
+          "cents"
+        ],
+        "data": [
+          [
+            8,
+            null,
+            800
+          ]
+        ],
+        "index": [
+          0
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "price",
+            "note"
+          ],
+          "data": [
+            [
+              1,
+              ""
+            ],
+            [
+              null,
+              ""
+            ],
+            [
+              2,
+              "好"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "price",
+          "note",
+          "cents"
+        ],
+        "data": [
+          [
+            1,
+            "",
+            100
+          ],
+          [
+            2,
+            "好",
+            200
+          ]
+        ],
+        "index": [
+          0,
+          2
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+id: algo-3-039-k-closest-points-to-origin
+title: 离原点最近的 k 个点
+track: algo
+stage: '3'
+order: 390
+format: write
+mode: function
+difficulty: 59
+skills:
+  requires:
+  - algo.heap-topk
+  - py.if-else
+  - py.list-comp
+  introduces: null
+source: neetcode250
+leetcode: k-closest-points-to-origin
+milestones:
+- nc150
+entry: closest
+signature: 'def closest(points: list[list[int]], k: int) -> list[list[int]]:'
+compare: unordered
+wrong_examples:
+- why: 堆顶放最近点，超限反而淘汰了它。
+  code: |
+    import heapq
+
+
+    def closest(points: list[list[int]], k: int) -> list[list[int]]:
+        kept = []
+        for x, y in points:
+            heapq.heappush(kept, (x*x + y*y, x, y))
+            if len(kept) > k:
+                heapq.heappop(kept)
+        return [[x, y] for _, x, y in kept]
+hints:
+- 比较平方距离就足够。需要淘汰的是最远点，堆里的距离该取什么符号？

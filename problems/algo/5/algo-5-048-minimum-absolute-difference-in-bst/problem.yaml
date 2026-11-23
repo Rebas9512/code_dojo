@@ -1,0 +1,47 @@
+id: algo-5-048-minimum-absolute-difference-in-bst
+title: 有序树里的最近两个读数
+track: algo
+stage: '5'
+order: 480
+format: write
+mode: function
+difficulty: 78
+week: 6
+skills:
+  requires:
+  - algo.bst
+  - py.bool-ops
+  - py.list-pop
+  - py.minmax-abs
+  - py.nested-loop
+  - py.type-convert
+  - py.while
+  introduces: null
+source: top-interview-150
+leetcode: minimum-absolute-difference-in-bst
+milestones: []
+entry: min_gap
+signature: 'def min_gap(root: TreeNode) -> int:'
+compare: exact
+time_limit_ms: 800
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 把读过的最小数 0 当成尚无前一个节点。
+  code: |
+    def min_gap(root: TreeNode) -> int:
+        stack = []
+        node = root
+        last = None
+        best = float("inf")
+        while node or stack:
+            while node:
+                stack.append(node)
+                node = node.left
+            node = stack.pop()
+            if last:
+                best = min(best, node.val - last)
+            last = node.val
+            node = node.right
+        return best

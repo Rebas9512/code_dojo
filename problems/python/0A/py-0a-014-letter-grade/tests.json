@@ -1,0 +1,16 @@
+{
+  "examples": [
+    {"args": [95], "expected": "A"},
+    {"args": [72], "expected": "C"}
+  ],
+  "hidden": [
+    {"args": [90], "expected": "A"},
+    {"args": [89], "expected": "B"},
+    {"args": [80], "expected": "B"},
+    {"args": [60], "expected": "D"},
+    {"args": [59], "expected": "F"},
+    {"args": [0], "expected": "F"},
+    {"args": [100], "expected": "A"},
+    {"args": [70], "expected": "C"}
+  ]
+}

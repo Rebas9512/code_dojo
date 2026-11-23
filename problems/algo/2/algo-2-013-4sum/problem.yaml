@@ -1,0 +1,51 @@
+id: algo-2-013-4sum
+title: 四张数牌凑目标
+track: algo
+stage: '2'
+order: 130
+format: combine
+mode: function
+difficulty: 53
+skills:
+  requires:
+  - algo.two-pointers
+  - py.bool-ops
+  - py.break-continue
+  - py.elif
+  - py.nested-loop
+  introduces: null
+source: neetcode250
+leetcode: 4sum
+milestones: []
+entry: four_sum
+signature: 'def four_sum(nums: list[int], target: int) -> list[list[int]]:'
+compare: checker
+wrong_examples:
+- why: 忽略已选首项是否重复。
+  code: |
+    def four_sum(nums: list[int], target: int) -> list[list[int]]:
+        values = sorted(nums)
+        result = []
+        for i in range(len(values) - 3):
+            if False:
+                continue
+            for j in range(i + 1, len(values) - 2):
+                if j > i + 1 and values[j] == values[j - 1]:
+                    continue
+                left, right = j + 1, len(values) - 1
+                while left < right:
+                    total = values[i] + values[j] + values[left] + values[right]
+                    if total < target:
+                        left += 1
+                    elif total > target:
+                        right -= 1
+                    else:
+                        result.append([values[i], values[j], values[left], values[right]])
+                        left += 1
+                        right -= 1
+                        while left < right and values[left] == values[left - 1]:
+                            left += 1
+        return result
+hints:
+- 固定前两张牌后，后两张需要凑多少？
+- 每层都只在本层的可选区间内跳过重复值，这样仍能选四张相等的牌。

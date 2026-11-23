@@ -1,0 +1,29 @@
+id: algo-4-066-distinct-subsequences
+title: 删到同一串有几种下标选法
+track: algo
+stage: '4'
+order: 660
+format: write
+mode: function
+difficulty: 82
+skills:
+  requires:
+  - algo.dp-string
+  introduces: null
+source: neetcode250
+leetcode: distinct-subsequences
+milestones:
+- nc150
+entry: subseq_count
+signature: 'def subseq_count(s: str, t: str) -> int:'
+compare: exact
+wrong_examples:
+- why: 正向覆盖会重复使用同一个源字符。
+  code: |
+    def subseq_count(s: str, t: str) -> int:
+        ways = [1] + [0] * len(t)
+        for ch in s:
+            for j in range(1, len(t) + 1):
+                if t[j - 1] == ch:
+                    ways[j] += ways[j - 1]
+        return ways[-1]

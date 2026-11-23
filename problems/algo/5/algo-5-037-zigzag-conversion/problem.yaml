@@ -1,0 +1,42 @@
+id: algo-5-037-zigzag-conversion
+title: 沿折线路径重新读字
+track: algo
+stage: '5'
+order: 370
+format: write
+mode: function
+difficulty: 77
+week: 5
+skills:
+  requires:
+  - py.two-index
+  - py.bool-ops
+  - py.early-return
+  - py.elif
+  - py.genexp
+  - py.multi-assign
+  - py.split-join
+  introduces: null
+source: top-interview-150
+leetcode: zigzag-conversion
+milestones: []
+entry: zigzag
+signature: 'def zigzag(text: str, rows: int) -> str:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 每到底部就跳回顶行，漏掉上行的斜段。
+  code: |
+    def zigzag(text: str, rows: int) -> str:
+        if rows == 1 or rows >= len(text):
+            return text
+        lines = [[] for _ in range(rows)]
+        row, step = 0, 1
+        for ch in text:
+            lines[row].append(ch)
+            if row == rows - 1:
+                step = -1
+            elif row == 0:
+                step = 1
+            row = (row + 1) % rows
+        return "".join("".join(line) for line in lines)

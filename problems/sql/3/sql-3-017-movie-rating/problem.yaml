@@ -1,0 +1,42 @@
+id: sql-3-017-movie-rating
+title: 影迷与二月佳片
+track: sql
+stage: '3'
+order: 170
+format: combine
+difficulty: 49
+skills:
+  requires:
+    - sql.and-or
+    - sql.cte
+    - sql.join-aggregate
+    - sql.limit
+    - sql.multi-join
+    - sql.self-join
+    - sql.set-ops
+    - sql.sum-avg
+  introduces: null
+source: sql50
+leetcode: movie-rating
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/outside.sql
+  - datasets/sample.sql + datasets/same-name.sql
+ordered: true
+hints:
+  - 两份榜使用的时间范围相同吗？
+wrong_examples:
+  - why: 把闰日排除
+    sql: |
+      WITH fans AS (
+          SELECT r.name FROM readers r JOIN votes v ON v.reader = r.id
+          GROUP BY r.id, r.name ORDER BY COUNT(*) DESC, r.name LIMIT 1
+      ), best AS (
+          SELECT f.title FROM films f JOIN votes v ON v.film = f.id
+          WHERE v.rated >= DATE '2020-02-01' AND v.rated < DATE '2020-02-29'
+          GROUP BY f.id, f.title ORDER BY AVG(v.stars) DESC, f.title LIMIT 1
+      ), results AS (
+          SELECT 1 AS pos, name AS winner FROM fans UNION ALL SELECT 2, title FROM best
+      )
+      SELECT winner FROM results ORDER BY pos;

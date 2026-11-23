@@ -1,0 +1,17 @@
+id: py-0a-029-predict-nested-loop
+title: 循环套循环
+track: python
+stage: 0A
+order: 580
+format: predict
+mode: predict
+difficulty: 11
+skills:
+  requires: [py.for-range]
+  introduces: py.nested-loop
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "i = 1 时内层只跑 1 次，i = 3 时跑 3 次。"
+  - "一共 6 行算式和 3 行 --。"

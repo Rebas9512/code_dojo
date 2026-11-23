@@ -1,0 +1,12 @@
+{
+  "examples": [
+    {"args":["aac","b*a*."],"expected":true},
+    {"args":["abc","ab"],"expected":false}
+  ],
+  "hidden": [
+    {"args":["a","."],"expected":true},
+    {"args":["bbb","a*"],"expected":false},
+    {"args":["ab",".*"],"expected":true},
+    {"args":["aaaaaaaaaaaaaaaaaaac","a*a*a*a*a*a*a*a*a*ab"],"expected":false}
+  ]
+}

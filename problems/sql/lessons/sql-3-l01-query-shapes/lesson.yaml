@@ -1,0 +1,81 @@
+id: sql-3-l01-query-shapes
+title: 括号里的查询交出什么
+track: sql
+skills:
+  - sql.subquery-scalar
+  - sql.subquery-in
+  - sql.derived-table
+steps:
+  - type: read
+    skill: sql.subquery-scalar
+    md: |
+      给每本书贴上“高于全店均价”的标签，必须先知道一个数，再拿每个标价同它比较。把求平均的 SELECT 放进括号，就可以在另一个查询需要数值的地方使用它。先选中内层想一想：它交出几列、几行？
+
+      如果直接把全部价格放进同一个格，数据库无法替你挑一行。若内层只选一个根本不存在的书号，这一格会得到 NULL。它参与大小比较时条件不会为真；若希望即使没有第二档也交一行，可以让外层聚合。
+  - type: example
+    skill: sql.subquery-scalar
+    db: bookstore
+    code: |
+      -- ① 内层给出全店最贵一本书的价格
+      -- ② 外层找出所有同价书，保留并列
+      SELECT title, price FROM books
+      WHERE price = (SELECT MAX(price) FROM books);
+    md: 把 MAX 改成 MIN。再想想直接去掉 MAX 会怎样。
+  - type: quiz
+    skill: sql.subquery-scalar
+    q: 括号放在等号右边，却返回两个不同标价，会得到什么？
+    options:
+      - 取第一行
+      - 报错
+      - 把两个值相加
+    answer: 1
+    explain: 一个标量格容不下两行。需先确定聚合或挑选的规则。
+  - type: read
+    skill: sql.subquery-in
+    md: |
+      把评分表里的书号抄成一列，再从书目中圈出出现在这一列的书。IN 可以直接接生成这列名单的 SELECT。一本书得过五次评分，仍只在书目上圈一次，因此这里只是在查资格。
+
+      想把名单反过来时要多问一步：右边可能有空格吗？把 8 与名单 (2, NULL) 比较，可以排除 2，却不知道空格是不是 8。NOT IN 的判断于是成了未知，在 WHERE 里会被筛掉。
+  - type: example
+    skill: sql.subquery-in
+    db: bookstore
+    code: |
+      -- ① 内层列出打过五星的书号
+      -- ② 查书目，只为每本符合条件的书留一行
+      SELECT book_id, title FROM books
+      WHERE book_id IN (SELECT book_id FROM ratings WHERE stars = 5);
+    md: 把 5 改成 1。同一本书有多张一星票，外层会出现几次？
+  - type: quiz
+    skill: sql.subquery-in
+    q: 8 NOT IN (2, NULL) 在 WHERE 里会怎样？
+    options:
+      - 保留
+      - 过滤掉
+      - 产生两行
+    answer: 1
+    explain: 8 与 NULL 比较是未知，所以不能断言它不在名单里。
+  - type: read
+    skill: sql.derived-table
+    md: |
+      想知道每人平均留下多少条评分，先数每个人的评分数，然后平均这些计数。两次计算的单位不同，挤进同一层的 AVG(COUNT(*)) 会出错。可以把第一张统计表放到 FROM 后面，让第二层把它当成输入。
+
+      给内层结果起名 per_reader，给计数列起名 n。现在 AVG(n) 每读一行就遇到一个打过分的读者。没有评分的人没有进入这张表，若题意包括他们，就得从完整读者名册出发。
+  - type: example
+    skill: sql.derived-table
+    db: bookstore
+    code: |
+      -- ① 内层统计每位评分人的票数
+      -- ② 外层对评分人取平均
+      SELECT AVG(n) AS mean_votes FROM (
+          SELECT user_id, COUNT(*) AS n FROM ratings GROUP BY user_id
+      ) AS per_reader;
+    md: 将 AVG 换成 MAX。两次统计的输入各是什么？
+  - type: quiz
+    skill: sql.derived-table
+    q: 内层 GROUP BY user_id 后，外层读到的一行代表什么？
+    options:
+      - 一本书
+      - 一位有评分的读者
+      - 一张评分票
+    answer: 1
+    explain: 同一人的全部票已经归在同一组。

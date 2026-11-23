@@ -1,0 +1,17 @@
+id: py-0a-035-predict-slice
+title: 切片
+track: python
+stage: 0A
+order: 690
+format: predict
+mode: predict
+difficulty: 12
+skills:
+  requires: [py.index-len]
+  introduces: py.slice
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "s[1:4] 取下标 1、2、3。"
+  - "s[::2] 从头开始隔一个取一个。"

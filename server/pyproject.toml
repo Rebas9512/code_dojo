@@ -1,0 +1,21 @@
+[project]
+name = "code-dojo-server"
+version = "0.1.0"
+description = "code-dojo 后端：题库 API、Python 判题（Docker）、提交记录、AI 服务"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.165",
+    "uvicorn>=0.54",
+    "pyyaml>=6.0.4",
+    "pydantic>=2.14",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2",
+    "httpx2>=2.16",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

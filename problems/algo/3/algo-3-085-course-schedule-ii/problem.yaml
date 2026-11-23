@@ -1,0 +1,48 @@
+id: algo-3-085-course-schedule-ii
+title: 列出可行的修课次序
+track: algo
+stage: '3'
+order: 850
+format: write
+mode: function
+difficulty: 71
+skills:
+  requires:
+  - algo.topo-sort
+  - py.genexp
+  - py.list-concat-repeat
+  - py.nested-loop
+  - py.ternary
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: course-schedule-ii
+milestones:
+- nc150
+entry: schedule
+signature: 'def schedule(n: int, prerequisites: list[list[int]]) -> list[int]:'
+compare: checker
+wrong_examples:
+- why: 将输出序列倒转。
+  code: |
+    from collections import deque
+
+
+    def schedule(n: int, prerequisites: list[list[int]]) -> list[int]:
+        after = [[] for _ in range(n)]
+        degree = [0] * n
+        for course, before in prerequisites:
+            after[before].append(course)
+            degree[course] += 1
+        queue = deque(i for i in range(n) if degree[i] == 0)
+        order = []
+        while queue:
+            current = queue.popleft()
+            order.append(current)
+            for course in after[current]:
+                degree[course] -= 1
+                if degree[course] == 0:
+                    queue.append(course)
+        return order[::-1] if len(order) == n else []
+hints:
+- 同时有几门课入度为零时任选一门。最后要核对共取出了多少门。

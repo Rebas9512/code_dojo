@@ -1,0 +1,21 @@
+id: math-3-002-grow-in-steps
+title: 按周期繁殖
+track: math
+stage: '3'
+order: 20
+format: complete
+mode: function
+difficulty: 24
+skills:
+  requires:
+    - math.exp
+  introduces: null
+source: original
+entry: grow_cells
+signature: 'def grow_cells(start: int, factor: int, rounds: int) -> int:'
+compare: exact
+wrong_examples:
+  - why: 把重复相乘当成重复相加。
+    code: |
+      def grow_cells(start: int, factor: int, rounds: int) -> int:
+          return start * factor * rounds

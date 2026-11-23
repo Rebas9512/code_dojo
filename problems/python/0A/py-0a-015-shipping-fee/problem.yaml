@@ -1,0 +1,20 @@
+id: py-0a-015-shipping-fee
+title: 快递运费
+track: python
+stage: 0A
+order: 310
+format: fix
+mode: function
+difficulty: 7
+skills:
+  requires: [py.elif, py.early-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: shipping_fee
+signature: "def shipping_fee(weight: int) -> int:"
+compare: exact
+hints:
+  - "3 千克时，哪个条件最先成立？"
+  - "elif 从上往下检查，第一个成立的分支执行后其余全部跳过。"

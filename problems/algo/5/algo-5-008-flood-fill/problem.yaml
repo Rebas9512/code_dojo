@@ -1,0 +1,39 @@
+id: algo-5-008-flood-fill
+title: 给连通色块换墨
+track: algo
+stage: '5'
+order: 80
+format: write
+mode: function
+difficulty: 73
+week: 1
+skills:
+  requires:
+  - algo.grid-dfs
+  - py.bool-ops
+  - py.list-pop
+  - py.while
+  introduces: null
+source: grind169
+leetcode: flood-fill
+milestones: []
+entry: recolor
+signature: 'def recolor(image: list[list[int]], sr: int, sc: int, color: int) -> list[list[int]]:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 漏掉向上走，起点上方的同色色块没有被填。
+  code: |
+    def recolor(image: list[list[int]], sr: int, sc: int, color: int) -> list[list[int]]:
+        old = image[sr][sc]
+        if old == color:
+            return image
+        image[sr][sc] = color
+        stack = [(sr, sc)]
+        while stack:
+            r, c = stack.pop()
+            for i, j in ((r + 1, c), (r + 1, c), (r, c - 1), (r, c + 1)):
+                if 0 <= i < len(image) and 0 <= j < len(image[0]) and image[i][j] == old:
+                    image[i][j] = color
+                    stack.append((i, j))
+        return image

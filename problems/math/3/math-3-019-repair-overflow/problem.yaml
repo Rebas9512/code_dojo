@@ -1,0 +1,29 @@
+id: math-3-019-repair-overflow
+title: 修好大分数的候选分配
+track: math
+stage: '3'
+order: 190
+format: fix
+mode: function
+difficulty: 35
+skills:
+  requires:
+    - py.list-comp
+    - math.exp
+    - math.softmax
+  introduces: null
+source: original
+entry: candidate_probs
+signature: 'def candidate_probs(scores: list[float]) -> list[float]:'
+compare: float
+wrong_examples:
+  - why: 直接对原始分数取指数，在大数上溢出。
+    code: |
+      from math import exp
+
+
+      def candidate_probs(scores: list[float]) -> list[float]:
+          peak = max(scores)
+          weights = [exp(s) for s in scores]
+          total = sum(weights)
+          return [w/total for w in weights]

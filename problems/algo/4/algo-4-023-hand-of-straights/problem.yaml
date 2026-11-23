@@ -1,0 +1,43 @@
+id: algo-4-023-hand-of-straights
+title: 能否把牌排成等长顺子
+track: algo
+stage: '4'
+order: 230
+format: write
+mode: function
+difficulty: 67
+skills:
+  requires:
+  - algo.greedy
+  - algo.counter
+  - py.break-continue
+  - py.early-return
+  - py.floordiv-mod
+  - py.nested-loop
+  introduces: null
+source: neetcode250
+leetcode: hand-of-straights
+milestones:
+- nc150
+entry: group_runs
+signature: 'def group_runs(hand: list[int], size: int) -> bool:'
+compare: exact
+wrong_examples:
+- why: 同时开多组时每种牌面却只扣一张。
+  code: |
+    from collections import Counter
+
+
+    def group_runs(hand: list[int], size: int) -> bool:
+        if len(hand) % size:
+            return False
+        counts = Counter(hand)
+        for start in sorted(counts):
+            copies = counts[start]
+            if copies == 0:
+                continue
+            for value in range(start, start + size):
+                if counts[value] < copies:
+                    return False
+                counts[value] -= 1
+        return True

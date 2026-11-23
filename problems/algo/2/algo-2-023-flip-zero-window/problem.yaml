@@ -1,0 +1,36 @@
+id: algo-2-023-flip-zero-window
+title: 最多改 k 格能连成多长
+track: algo
+stage: '2'
+order: 230
+format: complete
+mode: function
+difficulty: 53
+skills:
+  requires:
+  - py.enumerate
+  - py.if-else
+  - py.minmax-abs
+  - py.nested-loop
+  - py.while
+  introduces: algo.window-variable
+source: original
+leetcode: null
+milestones: []
+entry: longest_ones
+signature: 'def longest_ones(nums: list[int], k: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 把窗口长度算成端点差。
+  code: |
+    def longest_ones(nums: list[int], k: int) -> int:
+        left = zeros = best = 0
+        for right, value in enumerate(nums):
+            if value == 0:
+                zeros += 1
+            while zeros > k:
+                if nums[left] == 0:
+                    zeros -= 1
+                left += 1
+            best = max(best, right - left)
+        return best

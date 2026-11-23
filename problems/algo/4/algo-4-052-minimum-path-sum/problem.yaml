@@ -1,0 +1,34 @@
+id: algo-4-052-minimum-path-sum
+title: 找到总花费最低的格路
+track: algo
+stage: '4'
+order: 520
+format: write
+mode: function
+difficulty: 75
+skills:
+  requires:
+  - algo.dp-2d
+  - py.enumerate
+  - py.minmax-abs
+  - py.type-convert
+  introduces: null
+source: neetcode250
+leetcode: minimum-path-sum
+milestones:
+- top100
+entry: min_path
+signature: 'def min_path(grid: list[list[int]]) -> int:'
+compare: exact
+wrong_examples:
+- why: 给第一行每一格都开了从上方免费进入的入口。
+  code: |
+    def min_path(grid: list[list[int]]) -> int:
+        cost = [float("inf")] * len(grid[0])
+        cost = [0] * len(grid[0])
+        for row in grid:
+            for c, value in enumerate(row):
+                if c > 0:
+                    cost[c] = min(cost[c], cost[c - 1])
+                cost[c] += value
+        return cost[-1]

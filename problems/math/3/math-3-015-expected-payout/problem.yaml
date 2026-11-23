@@ -1,0 +1,24 @@
+id: math-3-015-expected-payout
+title: 补上奖金权重
+track: math
+stage: '3'
+order: 150
+format: complete
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - py.genexp
+    - py.list-builtins
+    - math.dot
+    - math.expectation
+  introduces: null
+source: original
+entry: expected_payout
+signature: 'def expected_payout(values: list[float], probs: list[float]) -> float:'
+compare: float
+wrong_examples:
+  - why: 按结果种数等分权重。
+    code: |
+      def expected_payout(values: list[float], probs: list[float]) -> float:
+          return sum(values[i]/len(values) for i in range(len(values)))

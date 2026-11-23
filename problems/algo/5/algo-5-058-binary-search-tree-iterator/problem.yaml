@@ -1,0 +1,54 @@
+id: algo-5-058-binary-search-tree-iterator
+title: 按需翻到下一张卡
+track: algo
+stage: '5'
+order: 580
+format: write
+mode: function
+difficulty: 79
+week: 7
+skills:
+  requires:
+  - algo.bst
+  - algo.class-design
+  - algo.generator
+  - py.list-pop
+  - py.ternary
+  - py.type-convert
+  - py.while
+  introduces: null
+source: top-interview-150
+leetcode: binary-search-tree-iterator
+milestones: []
+entry: run_case
+signature: 'def run_case(root: TreeNode, calls: list[str]) -> list:'
+compare: exact
+time_limit_ms: 800
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 取出后再次压入左子树，遗漏待访问的右侧。
+  code: |
+    class BSTIterator:
+        def __init__(self, root: TreeNode):
+            self.stack = []
+            self._descend(root)
+
+        def _descend(self, node):
+            while node:
+                self.stack.append(node)
+                node = node.left
+
+        def next(self) -> int:
+            node = self.stack.pop()
+            self._descend(node.left)
+            return node.val
+
+        def hasNext(self) -> bool:
+            return bool(self.stack)
+
+
+    def run_case(root: TreeNode, calls: list[str]) -> list:
+        it = BSTIterator(root)
+        return [it.next() if op == "next" else it.hasNext() for op in calls]

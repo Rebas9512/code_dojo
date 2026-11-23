@@ -1,0 +1,31 @@
+id: sql-4-009-days-since-order
+title: 补全：距上一次下单几天
+track: sql
+stage: '4'
+order: 90
+format: complete
+difficulty: 57
+skills:
+  requires: []
+  introduces: sql.lag-lead
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/tied-and-single.sql
+  - db:bookstore + datasets/sample.sql + datasets/unknown-date.sql
+ordered: false
+hints:
+  - 把当前行与前一行的日期摆到两列，再相减。
+wrong_examples:
+  - why: 首单用本日冒充上一日
+    sql: |
+      SELECT user_id, order_id,
+             day - LAG(day, 1, day) OVER (PARTITION BY user_id ORDER BY day NULLS LAST, order_id) AS days_since
+      FROM purchase_log;
+  - why: 忘记按读者分区
+    sql: |
+      SELECT user_id, order_id,
+             day - LAG(day) OVER (ORDER BY day NULLS LAST, order_id) AS days_since
+      FROM purchase_log;

@@ -1,0 +1,24 @@
+id: tensor-1-012-one-column
+title: 给刻度加列轴
+track: tensor
+stage: '1'
+order: 120
+format: complete
+mode: function
+difficulty: 23
+skills:
+  requires:
+    - tensor.singleton
+  introduces: null
+source: original
+entry: one_column
+signature: 'def one_column(values):'
+compare: allclose
+wrong_examples:
+  - why: 把刻度排成了一行。
+    code: |
+      import torch
+
+
+      def one_column(values):
+          return torch.tensor(values).unsqueeze(0)

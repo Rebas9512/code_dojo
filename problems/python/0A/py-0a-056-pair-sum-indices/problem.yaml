@@ -1,0 +1,20 @@
+id: py-0a-056-pair-sum-indices
+title: 两数之和（暴力版）
+track: python
+stage: 0A
+order: 1080
+format: combine
+mode: function
+difficulty: 18
+skills:
+  requires: [py.nested-loop, py.list-basics, py.early-return, py.index-len]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: pair_sum_indices
+signature: "def pair_sum_indices(nums: list[int], target: int) -> list[int]:"
+compare: exact
+hints:
+  - "外层 i 从 0 到 n-1，内层 j 从 i + 1 开始。"
+  - "按这个顺序枚举，第一个找到的就是题目要的那组。"

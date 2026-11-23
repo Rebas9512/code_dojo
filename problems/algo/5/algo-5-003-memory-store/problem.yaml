@@ -1,0 +1,36 @@
+id: algo-5-003-memory-store
+title: 内存键值库第 1 级：写入、查找与删除
+track: algo
+stage: '5'
+order: 30
+format: write
+mode: class
+difficulty: 63
+skills:
+  requires:
+  - algo.class-design
+  - py.dict-get
+  - py.list-pop
+  - py.none
+  introduces: algo.oop-design
+source: original
+leetcode: null
+milestones: []
+entry: MemoryStore
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 删除时把零值误判为不存在。
+  code: |
+    class MemoryStore:
+        def __init__(self):
+            self.records = {}
+
+        def set(self, key: str, value: int) -> None:
+            self.records[key] = value
+
+        def get(self, key: str) -> int | None:
+            return self.records.get(key)
+
+        def delete(self, key: str) -> bool:
+            return self.records.pop(key, None) != 0

@@ -1,0 +1,505 @@
+{
+  "examples": [
+    {
+      "args": [
+        {
+          "columns": [
+            "book_id",
+            "title",
+            "category"
+          ],
+          "data": [
+            [
+              1,
+              "The Silent Harbor",
+              "fiction"
+            ],
+            [
+              2,
+              "Stars Over Gobi",
+              "scifi"
+            ],
+            [
+              3,
+              "Python in Practice",
+              "programming"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "book_id",
+          "title"
+        ],
+        "data": [
+          [
+            2,
+            "Stars Over Gobi"
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "book_id",
+            "title",
+            "category"
+          ],
+          "data": [
+            [
+              5,
+              "The Last Lantern",
+              "fantasy"
+            ],
+            [
+              6,
+              "Little Cloud",
+              "kids"
+            ],
+            [
+              7,
+              "Noodles at Midnight",
+              "cooking"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "book_id",
+          "title"
+        ],
+        "data": []
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        {
+          "columns": [
+            "book_id",
+            "title",
+            "category"
+          ],
+          "data": []
+        }
+      ],
+      "expected": {
+        "columns": [
+          "book_id",
+          "title"
+        ],
+        "data": []
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "book_id",
+            "title",
+            "category"
+          ],
+          "data": [
+            [
+              1,
+              "The Silent Harbor",
+              "fiction"
+            ],
+            [
+              2,
+              "Stars Over Gobi",
+              "scifi"
+            ],
+            [
+              3,
+              "Python in Practice",
+              "programming"
+            ],
+            [
+              4,
+              "A Short History of Tea",
+              "history"
+            ],
+            [
+              5,
+              "The Last Lantern",
+              "fantasy"
+            ],
+            [
+              6,
+              "Little Cloud",
+              "kids"
+            ],
+            [
+              7,
+              "Noodles at Midnight",
+              "cooking"
+            ],
+            [
+              8,
+              "Quantum Garden",
+              "scifi"
+            ],
+            [
+              9,
+              "The Map Maker",
+              "fiction"
+            ],
+            [
+              10,
+              "SQL for Curious Minds",
+              "programming"
+            ],
+            [
+              11,
+              "Dragons of the North",
+              "fantasy"
+            ],
+            [
+              12,
+              "Data at Dawn",
+              "programming"
+            ],
+            [
+              13,
+              "Silk Road Letters",
+              "history"
+            ],
+            [
+              14,
+              "Moon Rabbit",
+              "kids"
+            ],
+            [
+              15,
+              "The Clockwork Sea",
+              "scifi"
+            ],
+            [
+              16,
+              "Spice Atlas",
+              "cooking"
+            ],
+            [
+              17,
+              "Winter Orchard",
+              "fiction"
+            ],
+            [
+              18,
+              "Algorithms, Gently",
+              "programming"
+            ],
+            [
+              19,
+              "Empire of Salt",
+              "history"
+            ],
+            [
+              20,
+              "The Glass Fox",
+              "fantasy"
+            ],
+            [
+              21,
+              "Rainy Season",
+              "fiction"
+            ],
+            [
+              22,
+              "Orbit of Ashes",
+              "scifi"
+            ],
+            [
+              23,
+              "Count with Panda",
+              "kids"
+            ],
+            [
+              24,
+              "Street Food Stories",
+              "cooking"
+            ],
+            [
+              25,
+              "Untitled Poems",
+              "fiction"
+            ],
+            [
+              26,
+              "Rivers and Kings",
+              "history"
+            ],
+            [
+              27,
+              "Data at Dawn",
+              "programming"
+            ],
+            [
+              28,
+              "The Paper Moon",
+              "scifi"
+            ],
+            [
+              29,
+              "Bread & Butter",
+              "cooking"
+            ],
+            [
+              30,
+              "Theory of Tides",
+              "fiction"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "book_id",
+          "title"
+        ],
+        "data": [
+          [
+            2,
+            "Stars Over Gobi"
+          ],
+          [
+            8,
+            "Quantum Garden"
+          ],
+          [
+            15,
+            "The Clockwork Sea"
+          ],
+          [
+            22,
+            "Orbit of Ashes"
+          ],
+          [
+            28,
+            "The Paper Moon"
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "book_id",
+            "title",
+            "category"
+          ],
+          "data": [
+            [
+              1,
+              "The Silent Harbor",
+              "fiction"
+            ],
+            [
+              2,
+              "Stars Over Gobi",
+              "scifi"
+            ],
+            [
+              3,
+              "Python in Practice",
+              "programming"
+            ],
+            [
+              4,
+              "A Short History of Tea",
+              "history"
+            ],
+            [
+              5,
+              "The Last Lantern",
+              "fantasy"
+            ],
+            [
+              6,
+              "Little Cloud",
+              "kids"
+            ],
+            [
+              7,
+              "Noodles at Midnight",
+              "cooking"
+            ],
+            [
+              8,
+              "Quantum Garden",
+              "scifi"
+            ],
+            [
+              9,
+              "The Map Maker",
+              "fiction"
+            ],
+            [
+              10,
+              "SQL for Curious Minds",
+              "programming"
+            ],
+            [
+              11,
+              "Dragons of the North",
+              "fantasy"
+            ],
+            [
+              12,
+              "Data at Dawn",
+              "programming"
+            ],
+            [
+              13,
+              "Silk Road Letters",
+              "history"
+            ],
+            [
+              14,
+              "Moon Rabbit",
+              "kids"
+            ],
+            [
+              15,
+              "The Clockwork Sea",
+              "scifi"
+            ],
+            [
+              16,
+              "Spice Atlas",
+              "cooking"
+            ],
+            [
+              17,
+              "Winter Orchard",
+              "fiction"
+            ],
+            [
+              18,
+              "Algorithms, Gently",
+              "programming"
+            ],
+            [
+              19,
+              "Empire of Salt",
+              "history"
+            ],
+            [
+              20,
+              "The Glass Fox",
+              "fantasy"
+            ],
+            [
+              21,
+              "Rainy Season",
+              "fiction"
+            ],
+            [
+              22,
+              "Orbit of Ashes",
+              "scifi"
+            ],
+            [
+              23,
+              "Count with Panda",
+              "kids"
+            ],
+            [
+              24,
+              "Street Food Stories",
+              "cooking"
+            ],
+            [
+              25,
+              "Untitled Poems",
+              "fiction"
+            ],
+            [
+              26,
+              "Rivers and Kings",
+              "history"
+            ],
+            [
+              27,
+              "Data at Dawn",
+              "programming"
+            ],
+            [
+              28,
+              "The Paper Moon",
+              "scifi"
+            ],
+            [
+              29,
+              "Bread & Butter",
+              "cooking"
+            ],
+            [
+              30,
+              "Theory of Tides",
+              "fiction"
+            ],
+            [
+              31,
+              "Signal From Vega",
+              "scifi"
+            ],
+            [
+              32,
+              "Red Dust Diaries",
+              "scifi"
+            ],
+            [
+              33,
+              "Wizards of Rain",
+              "fantasy"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "book_id",
+          "title"
+        ],
+        "data": [
+          [
+            2,
+            "Stars Over Gobi"
+          ],
+          [
+            8,
+            "Quantum Garden"
+          ],
+          [
+            15,
+            "The Clockwork Sea"
+          ],
+          [
+            22,
+            "Orbit of Ashes"
+          ],
+          [
+            28,
+            "The Paper Moon"
+          ],
+          [
+            31,
+            "Signal From Vega"
+          ],
+          [
+            32,
+            "Red Dust Diaries"
+          ]
+        ]
+      }
+    }
+  ]
+}

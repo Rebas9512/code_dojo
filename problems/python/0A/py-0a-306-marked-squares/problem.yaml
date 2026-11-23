@@ -1,0 +1,26 @@
+id: py-0a-306-marked-squares
+title: 棋盘上标过几格
+track: python
+stage: 0A
+order: 4260
+format: write
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - py.choose-container
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: marked
+signature: 'def marked(points: list[list[int]]) -> int:'
+compare: exact
+wrong_examples:
+  - why: 只保存行号，同一行不同格被合成一格。
+    code: |
+      def marked(points: list[list[int]]) -> int:
+          seen = set()
+          for row, col in points:
+              seen.add(row)
+          return len(seen)

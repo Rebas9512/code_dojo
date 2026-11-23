@@ -1,0 +1,30 @@
+id: math-2-025-balance-two-dials
+title: 调平两个读数
+track: math
+stage: '2'
+order: 250
+format: write
+mode: function
+difficulty: 36
+skills:
+  requires:
+    - math.chain-rule
+    - math.gradient
+    - math.descent
+    - math.vector-arithmetic
+    - math.descent-plane
+  introduces: null
+source: original
+entry: balance_dials
+signature: 'def balance_dials(x: float, y: float, rate: float, steps: int) -> list[float]:'
+compare: float
+wrong_examples:
+  - why: 在半步处重算纵向斜率。
+    code: |
+      def balance_dials(x: float, y: float, rate: float, steps: int) -> list[float]:
+          for i in range(steps):
+              gx = 2*(x-y)
+              gy = -gx
+              x = x - rate*gx
+              y = y - rate*(-2*(x-y))
+          return [x, y]

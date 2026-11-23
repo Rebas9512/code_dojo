@@ -1,0 +1,29 @@
+id: math-3-020-choice-probabilities
+title: 按原顺序交出候选概率
+track: math
+stage: '3'
+order: 200
+format: write
+mode: function
+difficulty: 36
+skills:
+  requires:
+    - py.list-comp
+    - math.exp
+    - math.softmax
+  introduces: null
+source: original
+entry: choice_probs
+signature: 'def choice_probs(scores: list[float]) -> list[float]:'
+compare: float
+wrong_examples:
+  - why: 没有在取指数前减最大值。
+    code: |
+      from math import exp
+
+
+      def choice_probs(scores: list[float]) -> list[float]:
+          peak = max(scores)
+          weights = [exp(s) for s in scores]
+          total = sum(weights)
+          return [w/total for w in weights]

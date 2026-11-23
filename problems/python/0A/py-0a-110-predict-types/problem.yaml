@@ -1,0 +1,17 @@
+id: py-0a-110-predict-types
+title: 字符串还是数字
+track: python
+stage: 0A
+order: 60
+format: predict
+mode: predict
+difficulty: 4
+skills:
+  requires: [py.type-ops]
+  introduces: py.type-convert
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "\"12\" + \"3\" 是把两段文字接起来。"
+  - "float(\"2.5\") * 2 的结果是小数。"

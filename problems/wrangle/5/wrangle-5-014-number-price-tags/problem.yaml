@@ -1,0 +1,18 @@
+id: wrangle-5-014-number-price-tags
+title: 两本同价书怎样编号
+track: wrangle
+stage: '5'
+order: 140
+format: predict
+mode: predict
+difficulty: 40
+skills:
+  requires: []
+  introduces: wrangle.window
+source: original
+wrong_examples:
+  - why: 把需要逐本编号的两本书排成同一名。
+    code: |
+      print('[2, 5, 8]\n[2.0, 2.0, 1.0]')
+sql_twin: sql-4-002-price-row-numbers
+leetcode: rank-scores

@@ -1,0 +1,26 @@
+id: tensor-2-009-dispatch
+title: 把校准值写到指定探头
+track: tensor
+stage: '2'
+order: 90
+format: write
+mode: function
+difficulty: 26
+skills:
+  requires:
+    - tensor.route
+  introduces: null
+source: original
+entry: dispatch
+signature: 'def dispatch(rows, positions, updates):'
+compare: allclose
+wrong_examples:
+  - why: 用统一常数覆盖了各自的修正值。
+    code: |
+      import torch
+
+
+      def dispatch(rows, positions, updates):
+          x = torch.tensor(rows)
+          i = torch.tensor(positions)
+          return torch.scatter(x, 1, i, 0)

@@ -1,0 +1,32 @@
+id: math-1-030-listener-matches
+title: 列出每对听众的共同喜好
+track: math
+stage: '1'
+order: 300
+format: combine
+mode: function
+difficulty: 35
+skills:
+  requires:
+    - py.genexp
+    - py.list-builtins
+    - math.transpose
+    - math.dot
+    - math.matrix-product
+  introduces: null
+source: original
+entry: listener_matches
+signature: 'def listener_matches(tastes: list[list[int]]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+  - why: 把转置后的表又按行配对，矩形表会混淆曲风数和听众数。
+    code: |
+      def listener_matches(tastes: list[list[int]]) -> list[list[int]]:
+          columns = [[row[k] for row in tastes] for k in range(len(tastes[0]))]
+          scores = []
+          for row in tastes:
+              matches = []
+              for j in range(len(tastes)):
+                  matches.append(sum(row[k] * columns[j][k] for k in range(len(row))))
+              scores.append(matches)
+          return scores

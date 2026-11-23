@@ -1,0 +1,264 @@
+id: py-0a-l08-sequences
+title: 整理序列并选择容器
+track: python
+skills:
+  - py.tuple
+  - py.sorted
+  - py.sort-key
+  - py.list-comp
+  - py.dict-set-comp
+  - py.genexp
+  - py.zip
+  - py.ternary
+  - py.choose-container
+steps:
+  - type: read
+    skill: py.tuple
+    md: |
+      坐标需要同时保存横、纵两个数，而且交换两个位置会改变含义。元组是一串有固定位置的数据，写好后不能替换其中某一项。可以用下标取值，也可以按位置把值拆给几个名字。
+
+      函数里写 `return x, y` 会把两项打包。调用者可以先用一个名字接住整包，再写 `a, b = pair`；左右项数需要对应。单项元组要保留逗号，例如 (5,)。
+
+      **“return 一下子交回两个互不相干的值”（PM45）**。交回的是一个元组，之后才由调用者决定是否解包。
+  - type: example
+    skill: py.tuple
+    code: |
+      # ① 两个读数装进一个元组
+      def limits():
+          return -2, 6
+
+
+      # ② 先收整包，再解开
+      pair = limits()
+      print(pair)   # (-2, 6)
+      low, high = pair
+      print(high)   # 6
+    md: 交换 return 后面两个值的位置，再看 high 拿到什么。
+  - type: quiz
+    skill: py.tuple
+    q: 执行 p = limits()，函数体只有 return 2, 9。p[1] 是什么？
+    options:
+      - '9'
+      - (2, 9)
+      - 无法用一个名字接收
+    answer: 0
+    explain: p 接收一个二项元组，下标 1 取第二项 9。
+  - type: read
+    skill: py.sorted
+    md: |
+      整理测量记录时，有时需要保留原来的先后，再另看一份从小到大的排列。sorted(values) 会根据输入建一张新的列表；原列表仍可用于回看测量顺序。加上 reverse=True 就按从大到小排。
+
+      如果可以直接重排手上的列表，就单独调用 values.sort()。之后再按 values 这个名字查看排好的内容。
+
+      **“values.sort() 会把排好的列表交回来”（PM44）**。它在原处完成修改，调用本身交回 None。
+  - type: example
+    skill: py.sorted
+    code: |
+      # ① 保留测量顺序，另排一份
+      values = [6, 1, 4]
+      print(sorted(values))  # [1, 4, 6]
+      print(values)          # [6, 1, 4]
+      # ② 直接重排原表
+      result = values.sort()
+      print(result)          # None
+      print(values)          # [1, 4, 6]
+    md: 给两处排序调用都加上 reverse=True，观察哪些输出改变。
+  - type: quiz
+    skill: py.sorted
+    q: a = [2, 1]；b = a.sort()。b 是什么？
+    options:
+      - '[1, 2]'
+      - '[2, 1]'
+      - None
+    answer: 2
+    explain: 排序后的元素留在 a，sort 本身返回 None。
+  - type: read
+    skill: py.sort-key
+    md: |
+      按词长排队时，比较依据是字母个数，可是排完后还想拿到完整单词。把 len 交给 key，每个单词都会先取到自己的比较值，sorted 最后仍交回原来的那些单词。
+
+      比较依据也可以临时写作 `lambda row: row[1]`，意思是给一行数据就取它的第二项。要有第二条排序规则，让 key 返回一个元组，首项相同时再比下一项。
+
+      **“键相同会自动按拼写分先后”（PM59）**。只有给出的键参与比较，键完全相同就保留输入时的先后。
+  - type: example
+    skill: py.sort-key
+    code: |
+      # ① 准备同长度但拼写顺序不同的词
+      words = ["sun", "z", "ant", "a"]
+      # ② 分别使用一个键和两个键
+      print(sorted(words, key=len))                   # ['z', 'a', 'sun', 'ant']
+      print(sorted(words, key=lambda w: (len(w), w)))  # ['a', 'z', 'ant', 'sun']
+    md: 交换 z 和 a 在输入里的位置，再看两种结果。
+  - type: quiz
+    skill: py.sort-key
+    q: 用 key=len 排 ['to','be']，谁先？
+    options:
+      - be
+      - to
+      - 随机
+    answer: 1
+    explain: 两个键都是 2，稳定排序保留原来的先后。
+  - type: read
+    skill: py.list-comp
+    md: |
+      从很多读数中挑出一部分，再对留下的读数做同一种计算，可以把收集过程写成一个列表推导式。方括号表示最后要收到一张新列表，输入的各项沿原来的顺序接受检查。
+
+      读 `[x * 2 for x in nums if x > 0]` 时，先看 for 从哪里取 x，再看 if 是否让它通过，最后才看左边往新列表放什么。没有要筛掉的元素时可以省略 if。
+
+      **“if 检查的是算完后的新值”（PM60）**。条件里的 x 仍然是这一次从原序列取来的元素。
+  - type: example
+    skill: py.list-comp
+    code: |
+      # ① 取带符号的读数
+      nums = [-2, 0, 3, 3]
+      # ② 只把原来为正的读数翻倍
+      print([x * 2 for x in nums if x > 0])  # [6, 6]
+      print(nums)  # [-2, 0, 3, 3]
+    md: 把条件改为 x >= 0，看看哪个值多出来了。
+  - type: quiz
+    skill: py.list-comp
+    q: '[x*x for x in [-3,2] if x > 0] 得到什么？'
+    options:
+      - '[9, 4]'
+      - '[4]'
+      - '[2]'
+    answer: 1
+    explain: 先检查原始值，只有 2 通过，再平方得到 4。
+  - type: read
+    skill: py.dict-set-comp
+    md: |
+      推导式外面换成花括号时，要看里面准备写什么。每次只交一个元素，结果就是集合，能数出不同元素；每次交 `键: 值`，结果就是字典，适合按键回查。
+
+      例如做一张按首字母查词的表，把词逐张读进去，每次写入首字母和对应的整词。两个词若首字母相同，就会写同一个位置。
+
+      **“字典推导式会自动给重复键保留第一条记录”（PM61）**。每次写入都生效，最后一次写入的值会留下。若要留下所有记录，需要按键收集列表。
+  - type: example
+    skill: py.dict-set-comp
+    code: |
+      # ① 按首字母登记最后一个词
+      words = ["map", "ink", "mud"]
+      last = {word[0]: word for word in words}
+      # ② 只收集不同的首字母
+      initials = {word[0] for word in words}
+      print(last["m"])     # mud
+      print(len(initials))  # 2
+    md: 把 mud 移到列表开头，比较两行输出。
+  - type: quiz
+    skill: py.dict-set-comp
+    q: '{w[0]: w for w in [''red'',''ray'']} 中 r 对应什么？'
+    options:
+      - red
+      - ray
+      - '[''red'', ''ray'']'
+    answer: 1
+    explain: 两次写到同一个键；第二个值 ray 覆盖第一个。
+  - type: read
+    skill: py.genexp
+    md: |
+      如果只想知道有没有一个坏读数，不一定要把每个判断结果都存成列表。写 `any(x < 0 for x in nums)` 可以逐个产生真假值，一遇到 True 就知道答案；all 则在遇到第一个 False 时停止。
+
+      把 all 读成“找不到反例”，把 any 读成“找得到一个例子”。当输入为空，两个查找都没有走进元素里，但各自的结论仍能确定。
+
+      **“空列表没有通过的项目，所以 all 一定为假”（PM62）**。它也没有任何反例，因此 all 对空输入为真。
+  - type: example
+    skill: py.genexp
+    code: |
+      # ① 空批次里寻找一件不合格品
+      batch = []
+      print(any(x < 0 for x in batch))   # False
+      # ② 检查有没有违反合格条件的项目
+      print(all(x >= 0 for x in batch))  # True
+    md: 把 batch 改成 [0, -1] 再检验两句判断。
+  - type: quiz
+    skill: py.genexp
+    q: 一条读数都没有，all(x > 3 for x in []) 的结果是什么？
+    options:
+      - 'True'
+      - 'False'
+      - 报错
+    answer: 0
+    explain: 空输入里没有一项使条件为假。
+  - type: read
+    skill: py.zip
+    md: |
+      一张纸记人名，另一张纸按同样的位置记分数。zip 可以让两张纸从头一起往下读，每次从每张纸各取一项，给出一个元组。配上 for name, score 就能给这两项分别起名。
+
+      如果需要保存所有配对结果，可以用 list(zip(names, scores))。同时检查两列：有任意一列用完，就再也凑不出完整的一对。
+
+      **“较短的一列会自动补 None”（PM63）**。普通 zip 会在较短列用完时结束，长列的尾部没有配对项。
+  - type: example
+    skill: py.zip
+    code: |
+      # ① 对齐两列的开头
+      names = ["雪", "雨"]
+      scores = [5]
+      # ② 收下能凑齐的配对
+      pairs = list(zip(names, scores))
+      print(pairs)  # [('雪', 5)]
+    md: 在 scores 末尾追加 0，再看第二个名字有没有搭档。
+  - type: quiz
+    skill: py.zip
+    q: 一列长 4，一列长 2，list(zip(a, b)) 有几项？
+    options:
+      - '4'
+      - '2'
+      - '6'
+    answer: 1
+    explain: 两个位置都要能取到元素才有一对，配完第二对就停。
+  - type: read
+    skill: py.ternary
+    md: |
+      一条判断有时只为选出一个值，例如温度低于零用“冷”，其余用“常温”。可以把选择放进赋值或返回值里，写成 `'冷' if t < 0 else '常温'`。
+
+      阅读时先找中间的判断。成立就取 if 左边的值，否则取 else 右边的值。每次只求选中的那一边，所以能把需要有效除数的运算留在合适的分支。
+
+      **“左右两边都会先算一遍”（PM64）**。没有被选中的那一边不会运行，里面的函数调用也不会发生。
+  - type: example
+    skill: py.ternary
+    code: |
+      # ① 用份数决定能不能平分
+      pieces = 0
+      # ② 有份数才实际计算
+      share = 12 // pieces if pieces > 0 else 0
+      print(share)  # 0
+    md: 把 pieces 改成 3，再看实际计算出的份额。
+  - type: quiz
+    skill: py.ternary
+    q: 当 n = 0 时，10 // n if n else 7 得到什么？
+    options:
+      - 除零报错
+      - '0'
+      - '7'
+    answer: 2
+    explain: 条件为假，只计算 else 后面的 7。
+  - type: read
+    skill: py.choose-container
+    md: |
+      选择容器之前，先问之后怎么把数据取回来。取第几次打卡需要保留先后和重复；按名字查最后一次打卡适合让名字当键；只数不同来客时，相同名字可以合并。
+
+      | 容器 | 有序吗 | 能改吗 | 能重复吗 | 按什么取 |
+      | --- | --- | --- | --- | --- |
+      | 列表 list | 有位置顺序 | 可增删、替换 | 元素可重复 | 整数下标 |
+      | 元组 tuple | 有位置顺序 | 位置固定，不能替换元素 | 元素可重复 | 整数下标或解包 |
+      | 字典 dict | 保留键的插入顺序 | 可增删、更新 | 键唯一，值可重复 | 键 |
+      | 集合 set | 无位置顺序 | 可增删 | 元素唯一 | 用 in 判断成员 |
+
+      同一个整数坐标的两个位置含义固定，元组可以把它们一起放进集合。**“每种容器都能保留原始记录，换过去随时能还原”（PM65）**。只存成员时，同一个人刷了几次已经无从得知。
+  - type: example
+    skill: py.choose-container
+    code: |
+      # ① 列表留下每次刷卡
+      log = ["林", "叶", "林"]
+      # ② 比较不同人数和最后一个位置
+      print(len(set(log)))  # 2
+      print(log[-1])        # 林
+    md: 交换前两次打卡，再试着只凭集合回答第一个人是谁。
+  - type: quiz
+    skill: py.choose-container
+    q: 丢掉原始打卡列表，只保留到场者集合，还能回答哪个问题？
+    options:
+      - 林刷了几次卡
+      - 谁最后打卡
+      - 叶有没有来过
+    answer: 2
+    explain: 集合保留成员身份，能用 in 查叶。不同的打卡顺序和次数可以得到完全相同的集合。

@@ -1,0 +1,24 @@
+id: data-0-l01-books
+title: 看一张图书表
+track: data
+skills: [data.column-key]
+steps:
+  - type: read
+    skill: data.column-key
+    md: |
+      一本书占一行，表头写着每一列记录的内容。书名一样时，可以看编号来区别它们。
+  - type: example
+    skill: data.column-key
+    data:
+      kind: table
+      title: 图书登记
+      file: register.csv
+    md: 把 CSV 里最后一本书的书名改成“远山”，再切回表格找一找。
+  - type: example
+    skill: data.column-key
+    data:
+      kind: json
+      title: 另一份登记
+      content: |
+        [{"编号": "B1", "原价": 39.80, "条码": 9876543210987654321, "版本": {"年份": 2025}}]
+    md: 切到 CSV，找到编号所在的列。

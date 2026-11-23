@@ -1,0 +1,19 @@
+id: py-0a-022-factorial
+title: 阶乘
+track: python
+stage: 0A
+order: 460
+format: variant
+mode: function
+difficulty: 9
+skills:
+  requires: [py.accumulator]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: factorial
+signature: "def factorial(n: int) -> int:"
+compare: exact
+hints:
+  - "累乘的初始值是 1，不是 0。"

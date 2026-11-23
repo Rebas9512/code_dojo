@@ -1,0 +1,25 @@
+id: tensor-3-006-day-bills
+title: 每天按当天单价结算
+track: tensor
+stage: '3'
+order: 60
+format: write
+mode: function
+difficulty: 30
+skills:
+  requires:
+    - tensor.batch-contract
+    - tensor.contract
+  introduces: null
+source: original
+entry: day_bills
+signature: 'def day_bills(a, p):'
+compare: checker
+wrong_examples:
+  - why: 合计了日期，丢失当天的小计。
+    code: |
+      import torch
+
+
+      def day_bills(a, p):
+          return torch.einsum("bij,bj->i", a, p)

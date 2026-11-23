@@ -1,0 +1,28 @@
+id: sql-1-003-books-per-category
+title: 补全：分类书目数
+track: sql
+stage: '1'
+order: 30
+format: complete
+difficulty: 18
+skills:
+  requires:
+    - sql.count
+    - sql.select-expr
+  introduces: sql.group-by
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/tied-categories.sql
+  - db:bookstore + datasets/out-of-stock.sql
+ordered: false
+hints:
+  - 先按分类放成几堆，再数各堆的记录。
+wrong_examples:
+  - why: 把库存册数当成书目数
+    sql: |
+      SELECT category, SUM(stock) AS book_count
+      FROM books
+      GROUP BY category;

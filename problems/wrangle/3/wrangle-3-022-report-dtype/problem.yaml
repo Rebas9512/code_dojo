@@ -1,0 +1,26 @@
+id: wrangle-3-022-report-dtype
+title: 检查可空数量的存储类型
+track: wrangle
+stage: '3'
+order: 220
+format: complete
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - wrangle.cast
+    - py.type-convert
+    - wrangle.missing
+  introduces: null
+source: original
+entry: storage
+signature: 'def storage(t):'
+compare: exact
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 报告了读入时的类型，缺失使普通整数列变成浮点。
+    code: |
+      def storage(t):
+          return [str(t['n'].dtype), len(t['n'].dropna())]

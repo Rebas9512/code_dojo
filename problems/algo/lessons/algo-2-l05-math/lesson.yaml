@@ -1,0 +1,56 @@
+id: algo-2-l05-math
+title: 让余数把问题缩小
+track: algo
+skills:
+- algo.math-module
+steps:
+- type: read
+  skill: algo.math-module
+  md: |-
+    当题目要求“等长分段、同时整除、最短重复周期”时，先考虑最大公约数。a 除以 b 有余数 r，能同时整除 a、b 的数也整除 r，因为 r 是 a 减去若干个 b；反过来，能整除 b、r 的数也整除 a。所以把一对数换成 (b,r)，公约数集合保持原样。
+
+    余数总比正除数小。循环到第二个数为 0，留下的第一个数就是答案。对正整数，除法轮数为 O(log(min(a,b)+1))；逐个尝试可能的长度要多做很多次除法。Python 的 math.gcd 能直接算这个结果，math.isqrt 则能求非负整数平方根的整数部分。
+
+    **只要两个字符串的长度有公约数，就有共同底纹**会漏掉内容条件。AB 与 AC 都长 2，却连一个相同字母都无法重复出这两串。处理字符或坐标时，先检查几何或排列条件，再做数值计算。
+- type: example
+  skill: algo.math-module
+  code: |
+    import math
+
+    # ① 写下要同时整除的两段长度
+    a, b = 30, 18
+    while b:
+        # ② 用除数和余数替换原来的一对
+        print(a, b, a % b)
+        a, b = b, a % b
+    # ③ 余数为零时验算最后的除数
+    print(a, math.gcd(30, 18))
+
+    # 输出
+    # 30 18 12
+    # 18 12 6
+    # 12 6 0
+    # 6 6
+  md: |-
+    | 正除数 | 18 | 12 | 6 |
+    |---|---:|---:|---:|
+    | 余数 | 12 | 6 | 0 |
+
+    把两处输入都改成 18 和 6，看第一次取余为零时留下哪个数。
+- type: quiz
+  skill: algo.math-module
+  q: 从 (12,6) 做一轮替换，循环退出时 a 的值是多少？
+  options:
+  - '0'
+  - '6'
+  - '12'
+  answer: 1
+  explain: 这轮赋值产生 (6,0)，最后能整除两段的是 6。
+- type: quiz
+  skill: algo.math-module
+  q: 两条不同的三字母串，能仅凭长度判断它们共享长度 3 的底纹吗？
+  options:
+  - 能，3 整除两者长度
+  - 还要核对内容
+  answer: 1
+  explain: 长度 3 的底纹要分别重复一次，因此两个原串本身必须相同。

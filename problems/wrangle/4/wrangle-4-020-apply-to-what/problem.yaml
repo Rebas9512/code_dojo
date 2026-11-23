@@ -1,0 +1,17 @@
+id: wrangle-4-020-apply-to-what
+title: 传进小函数的是哪一个数
+track: wrangle
+stage: '4'
+order: 200
+format: predict
+mode: predict
+difficulty: 38
+skills:
+  requires:
+    - py.minmax-abs
+  introduces: wrangle.apply
+source: original
+wrong_examples:
+  - why: 把逐格变换当成全列汇总。
+    code: |
+      print('[8]')

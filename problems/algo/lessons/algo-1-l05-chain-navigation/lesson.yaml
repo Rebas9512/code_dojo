@@ -1,0 +1,108 @@
+id: algo-1-l05-chain-navigation
+title: 快慢指针与双向链
+track: algo
+skills:
+- algo.fast-slow
+- algo.doubly-linked
+steps:
+- type: read
+  skill: algo.fast-slow
+  md: |
+    链上没有长度刻度。可以让两个指针同时出发，slow 一次走一格，fast 一次走两格。无环时，fast 走完整条链，slow 大致走了一半。每轮先检查 fast 和 fast.next，确保两步都能安全求值；偶数长度时，从同一格起步的模板落在靠后的中点。
+
+    如果链有环，两个指针都进环后，快指针每轮比慢指针多走一格，一圈内会追到同一个节点。找中点和判环都只花 O(n) 时间、O(1) 空间。**两个值相同就是相遇**会在不同格都存 7 时误判；应在走过一步后判断 slow is fast。
+- type: example
+  skill: algo.fast-slow
+  code: |
+    # ① 两个游标从同一个节点出发
+    class ListNode:
+        def __init__(self, val, following=None):
+            self.val = val
+            self.next = following
+
+    head = ListNode(3, ListNode(6, ListNode(9, ListNode(2))))
+    slow = fast = head
+    # ② 快游标有路才让两者前进
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+    # ③ 读出靠后的中点
+    print(slow.val)
+
+    # 输出
+    # 9
+  md: |-
+    | 轮数 | slow | fast |
+    |---|---|---|
+    | 0 | 3 | 3 |
+    | 1 | 6 | 9 |
+    | 2 | 9 | 空 |
+
+    删去值为 2 的末节点，再看奇数长度的中点。
+- type: quiz
+  skill: algo.fast-slow
+  q: 互不相同的两个节点的 val 都是 7，可以断定有环吗？
+  options:
+  - 可以
+  - 不可以，要比较节点身份
+  answer: 1
+  explain: 相等的是格子里写的数；只有指向同一格才叫相遇。
+- type: quiz
+  skill: algo.fast-slow
+  q: 如果一开始就检查 slow is fast，会得出什么？
+  options:
+  - 每条非空链都会被误判为有环
+  - 仅环入口在头部时才为真
+  answer: 0
+  explain: 开始时两个指针本来就指向 head，要先移动再检查。
+- type: read
+  skill: algo.doubly-linked
+  md: |
+    只知道一个中间节点时，单向链找不到它的前一格。双向链给每格再加一根 prev 箭头；相邻的两格必须互相指回。把中间一格摘去，只需找出它的左右邻居，让左边的 next 指向右边，右边的 prev 指向左边。头尾各加一个哨兵，真节点就总有一对邻居。
+
+    再用字典把编号映射到节点，从编号找到节点平均 O(1)，摘下和插入也只改常数根箭头。LRU 缓存就能把刚访问的节点移到头部。**只修 next** 会让从头向后读看起来正常，但下一次从尾部倒走会遇到已经摘走的节点。
+- type: example
+  skill: algo.doubly-linked
+  code: |
+    # ① 先给每格配两根箭头
+    class ListNode:
+        def __init__(self, val):
+            self.val = val
+            self.prev = self.next = None
+
+    first, middle, last = ListNode(8), ListNode(3), ListNode(5)
+    first.next, middle.prev = middle, first
+    middle.next, last.prev = last, middle
+    by_key = {3: middle}
+    # ② 按键找到节点，接通它的两个邻居
+    node = by_key.pop(3)
+    node.prev.next = node.next
+    node.next.prev = node.prev
+    # ③ 两个方向都检查
+    print(first.next.val, last.prev.val)
+
+    # 输出
+    # 5 8
+  md: |-
+    | 时刻 | 8 的后继 | 5 的前驱 |
+    |---|---:|---:|
+    | 摘除前 | 3 | 3 |
+    | 两根箭头都接好后 | 5 | 8 |
+
+    只注释掉 node.next.prev = node.prev，看看哪一方向还能遇到 3。
+- type: quiz
+  skill: algo.doubly-linked
+  q: 只写 node.prev.next = node.next，倒走时会看到什么？
+  options:
+  - 被删节点可能仍是后继的前驱
+  - 两条箭头都会自动更新
+  answer: 0
+  explain: next 和 prev 是两个独立属性，必须分别修改。
+- type: quiz
+  skill: algo.doubly-linked
+  q: 只有要删除的键，没有键到节点的索引，定位仍能保证 O(1) 吗？
+  options:
+  - 能，双向就够了
+  - 不能，还可能逐格查找
+  answer: 1
+  explain: 双向连接让已知节点易于摘除，定位按键查找还需要字典。

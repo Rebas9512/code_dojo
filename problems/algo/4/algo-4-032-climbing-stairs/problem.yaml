@@ -1,0 +1,35 @@
+id: algo-4-032-climbing-stairs
+title: 走到第 n 级有几种步序
+track: algo
+stage: '4'
+order: 320
+format: write
+mode: function
+difficulty: 68
+skills:
+  requires:
+  - algo.dp-1d
+  - py.multi-assign
+  introduces: null
+source: neetcode250
+leetcode: climbing-stairs
+milestones:
+- blind75
+- top100
+entry: climb
+signature: 'def climb(n: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 漏掉起点处尚未走步的那一种方案。
+  code: |
+    def climb(n: int) -> int:
+        previous, current = 0, 1
+        for step in range(2, n + 1):
+            previous, current = current, previous + current
+        return current
+- why: 分别计算两条来路，每次都重新展开相同台阶的调用树。
+  code: |
+    def climb(n: int) -> int:
+        if n < 2:
+            return 1
+        return climb(n - 1) + climb(n - 2)

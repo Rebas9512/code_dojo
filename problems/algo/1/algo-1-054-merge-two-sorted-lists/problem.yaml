@@ -1,0 +1,42 @@
+id: algo-1-054-merge-two-sorted-lists
+title: 把两条有序链拼成一条
+track: algo
+stage: '1'
+order: 540
+format: write
+mode: function
+difficulty: 59
+skills:
+  requires:
+  - py.bool-ops
+  - py.two-index
+  - algo.ll-dummy
+  introduces: null
+source: neetcode250
+leetcode: merge-two-sorted-lists
+milestones:
+- blind75
+- top100
+entry: merge_lists
+signature: 'def merge_lists(a: ListNode | None, b: ListNode | None) -> ListNode | None:'
+compare: exact
+convert:
+  args:
+    '0': listnode
+    '1': listnode
+  returns: listnode
+wrong_examples:
+- why: 只接共同处理的部分，遗漏较长一边的尾部。
+  code: |
+    def merge_lists(a: ListNode | None, b: ListNode | None) -> ListNode | None:
+        dummy = tail = ListNode()
+        while a and b:
+            if a.val <= b.val:
+                tail.next = a
+                a = a.next
+            else:
+                tail.next = b
+                b = b.next
+            tail = tail.next
+        tail.next = None
+        return dummy.next

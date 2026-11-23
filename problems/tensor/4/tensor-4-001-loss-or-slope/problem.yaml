@@ -1,0 +1,16 @@
+id: tensor-4-001-loss-or-slope
+title: 数值和斜率各占几格
+track: tensor
+stage: '4'
+order: 10
+format: predict
+mode: predict
+difficulty: 32
+skills:
+  requires: []
+  introduces: tensor.backward
+source: original
+wrong_examples:
+  - why: 把逐项平方当成了平方和的斜率。
+    code: |
+      print('(2,) ()\n[4.0, 9.0]')

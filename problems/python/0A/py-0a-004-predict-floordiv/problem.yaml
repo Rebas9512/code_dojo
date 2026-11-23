@@ -1,0 +1,18 @@
+id: py-0a-004-predict-floordiv
+title: 整除和取余
+track: python
+stage: 0A
+order: 130
+format: predict
+mode: predict
+difficulty: 3
+skills:
+  requires: [py.var-arith]
+  introduces: py.floordiv-mod
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "17 = 5 × 3 + 2。"
+  - "n // 100 是 12，再 % 10。"
+  - "-3.5 向下取整是 -4。"

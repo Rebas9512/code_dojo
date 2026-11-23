@@ -1,0 +1,25 @@
+id: data-0-017-locate-a-cell
+title: 定位一个格子
+track: data
+stage: '0'
+order: 170
+format: inspect
+mode: inspect
+difficulty: 6
+skills:
+  requires:
+    - data.shapes
+  introduces: null
+data:
+  - kind: table
+    title: 图书价格与页数
+    file: books.csv
+answer:
+  type: short
+  accept:
+    - '2'
+    - 二
+    - 两个
+  misconceptions:
+    '1': DM08
+explain: 在表中先指定哪一行，再指定这一行的哪一列。一列有三个格子时，只报列仍不知道要哪本书。

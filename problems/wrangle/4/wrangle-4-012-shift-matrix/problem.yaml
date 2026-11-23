@@ -1,0 +1,27 @@
+id: wrangle-4-012-shift-matrix
+title: 把两班总量排成并列两列
+track: wrangle
+stage: '4'
+order: 120
+format: complete
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - wrangle.pivot
+  introduces: null
+source: original
+entry: shift_totals
+signature: 'def shift_totals(t):'
+compare: frame
+leetcode: reshape-data-pivot
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 把多笔数据平均了。
+    code: |
+      def shift_totals(t):
+          return t.pivot_table(index='shop', columns='shift', values='n', aggfunc='mean', fill_value=0).reset_index()

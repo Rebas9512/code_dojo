@@ -1,0 +1,19 @@
+id: py-0a-109-write-price-tag
+title: 价签
+track: python
+stage: 0A
+order: 160
+format: write
+mode: function
+difficulty: 6
+skills:
+  requires: [py.fstring, py.func-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: price_tag
+signature: "def price_tag(name: str, price: float) -> str:"
+compare: exact
+hints:
+  - "用 f-string，{price:.2f} 保留两位小数。"

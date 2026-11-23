@@ -1,0 +1,150 @@
+id: algo-1-l01-hash-lookups
+title: 查找、次数与位置
+track: algo
+skills:
+- algo.hash-seen
+- algo.counter
+- algo.hash-index-map
+steps:
+- type: read
+  skill: algo.hash-seen
+  md: |
+    如果每来一个号码，都要判断它有没有出现过，可以留一张只记号码的表。用集合建这张表：每轮开始时，它恰好装着之前读到的不同号码。先问当前号码在不在，再把新号码放进去。发现重复时就能停下。
+
+    查一遍列表最多要比 n 次，连续查 n 个号码就可能比上约 n² 次。整数集合的一次查询平均只需常数时间，整个过程平均 O(n)，代价是最多存 n 个号码。**先加再查**会让第一次进来的号码也命中。如果问题要问“第几次出现”，只存号码就不够了。
+- type: example
+  skill: algo.hash-seen
+  code: |
+    # ① 从空记录开始
+    seen = set()
+    for ticket in [8, 3, 8]:
+        # ② 先看是否已经登记
+        print(ticket, ticket in seen)
+        # ③ 登记本轮号码
+        seen.add(ticket)
+
+    # 输出
+    # 8 False
+    # 3 False
+    # 8 True
+  md: |-
+    | 本轮号码 | 查之前已经登记 |
+    |---|---|
+    | 8 | 空 |
+    | 3 | 8 |
+    | 8 | 8、3 |
+
+    把最后一个 8 改为 6，观察第三行。
+- type: quiz
+  skill: algo.hash-seen
+  q: 把 add 挪到 print 上面，第一行的判断会怎样？
+  options:
+  - 仍为 False
+  - 变为 True
+  - 集合里出现两个 8
+  answer: 1
+  explain: 先登记后查询时，自己刚放进去的号码一定能找到。
+- type: quiz
+  skill: algo.hash-seen
+  q: 连续查找 n 个互异号码在哪种写法下往往要反复扫描？
+  options:
+  - 在越来越长的列表里用 in
+  - 在整数集合里用 in
+  answer: 0
+  explain: 列表查不到时必须从头试到尾，历次扫描的长度是 0、1、2……。
+- type: read
+  skill: algo.counter
+  md: |
+    整理字母时，“有哪些”和“每个有多少”是两个问题。Counter 按元素建一张计数表，读一个字符就给它对应的数字加一。处理完前 i 个字符后，表里记录的正是这 i 个字符各自的数量。找不到的字符用下标读取时会得到 0。
+
+    两块字牌可以重排成彼此，条件是所有字母的数量都相同，顺序可以不同。建表平均 O(n)，比较两张表还要查看不同的键。**集合一样就可以重排**会在 aab 和 abb 上失效。若还要还原各个字母原本在哪个位置，计数表没有保存位置。
+- type: example
+  skill: algo.counter
+  code: |
+    from collections import Counter
+
+    # ① 清点两袋字母
+    left = Counter("aab")
+    right = Counter("abb")
+    # ② 对照同一字母的数量
+    print(left["a"], right["a"])
+    print(left["z"])
+    # ③ 比较整袋
+    print(left == right)
+
+    # 输出
+    # 2 1
+    # 0
+    # False
+  md: |-
+    | 字母 | 左袋 | 右袋 |
+    |---|---:|---:|
+    | a | 2 | 1 |
+    | b | 1 | 2 |
+
+    把右袋改成 baa，再看最后一行。
+- type: quiz
+  skill: algo.counter
+  q: Counter("书书笔")["纸"] 的结果是什么？
+  options:
+  - None
+  - '0'
+  - 抛出 KeyError
+  answer: 1
+  explain: 计数表把从未见过的元素按零次读出。
+- type: quiz
+  skill: algo.counter
+  q: 想检查“书书笔”和“书笔笔”能否互相重排，哪份记录足够？
+  options:
+  - 各自出现过的字
+  - 每个字的数量
+  answer: 1
+  explain: 两个集合都只有书和笔，数量却不同。
+- type: read
+  skill: algo.hash-index-map
+  md: |
+    要回答“那个数出现在哪”，可让数字当字典的键，下标当它对应的值。每读到一个数，就决定保留最早的位置还是用本次位置覆盖。目标是第一次出现时，只有新键才能写入；每一轮过后，已有键的位置都指向它最早的那次出现。
+
+    用这张表找两数之和时，先算“还差多少”，向表查询以前的位置，再登记当前项。这样一次查询平均 O(1)，一趟平均 O(n)。**先登记再配对**可能让位置 0 和自己配成一对。只存值的集合能判断存在，却交不出下标。
+- type: example
+  skill: algo.hash-index-map
+  code: |
+    # ① 表中只放已经走过的位置
+    positions = {}
+    target = 10
+    for i, value in enumerate([5, 2, 8]):
+        # ② 查补数的位置
+        need = target - value
+        if need in positions:
+            print(positions[need], i)
+            break
+        # ③ 登记自己
+        positions[value] = i
+
+    # 输出
+    # 1 2
+  md: |-
+    | 当前值 | 补数 | 查之前的表 |
+    |---|---|---|
+    | 5 | 5 | 空 |
+    | 2 | 8 | 5→0 |
+    | 8 | 2 | 5→0，2→1 |
+
+    把输入换成 [5, 5]，看看配出的是哪两个位置。
+- type: quiz
+  skill: algo.hash-index-map
+  q: '字典已经是 {9: 0, 4: 1}，数字 4 位于哪里？'
+  options:
+  - 下标 4
+  - 下标 1
+  - 下标 0
+  answer: 1
+  explain: 以数为键，读 positions[4] 得到位置 1。
+- type: quiz
+  skill: algo.hash-index-map
+  q: 目标 10，第一个数为 5。怎样避免交回 [0, 0]？
+  options:
+  - 先登记 5 再查 5
+  - 先查以前的表，没配成才登记
+  answer: 1
+  explain: 以前的表里只有更早的位置，不可能使用同一下标两次。

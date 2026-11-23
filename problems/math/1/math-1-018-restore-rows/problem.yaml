@@ -1,0 +1,26 @@
+id: math-1-018-restore-rows
+title: 解开按列发送的数据包
+track: math
+stage: '1'
+order: 180
+format: write
+mode: function
+difficulty: 28
+skills:
+  requires:
+    - py.list-comp
+    - math.matrix-shape
+    - math.transpose
+  introduces: null
+source: original
+entry: restore_rows
+signature: 'def restore_rows(columns: list[list[int]]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+  - why: 把收到的包继续当作行。
+    code: |
+      def restore_rows(columns: list[list[int]]) -> list[list[int]]:
+          rows = []
+          for r in range(len(columns[0])):
+              rows.append(columns[r])
+          return rows

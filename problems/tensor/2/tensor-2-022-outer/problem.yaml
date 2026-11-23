@@ -1,0 +1,46 @@
+id: tensor-2-022-outer
+title: 为每对读数算乘积
+track: tensor
+stage: '2'
+order: 220
+format: write
+mode: function
+difficulty: 33
+skills:
+  requires:
+    - tensor.coordinates
+  introduces: null
+source: original
+entry: outer
+signature: 'def outer(a, b):'
+compare: checker
+wrong_examples:
+  - why: 直接调用现成运算，跳过了坐标构造。
+    code: |
+      import torch
+
+
+      def outer(a, b):
+          return torch.outer(a, b)
+  - why: 把第一串读数放在列轴，交换了两轴。
+    code: |
+      import torch
+
+
+      def outer(a, b):
+          return b[:, None] * a[None, :]
+constraints:
+  no_loops: true
+  forbid_calls:
+    - torch.outer
+    - torch.ger
+    - torch.einsum
+    - torch.matmul
+    - torch.mm
+    - torch.Tensor.outer
+    - torch.Tensor.ger
+    - torch.Tensor.matmul
+    - torch.Tensor.mm
+  forbid_imports:
+    - numpy
+    - pandas

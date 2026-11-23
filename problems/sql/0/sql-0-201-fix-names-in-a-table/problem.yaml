@@ -1,0 +1,29 @@
+id: sql-0-201-fix-names-in-a-table
+title: 整理读者名册的大小写
+track: sql
+stage: "0"
+order: 410
+format: write
+difficulty: 17
+skills:
+  requires: [sql.string-funcs, sql.order-by]
+  introduces: null
+source: sql50
+leetcode: fix-names-in-a-table
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/mixed-case.sql
+  - datasets/sample.sql + datasets/shared-names.sql
+ordered: true
+hints:
+  - 把第一个字符和从第二个字符开始的部分分别处理，再拼起来。
+wrong_examples:
+  - why: 只改首字母，保留了后面原有的大写字母。
+    sql: |
+      SELECT user_id, UPPER(LEFT(name, 1)) || SUBSTRING(name FROM 2) AS name
+      FROM users ORDER BY user_id;
+  - why: 把名册按整理后的姓名排序。
+    sql: |
+      SELECT user_id, UPPER(LEFT(name, 1)) || LOWER(SUBSTRING(name FROM 2)) AS name
+      FROM users ORDER BY name, user_id;

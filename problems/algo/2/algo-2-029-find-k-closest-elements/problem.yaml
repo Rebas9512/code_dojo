@@ -1,0 +1,32 @@
+id: algo-2-029-find-k-closest-elements
+title: 留下距离刻度最近的 k 项
+track: algo
+stage: '2'
+order: 290
+format: write
+mode: function
+difficulty: 57
+skills:
+  requires:
+  - algo.two-pointers
+  - algo.window-variable
+  - py.if-else
+  - py.slice
+  introduces: null
+source: neetcode250
+leetcode: find-k-closest-elements
+milestones: []
+entry: closest
+signature: 'def closest(arr: list[int], k: int, x: int) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 等距时错删掉较小值。
+  code: |
+    def closest(arr: list[int], k: int, x: int) -> list[int]:
+        left, right = 0, len(arr) - 1
+        while right - left + 1 > k:
+            if abs(arr[left] - x) < abs(arr[right] - x):
+                right -= 1
+            else:
+                left += 1
+        return arr[left:right + 1]

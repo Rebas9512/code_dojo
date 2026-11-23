@@ -1,0 +1,29 @@
+id: py-0a-391-hanoi-steps
+title: 记录汉诺塔的每一步
+track: python
+stage: 0A
+order: 5110
+format: combine
+mode: function
+difficulty: 25
+skills:
+  requires:
+    - py.list-concat-repeat
+    - py.recursion-multi
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: hanoi
+signature: 'def hanoi(n: int, start: str, spare: str, end: str) -> list[str]:'
+compare: exact
+wrong_examples:
+  - why: 最后一段仍从原起点出发，临时柱上的圆盘没有被搬走。
+    code: |
+      def hanoi(n: int, start: str, spare: str, end: str) -> list[str]:
+          if n == 0:
+              return []
+          before = hanoi(n - 1, start, end, spare)
+          move = [start + "→" + end]
+          after = hanoi(n - 1, start, spare, end)
+          return before + move + after

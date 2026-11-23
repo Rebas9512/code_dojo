@@ -1,0 +1,43 @@
+id: algo-3-043-car-pooling
+title: 顺路接送会超员吗
+track: algo
+stage: '3'
+order: 430
+format: write
+mode: function
+difficulty: 60
+skills:
+  requires:
+  - algo.heapq
+  - py.bool-ops
+  - py.early-return
+  - py.nested-list
+  - py.sort-key
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: car-pooling
+milestones: []
+entry: fits
+signature: 'def fits(trips: list[list[int]], capacity: int) -> bool:'
+compare: exact
+wrong_examples:
+- why: 满座也判成超员。
+  code: |
+    import heapq
+
+
+    def fits(trips: list[list[int]], capacity: int) -> bool:
+        onboard = []
+        riding = 0
+        for people, start, stop in sorted(trips, key=lambda trip: trip[1]):
+            while onboard and onboard[0][0] <= start:
+                _, leaving = heapq.heappop(onboard)
+                riding -= leaving
+            riding += people
+            if riding >= capacity:
+                return False
+            heapq.heappush(onboard, (stop, people))
+        return True
+hints:
+- 按上车站排序，让已载乘客按下车站排在堆里。上车前要清掉哪些乘客？

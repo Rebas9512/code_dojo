@@ -1,0 +1,16 @@
+id: wrangle-1-017-axis-length
+title: 每个时段还剩几个总数
+track: wrangle
+stage: '1'
+order: 170
+format: predict
+mode: predict
+difficulty: 21
+skills:
+  requires: []
+  introduces: wrangle.axis
+source: original
+wrong_examples:
+  - why: 保留了被聚合的轴。
+    code: |
+      print('(2,)')

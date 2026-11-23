@@ -1,0 +1,17 @@
+id: tensor-2-019-source-grid
+title: 横竖坐标会亮起哪些格
+track: tensor
+stage: '2'
+order: 190
+format: predict
+mode: predict
+difficulty: 31
+skills:
+  requires:
+    - tensor.reshape
+  introduces: tensor.coordinates
+source: original
+wrong_examples:
+  - why: 把竖着排列的行号当成第二张横排。
+    code: |
+      print('(1, 3)\n[[True, True, True]]')

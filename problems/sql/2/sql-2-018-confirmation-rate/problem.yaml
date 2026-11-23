@@ -1,0 +1,53 @@
+id: sql-2-018-confirmation-rate
+title: 每个账号的验证通过率
+track: sql
+stage: '2'
+order: 180
+format: combine
+difficulty: 36
+skills:
+  requires:
+    - sql.left-join
+    - sql.join-aggregate
+    - sql.conditional-agg
+    - sql.sum-avg
+    - sql.count
+    - sql.nullif
+    - sql.coalesce
+    - sql.round-cast
+  introduces: null
+source: sql50
+leetcode: confirmation-rate
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/no-requests.sql
+  - datasets/sample.sql + datasets/repeated-outcome.sql
+ordered: false
+hints:
+  - 分母数请求编号。看看没有请求的账号，在连接后的那一行有什么值。
+wrong_examples:
+  - why: 删除从没发过请求的账号
+    sql: |
+      SELECT a.account_id,
+             ROUND(COALESCE(SUM(CASE WHEN c.outcome = 'ok' THEN 1.0 ELSE 0 END)
+                            / NULLIF(COUNT(c.check_id), 0), 0), 2) AS confirmation_rate
+      FROM accounts a
+      JOIN checks c ON c.account_id = a.account_id
+      GROUP BY a.account_id;
+  - why: 未发请求的账号显示 NULL
+    sql: |
+      SELECT a.account_id,
+             ROUND(SUM(CASE WHEN c.outcome = 'ok' THEN 1.0 ELSE 0 END)
+                   / NULLIF(COUNT(c.check_id), 0), 2) AS confirmation_rate
+      FROM accounts a
+      LEFT JOIN checks c ON c.account_id = a.account_id
+      GROUP BY a.account_id;
+  - why: 算出通过率后忘了保留两位小数
+    sql: |
+      SELECT a.account_id,
+             COALESCE(SUM(CASE WHEN c.outcome = 'ok' THEN 1.0 ELSE 0 END)
+                      / NULLIF(COUNT(c.check_id), 0), 0) AS confirmation_rate
+      FROM accounts a
+      LEFT JOIN checks c ON c.account_id = a.account_id
+      GROUP BY a.account_id;

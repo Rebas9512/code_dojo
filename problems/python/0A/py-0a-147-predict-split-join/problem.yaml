@@ -1,0 +1,16 @@
+id: py-0a-147-predict-split-join
+title: 切开和连起来
+track: python
+stage: 0A
+order: 960
+format: predict
+mode: predict
+difficulty: 15
+skills:
+  requires: [py.list-append, py.str-methods]
+  introduces: py.split-join
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "打印列表时字符串带单引号，例如 ['a', 'b']。"

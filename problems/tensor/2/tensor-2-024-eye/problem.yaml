@@ -1,0 +1,43 @@
+id: tensor-2-024-eye
+title: 给同号端口接一根线
+track: tensor
+stage: '2'
+order: 240
+format: write
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - tensor.coordinates
+  introduces: null
+source: original
+entry: eye
+signature: 'def eye(n):'
+compare: checker
+wrong_examples:
+  - why: 直接调用现成运算，跳过了坐标构造。
+    code: |
+      import torch
+
+
+      def eye(n):
+          return torch.eye(n, dtype=torch.int64)
+  - why: 点亮了编号不同的位置。
+    code: |
+      import torch
+
+
+      def eye(n):
+          i = torch.arange(n)
+          return (i[:, None] != i) * 1
+constraints:
+  no_loops: true
+  forbid_calls:
+    - torch.eye
+    - torch.diag
+    - torch.diag_embed
+    - torch.Tensor.diag
+    - torch.Tensor.diag_embed
+  forbid_imports:
+    - numpy
+    - pandas

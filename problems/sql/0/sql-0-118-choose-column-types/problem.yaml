@@ -1,0 +1,27 @@
+id: sql-0-118-choose-column-types
+title: 给书号和平均分选类型
+track: sql
+stage: '0'
+order: 9
+format: inspect
+mode: inspect
+difficulty: 2
+skills:
+  requires:
+    - sql.schema-types
+    - data.quantity-vs-label
+  introduces: null
+data:
+  - kind: schema
+    title: books 的登记规则
+    file: books-schema.yaml
+answer:
+  type: short
+  accept:
+    - text numeric
+    - text、numeric
+    - text,numeric
+  misconceptions:
+    integer numeric: DM04
+    numeric numeric: DM04
+explain: ISBN 是标识，text 能保留开头的 0。平均分要做数值计算并保留小数，可以用 numeric。

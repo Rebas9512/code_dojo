@@ -1,0 +1,44 @@
+id: algo-5-047-pulse-window
+title: 脉冲计数第 2 级：最近五分钟
+track: algo
+stage: '5'
+order: 470
+format: variant
+mode: class
+difficulty: 78
+week: 6
+skills:
+  requires:
+  - algo.oop-design
+  - algo.window-variable
+  - py.bool-ops
+  - py.deque
+  - py.while
+  introduces: null
+source: original
+leetcode: design-hit-counter
+milestones: []
+entry: PulseCounter
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 恰满五分钟的脉冲多算了一秒。
+  code: |
+    from collections import deque
+
+
+    class PulseCounter:
+        def __init__(self):
+            self.events = deque()
+
+        def hit(self, time: int) -> None:
+            self._expire(time)
+            self.events.append(time)
+
+        def count(self, time: int) -> int:
+            self._expire(time)
+            return len(self.events)
+
+        def _expire(self, time):
+            while self.events and self.events[0] < time - 300:
+                self.events.popleft()

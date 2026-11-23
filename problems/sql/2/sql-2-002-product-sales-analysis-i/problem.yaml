@@ -1,0 +1,27 @@
+id: sql-2-002-product-sales-analysis-i
+title: 给销售记录配上商品名
+track: sql
+stage: '2'
+order: 20
+format: write
+difficulty: 25
+skills:
+  requires:
+    - sql.inner-join
+  introduces: null
+source: sql50
+leetcode: product-sales-analysis-i
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/twins.sql
+  - datasets/sample.sql + datasets/second-edition.sql
+ordered: false
+hints:
+  - 决定行数的是销售明细。先找到每笔明细对应的货号。
+wrong_examples:
+  - why: 看起来相同的交易被合成一笔
+    sql: |
+      SELECT DISTINCT g.label, s.sale_year, s.price
+      FROM sales s
+      JOIN goods g ON g.goods_id = s.goods_id;

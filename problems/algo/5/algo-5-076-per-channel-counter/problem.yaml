@@ -1,0 +1,46 @@
+id: algo-5-076-per-channel-counter
+title: 脉冲计数第 3 级：分频道查窗口
+track: algo
+stage: '5'
+order: 760
+format: combine
+mode: class
+difficulty: 86
+week: 10
+skills:
+  requires:
+  - algo.window-variable
+  - algo.oop-design
+  - algo.defaultdict
+  - py.bool-ops
+  - py.deque
+  - py.while
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: ChannelCounter
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 把不同频道的事件放进同一队列。
+  code: |
+    from collections import defaultdict, deque
+
+
+    class ChannelCounter:
+        def __init__(self, width: int):
+            self.width = width
+            self.events = defaultdict(deque)
+
+        def _expire(self, channel, time):
+            events = self.events[""]
+            while events and events[0] <= time - self.width:
+                events.popleft()
+            return events
+
+        def hit(self, channel: str, time: int) -> None:
+            self._expire(channel, time).append(time)
+
+        def count(self, channel: str, time: int) -> int:
+            return len(self._expire(channel, time))

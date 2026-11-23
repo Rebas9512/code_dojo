@@ -1,0 +1,26 @@
+id: tensor-1-015-row-shift
+title: 每台仪器加自己的偏差
+track: tensor
+stage: '1'
+order: 150
+format: complete
+mode: function
+difficulty: 24
+skills:
+  requires:
+    - tensor.broadcast
+  introduces: null
+source: original
+entry: shift
+signature: 'def shift(rows, bias):'
+compare: allclose
+wrong_examples:
+  - why: 一维补偿会对齐列轴。
+    code: |
+      import torch
+
+
+      def shift(rows, bias):
+          x = torch.tensor(rows)
+          d = torch.tensor(bias)
+          return x + d

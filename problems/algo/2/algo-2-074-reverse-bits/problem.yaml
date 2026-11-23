@@ -1,0 +1,30 @@
+id: algo-2-074-reverse-bits
+title: 把 32 格寄存器镜像
+track: algo
+stage: '2'
+order: 740
+format: write
+mode: function
+difficulty: 66
+skills:
+  requires:
+  - algo.bit-ops
+  - py.for-range
+  - py.func-return
+  introduces: null
+source: neetcode250
+leetcode: reverse-bits
+milestones:
+- blind75
+entry: reverse_bits
+signature: 'def reverse_bits(n: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 遇到最高的 1 就停，丢掉前导零。
+  code: |
+    def reverse_bits(n: int) -> int:
+        result = 0
+        while n:
+            result = (result << 1) | (n & 1)
+            n >>= 1
+        return result

@@ -1,0 +1,89 @@
+id: wrangle-1-l02-selection
+title: 位置、区间与筛选
+track: wrangle
+skills:
+  - wrangle.slice
+  - wrangle.mask
+  - wrangle.fancy
+steps:
+  - type: read
+    skill: wrangle.slice
+    md: |-
+      下标给一个格子定位，切片沿一个轴取一段相邻的格子。一天记录 [4, 8, 5, 9]，取位置 1 到 3 之前的读数，得到 8 和 5。起点计入，终点留给下一段。
+
+      二维表写成 a[行, 列]，冒号单独出现时表示这个轴全部保留。a[:, 0] 会取走列轴，得到一维数组；a[:, 0:1] 仍是一张单列表。用形状可以分辨这两种结果。
+
+      **WM02 把选单列与切一列当成同一形状**。三行表取 [:, 1] 有三个值；取 [:, 1:2] 会额外保留长度为一的列轴。
+  - type: example
+    skill: wrangle.slice
+    code: |
+      import numpy as np
+      # ① 读第一班的第二个数
+      x = np.array([[4, 8, 5], [3, 1, 2]])
+      print(x[0, 1])  # 输出 8
+      # ② 两班都保留，只取第一列
+      print(x[:, 0:1].shape)  # 输出 (2, 1)
+    md: 把 0:1 改成 0，观察轴数。
+  - type: quiz
+    skill: wrangle.slice
+    q: 从 [5, 3, 8, 9] 取 [1:3] 会得到哪些数？
+    options:
+      - '[5, 3, 8]'
+      - '[3, 8, 9]'
+      - '[3, 8]'
+    answer: 2
+    explain: 位置 1 和 2 进入结果，位置 3 是边界。（WM02）
+  - type: read
+    skill: wrangle.mask
+    md: |-
+      掩码是一串与原数据对齐的真假值，表示哪些格子要留下。库存在 [3, 0, 7] 时，挑正库存得到 [真, 假, 真]，抽出相同位置就是 [3, 7]。这种做法可以一次表达整批记录的条件。
+
+      比较数组得到布尔数组。返回掩码能回答每一格是否合格，用方括号套上掩码则只留下合格的值。筛选保留原来的先后顺序，重复值也会保留。
+
+      **WM03 只要真假标记就算取到了数据**。[2, 7] 的达标标记可以是 [假, 真]，实际入选的读数只有 7。
+  - type: example
+    skill: wrangle.mask
+    code: |
+      import numpy as np
+      # ① 给每个库存打标记
+      stock = np.array([3, 0, 7])
+      keep = stock > 0
+      print(keep.tolist())  # 输出 [True, False, True]
+      # ② 只收标记为真的格子
+      print(stock[keep].tolist())  # 输出 [3, 7]
+    md: 把中间的库存改成 3，观察两个 3 会不会合并。
+  - type: quiz
+    skill: wrangle.mask
+    q: '[0, 6, 2] 的掩码是 [假, 真, 假]，取值后剩什么？'
+    options:
+      - '[6]'
+      - '[1]'
+      - '[False, True, False]'
+    answer: 0
+    explain: 真落在位置 1，从原数组取出那个位置上的 6。（WM03）
+  - type: read
+    skill: wrangle.fancy
+    md: |-
+      花式索引用一张位置清单安排取数顺序。架上三册的价格依次为 8、4、6 元，要依次查最后一册、第一册、最后一册，位置单写作 [2, 0, 2]，查到 6、8、6。
+
+      把整数列表放到数组的方括号里。清单的长度决定返回几项，位置允许重复。用于二维表的第一轴时，每个位置会取出整行。
+
+      **WM04 位置清单会自动去重**。按 [1, 1, 0] 抄录时位置 1 要抄两次，改动清单顺序也会改变答案。
+  - type: example
+    skill: wrangle.fancy
+    code: |
+      import numpy as np
+      # ① 价格表按货位编号
+      p = np.array([8, 4, 6])
+      # ② 依照查价单取三次
+      print(p[[2, 0, 2]].tolist())  # 输出 [6, 8, 6]
+    md: 把位置单改成 [0, 0]，再看输出。
+  - type: quiz
+    skill: wrangle.fancy
+    q: 同一行的位置在取数单上出现两次，会得到几行？
+    options:
+      - 一行
+      - 两行
+      - 报错
+    answer: 1
+    explain: 每个整数位置触发一次取数，重复位置对应重复行。（WM04）

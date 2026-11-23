@@ -1,0 +1,24 @@
+id: sql-0-154-complete-member-price
+title: 补全：会员价精确到分
+track: sql
+stage: "0"
+order: 360
+format: complete
+difficulty: 13
+skills: {requires: [sql.select-expr], introduces: sql.round-cast}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/half-cent.sql
+ordered: false
+hints:
+  - ROUND 的第二个参数表示保留几位小数。
+wrong_examples:
+  - why: 算了折扣却没有舍入，可能留下半分钱。
+    sql: |
+      SELECT book_id, price * 0.85 AS member_price FROM books;
+  - why: 把折扣价舍入到整元，丢掉了角和分。
+    sql: |
+      SELECT book_id, ROUND(price * 0.85) AS member_price FROM books;

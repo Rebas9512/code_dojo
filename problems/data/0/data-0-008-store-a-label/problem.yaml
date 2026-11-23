@@ -1,0 +1,27 @@
+id: data-0-008-store-a-label
+title: 怎样保存号码
+track: data
+stage: '0'
+order: 80
+format: inspect
+mode: inspect
+difficulty: 3
+skills:
+  requires:
+    - data.quantity-vs-label
+  introduces: null
+data:
+  - kind: table
+    title: 联系方式
+    file: users.csv
+answer:
+  type: short
+  accept:
+    - 文字
+    - 文本
+    - 字符串
+    - text
+  misconceptions:
+    整数: DM04
+    数字: DM04
+explain: 号码需要逐个字符保留。拿掉开头的 0 会改变标识，两个标识的平均数也没有业务含义。

@@ -1,0 +1,1 @@
+INSERT INTO teaching VALUES (3,7,2);

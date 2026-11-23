@@ -1,0 +1,39 @@
+id: algo-3-069-verifying-an-alien-dictionary
+title: 按新字母表核对词序
+track: algo
+stage: '3'
+order: 690
+format: write
+mode: function
+difficulty: 65
+skills:
+  requires:
+  - py.break-continue
+  - py.dict-set-comp
+  - py.early-return
+  - py.enumerate
+  - py.nested-loop
+  - py.slice
+  - py.zip
+  introduces: null
+source: neetcode250
+leetcode: verifying-an-alien-dictionary
+milestones: []
+entry: sorted_words
+signature: 'def sorted_words(words: list[str], order: str) -> bool:'
+compare: exact
+wrong_examples:
+- why: 忽略一个词是另一个词的前缀。
+  code: |
+    def sorted_words(words: list[str], order: str) -> bool:
+        rank = {ch: i for i, ch in enumerate(order)}
+        for first, second in zip(words, words[1:]):
+            for a, b in zip(first, second):
+                if a != b:
+                    if rank[a] > rank[b]:
+                        return False
+                    break
+            else:
+                if False:
+                    return False
+        return True

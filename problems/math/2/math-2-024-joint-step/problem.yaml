@@ -1,0 +1,24 @@
+id: math-2-024-joint-step
+title: 用旧位置调两只旋钮
+track: math
+stage: '2'
+order: 240
+format: complete
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - math.descent-plane
+  introduces: null
+source: original
+entry: joint_step
+signature: 'def joint_step(x: float, y: float, rate: float) -> list[float]:'
+compare: float
+wrong_examples:
+  - why: 把已经更新的 x 混进本次纵向斜率。
+    code: |
+      def joint_step(x: float, y: float, rate: float) -> list[float]:
+          g = 2*(x+y)
+          x = x - rate*g
+          y = y - rate*(2*(x+y))
+          return [x, y]

@@ -1,0 +1,36 @@
+id: algo-3-023-track-maximum-in-dfs
+title: DFS 里用 nonlocal 记录全局最大值
+track: algo
+stage: '3'
+order: 230
+format: complete
+mode: function
+difficulty: 53
+skills:
+  requires:
+  - algo.tree-basics
+  - py.minmax-abs
+  - py.recursion-multi
+  introduces: algo.nested-func
+source: original
+leetcode: null
+milestones: []
+entry: tree_max
+signature: 'def tree_max(root: TreeNode) -> int:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 把最大值初始化为零。
+  code: |
+    def tree_max(root: TreeNode) -> int:
+        best = 0
+        def visit(node):
+            nonlocal best
+            if node:
+                best = max(best, node.val)
+                visit(node.left)
+                visit(node.right)
+        visit(root)
+        return best

@@ -1,0 +1,11 @@
+{
+  "examples": [
+    {"ops": ["Stack", "push", "push", "peek", "pop", "size"], "args": [[], [2], [5], [], [], []], "expected": [null, null, null, 5, 5, 1]},
+    {"ops": ["Stack", "pop", "peek"], "args": [[], [], []], "expected": [null, null, null]}
+  ],
+  "hidden": [
+    {"ops": ["Stack", "size"], "args": [[], []], "expected": [null, 0]},
+    {"ops": ["Stack", "push", "pop", "pop"], "args": [[], [-1], [], []], "expected": [null, null, -1, null]},
+    {"ops": ["Stack", "push", "push", "peek", "size"], "args": [[], [0], [0], [], []], "expected": [null, null, null, 0, 2]}
+  ]
+}

@@ -1,0 +1,6 @@
+print("12" + "3")
+print(int("12") + 3)
+print(str(4) + "5")
+print(int(3.9))
+print(float("2.5") * 2)
+print(int(7.9))

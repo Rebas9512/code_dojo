@@ -1,0 +1,11 @@
+{
+  "examples": [
+    {"args": ["松"], "expected": "松 松"},
+    {"args": ["山", 3, "/"], "expected": "山/山/山"}
+  ],
+  "hidden": [
+    {"args": ["云", 0], "expected": ""},
+    {"args": ["", 3, "-"], "expected": "--"},
+    {"args": ["A", 1], "expected": "A"}
+  ]
+}

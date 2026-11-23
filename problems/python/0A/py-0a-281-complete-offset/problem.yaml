@@ -1,0 +1,24 @@
+id: py-0a-281-complete-offset
+title: 补全坐标移动
+track: python
+stage: 0A
+order: 4010
+format: complete
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - py.tuple
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: moved
+signature: 'def moved(point: list[int], dx: int, dy: int) -> tuple[int, int]:'
+compare: exact
+wrong_examples:
+  - why: 返回时颠倒了横坐标和纵坐标。
+    code: |
+      def moved(point: list[int], dx: int, dy: int) -> tuple[int, int]:
+          x, y = point
+          return y + dy, x + dx

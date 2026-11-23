@@ -1,0 +1,31 @@
+id: algo-1-051-walk-list
+title: 链表遍历：求长度、转成列表
+track: algo
+stage: '1'
+order: 510
+format: complete
+mode: function
+difficulty: 48
+skills:
+  requires:
+  - py.list-append
+  introduces: algo.ll-traverse
+source: original
+leetcode: null
+milestones: []
+entry: describe_list
+signature: 'def describe_list(head: ListNode | None) -> list:'
+compare: exact
+convert:
+  args:
+    '0': listnode
+wrong_examples:
+- why: 要求还有后继才处理，最后一个节点被漏掉。
+  code: |
+    def describe_list(head: ListNode | None) -> list:
+        values = []
+        node = head
+        while node is not None and node.next is not None:
+            values.append(node.val)
+            node = node.next
+        return [len(values), values]

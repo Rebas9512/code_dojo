@@ -1,0 +1,1 @@
+INSERT INTO order_items VALUES (101,27,1,55);

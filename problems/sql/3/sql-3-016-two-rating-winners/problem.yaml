@@ -1,0 +1,41 @@
+id: sql-3-016-two-rating-winners
+title: 补全：两份评分榜的榜首
+track: sql
+stage: '3'
+order: 160
+format: complete
+difficulty: 49
+skills:
+  requires:
+    - sql.cte
+    - sql.join-aggregate
+    - sql.limit
+    - sql.multi-join
+    - sql.self-join
+    - sql.sum-avg
+  introduces: sql.set-ops
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/same-text.sql
+  - db:bookstore + datasets/one-vote.sql
+ordered: true
+hints:
+  - 给两个榜首标上先后位置，再把结果上下接起来。
+wrong_examples:
+  - why: 把两个文字相同的榜首又合并了
+    sql: |
+      WITH people AS (
+          SELECT u.name FROM users u JOIN ratings r ON r.user_id = u.user_id
+          GROUP BY u.user_id, u.name ORDER BY COUNT(*) DESC, u.name, u.user_id LIMIT 1
+      ), titles AS (
+          SELECT b.title FROM books b JOIN ratings r ON r.book_id = b.book_id
+          GROUP BY b.book_id, b.title ORDER BY AVG(stars) DESC, b.title, b.book_id LIMIT 1
+      ), winners AS (
+          SELECT 1 AS pos, name AS winner FROM people
+          UNION ALL
+          SELECT 2 AS pos, title AS winner FROM titles
+      )
+      SELECT winner FROM winners GROUP BY winner ORDER BY MIN(pos);

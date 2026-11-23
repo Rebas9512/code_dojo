@@ -1,0 +1,25 @@
+id: data-0-012-edition-key
+title: 同名的书怎样区分
+track: data
+stage: '0'
+order: 120
+format: inspect
+mode: inspect
+difficulty: 5
+skills:
+  requires:
+    - data.table-intro
+    - data.value-kinds
+  introduces: data.column-type-key
+data:
+  - kind: table
+    title: 同名的两个版本
+    file: books.csv
+answer:
+  type: short
+  accept:
+    - book_id
+  misconceptions:
+    title: DM05
+    书名: DM05
+explain: 两行都叫 Data at Dawn。书店给两个版本各发一个 book_id，12 和 27 分别指向一行。

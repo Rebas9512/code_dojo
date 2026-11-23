@@ -1,0 +1,49 @@
+id: algo-3-059-permutations-ii
+title: 重复字牌的不同队形
+track: algo
+stage: '3'
+order: 590
+format: write
+mode: function
+difficulty: 64
+skills:
+  requires:
+  - algo.backtracking
+  - algo.nested-func
+  - py.bool-ops
+  - py.break-continue
+  - py.enumerate
+  - py.list-concat-repeat
+  - py.multi-assign
+  - py.slice
+  - py.sorted
+  introduces: null
+source: neetcode250
+leetcode: permutations-ii
+milestones: []
+entry: arrangements
+signature: 'def arrangements(nums: list[int]) -> list[list[int]]:'
+compare: unordered
+wrong_examples:
+- why: 同值牌即使前一枚已经被使用也跳过。
+  code: |
+    def arrangements(nums: list[int]) -> list[list[int]]:
+        nums = sorted(nums)
+        result, path = [], []
+        used = [False] * len(nums)
+        def fill():
+            if len(path) == len(nums):
+                result.append(path[:])
+                return
+            for i, value in enumerate(nums):
+                if used[i]:
+                    continue
+                if i > 0 and value == nums[i - 1] :
+                    continue
+                used[i] = True
+                path.append(value)
+                fill()
+                path.pop()
+                used[i] = False
+        fill()
+        return result

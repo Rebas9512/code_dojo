@@ -1,0 +1,123 @@
+{
+  "examples": [
+    {
+      "args": [
+        [
+          2,
+          0,
+          2
+        ],
+        4
+      ],
+      "expected": [
+        [
+          false,
+          false,
+          true,
+          false
+        ],
+        [
+          true,
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "args": [
+        [
+          0
+        ],
+        1
+      ],
+      "expected": [
+        [
+          true
+        ]
+      ]
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        [
+          1,
+          1
+        ],
+        5
+      ],
+      "expected": [
+        [
+          false,
+          true,
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false,
+          false,
+          false
+        ]
+      ]
+    },
+    {
+      "args": [
+        [
+          3
+        ],
+        4
+      ],
+      "expected": [
+        [
+          false,
+          false,
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "args": [
+        [
+          0,
+          2,
+          1,
+          0
+        ],
+        3
+      ],
+      "expected": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          true,
+          false,
+          false
+        ]
+      ]
+    }
+  ]
+}

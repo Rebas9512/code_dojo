@@ -1,0 +1,30 @@
+id: sql-0-205-article-views-i
+title: 哪些作者读过自己的文章
+track: sql
+stage: "0"
+order: 450
+format: combine
+difficulty: 18
+skills:
+  requires: [sql.where, sql.select-expr, sql.distinct, sql.order-by]
+  introduces: null
+source: sql50
+leetcode: article-views-i
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/repeat-author.sql
+  - datasets/sample.sql + datasets/cross-readers.sql
+ordered: true
+hints:
+  - 先挑出作者本人阅读的那些行，再考虑同一作者的多条记录怎样只留下一个编号。
+wrong_examples:
+  - why: 直接输出每次本人阅读的记录，同一作者出现多次。
+    sql: |
+      SELECT author_id AS id FROM views WHERE author_id = viewer_id ORDER BY id;
+  - why: 把所有被读过文章的作者都列了出来。
+    sql: |
+      SELECT DISTINCT author_id AS id FROM views ORDER BY id;
+  - why: 按大编号在前排列。
+    sql: |
+      SELECT DISTINCT author_id AS id FROM views WHERE author_id = viewer_id ORDER BY id DESC;

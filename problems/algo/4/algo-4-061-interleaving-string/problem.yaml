@@ -1,0 +1,37 @@
+id: algo-4-061-interleaving-string
+title: 穿插两串能否还原抄本
+track: algo
+stage: '4'
+order: 610
+format: write
+mode: function
+difficulty: 77
+skills:
+  requires:
+  - algo.dp-string
+  - py.bool-ops
+  introduces: null
+source: neetcode250
+leetcode: interleaving-string
+milestones:
+- nc150
+entry: interleaves
+signature: 'def interleaves(a: str, b: str, text: str) -> bool:'
+compare: exact
+wrong_examples:
+- why: 两边都能给出同一字符时，用后一条路覆盖前一条。
+  code: |
+    def interleaves(a: str, b: str, text: str) -> bool:
+        if len(a) + len(b) != len(text):
+            return False
+        ok = [[False] * (len(b) + 1) for _ in range(len(a) + 1)]
+        ok[0][0] = True
+        for i in range(len(a) + 1):
+            for j in range(len(b) + 1):
+                if i and a[i - 1] == text[i + j - 1]:
+                    ok[i][j] = ok[i][j] or ok[i - 1][j]
+                if j and b[j - 1] == text[i + j - 1]:
+                    ok[i][j] = ok[i][j - 1]
+        return ok[-1][-1]
+hints:
+- 两串各用掉 i 和 j 个字时，新串必定正好读过 i+j 个字。两边都可能贡献相同的末字。

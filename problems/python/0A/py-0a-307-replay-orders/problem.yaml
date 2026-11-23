@@ -1,0 +1,30 @@
+id: py-0a-307-replay-orders
+title: 按客人重放点单记录
+track: python
+stage: 0A
+order: 4270
+format: write
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - py.dict-grouping
+    - py.if-else
+    - py.choose-container
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: orders
+signature: 'def orders(rows: list[list[str]]) -> dict[str, list[str]]:'
+compare: exact
+wrong_examples:
+  - why: 用集合保存每人的点单，重复菜品丢失。
+    code: |
+      def orders(rows: list[list[str]]) -> dict[str, list[str]]:
+          book = {}
+          for guest, dish in rows:
+              if guest not in book:
+                  book[guest] = set()
+              book[guest].add(dish)
+          return book

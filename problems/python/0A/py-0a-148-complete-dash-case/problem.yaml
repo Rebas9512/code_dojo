@@ -1,0 +1,19 @@
+id: py-0a-148-complete-dash-case
+title: 补全：用短横线连接
+track: python
+stage: 0A
+order: 970
+format: complete
+mode: function
+difficulty: 15
+skills:
+  requires: [py.split-join, py.str-methods]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: dash_case
+signature: "def dash_case(s: str) -> str:"
+compare: exact
+hints:
+  - "先转小写，再用不带参数的 split() 切成单词列表。"

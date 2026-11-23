@@ -1,0 +1,17 @@
+id: py-0a-019-predict-range
+title: range 数到几
+track: python
+stage: 0A
+order: 400
+format: predict
+mode: predict
+difficulty: 8
+skills:
+  requires: [py.var-arith]
+  introduces: py.for-range
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "第一个循环打印 4 行。"
+  - "range(10, 0, -3) 从 10 开始每次减 3，到 0 之前停下。"

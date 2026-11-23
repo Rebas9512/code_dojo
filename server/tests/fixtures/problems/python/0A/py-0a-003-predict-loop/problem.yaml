@@ -1,0 +1,9 @@
+id: py-0a-003-predict-loop
+title: 预测循环输出
+track: python
+stage: 0A
+order: 30
+format: predict
+mode: predict
+difficulty: 2
+skills: {requires: [py.var-arith], introduces: null}

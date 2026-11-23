@@ -1,0 +1,26 @@
+id: wrangle-4-003-restore-key
+title: 报表漏了架号列
+track: wrangle
+stage: '4'
+order: 30
+format: fix
+mode: function
+difficulty: 29
+skills:
+  requires:
+    - wrangle.group
+  introduces: null
+source: original
+entry: rack_peaks
+signature: 'def rack_peaks(t):'
+compare: frame
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 忘记 reset_index，架号留在索引里。
+    code: |
+      def rack_peaks(t):
+          return t.groupby('rack').agg(peak=('n', 'max'))

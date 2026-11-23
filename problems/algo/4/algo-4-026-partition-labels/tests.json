@@ -1,0 +1,12 @@
+{
+  "examples": [
+    {"args":["abaccd"],"expected":[3,2,1]},
+    {"args":["acbabc"],"expected":[6]}
+  ],
+  "hidden": [
+    {"args":["q"],"expected":[1]},
+    {"args":["mno"],"expected":[1,1,1]},
+    {"args":["aaa"],"expected":[3]},
+    {"args":["abababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab"],"expected":[500]}
+  ]
+}

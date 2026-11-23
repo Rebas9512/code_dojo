@@ -1,0 +1,23 @@
+id: math-1-015-report-column
+title: 读出同一天的全部读数
+track: math
+stage: '1'
+order: 150
+format: write
+mode: function
+difficulty: 26
+skills:
+  requires:
+    - py.list-comp
+    - math.vector
+    - math.matrix-shape
+  introduces: null
+source: original
+entry: report_column
+signature: 'def report_column(table: list[list[int]], day: int) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: 把指定列读成指定行。
+    code: |
+      def report_column(table: list[list[int]], day: int) -> list[int]:
+          return table[day]

@@ -1,0 +1,34 @@
+id: algo-2-006-compact-prefix
+title: 把指定值从有效前缀中删去
+track: algo
+stage: '2'
+order: 60
+format: complete
+mode: function
+difficulty: 49
+skills:
+  requires:
+  - py.helper-func
+  - py.slice
+  introduces: algo.read-write-pointer
+source: original
+leetcode: null
+milestones: []
+entry: run_case
+signature: 'def run_case(nums: list[int], target: int) -> list:'
+compare: exact
+wrong_examples:
+- why: 把目标也保留下来。
+  code: |
+    def compact(nums: list[int], target: int) -> int:
+        write = 0
+        for value in nums:
+            if value == target:
+                nums[write] = value
+                write += 1
+        return write
+
+
+    def run_case(nums: list[int], target: int) -> list:
+        size = compact(nums, target)
+        return [size, nums[:size]]

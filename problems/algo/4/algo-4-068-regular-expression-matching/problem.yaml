@@ -1,0 +1,40 @@
+id: algo-4-068-regular-expression-matching
+title: 用点和星号匹配整串文字
+track: algo
+stage: '4'
+order: 680
+format: combine
+mode: function
+difficulty: 83
+skills:
+  requires:
+  - algo.dp-string
+  - algo.memo-cache
+  - py.bool-ops
+  introduces: null
+source: neetcode250
+leetcode: regular-expression-matching
+milestones:
+- nc150
+entry: matches
+signature: 'def matches(s: str, pattern: str) -> bool:'
+compare: exact
+wrong_examples:
+- why: 强制带星号的项至少出现一次。
+  code: |
+    from functools import cache
+
+
+    def matches(s: str, pattern: str) -> bool:
+        @cache
+        def match(i, j):
+            if j == len(pattern):
+                return i == len(s)
+            first = i < len(s) and (pattern[j] == "." or pattern[j] == s[i])
+            if j + 1 < len(pattern) and pattern[j + 1] == "*":
+                return first and (match(i + 1, j + 2) or match(i + 1, j))
+            return first and match(i + 1, j + 1)
+
+        return match(0, 0)
+hints:
+- 先处理 x* 取零次的分支。若首字符能匹配，还可以吃掉一个字符，继续保留同一模式位置。

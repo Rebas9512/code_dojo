@@ -1,0 +1,43 @@
+id: algo-3-050-subsets
+title: 列出不同号码的全部子集
+track: algo
+stage: '3'
+order: 500
+format: write
+mode: function
+difficulty: 62
+skills:
+  requires:
+  - algo.backtracking
+  - algo.nested-func
+  - py.list-comp
+  - py.multi-assign
+  - py.slice
+  - py.sorted
+  introduces: null
+source: neetcode250
+leetcode: subsets
+milestones:
+- nc150
+- top100
+entry: run_case
+signature: 'def run_case(nums: list[int]) -> list[list[int]]:'
+compare: unordered
+wrong_examples:
+- why: 把同一份可变路径存进结果。
+  code: |
+    def subsets(nums: list[int]) -> list[list[int]]:
+        answers, path = [], []
+        def visit(start):
+            answers.append(path)
+            for i in range(start, len(nums)):
+                path.append(nums[i])
+                visit(i + 1)
+                path.pop()
+        visit(0)
+        return answers
+
+
+    def run_case(nums: list[int]) -> list[list[int]]:
+        # 组合的成员可以任意排列；保留每一项和全部重复次数。
+        return [sorted(group) for group in subsets(nums)]

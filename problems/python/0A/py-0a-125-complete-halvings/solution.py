@@ -1,0 +1,6 @@
+def count_halvings(n: int) -> int:
+    count = 0
+    while n > 0:
+        n = n // 2
+        count += 1
+    return count

@@ -1,0 +1,45 @@
+id: algo-4-024-dota2-senate
+title: 轮流表决后谁能留下
+track: algo
+stage: '4'
+order: 240
+format: combine
+mode: function
+difficulty: 68
+skills:
+  requires:
+  - algo.greedy
+  - py.deque
+  - py.bool-ops
+  - py.enumerate
+  - py.ternary
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: dota2-senate
+milestones: []
+entry: senate_winner
+signature: 'def senate_winner(senate: str) -> str:'
+compare: exact
+wrong_examples:
+- why: 让刚投过票的代表抢在下一位之前再投。
+  code: |
+    from collections import deque
+
+
+    def senate_winner(senate: str) -> str:
+        radiant = deque()
+        dire = deque()
+        for i, party in enumerate(senate):
+            if party == "R":
+                radiant.append(i)
+            else:
+                dire.append(i)
+        while radiant and dire:
+            r = radiant.popleft()
+            d = dire.popleft()
+            if r < d:
+                radiant.append(r)
+            else:
+                dire.append(d + len(senate))
+        return "Radiant" if radiant else "Dire"

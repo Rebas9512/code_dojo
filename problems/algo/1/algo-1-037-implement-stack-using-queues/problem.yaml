@@ -1,0 +1,43 @@
+id: algo-1-037-implement-stack-using-queues
+title: 用队列实现后进先出的栈
+track: algo
+stage: '1'
+order: 370
+unit: 2
+format: write
+mode: class
+difficulty: 50
+skills:
+  requires:
+  - py.bool-ops
+  - py.deque
+  - algo.class-design
+  introduces: null
+source: neetcode250
+leetcode: implement-stack-using-queues
+milestones: []
+entry: MyStack
+compare: exact
+wrong_examples:
+- why: 多转一圈，使旧队首仍在最前。
+  code: |
+    from collections import deque
+
+
+    class MyStack:
+        def __init__(self):
+            self.queue = deque()
+
+        def push(self, x: int) -> None:
+            self.queue.append(x)
+            for _ in range(len(self.queue)):
+                self.queue.append(self.queue.popleft())
+
+        def pop(self) -> int:
+            return self.queue.popleft()
+
+        def top(self) -> int:
+            return self.queue[0]
+
+        def empty(self) -> bool:
+            return not self.queue

@@ -1,0 +1,31 @@
+id: sql-3-018-friend-requests-ii-who-has-the-most-friends
+title: 谁的好友最多
+track: sql
+stage: '3'
+order: 180
+format: write
+difficulty: 50
+skills:
+  requires:
+    - sql.cte
+    - sql.limit
+    - sql.self-join
+    - sql.set-ops
+  introduces: null
+source: sql50
+leetcode: friend-requests-ii-who-has-the-most-friends
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more-incoming.sql
+  - datasets/sample.sql + datasets/outgoing-winner.sql
+ordered: false
+hints:
+  - 把一条关系变成两个端点，每人出现几次？
+wrong_examples:
+  - why: 只数发起方
+    sql: |
+      WITH endpoints AS (
+          SELECT sender AS id FROM friendships
+      )
+      SELECT id, COUNT(*) AS friends FROM endpoints GROUP BY id ORDER BY friends DESC LIMIT 1;

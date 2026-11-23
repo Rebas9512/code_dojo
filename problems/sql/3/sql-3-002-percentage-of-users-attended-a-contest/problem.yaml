@@ -1,0 +1,28 @@
+id: sql-3-002-percentage-of-users-attended-a-contest
+title: 读书挑战报名比例
+track: sql
+stage: '3'
+order: 20
+format: write
+difficulty: 42
+skills:
+  requires:
+    - sql.group-by
+    - sql.subquery-scalar
+  introduces: null
+source: sql50
+leetcode: percentage-of-users-attended-a-contest
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/tie.sql
+  - datasets/sample.sql + datasets/new-members.sql
+ordered: true
+hints:
+  - 分母来自哪张完整名册？
+wrong_examples:
+  - why: 只拿报名过的人作分母
+    sql: |
+      SELECT event_id, 100.0 * COUNT(*) / (SELECT COUNT(DISTINCT reader_id) FROM signups) AS percentage
+      FROM signups GROUP BY event_id
+      ORDER BY percentage DESC, event_id;

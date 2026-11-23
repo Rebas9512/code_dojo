@@ -1,0 +1,25 @@
+id: sql-0-101-complete-user-emails
+title: 补全：用户的姓名和邮箱
+track: sql
+stage: "0"
+order: 10
+format: complete
+difficulty: 1
+skills: {requires: [sql.select-star], introduces: sql.select-basic}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/more-users.sql
+ordered: false
+hints:
+  - "列名之间用逗号隔开；邮箱那一列叫 email。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "第二列选成了手机号"
+    sql: |
+      SELECT name, phone FROM users;
+  - why: "只选了一列"
+    sql: |
+      SELECT name FROM users;

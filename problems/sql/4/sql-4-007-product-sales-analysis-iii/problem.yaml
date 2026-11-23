@@ -1,0 +1,29 @@
+id: sql-4-007-product-sales-analysis-iii
+title: 商品首年销售明细
+track: sql
+stage: '4'
+order: 70
+format: variant
+difficulty: 56
+skills:
+  requires:
+    - sql.top-n-per-group
+  introduces: null
+source: sql50
+leetcode: product-sales-analysis-iii
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/duplicate-and-null.sql
+  - datasets/sample.sql + datasets/earlier-year.sql
+ordered: false
+hints:
+  - 同一年有多笔交易时，哪些都属于首年？
+wrong_examples:
+  - why: 首年只留一笔交易
+    sql: |
+      WITH ranked AS (
+          SELECT product, yr, qty, price, ROW_NUMBER() OVER (PARTITION BY product ORDER BY yr) AS place
+          FROM sales WHERE yr IS NOT NULL
+      )
+      SELECT product, yr, qty, price FROM ranked WHERE place = 1;

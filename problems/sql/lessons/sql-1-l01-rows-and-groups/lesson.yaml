@@ -1,0 +1,111 @@
+id: sql-1-l01-rows-and-groups
+title: 从一行统计到每组一行
+track: sql
+skills:
+  - sql.count
+  - sql.sum-avg
+  - sql.group-by
+  - sql.having
+steps:
+  - type: read
+    skill: sql.count
+    md: |
+      把读者登记表放在桌上，有的电话号码没填。数有几张表时，每张都要算；数有几个电话可打时，就要跳过空格。SQL 把这样的多行统计叫作聚合。没有分组时，整份输入只交一行结果。
+
+      `COUNT(*)` 遇到一行就加一；`COUNT(phone)` 只在这一行的 phone 有值时加一。先用 WHERE 缩小范围也可以。如果没有一行符合条件，两种计数都交一个 0。
+  - type: example
+    skill: sql.count
+    db: bookstore
+    code: |
+      -- ① 读取订单簿，每笔订单都有一行
+      -- ② 同时数订单行和填写了优惠码的行
+      SELECT COUNT(*) AS orders_total, COUNT(coupon_code) AS with_coupon
+      FROM orders;
+    md: 加上 `WHERE coupon_code IS NULL` 再运行。哪一个计数变成了 0？
+  - type: quiz
+    skill: sql.count
+    q: 三个订单的优惠码依次是 NULL、'NEW'、'NEW'。COUNT(*)、COUNT(coupon_code) 各是多少？
+    options:
+      - 3 和 1
+      - 3 和 2
+      - 2 和 2
+    answer: 1
+    explain: 三个订单都算一行。两个填写过的码各贡献一次，即使内容相同。
+  - type: read
+    skill: sql.sum-avg
+    md: |
+      一排评分卡上写着 2、4，还有一张没写分数。把已知分数相加得到 6，除以两张有分数的卡，平均分就是 3。数据库在组里计算 SUM 和 AVG 时，也只让有数值的记录参与。真实的 0 是观测到的值，应计入分母。
+
+      `MIN(x)` 和 `MAX(x)` 分别取最低和最高的已知值。如果所有值都是 NULL，或者过滤后根本没有记录，这四种函数都返回 NULL。可以把 COUNT(x) 放在旁边，检查究竟有多少个值。
+  - type: example
+    skill: sql.sum-avg
+    db: bookstore
+    code: |
+      -- ① 看看这一批评分有几个有效值
+      -- ② 同时检查总分、均分和两个端点
+      SELECT COUNT(stars) AS votes, SUM(stars) AS points,
+             AVG(stars) AS mean_stars, MIN(stars) AS lowest, MAX(stars) AS highest
+      FROM ratings
+      WHERE book_id = 3;
+    md: 把书号改成 -1。为什么 votes 仍有一个数，而其余四列都是 NULL？
+  - type: quiz
+    skill: sql.sum-avg
+    q: 三本书的页数依次为 100、NULL、200。AVG(pages) 是多少？
+    options:
+      - '100'
+      - '150'
+      - 'NULL'
+    answer: 1
+    explain: 有页数的两本书合计 300 页。没填写的那一本不参与分子和分母。
+  - type: read
+    skill: sql.group-by
+    md: |
+      一张评分表每打一次星就多一行。想做一本书一行的汇总，可以先按书号把评分分堆，再在每堆里数卡片。`GROUP BY book_id` 指定分堆的依据，SELECT 写每堆共同的书号，以及要算出的数。
+
+      分组会合并输入行，所以同一堆里若有几个不同的评分人，不能随手挑一个 user_id 放进结果。加上 user_id 作为第二个分组键会把堆拆细。没有评分行的书不会凭空产生一堆，分组也不会自动排序。
+  - type: example
+    skill: sql.group-by
+    db: bookstore
+    code: |
+      -- ① 把评分按书号放在一起
+      -- ② 对每本有评分的书数一数
+      SELECT book_id, COUNT(*) AS votes
+      FROM ratings
+      GROUP BY book_id
+      ORDER BY book_id;
+    md: 在 GROUP BY 后面加上 user_id，再看评分最多的那本书是否还只有一行。
+  - type: quiz
+    skill: sql.group-by
+    q: 一座城市有三位用户。按 city 分组后，还想在 SELECT 直接放未聚合的 name，会发生什么？
+    options:
+      - 返回最早注册的姓名
+      - 返回三个姓名之一
+      - 数据库报错
+    answer: 2
+    explain: 这个城市的一行结果可能对应三个不同姓名，查询没有说明该取哪个。
+  - type: read
+    skill: sql.having
+    md: |
+      书店想给评分足够多的书贴标签。审核流程分两次：收集参与统计的评分，再审核每本书的总票数。WHERE 在分组前逐行检查，例如只收集四星以上的评分；HAVING 在分组后逐组检查，例如只留下至少两票的书。
+
+      写下条件时，可以先问自己：只看一张评分卡，能判断这件事吗？若需要先数完同一本书的所有卡，就把条件放在 HAVING。把 `COUNT(*) >= 2` 放进 WHERE 会报错，因为当时还没有总票数。
+  - type: example
+    skill: sql.having
+    db: bookstore
+    code: |
+      -- ① 每本书一组，数出各组票数
+      -- ② 至少两票的书才进入结果
+      SELECT book_id, COUNT(*) AS votes
+      FROM ratings
+      GROUP BY book_id
+      HAVING COUNT(*) >= 2;
+    md: 在 GROUP BY 上面插入 `WHERE stars >= 4`。这时两票的门槛针对哪一批评分？
+  - type: quiz
+    skill: sql.having
+    q: 想知道哪些书至少收到了两条五星评分，应该怎样安排这两个条件？
+    options:
+      - WHERE 筛五星，HAVING 筛票数
+      - WHERE 同时筛五星和 COUNT(*)
+      - 先数所有票，最后只检查平均分
+    answer: 0
+    explain: 星数属于单条记录，票数属于一组记录。先保留五星行，再看组里还剩几行。

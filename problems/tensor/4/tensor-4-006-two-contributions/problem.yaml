@@ -1,0 +1,28 @@
+id: tensor-4-006-two-contributions
+title: 收齐两笔损失的贡献
+track: tensor
+stage: '4'
+order: 60
+format: complete
+mode: function
+difficulty: 35
+skills:
+  requires:
+    - tensor.accumulate
+  introduces: null
+source: original
+entry: combined
+signature: 'def combined(value):'
+compare: allclose
+wrong_examples:
+  - why: 在需要合并贡献时清掉了第一笔。
+    code: |
+      import torch
+
+
+      def combined(value):
+          x = torch.tensor(value, dtype=torch.float32, requires_grad=True)
+          (x * x).backward()
+          x.grad = None
+          (3 * x).backward()
+          return x.grad

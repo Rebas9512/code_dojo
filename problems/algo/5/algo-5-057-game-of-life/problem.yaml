@@ -1,0 +1,47 @@
+id: algo-5-057-game-of-life
+title: 同时更新一代细胞
+track: algo
+stage: '5'
+order: 570
+format: write
+mode: function
+difficulty: 79
+week: 7
+skills:
+  requires:
+  - py.nested-list
+  - algo.bit-ops
+  - py.bool-ops
+  - py.helper-func
+  - py.minmax-abs
+  - py.tuple
+  introduces: null
+source: top-interview-150
+leetcode: game-of-life
+milestones: []
+entry: run_case
+signature: 'def run_case(board: list[list[int]]) -> list[list[int]]:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 把已经标上的下一代状态也计入邻居数。
+  code: |
+    def advance(board: list[list[int]]) -> None:
+        rows, cols = len(board), len(board[0])
+        for r in range(rows):
+            for c in range(cols):
+                count = 0
+                for i in range(max(0, r - 1), min(rows, r + 2)):
+                    for j in range(max(0, c - 1), min(cols, c + 2)):
+                        if (i, j) != (r, c):
+                            count += board[i][j]
+                if count == 3 or (count == 2 and board[r][c]):
+                    board[r][c] |= 2
+        for row in board:
+            for j in range(cols):
+                row[j] >>= 1
+
+
+    def run_case(board: list[list[int]]) -> list[list[int]]:
+        advance(board)
+        return board

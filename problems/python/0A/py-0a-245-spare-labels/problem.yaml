@@ -1,0 +1,27 @@
+id: py-0a-245-spare-labels
+title: 给缺席者留个称呼
+track: python
+stage: 0A
+order: 3050
+format: write
+mode: function
+difficulty: 20
+skills:
+  requires:
+    - py.list-append
+    - py.dict-get
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: badges
+signature: 'def badges(names: list[str], nicknames: dict[str, str]) -> list[str]:'
+compare: exact
+wrong_examples:
+  - why: 用 or 将登记的空昵称也替换掉。
+    code: |
+      def badges(names: list[str], nicknames: dict[str, str]) -> list[str]:
+          result = []
+          for name in names:
+              result.append(nicknames.get(name) or name)
+          return result

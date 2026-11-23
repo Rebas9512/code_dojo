@@ -1,0 +1,43 @@
+id: algo-3-026-path-sum-iii
+title: 有多少段向下的路径和达标
+track: algo
+stage: '3'
+order: 260
+format: combine
+mode: function
+difficulty: 56
+skills:
+  requires:
+  - algo.nested-func
+  - algo.prefix-hash
+  - algo.tree-basics
+  - py.bool-ops
+  - py.recursion-multi
+  introduces: null
+source: top-100-liked
+leetcode: path-sum-iii
+milestones:
+- top100
+entry: count_paths
+signature: 'def count_paths(root: TreeNode | None, target: int) -> int:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 离开子树时忘了移走它的前缀。
+  code: |
+    def count_paths(root: TreeNode | None, target: int) -> int:
+        counts = {0: 1}
+        def walk(node, total):
+            if not node:
+                return 0
+            total += node.val
+            found = counts.get(total - target, 0)
+            counts[total] = counts.get(total, 0) + 1
+            found += walk(node.left, total) + walk(node.right, total)
+            pass
+            return found
+        return walk(root, 0)
+hints:
+- 只登记从根到当前点这一条路上的前缀和。走完左边回到父亲时，哪些记录要撤销？

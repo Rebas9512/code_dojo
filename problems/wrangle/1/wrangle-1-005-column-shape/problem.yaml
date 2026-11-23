@@ -1,0 +1,16 @@
+id: wrangle-1-005-column-shape
+title: 一列读数留下几个轴
+track: wrangle
+stage: '1'
+order: 50
+format: predict
+mode: predict
+difficulty: 15
+skills:
+  requires: []
+  introduces: wrangle.slice
+source: original
+wrong_examples:
+  - why: 把取一个位置和取单列区间都算成保留列轴。
+    code: |
+      print('(3, 1)\n(3, 1)')

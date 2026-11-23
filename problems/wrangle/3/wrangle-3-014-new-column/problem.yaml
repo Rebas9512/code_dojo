@@ -1,0 +1,16 @@
+id: wrangle-3-014-new-column
+title: 新列与哪一行配对
+track: wrangle
+stage: '3'
+order: 140
+format: predict
+mode: predict
+difficulty: 30
+skills:
+  requires: []
+  introduces: wrangle.columns
+source: original
+wrong_examples:
+  - why: 将所有行的小计又合在一起。
+    code: |
+      print('[14]')

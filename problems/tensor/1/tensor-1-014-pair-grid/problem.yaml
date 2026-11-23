@@ -1,0 +1,16 @@
+id: tensor-1-014-pair-grid
+title: 两排刻度相遇
+track: tensor
+stage: '1'
+order: 140
+format: predict
+mode: predict
+difficulty: 24
+skills:
+  requires: []
+  introduces: tensor.broadcast
+source: original
+wrong_examples:
+  - why: 把输出行列倒过来了。
+    code: |
+      print('(2, 1)\n(1, 4)\n(4, 2)')

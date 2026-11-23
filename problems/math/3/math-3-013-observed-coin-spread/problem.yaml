@@ -1,0 +1,25 @@
+id: math-3-013-observed-coin-spread
+title: 用实测正面频率量波动
+track: math
+stage: '3'
+order: 130
+format: combine
+mode: function
+difficulty: 33
+skills:
+  requires:
+    - py.genexp
+    - math.spread
+    - math.frequency
+  introduces: null
+source: original
+entry: coin_spread
+signature: 'def coin_spread(flips: list[int]) -> list[float]:'
+compare: float
+wrong_examples:
+  - why: 用理论概率覆盖实测频率。
+    code: |
+      def coin_spread(flips: list[int]) -> list[float]:
+          p = sum(flips)/len(flips)
+          variance = sum((x-p)**2 for x in flips)/len(flips)
+          return [0.5, variance]

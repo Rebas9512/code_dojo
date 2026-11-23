@@ -1,0 +1,25 @@
+id: tensor-4-025-restore-calibration
+title: 把快照装回正在使用的层
+track: tensor
+stage: '4'
+order: 250
+format: combine
+mode: function
+difficulty: 44
+skills:
+  requires:
+    - tensor.state
+    - tensor.linear
+  introduces: null
+source: original
+entry: restore
+signature: 'def restore(layer, saved):'
+compare: checker
+wrong_examples:
+  - why: 反向抄写只读取了现有状态。
+    code: |
+      import torch
+
+
+      def restore(layer, saved):
+          saved = layer.state_dict()

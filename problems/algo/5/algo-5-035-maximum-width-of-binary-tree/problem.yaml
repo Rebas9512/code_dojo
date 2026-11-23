@@ -1,0 +1,45 @@
+id: algo-5-035-maximum-width-of-binary-tree
+title: 两端节点之间有多少个位置
+track: algo
+stage: '5'
+order: 350
+format: write
+mode: function
+difficulty: 76
+week: 4
+skills:
+  requires:
+  - algo.tree-bfs
+  - py.minmax-abs
+  - py.nested-list
+  - py.tuple
+  - py.while
+  introduces: null
+source: grind169
+leetcode: maximum-width-of-binary-tree
+milestones: []
+entry: width
+signature: 'def width(root: TreeNode) -> int:'
+compare: exact
+time_limit_ms: 800
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 只数实节点，遗漏它们中间的空位。
+  code: |
+    def width(root: TreeNode) -> int:
+        level = [(root, 0)]
+        best = 1
+        while level:
+            offset = level[0][1]
+            best = max(best, len(level))
+            children = []
+            for node, index in level:
+                pos = 2 * (index - offset)
+                if node.left:
+                    children.append((node.left, pos))
+                if node.right:
+                    children.append((node.right, pos + 1))
+            level = children
+        return best

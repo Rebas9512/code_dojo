@@ -1,0 +1,16 @@
+id: py-0a-139-predict-loop-copy
+title: 循环里改 x，列表变了吗
+track: python
+stage: 0A
+order: 810
+format: predict
+mode: predict
+difficulty: 13
+skills:
+  requires: [py.list-basics, py.for-range]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "第一个循环结束后 nums 还是原来的样子。"

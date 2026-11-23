@@ -1,0 +1,43 @@
+id: algo-2-073-add-binary
+title: 把两条二进制数字串相加
+track: algo
+stage: '2'
+order: 730
+format: write
+mode: function
+difficulty: 66
+skills:
+  requires:
+  - algo.bit-ops
+  - py.bool-ops
+  - py.if-else
+  - py.multi-assign
+  - py.sorted
+  - py.split-join
+  - py.type-convert
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: add-binary
+milestones: []
+entry: add_binary
+signature: 'def add_binary(a: str, b: str) -> str:'
+compare: exact
+wrong_examples:
+- why: 最高位留下的进位没有输出。
+  code: |
+    def add_binary(a: str, b: str) -> str:
+        i, j = len(a) - 1, len(b) - 1
+        carry = 0
+        digits = []
+        while i >= 0 or j >= 0:
+            total = carry
+            if i >= 0:
+                total += int(a[i])
+                i -= 1
+            if j >= 0:
+                total += int(b[j])
+                j -= 1
+            digits.append(str(total & 1))
+            carry = total >> 1
+        return "".join(reversed(digits))

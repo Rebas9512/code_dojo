@@ -1,0 +1,26 @@
+id: sql-0-016-distinct-categories
+title: 有哪些分类
+track: sql
+stage: "0"
+order: 280
+format: write
+difficulty: 9
+skills: {requires: [sql.select-basic, sql.distinct], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/comics.sql
+  - db:bookstore + datasets/cooking-gone.sql
+ordered: false
+hints:
+  - "SELECT DISTINCT 列 FROM 表"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "没去重，每本书一行"
+    sql: |
+      SELECT category FROM books;
+  - why: "和书名一起去重，等于没去重"
+    sql: |
+      SELECT DISTINCT category, title FROM books;

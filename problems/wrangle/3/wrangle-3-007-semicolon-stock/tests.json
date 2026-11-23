@@ -1,0 +1,62 @@
+{
+  "examples": [
+    {
+      "args": [
+        "shelf;stock\nA;3\nB;0\n"
+      ],
+      "expected": {
+        "name": "stock",
+        "data": [
+          3,
+          0
+        ]
+      }
+    },
+    {
+      "args": [
+        "shelf;stock\n\"北;东\";5\n"
+      ],
+      "expected": {
+        "name": "stock",
+        "data": [
+          5
+        ]
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        "shelf;stock\n"
+      ],
+      "expected": {
+        "name": "stock",
+        "data": []
+      }
+    },
+    {
+      "args": [
+        "shelf;stock\nA;0\nA;0\n"
+      ],
+      "expected": {
+        "name": "stock",
+        "data": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "args": [
+        "shelf;stock\nC;12\nB;4\n"
+      ],
+      "expected": {
+        "name": "stock",
+        "data": [
+          12,
+          4
+        ]
+      }
+    }
+  ]
+}

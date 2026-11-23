@@ -1,0 +1,29 @@
+id: py-0b-005-longest-ones
+title: 最长的一段连续亮灯
+track: python
+stage: 0B
+order: 50
+format: write
+mode: function
+difficulty: 25
+skills:
+  requires: [py.linear-search, py.running-max, py.accumulator, py.minmax-abs]
+  introduces: null
+source: leetcode
+leetcode: max-consecutive-ones
+milestones: []
+entry: longest_ones
+signature: 'def longest_ones(lights: list[int]) -> int:'
+compare: exact
+wrong_examples:
+  - why: "遇到暗灯仍沿用前一段的长度。"
+    code: |
+      def longest_ones(lights: list[int]) -> int:
+          current = best = 0
+          for light in lights:
+              if light == 1:
+                  current += 1
+                  best = max(best, current)
+              else:
+                  pass
+          return best

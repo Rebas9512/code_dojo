@@ -1,0 +1,12 @@
+{
+  "examples": [
+    {"ops":["MyQueue","push","push","peek","push","pop"],"args":[[],[8],[3],[],[6],[]],"expected":[null,null,null,8,null,8]},
+    {"ops":["MyQueue","empty"],"args":[[],[]],"expected":[null,true]}
+  ],
+  "hidden": [
+    {"ops":["MyQueue","push","pop","empty"],"args":[[],[1],[],[]],"expected":[null,null,1,true]},
+    {"ops":["MyQueue","push","peek","empty"],"args":[[],[3],[],[]],"expected":[null,null,3,false]},
+    {"ops":["MyQueue","push","push","pop","pop"],"args":[[],[7],[7],[],[]],"expected":[null,null,null,7,7]},
+    {"ops":["MyQueue","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","push","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop","pop"],"args":[[],[1],[2],[3],[4],[5],[6],[7],[8],[9],[1],[2],[3],[4],[5],[6],[7],[8],[9],[1],[2],[3],[4],[5],[6],[7],[8],[9],[1],[2],[3],[4],[5],[6],[7],[8],[9],[1],[2],[3],[4],[5],[6],[7],[8],[9],[1],[2],[3],[4],[5],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],"expected":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5]}
+  ]
+}

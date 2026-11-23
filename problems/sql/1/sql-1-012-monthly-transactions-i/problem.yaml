@@ -1,0 +1,50 @@
+id: sql-1-012-monthly-transactions-i
+title: 按月份和地区核对收款
+track: sql
+stage: '1'
+order: 120
+format: combine
+difficulty: 30
+skills:
+  requires:
+    - sql.group-by
+    - sql.conditional-agg
+    - sql.sum-avg
+    - sql.count
+    - sql.date-funcs
+  introduces: null
+source: sql50
+leetcode: monthly-transactions-i
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/missing-region.sql
+  - datasets/sample.sql + datasets/mixed-amounts.sql
+ordered: false
+hints:
+  - 每组先看所有行，再让成功记录单独给另外两列贡献数值。
+wrong_examples:
+  - why: 漏分地区，合并了同月的不同账簿
+    sql: |
+      SELECT TO_CHAR(paid_on, 'YYYY-MM') AS bill_month, MIN(region), COUNT(*) AS transactions,
+             SUM(CASE WHEN state = 'approved' THEN 1 ELSE 0 END) AS approved_count,
+             SUM(amount) AS total_amount,
+             SUM(CASE WHEN state = 'approved' THEN amount ELSE 0 END) AS approved_amount
+      FROM payments
+      GROUP BY bill_month;
+  - why: 把无成功的金额记作 NULL
+    sql: |
+      SELECT TO_CHAR(paid_on, 'YYYY-MM') AS bill_month, region, COUNT(*) AS transactions,
+             SUM(CASE WHEN state = 'approved' THEN 1 ELSE 0 END) AS approved_count,
+             SUM(amount) AS total_amount,
+             SUM(CASE WHEN state = 'approved' THEN amount END) AS approved_amount
+      FROM payments
+      GROUP BY bill_month, region;
+  - why: 直接按流水日期分组，把同月同地区的收款拆成多行
+    sql: |
+      SELECT paid_on AS bill_month, region, COUNT(*) AS transactions,
+             SUM(CASE WHEN state = 'approved' THEN 1 ELSE 0 END) AS approved_count,
+             SUM(amount) AS total_amount,
+             SUM(CASE WHEN state = 'approved' THEN amount ELSE 0 END) AS approved_amount
+      FROM payments
+      GROUP BY paid_on, region;

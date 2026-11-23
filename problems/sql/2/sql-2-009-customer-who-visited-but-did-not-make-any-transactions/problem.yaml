@@ -1,0 +1,31 @@
+id: sql-2-009-customer-who-visited-but-did-not-make-any-transactions
+title: 读者有几次白跑了收银台
+track: sql
+stage: '2'
+order: 90
+format: write
+difficulty: 32
+skills:
+  requires:
+    - sql.anti-join
+    - sql.join-aggregate
+    - sql.count
+  introduces: null
+source: sql50
+leetcode: customer-who-visited-but-did-not-make-any-transactions
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/empty-cashbook.sql
+  - datasets/sample.sql + datasets/repeat-visits.sql
+ordered: false
+hints:
+  - 先得到没结过账的到访行，一行才代表一次白跑。
+wrong_examples:
+  - why: 补出来的行上账单号为空，数它会得到零
+    sql: |
+      SELECT v.reader_id, COUNT(b.bill_id) AS unpaid_visits
+      FROM visits v
+      LEFT JOIN bills b ON b.visit_id = v.visit_id
+      WHERE b.bill_id IS NULL
+      GROUP BY v.reader_id;

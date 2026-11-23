@@ -1,0 +1,20 @@
+id: py-0a-106-complete-total-price
+title: 补全：总价函数
+track: python
+stage: 0A
+order: 110
+format: complete
+mode: function
+difficulty: 3
+skills:
+  requires: [py.func-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: total_price
+signature: "def total_price(price: int, count: int) -> int:"
+compare: exact
+hints:
+  - "参数 price、count 已经有值，直接用。"
+  - "第二个空就是你刚算好的变量名。"

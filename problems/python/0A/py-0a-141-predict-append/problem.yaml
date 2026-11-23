@@ -1,0 +1,17 @@
+id: py-0a-141-predict-append
+title: append 返回什么
+track: python
+stage: 0A
+order: 840
+format: predict
+mode: predict
+difficulty: 13
+skills:
+  requires: [py.list-basics, py.if-else, py.floordiv-mod]
+  introduces: py.list-append
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "只有奇数会被加进去。"
+  - "最后一行打印的是\"没有值\"在 Python 里的名字。"

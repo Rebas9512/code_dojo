@@ -1,0 +1,26 @@
+id: math-1-028-identity-board
+title: 搭一块直通面板
+track: math
+stage: '1'
+order: 280
+format: write
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - py.list-comp
+    - py.ternary
+    - math.identity
+  introduces: null
+source: original
+entry: identity_board
+signature: 'def identity_board(n: int) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+  - why: 把主对角线和另一条对角线弄反。
+    code: |
+      def identity_board(n: int) -> list[list[int]]:
+          rows = []
+          for r in range(n):
+              rows.append([1 if r + c == n - 1 else 0 for c in range(n)])
+          return rows

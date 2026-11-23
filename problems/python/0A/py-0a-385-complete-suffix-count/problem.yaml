@@ -1,0 +1,28 @@
+id: py-0a-385-complete-suffix-count
+title: 补全后缀里的符号数
+track: python
+stage: 0A
+order: 5050
+format: complete
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - py.recursion-seq
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: count_after
+signature: 'def count_after(text: str, target: str, i: int) -> int:'
+compare: exact
+wrong_examples:
+  - why: 每次跨过两个位置，漏看相邻字符。
+    code: |
+      def count_after(text: str, target: str, i: int) -> int:
+          if i == len(text):
+              return 0
+          hit = 0
+          if text[i] == target:
+              hit = 1
+          return hit + count_after(text, target, min(i + 2, len(text)))

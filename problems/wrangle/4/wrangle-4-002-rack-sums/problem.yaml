@@ -1,0 +1,26 @@
+id: wrangle-4-002-rack-sums
+title: 各架共到货多少
+track: wrangle
+stage: '4'
+order: 20
+format: complete
+mode: function
+difficulty: 29
+skills:
+  requires:
+    - wrangle.group
+  introduces: null
+source: original
+entry: rack_totals
+signature: 'def rack_totals(t):'
+compare: frame
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 数了到货单数，漏掉每单数量。
+    code: |
+      def rack_totals(t):
+          return t.groupby('rack', as_index=False).agg(total=('n', 'size'))

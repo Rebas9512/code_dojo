@@ -1,0 +1,22 @@
+id: math-2-001-fare-values
+title: 读两笔租车费
+track: math
+stage: '2'
+order: 10
+format: predict
+mode: predict
+difficulty: 19
+skills:
+  requires:
+    - py.func-return
+    - py.for-each
+  introduces: math.function-table
+source: original
+wrong_examples:
+  - why: 直接报输入时长。
+    code: |
+      def fare(t):
+          return t
+
+      print(fare(0))
+      print(fare(3))

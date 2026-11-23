@@ -1,0 +1,25 @@
+id: data-0-018-csv-empty-field
+title: 看懂两个逗号之间
+track: data
+stage: '0'
+order: 180
+format: inspect
+mode: inspect
+difficulty: 7
+skills:
+  requires:
+    - data.missing
+    - data.shapes
+  introduces: data.text-formats
+data:
+  - kind: csv
+    title: 书店导出的原文
+    file: books.csv
+answer:
+  type: short
+  accept:
+    - 1 3 publisher
+  misconceptions:
+    1 3 0: DM03
+    1 3 零: DM03
+explain: 第 1 行是表头，下面有 3 本书。两个逗号围住第二个字段 publisher。书名里自带逗号时，整格会用引号包起来。

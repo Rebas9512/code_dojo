@@ -1,0 +1,58 @@
+id: sql-5-l03-calendars-and-trees
+title: 把缺失的日期和层级补出来
+track: sql
+skills:
+  - sql.generate-series
+  - sql.recursive-cte
+steps:
+  - type: read
+    skill: sql.generate-series
+    md: |
+      一周没订单的那天在订单簿里不会出现，按订单日期分组也就画不出完整日历。先用 generate_series 产生连续的偏移，0 对应第一天，1 对应第二天；给日期加这个整数，就得到真正的日历日。两个日期相减给出相差的天数。
+
+      把日历放在左边连接订单，即使右表没有匹配，这一天也能留下来。要数成交请数订单号，补出来的那行订单号为空。检查起止日是否含端点：从 0 到 3 共四个数，适合做一段跨月的小实验。
+  - type: example
+    skill: sql.generate-series
+    db: bookstore
+    code: |
+      -- ① 生成从 0 到 3 的四个偏移
+      -- ② 日期加偏移，自然跨过月末
+      SELECT i, DATE '2024-02-28' + i AS day FROM generate_series(0, 3) AS offsets(i) ORDER BY i;
+    md: 把年份改为 2025，对照偏移 1 对应的日期。
+  - type: quiz
+    skill: sql.generate-series
+    q: 首日到末日相隔 6 天，包含两端要生成几行？
+    options:
+      - '6'
+      - '7'
+      - '8'
+    answer: 1
+    explain: 偏移取 0、1、2、3、4、5、6，共七行。
+  - type: read
+    skill: sql.recursive-cte
+    md: |
+      从一位读者的推荐关系往下看：根没有推荐人，先把它记作第零层。扫描一次名册找到这批人直接推荐的人，就是第一层。用同一条规则再查第一层得到第二层。需要几轮由实际树高决定，固定写两次 JOIN 会漏掉更深的后代。
+
+      WITH RECURSIVE 给这份逐层增长的名单起名。锚点 SELECT 交出起点，UNION ALL 后的查询读取上一轮新发现的行。没有下一层时自然结束。这里的推荐链保证无环，循环关系则需要另外记录走过的编号。
+  - type: example
+    skill: sql.recursive-cte
+    db: bookstore
+    code: |
+      -- ① 从 1 号读者建立锚点
+      WITH RECURSIVE descendants AS (
+          SELECT user_id, 0 AS distance FROM users WHERE user_id = 1
+          UNION ALL
+          -- ② 只从刚到达的读者向下追一层
+          SELECT u.user_id, d.distance + 1 FROM descendants d JOIN users u ON u.referrer_id = d.user_id
+      )
+      SELECT user_id, distance FROM descendants ORDER BY distance, user_id;
+    md: 把起点改成没有推荐过别人的读者。结果还会保留谁？
+  - type: quiz
+    skill: sql.recursive-cte
+    q: 根记 0，根的孩子又推荐一人，那人的层数是？
+    options:
+      - '1'
+      - '2'
+      - '3'
+    answer: 1
+    explain: 经过两条推荐关系，递归项共把深度加了两次。

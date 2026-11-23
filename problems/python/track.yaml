@@ -1,0 +1,36 @@
+id: python
+name: Python 基础
+summary: 从输出第一行文字，到用循环、函数和列表解决小问题。
+order: 1
+language: python
+runtime: python
+status: active
+requires: [data]
+skill_prefix: py
+stages:
+  - id: "0A"
+    name: 语法基础
+    units:
+      0: 值和类型
+      1: 函数、整除和格式化
+      2: 条件和布尔
+      3: 循环
+      4: 字符串
+      5: 列表
+      6: 函数
+      7: 字典和集合
+      8: 元组、排序、推导式
+      9: 类
+      10: 简单递归
+  - id: "0B"
+    name: 算法入门
+    units:
+      1: 线性查找与最值
+      2: 反转与交换
+      3: 双下标
+      4: 前缀和
+      5: 计数
+      6: 模拟
+      7: 矩阵遍历
+      8: 栈和队列
+      9: 复杂度直觉

@@ -1,0 +1,26 @@
+id: data-0-006-stock-flag
+title: 有几个真假值
+track: data
+stage: '0'
+order: 60
+format: inspect
+mode: inspect
+difficulty: 2
+skills:
+  requires:
+    - data.value-kinds
+  introduces: null
+data:
+  - kind: values
+    title: 同一库存判断的三种写法
+    file: values.json
+answer:
+  type: short
+  accept:
+    - '1'
+    - 一
+    - 一个
+  misconceptions:
+    '3': DM02
+    '2': DM02
+explain: 只有没有引号的 true 是真假值。引号里的 True 和“是”都由字符组成。

@@ -1,0 +1,28 @@
+id: algo-1-026-best-time-to-buy-and-sell-stock-ii
+title: 多次交易的最高收益
+track: algo
+stage: '1'
+order: 260
+format: write
+mode: function
+difficulty: 46
+skills:
+  requires:
+  - py.minmax-abs
+  - py.accumulator
+  - py.index-len
+  introduces: null
+source: neetcode250
+leetcode: best-time-to-buy-and-sell-stock-ii
+milestones: []
+entry: max_profit
+signature: 'def max_profit(prices: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 把下跌也计为必须承担的损失。
+  code: |
+    def max_profit(prices: list[int]) -> int:
+        profit = 0
+        for i in range(1, len(prices)):
+            profit += prices[i] - prices[i - 1]
+        return profit

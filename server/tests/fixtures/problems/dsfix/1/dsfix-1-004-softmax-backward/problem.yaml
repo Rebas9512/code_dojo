@@ -1,0 +1,14 @@
+id: dsfix-1-004-softmax-backward
+title: 计算 softmax 的输入梯度
+track: dsfix
+stage: '1'
+order: 40
+format: write
+mode: function
+difficulty: 20
+skills:
+  requires: []
+  introduces: null
+entry: backward
+signature: 'def backward(x, upstream):'
+compare: checker

@@ -1,0 +1,29 @@
+id: algo-1-027-majority-element-ii
+title: 超过三分之一的编号
+track: algo
+stage: '1'
+order: 270
+format: variant
+mode: function
+difficulty: 47
+skills:
+  requires:
+  - py.dict-iter
+  - py.list-comp
+  - algo.counter
+  introduces: null
+source: neetcode250
+leetcode: majority-element-ii
+milestones: []
+entry: frequent_thirds
+signature: 'def frequent_thirds(nums: list[int]) -> list[int]:'
+compare: unordered
+wrong_examples:
+- why: 把恰好三分之一也算入。
+  code: |
+    from collections import Counter
+
+
+    def frequent_thirds(nums: list[int]) -> list[int]:
+        counts = Counter(nums)
+        return [value for value, count in counts.items() if count * 3 >= len(nums)]

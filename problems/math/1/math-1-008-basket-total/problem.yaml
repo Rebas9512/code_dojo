@@ -1,0 +1,24 @@
+id: math-1-008-basket-total
+title: 补齐购物车结算
+track: math
+stage: '1'
+order: 80
+format: complete
+mode: function
+difficulty: 20
+skills:
+  requires:
+    - math.dot
+  introduces: null
+source: original
+entry: basket_total
+signature: 'def basket_total(prices: list[int], counts: list[int]) -> int:'
+compare: exact
+wrong_examples:
+  - why: 把单价与件数相加。
+    code: |
+      def basket_total(prices: list[int], counts: list[int]) -> int:
+          total = 0
+          for i in range(len(prices)):
+              total += prices[i] + counts[i]
+          return total

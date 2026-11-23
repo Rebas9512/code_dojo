@@ -1,0 +1,34 @@
+id: sql-4-010-consecutive-numbers
+title: 连续三格的记录值
+track: sql
+stage: '4'
+order: 100
+format: write
+difficulty: 58
+skills:
+  requires:
+    - sql.and-or
+    - sql.cte
+    - sql.distinct
+    - sql.lag-lead
+  introduces: null
+source: sql50
+leetcode: consecutive-numbers
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/broken-ids.sql
+  - datasets/sample.sql + datasets/null-break.sql
+ordered: false
+hints:
+  - 第三行与第一行的编号差应该是多少？
+wrong_examples:
+  - why: 忽略缺号，直接数相邻三行
+    sql: |
+      WITH neighbors AS (
+          SELECT id, num, LAG(num) OVER (ORDER BY id) AS prev,
+                 LAG(num, 2) OVER (ORDER BY id) AS two_back,
+                 LAG(id, 2) OVER (ORDER BY id) AS first_id
+          FROM journal
+      )
+      SELECT DISTINCT num FROM neighbors WHERE num = prev AND num = two_back;

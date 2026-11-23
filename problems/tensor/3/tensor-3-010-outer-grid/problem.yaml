@@ -1,0 +1,17 @@
+id: tensor-3-010-outer-grid
+title: 外积的两根位置轴
+track: tensor
+stage: '3'
+order: 100
+format: predict
+mode: predict
+difficulty: 32
+skills:
+  requires:
+    - tensor.slice
+  introduces: tensor.pair-scores
+source: original
+wrong_examples:
+  - why: 交换了两份位置清单。
+    code: |
+      print('(3, 2)\n[[6, -3], [0, 0], [8, -4]]')

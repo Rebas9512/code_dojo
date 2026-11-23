@@ -1,0 +1,20 @@
+id: py-0a-129-write-first-over
+title: 加到超过为止
+track: python
+stage: 0A
+order: 570
+format: write
+mode: function
+difficulty: 10
+skills:
+  requires: [py.break-continue, py.accumulator, py.if-else]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: first_over
+signature: "def first_over(limit: int) -> int:"
+compare: exact
+hints:
+  - "累加器 total 从 0 开始，每轮加上 i。"
+  - "\"超过\"是 >，不是 >=。"

@@ -1,0 +1,43 @@
+id: algo-2-036-binary-search
+title: 在升序编号中找目标
+track: algo
+stage: '2'
+order: 360
+format: write
+mode: function
+difficulty: 57
+skills:
+  requires:
+  - py.bool-ops
+  - py.helper-func
+  - py.multi-assign
+  introduces: algo.binary-search
+source: neetcode250
+leetcode: binary-search
+milestones:
+- nc150
+entry: search
+signature: 'def search(nums: list[int], target: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 把插入点直接当成命中。
+  code: |
+    def lower_bound(nums: list[int], x: int) -> int:
+        lo, hi = 0, len(nums)
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if nums[mid] < x:
+                lo = mid + 1
+            else:
+                hi = mid
+        return lo
+
+
+    def search(nums: list[int], target: int) -> int:
+        pos = lower_bound(nums, target)
+        if pos < len(nums):
+            return pos
+        return -1
+hints:
+- 先按 [lo,hi) 手写查第一个不小于目标的位置。
+- 返回前还要核对下标和数值，可以用课里的例子追踪每一步。

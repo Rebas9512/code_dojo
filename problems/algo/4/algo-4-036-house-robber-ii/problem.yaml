@@ -1,0 +1,36 @@
+id: algo-4-036-house-robber-ii
+title: 围成一圈的储物柜
+track: algo
+stage: '4'
+order: 360
+format: variant
+mode: function
+difficulty: 71
+skills:
+  requires:
+  - algo.dp-1d
+  - py.minmax-abs
+  - py.multi-assign
+  - py.slice
+  introduces: null
+source: neetcode250
+leetcode: house-robber-ii
+milestones:
+- blind75
+entry: circle_loot
+signature: 'def circle_loot(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 把整圈当直线，可能同时选首尾。
+  code: |
+    def circle_loot(nums: list[int]) -> int:
+        if len(nums) == 1:
+            return nums[0]
+
+        def line(values):
+            two = one = 0
+            for value in values:
+                two, one = one, max(one, two + value)
+            return one
+
+        return max(line(nums), line(nums[1:]))

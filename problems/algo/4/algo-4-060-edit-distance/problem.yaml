@@ -1,0 +1,34 @@
+id: algo-4-060-edit-distance
+title: 两份文字最少改几次
+track: algo
+stage: '4'
+order: 600
+format: fix
+mode: function
+difficulty: 77
+skills:
+  requires:
+  - algo.dp-string
+  - py.enumerate
+  - py.minmax-abs
+  introduces: null
+source: neetcode250
+leetcode: edit-distance
+milestones:
+- nc150
+- top100
+entry: edit_steps
+signature: 'def edit_steps(a: str, b: str) -> int:'
+compare: exact
+wrong_examples:
+- why: 把非空前缀删到空串的代价设成零。
+  code: |
+    def edit_steps(a: str, b: str) -> int:
+        previous = list(range(len(b) + 1))
+        for i, x in enumerate(a, 1):
+            row = [0]
+            for j, y in enumerate(b, 1):
+                row.append(min(previous[j] + 1, row[-1] + 1,
+                               previous[j - 1] + (x != y)))
+            previous = row
+        return previous[-1]

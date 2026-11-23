@@ -1,0 +1,17 @@
+id: py-0a-104-write-flower-bed
+title: 花坛的面积和周长
+track: python
+stage: 0A
+order: 40
+format: write
+mode: stdio
+difficulty: 2
+skills:
+  requires: [py.var-arith]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "面积 = 宽 × 长；周长 = 2 × (宽 + 长)。"
+  - "乘号是 *，括号可以改变计算顺序。"

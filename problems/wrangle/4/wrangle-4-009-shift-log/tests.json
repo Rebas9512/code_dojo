@@ -1,0 +1,234 @@
+{
+  "examples": [
+    {
+      "args": [
+        {
+          "columns": [
+            "shop",
+            "am",
+            "pm"
+          ],
+          "data": [
+            [
+              "A",
+              2,
+              3
+            ],
+            [
+              "B",
+              0,
+              4
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "shop",
+          "shift",
+          "n"
+        ],
+        "data": [
+          [
+            "A",
+            "am",
+            2
+          ],
+          [
+            "A",
+            "pm",
+            3
+          ],
+          [
+            "B",
+            "am",
+            0
+          ],
+          [
+            "B",
+            "pm",
+            4
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "shop",
+            "am",
+            "pm"
+          ],
+          "data": [
+            [
+              "C",
+              1,
+              1
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "shop",
+          "shift",
+          "n"
+        ],
+        "data": [
+          [
+            "C",
+            "am",
+            1
+          ],
+          [
+            "C",
+            "pm",
+            1
+          ]
+        ]
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        {
+          "columns": [
+            "shop",
+            "am",
+            "pm"
+          ],
+          "data": []
+        }
+      ],
+      "expected": {
+        "columns": [
+          "shop",
+          "shift",
+          "n"
+        ],
+        "data": []
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "shop",
+            "am",
+            "pm"
+          ],
+          "data": [
+            [
+              "A",
+              0,
+              0
+            ],
+            [
+              "A",
+              0,
+              0
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "shop",
+          "shift",
+          "n"
+        ],
+        "data": [
+          [
+            "A",
+            "am",
+            0
+          ],
+          [
+            "A",
+            "pm",
+            0
+          ],
+          [
+            "A",
+            "am",
+            0
+          ],
+          [
+            "A",
+            "pm",
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "shop",
+            "am",
+            "pm"
+          ],
+          "data": [
+            [
+              "D",
+              9,
+              3
+            ],
+            [
+              "C",
+              2,
+              1
+            ],
+            [
+              "B",
+              0,
+              2
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "shop",
+          "shift",
+          "n"
+        ],
+        "data": [
+          [
+            "D",
+            "am",
+            9
+          ],
+          [
+            "D",
+            "pm",
+            3
+          ],
+          [
+            "C",
+            "am",
+            2
+          ],
+          [
+            "C",
+            "pm",
+            1
+          ],
+          [
+            "B",
+            "am",
+            0
+          ],
+          [
+            "B",
+            "pm",
+            2
+          ]
+        ]
+      }
+    }
+  ]
+}

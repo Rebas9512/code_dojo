@@ -1,0 +1,23 @@
+id: math-2-008-square-difference
+title: 补齐面积差商
+track: math
+stage: '2'
+order: 80
+format: complete
+mode: function
+difficulty: 24
+skills:
+  requires:
+    - math.slope
+    - math.derivative
+  introduces: null
+source: original
+entry: square_rate
+signature: 'def square_rate(x: float, h: float) -> float:'
+compare: float
+wrong_examples:
+  - why: 只交回两次面积之差。
+    code: |
+      def square_rate(x: float, h: float) -> float:
+          gain = (x + h) ** 2 - x ** 2
+          return gain

@@ -1,0 +1,24 @@
+id: py-0a-294-last-index
+title: 每个符号最后一次的位置
+track: python
+stage: 0A
+order: 4140
+format: write
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - py.enumerate
+    - py.dict-set-comp
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: last_index
+signature: 'def last_index(symbols: list[str]) -> dict[str, int]:'
+compare: exact
+wrong_examples:
+  - why: 把人的第几位当成从 0 数的下标。
+    code: |
+      def last_index(symbols: list[str]) -> dict[str, int]:
+          return {symbol: i for i, symbol in enumerate(symbols, 1)}

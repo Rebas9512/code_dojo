@@ -1,0 +1,37 @@
+id: algo-4-056-target-sum
+title: 添正负号后有几种目标和
+track: algo
+stage: '4'
+order: 560
+format: write
+mode: function
+difficulty: 76
+skills:
+  requires:
+  - algo.dp-knapsack
+  - py.bool-ops
+  - py.floordiv-mod
+  - py.list-builtins
+  introduces: null
+source: neetcode250
+leetcode: target-sum
+milestones:
+- nc150
+entry: sign_count
+signature: 'def sign_count(nums: list[int], target: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 跳过容量零，遗漏零的两种符号。
+  code: |
+    def sign_count(nums: list[int], target: int) -> int:
+        total = sum(nums)
+        if abs(target) > total or (total + target) % 2:
+            return 0
+        positive = (total + target) // 2
+        ways = [1] + [0] * positive
+        for value in nums:
+            for s in range(positive, max(1, value) - 1, -1):
+                ways[s] += ways[s - value]
+        return ways[-1]
+hints:
+- 把取正号和负号的数分别分组。两组之和已知，两组的差也已知，正号那组应当有多重？

@@ -1,0 +1,27 @@
+id: py-0a-305-complete-station-index
+title: 选一张按站名查车次的表
+track: python
+stage: 0A
+order: 4250
+format: complete
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - py.dict-get
+    - py.choose-container
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: latest
+signature: 'def latest(rows: list[list[str]], station: str) -> str:'
+compare: exact
+wrong_examples:
+  - why: 选了列表，无法用站名作下标。
+    code: |
+      def latest(rows: list[list[str]], station: str) -> str:
+          trains = []
+          for name, train in rows:
+              trains[name] = train
+          return trains.get(station, "")

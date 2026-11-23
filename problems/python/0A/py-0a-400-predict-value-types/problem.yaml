@@ -1,0 +1,15 @@
+id: py-0a-400-predict-value-types
+title: 五种值各叫什么
+track: python
+stage: 0A
+order: 15
+format: predict
+mode: predict
+difficulty: 2
+skills:
+  requires:
+    - py.print
+  introduces: py.value-types
+source: original
+leetcode: null
+milestones: []

@@ -1,0 +1,41 @@
+.inspect-data { margin: 1.25rem 0; }
+.inspect-data figcaption { font-weight: 600; margin-bottom: .4rem; }
+.data-scroll { overflow-x: auto; }
+.inspect-data pre, .numbered-csv, .inspect-csv, .inspect-values, .data-table {
+  font: 14px/1.65 var(--font-code);
+}
+.inspect-data pre, .numbered-csv { margin: .4rem 0; }
+.data-table { border-collapse: collapse; min-width: 12em; }
+.data-table th, .data-table td {
+  padding: .32rem .85rem .32rem .4rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+  white-space: pre;
+}
+.data-table th { font-weight: 700; }
+.missing-value, .option-number, .numbered-csv li::marker { color: var(--muted); }
+.numbered-csv { padding-inline-start: 3.25em; width: max-content; white-space: pre; }
+.numbered-csv li { padding-inline-start: .6em; }
+.inspect-values { display: flex; gap: .5rem; flex-wrap: wrap; padding: 0; list-style: none; }
+.inspect-values li { padding: .1rem .4rem; border: 1px solid var(--line); white-space: pre-wrap; overflow-wrap: anywhere; }
+.json-fold { color: var(--muted); font: inherit; padding: 0; }
+.json-fold:hover, .json-fold:focus-visible { color: var(--accent); }
+.data-views { display: flex; gap: 1rem; border-bottom: 1px solid var(--line); margin-bottom: .6rem; }
+.data-views button { padding: .4em 0; color: var(--muted); border-bottom: 2px solid transparent; }
+.data-views button[aria-pressed=true] { color: var(--text); border-color: var(--accent); }
+.inspect-csv, .short-answer {
+  width: 100%; box-sizing: border-box; background: var(--bg); color: var(--text);
+  border: 1px solid var(--line); padding: .6em .75em;
+}
+.inspect-csv { resize: vertical; white-space: pre; }
+.inspect-workspace { overflow-y: auto; }
+.inspect-answer { padding: 1.5rem clamp(1rem, 3vw, 2.25rem) .75rem; }
+.inspect-answer fieldset { padding: 0; margin: 0; border: 0; min-width: 0; }
+.inspect-answer legend { margin-bottom: .85rem; font-weight: 600; }
+.inspect-option { display: flex; align-items: baseline; gap: .65em; padding: .6rem 0; cursor: pointer; overflow-wrap: anywhere; }
+.inspect-option input { accent-color: var(--accent); margin: 0; }
+.option-number { font-family: var(--font-code); font-size: .85em; }
+.short-answer { max-width: 32em; font: 1rem/1.5 var(--font-code); }
+.inspect-workspace .actions { border-top: 0; padding: .25rem clamp(1rem, 3vw, 2.25rem) 1.25rem; }
+.inspect-result { max-height: none; flex-shrink: 0; padding-inline: clamp(1rem, 3vw, 2.25rem); }

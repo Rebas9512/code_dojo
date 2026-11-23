@@ -1,0 +1,42 @@
+id: algo-3-020-kth-smallest-element-in-a-bst
+title: 搜索树里的第 k 小项
+track: algo
+stage: '3'
+order: 200
+format: write
+mode: function
+difficulty: 55
+skills:
+  requires:
+  - algo.bst
+  - py.bool-ops
+  - py.list-pop
+  - py.nested-loop
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: kth-smallest-element-in-a-bst
+milestones:
+- blind75
+- top100
+entry: kth_value
+signature: 'def kth_value(root: TreeNode, k: int) -> int:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 弹出第一个节点前就跳过了一个名次。
+  code: |
+    def kth_value(root: TreeNode, k: int) -> int:
+        stack = []
+        node = root
+        while node or stack:
+            while node:
+                stack.append(node)
+                node = node.left
+            node = stack.pop()
+            k -= 1
+            if k == 1:
+                return node.val
+            node = node.right

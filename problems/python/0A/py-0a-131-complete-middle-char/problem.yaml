@@ -1,0 +1,19 @@
+id: py-0a-131-complete-middle-char
+title: 补全：正中间的字符
+track: python
+stage: 0A
+order: 620
+format: complete
+mode: function
+difficulty: 11
+skills:
+  requires: [py.index-len, py.floordiv-mod]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: middle_char
+signature: "def middle_char(s: str) -> str:"
+compare: exact
+hints:
+  - "长度 5 时，中间的下标是 2 = 5 // 2。"

@@ -1,0 +1,31 @@
+id: py-0a-250-same-letters
+title: 两袋字母能否互换
+track: python
+stage: 0A
+order: 3100
+format: variant
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - py.helper-func
+    - py.dict-counting
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: same_letters
+signature: 'def same_letters(a: str, b: str) -> bool:'
+compare: exact
+wrong_examples:
+  - why: 只记一种字母有没有出现，忽略枚数。
+    code: |
+      def amounts(text: str) -> dict[str, int]:
+          counts = {}
+          for ch in text:
+              counts[ch] = 1
+          return counts
+
+
+      def same_letters(a: str, b: str) -> bool:
+          return amounts(a) == amounts(b)

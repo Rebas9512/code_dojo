@@ -1,0 +1,30 @@
+id: py-0b-029-counting-circle
+title: 环形报数最后留下谁
+track: python
+stage: 0B
+order: 290
+format: combine
+mode: function
+difficulty: 33
+skills:
+  requires: [py.deque, py.simulation, py.for-range, py.nested-loop]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: last_child
+signature: 'def last_child(n: int, k: int) -> int:'
+compare: exact
+wrong_examples:
+  - why: "轮到第 k 个人时又把他移到队尾，实际淘汰了下一位。"
+    code: |
+      from collections import deque
+
+
+      def last_child(n: int, k: int) -> int:
+          line = deque(range(1, n + 1))
+          while len(line) > 1:
+              for _ in range(k):
+                  line.append(line.popleft())
+              line.popleft()
+          return line[0]

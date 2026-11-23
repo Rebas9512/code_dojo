@@ -1,0 +1,32 @@
+id: py-0b-024-equal-lines
+title: 有多少对行和列完全相同
+track: python
+stage: 0B
+order: 240
+format: combine
+mode: function
+difficulty: 32
+skills:
+  requires: [py.matrix-traverse, py.dict-counting, py.nested-loop, py.list-append]
+  introduces: null
+source: leetcode75
+leetcode: equal-row-and-column-pairs
+milestones: []
+entry: equal_lines
+signature: 'def equal_lines(grid: list[list[int]]) -> int:'
+compare: exact
+wrong_examples:
+  - why: "只登记某行出现过，遇到相同内容的多行会漏算。"
+    code: |
+      def equal_lines(grid: list[list[int]]) -> int:
+          row_counts = {}
+          for row in grid:
+              key = tuple(row)
+              row_counts[key] = 1
+          pairs = 0
+          for c in range(len(grid)):
+              column = []
+              for row in grid:
+                  column.append(row[c])
+              pairs += row_counts.get(tuple(column), 0)
+          return pairs

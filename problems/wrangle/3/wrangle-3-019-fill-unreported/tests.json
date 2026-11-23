@@ -1,0 +1,125 @@
+{
+  "examples": [
+    {
+      "args": [
+        {
+          "columns": [
+            "n"
+          ],
+          "data": [
+            [
+              4
+            ],
+            [
+              null
+            ],
+            [
+              0
+            ]
+          ]
+        },
+        7
+      ],
+      "expected": {
+        "name": "n",
+        "data": [
+          4,
+          7,
+          0
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "n"
+          ],
+          "data": [
+            [
+              null
+            ]
+          ]
+        },
+        2
+      ],
+      "expected": {
+        "name": "n",
+        "data": [
+          2
+        ]
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        {
+          "columns": [
+            "n"
+          ],
+          "data": [
+            [
+              0
+            ],
+            [
+              0
+            ]
+          ]
+        },
+        9
+      ],
+      "expected": {
+        "name": "n",
+        "data": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "n"
+          ],
+          "data": []
+        },
+        1
+      ],
+      "expected": {
+        "name": "n",
+        "data": []
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "n"
+          ],
+          "data": [
+            [
+              null
+            ],
+            [
+              3
+            ],
+            [
+              null
+            ]
+          ]
+        },
+        6
+      ],
+      "expected": {
+        "name": "n",
+        "data": [
+          6,
+          3,
+          6
+        ]
+      }
+    }
+  ]
+}

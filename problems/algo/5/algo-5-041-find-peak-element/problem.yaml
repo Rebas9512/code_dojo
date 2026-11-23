@@ -1,0 +1,34 @@
+id: algo-5-041-find-peak-element
+title: 返回任一处局部峰顶
+track: algo
+stage: '5'
+order: 410
+format: write
+mode: function
+difficulty: 77
+week: 5
+skills:
+  requires:
+  - algo.binary-search
+  - py.if-else
+  - py.multi-assign
+  introduces: null
+source: top-interview-150
+leetcode: find-peak-element
+milestones: []
+entry: find_peak
+signature: 'def find_peak(nums: list[int]) -> int:'
+compare: checker
+time_limit_ms: 800
+wrong_examples:
+- why: 沿着下降的一侧寻找峰顶。
+  code: |
+    def find_peak(nums: list[int]) -> int:
+        lo, hi = 0, len(nums) - 1
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if nums[mid] > nums[mid + 1]:
+                lo = mid + 1
+            else:
+                hi = mid
+        return lo

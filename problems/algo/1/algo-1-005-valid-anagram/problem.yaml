@@ -1,0 +1,27 @@
+id: algo-1-005-valid-anagram
+title: 两块字牌能否互换
+track: algo
+stage: '1'
+order: 50
+format: write
+mode: function
+difficulty: 34
+skills:
+  requires:
+  - algo.counter
+  introduces: null
+source: neetcode250
+leetcode: valid-anagram
+milestones:
+- blind75
+entry: is_anagram
+signature: 'def is_anagram(s: str, t: str) -> bool:'
+compare: exact
+wrong_examples:
+- why: 只比较字母种类。
+  code: |
+    from collections import Counter
+
+
+    def is_anagram(s: str, t: str) -> bool:
+        return set(s) == set(t)

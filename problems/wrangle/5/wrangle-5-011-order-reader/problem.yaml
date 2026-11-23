@@ -1,0 +1,31 @@
+id: wrangle-5-011-order-reader
+title: 在订单上标出读者姓名
+track: wrangle
+stage: '5'
+order: 110
+format: write
+mode: function
+difficulty: 38
+skills:
+  requires:
+    - wrangle.report-grain
+    - wrangle.merge
+  introduces: null
+source: original
+entry: order_names
+signature: 'def order_names(orders, users):'
+compare: frame
+leetcode: combine-two-tables
+sql_twin: sql-2-001-order-reader
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+    '1': dataframe
+wrong_examples:
+  - why: 误按订单编号去查读者。
+    code: |
+      def order_names(orders, users):
+          matched = orders.merge(users, left_on='order_id', right_on='user_id')
+          return matched[['order_id', 'name']]

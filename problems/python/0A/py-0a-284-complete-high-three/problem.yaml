@@ -1,0 +1,24 @@
+id: py-0a-284-complete-high-three
+title: 补全最高的三个读数
+track: python
+stage: 0A
+order: 4040
+format: complete
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - py.slice
+    - py.sorted
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: high_three
+signature: 'def high_three(values: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: 沿用默认的升序。
+    code: |
+      def high_three(values: list[int]) -> list[int]:
+          return sorted(values, reverse=False)[:3]

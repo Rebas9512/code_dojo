@@ -1,0 +1,49 @@
+id: algo-5-020-01-matrix
+title: 每格离最近的零有几步
+track: algo
+stage: '5'
+order: 200
+format: fix
+mode: function
+difficulty: 75
+week: 3
+skills:
+  requires:
+  - algo.graph-bfs
+  - py.bool-ops
+  - py.if-else
+  - py.list-comp
+  - py.list-concat-repeat
+  - py.nested-list
+  - py.tuple
+  - py.while
+  introduces: null
+source: grind169
+leetcode: 01-matrix
+milestones: []
+entry: nearest_zero
+signature: 'def nearest_zero(mat: list[list[int]]) -> list[list[int]]:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 从所有的 1 出发，算成了到 1 的距离。
+  code: |
+    from collections import deque
+
+
+    def nearest_zero(mat: list[list[int]]) -> list[list[int]]:
+        rows, cols = len(mat), len(mat[0])
+        dist = [[-1] * cols for _ in mat]
+        queue = deque()
+        for r in range(rows):
+            for c in range(cols):
+                if mat[r][c] == 1:
+                    dist[r][c] = 0
+                    queue.append((r, c))
+        while queue:
+            r, c = queue.popleft()
+            for i, j in ((r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)):
+                if 0 <= i < rows and 0 <= j < cols and dist[i][j] == -1:
+                    dist[i][j] = dist[r][c] + 1
+                    queue.append((i, j))
+        return dist

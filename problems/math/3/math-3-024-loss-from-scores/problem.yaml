@@ -1,0 +1,30 @@
+id: math-3-024-loss-from-scores
+title: 从极端分数直接算损失
+track: math
+stage: '3'
+order: 240
+format: combine
+mode: function
+difficulty: 39
+skills:
+  requires:
+    - py.genexp
+    - math.softmax
+    - math.log
+    - math.cross-entropy
+  introduces: null
+source: original
+entry: score_loss
+signature: 'def score_loss(scores: list[float], label: int) -> float:'
+compare: float
+wrong_examples:
+  - why: 挑分数最高者计算损失，掩盖自信的错判。
+    code: |
+      from math import exp, log
+
+
+      def score_loss(scores: list[float], label: int) -> float:
+          peak = max(scores)
+          shifted = [s-peak for s in scores]
+          total = sum(exp(s) for s in shifted)
+          return log(total) - max(shifted)

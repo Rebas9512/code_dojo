@@ -1,0 +1,26 @@
+id: wrangle-1-004-read-storage
+title: 检查测量列怎样存数
+track: wrangle
+stage: '1'
+order: 40
+format: write
+mode: function
+difficulty: 15
+skills:
+  requires:
+    - wrangle.array
+    - py.type-convert
+  introduces: null
+source: original
+entry: reading_type
+signature: 'def reading_type(values):'
+compare: exact
+wrong_examples:
+  - why: 只检查输入的推断类型，整数读数没有转成浮点。
+    code: |
+      import numpy as np
+
+
+      def reading_type(values):
+          a = np.array(values)
+          return [a.shape[0], str(a.dtype)]

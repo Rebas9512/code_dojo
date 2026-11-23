@@ -1,0 +1,13 @@
+{
+  "examples": [
+    {"args": ["banana", "a"], "expected": 3},
+    {"args": ["hello", "l"], "expected": 2}
+  ],
+  "hidden": [
+    {"args": ["", "a"], "expected": 0},
+    {"args": ["aaa", "a"], "expected": 3},
+    {"args": ["Aa", "a"], "expected": 1},
+    {"args": ["xyz", "q"], "expected": 0},
+    {"args": ["a", "a"], "expected": 1}
+  ]
+}

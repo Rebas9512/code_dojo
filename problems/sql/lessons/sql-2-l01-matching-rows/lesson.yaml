@@ -1,0 +1,86 @@
+id: sql-2-l01-matching-rows
+title: 两张表怎样配成一行
+track: sql
+skills:
+  - sql.inner-join
+  - sql.left-join
+  - sql.anti-join
+steps:
+  - type: read
+    skill: sql.inner-join
+    md: |
+      订单簿上只有用户编号，姓名写在另一本名册里。把一条订单放在左边，逐行看右边的名册，只把编号相同的一对抄到结果里。`ON` 写的就是配对条件。用短名字 o、u 指两张表，`o.user_id` 就是订单上记下的用户号。
+
+      行数取决于能配出多少对。一个用户有三笔订单，用户信息就会出现在三行里。INNER JOIN 会跳过配不到的记录。先说清左右两列各代表谁，再决定能否画等号；名字相同的人仍可能有不同的编号。
+  - type: example
+    skill: sql.inner-join
+    db: bookstore
+    code: |
+      -- ① 选出编号为 1 的作者，把他的编号与图书上的作者编号配对
+      -- ② 每次配对读出一本书的书号和书名
+      SELECT a.name, b.book_id, b.title
+      FROM authors a
+      JOIN books b ON b.author_id = a.author_id
+      WHERE a.author_id = 1;
+    md: 把作者号改成 11。对照作者名册想一想，为什么这次得到零行？
+  - type: quiz
+    skill: sql.inner-join
+    q: 某作者写了三本书，另一位还没有书。按作者编号做 INNER JOIN，这两位作者合计贡献几行？
+    options:
+      - 1 行
+      - 2 行
+      - 3 行
+    answer: 2
+    explain: 三本书分别配上一行作者资料，另一位没有成功配对。
+  - type: read
+    skill: sql.left-join
+    md: |
+      给全部作者打印书目时，即使某人还没有作品，也要留一个位置。LEFT JOIN 从左表逐行出发：能配上三本书的作者出现三行，配不上书的作者出现一行，右边属于书的列都填 NULL。把表交换位置，保留下来的名单也会改变。
+
+      检查结果时看右表原本必填的书号。若只想匹配符合条件的书，同时保留所有作者，应把针对书的条件放在 ON 中。在 WHERE 中检查书的价格会发生在补行之后，和 NULL 比较的行会再次被筛掉。
+  - type: example
+    skill: sql.left-join
+    db: bookstore
+    code: |
+      -- ① 左边留下两位作者，其中一位还没有书
+      -- ② 查看每个匹配的书号，无匹配处观察 NULL
+      SELECT a.author_id, b.book_id
+      FROM authors a
+      LEFT JOIN books b ON b.author_id = a.author_id
+      WHERE a.author_id IN (1, 11);
+    md: 在 WHERE 的最后加 `AND b.price > 0`。作者 11 的那行去了哪里？
+  - type: quiz
+    skill: sql.left-join
+    q: 左表两位作者，甲有两本书，乙没有。LEFT JOIN 后，乙在结果中是什么样？
+    options:
+      - 乙消失
+      - 乙一行，书号为 NULL
+      - 乙两行，书号均为 0
+    answer: 1
+    explain: LEFT JOIN 至少给每个左行留一个位置。空位上的书号是 NULL。
+  - type: read
+    skill: sql.anti-join
+    md: |
+      店员关心哪些书一直没人评价。先用书目作左表连接评分表，有三条评分就有三对，一条也配不上的书会得到一个补位。下一步只留下补位，就得到缺少另一方的书；这种找差集的写法叫反连接。
+
+      怎样认出补位？选评分表里本来必须填写的列，例如书号，然后检查它 IS NULL。评语可以留空，真实的评分也可能没有文字，检查评语会把这些真实配对误当成补位。没有评分与没有评语是两个不同的问题。
+  - type: example
+    skill: sql.anti-join
+    db: bookstore
+    code: |
+      -- ① 从完整用户表出发，尝试配订单
+      -- ② 订单号必填，只保留右侧补位的用户
+      SELECT u.user_id, u.name
+      FROM users u
+      LEFT JOIN orders o ON o.user_id = u.user_id
+      WHERE o.order_id IS NULL;
+    md: 把 o.order_id 换为 o.coupon_code。为什么有些下过单的人也上榜了？
+  - type: quiz
+    skill: sql.anti-join
+    q: 哪一列适合判断一本书完全没有评分？每条真实评分的星数必填，评语可空。
+    options:
+      - 右侧评分的星数 IS NULL
+      - 右侧评分的评语 IS NULL
+      - 左侧书号 IS NULL
+    answer: 0
+    explain: 真实评分一定有星数。只有没配上右表的补位行会在这一列留下 NULL。

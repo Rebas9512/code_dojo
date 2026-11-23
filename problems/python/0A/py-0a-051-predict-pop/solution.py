@@ -1,0 +1,10 @@
+stack = [1, 2, 3]
+stack.append(4)
+print(stack.pop())
+print(stack)
+print(stack.pop(0))
+stack.insert(1, 9)
+print(stack)
+stack.remove(9)
+print(stack)
+print(len(stack))

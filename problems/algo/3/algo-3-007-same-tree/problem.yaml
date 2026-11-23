@@ -1,0 +1,32 @@
+id: algo-3-007-same-tree
+title: 两棵树逐位置核对
+track: algo
+stage: '3'
+order: 70
+format: write
+mode: function
+difficulty: 49
+skills:
+  requires:
+  - algo.tree-basics
+  - py.bool-ops
+  - py.recursion-multi
+  introduces: null
+source: neetcode250
+leetcode: same-tree
+milestones:
+- blind75
+entry: same
+signature: 'def same(a: TreeNode | None, b: TreeNode | None) -> bool:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+    '1': treenode
+wrong_examples:
+- why: 漏查当前两个值。
+  code: |
+    def same(a: TreeNode | None, b: TreeNode | None) -> bool:
+        if a is None or b is None:
+            return a is b
+        return same(a.left, b.left) and same(a.right, b.right)

@@ -1,0 +1,168 @@
+id: algo-1-l04-links
+title: 沿着箭头走、摘节点和反转
+track: algo
+skills:
+- algo.ll-traverse
+- algo.ll-dummy
+- algo.ll-reverse
+steps:
+- type: read
+  skill: algo.ll-traverse
+  md: |
+    题面把链表画成数组，是为了在纸上或屏幕上方便显示。函数真正收到的是第一格的引用。每格只知道自己的值和下一格的位置，没有“直接读第十格”的下标。拿一个游标 cur 从 head 出发，每轮先处理这一格，再沿 cur.next 往前，直到游标本身为空。
+
+    走过 n 格需要 O(n) 时间，单纯计数只多用一个游标和一个整数。**循环条件写 cur.next** 表示“后面还有一格”，会漏掉尾节点；在空链上还没进循环就会出错。有环时游标可以走回老地方，所以这个停止条件要求链有尽头。
+- type: example
+  skill: algo.ll-traverse
+  code: |
+    # ① 自己定义节点并连成两格
+    class ListNode:
+        def __init__(self, val, following=None):
+            self.val = val
+            self.next = following
+
+    head = ListNode(0, ListNode(8))
+    # ② 游标依次访问
+    cur = head
+    while cur is not None:
+        print(cur.val)
+        cur = cur.next
+    # ③ 头仍指向原来的格子
+    print(head.val)
+
+    # 输出
+    # 0
+    # 8
+    # 0
+  md: |-
+    | 时刻 | head | cur |
+    |---|---|---|
+    | 开始 | 第一格 | 第一格 |
+    | 走一步 | 第一格 | 第二格 |
+    | 再走一步 | 第一格 | None |
+
+    把 8 改成 0，看看值为 0 的节点是否仍会被访问。
+- type: quiz
+  skill: algo.ll-traverse
+  q: 只剩最后一个值为 0 的节点，while cur is not None 会怎样？
+  options:
+  - 访问这个节点
+  - 因为值为 0 而跳过
+  answer: 0
+  explain: 判断的是节点这个对象是否存在，与 val 的真假无关。
+- type: quiz
+  skill: algo.ll-traverse
+  q: 想保留原表头，一边遍历一边移动谁？
+  options:
+  - 把 head.next 改为下一格的下一格
+  - 令另一个名字 cur 指向 cur.next
+  answer: 1
+  explain: 移动游标只换观察对象；给 next 赋值会改变链的连接。
+- type: read
+  skill: algo.ll-dummy
+  md: |
+    删除节点靠的是修改它前面那格的 next。普通头节点没有前驱，容易让程序为删头另写一套规则。可以临时在队首加一格哨兵，把原头放在 dummy.next。这样即使要删的是第一格，也可以从它的前驱开始，执行同一条“绕过去”的赋值。
+
+    找到前驱后摘一格只需 O(1)，走完整条链仍是 O(n)。连续删相邻的两格时，前驱要先停在原地，再检查它的新后继。**交回原 head** 可能带回已经删掉的旧头；结果的入口始终在 dummy.next。哨兵自己的值只是占位，即使与目标相等也不参与过滤。
+- type: example
+  skill: algo.ll-dummy
+  code: |
+    # ① 在真头前面放一个哨兵
+    class ListNode:
+        def __init__(self, val, following=None):
+            self.val = val
+            self.next = following
+
+    head = ListNode(4, ListNode(4, ListNode(9)))
+    dummy = ListNode(0, head)
+    previous = dummy
+    # ② 摘除紧跟在前驱后面的 4
+    while previous.next and previous.next.val == 4:
+        previous.next = previous.next.next
+    # ③ 对照旧头和新入口
+    print(head.val)
+    print(dummy.next.val)
+
+    # 输出
+    # 4
+    # 9
+  md: |-
+    | 已摘次数 | previous | previous.next 的值 |
+    |---|---|---:|
+    | 0 | 哨兵 | 4 |
+    | 1 | 哨兵 | 4 |
+    | 2 | 哨兵 | 9 |
+
+    把最后一个 9 改成 4，并把最后一行改为 print(dummy.next)。
+- type: quiz
+  skill: algo.ll-dummy
+  q: 删掉旧头之后，新的入口从哪里读？
+  options:
+  - dummy 本身
+  - dummy.next
+  - 旧 head
+  answer: 1
+  explain: 哨兵保存着指向当前真头的箭头。
+- type: quiz
+  skill: algo.ll-dummy
+  q: 摘掉一个匹配值，为什么先不把 previous 向前移？
+  options:
+  - 后继可能也是要删除的值
+  - 前驱的值一定等于目标
+  answer: 0
+  explain: 连续匹配时，新后继要由同一个前驱检查。
+- type: read
+  skill: algo.ll-reverse
+  md: |
+    给一条单向链换方向时，一根 next 箭头只能指一个地方。把已翻转的那段记为 prev，未处理段的开头记为 cur。每一轮先另存 cur 的旧后继，这样才可以把 cur.next 改为 prev。然后让 prev 停在刚翻过来的节点，cur 去刚才存下的后继。
+
+    这个步骤每次恰好处理一格，时间 O(n)，手里始终只要几个引用。**先反向、再读 cur.next 找后继**读到的是刚改好的方向，会丢掉尚未处理的整段。结束时旧头变成尾，新头在 prev。只想倒序读值时也可以保留链的连接，选择是否改链要看题意。
+- type: example
+  skill: algo.ll-reverse
+  code: |
+    # ① 建链并划分已处理段、待处理段
+    class ListNode:
+        def __init__(self, val, following=None):
+            self.val = val
+            self.next = following
+
+    head = ListNode(2, ListNode(7, ListNode(4)))
+    prev, cur = None, head
+    while cur:
+        # ② 先保存旧后继，再转向
+        following = cur.next
+        cur.next = prev
+        # ③ 移动两段的头
+        prev, cur = cur, following
+    print(prev.val, prev.next.val, prev.next.next.val)
+    print(head.next)
+
+    # 输出
+    # 4 7 2
+    # None
+  md: |-
+    | 已处理格数 | prev 的值 | cur 的值 |
+    |---|---|---|
+    | 0 | 空 | 2 |
+    | 1 | 2 | 7 |
+    | 2 | 7 | 4 |
+    | 3 | 4 | 空 |
+
+    把 following = cur.next 放到转向之后，沿箭头追踪为什么走不到 7。
+- type: quiz
+  skill: algo.ll-reverse
+  q: cur 在第一格，prev 是 None。哪一步要先做？
+  options:
+  - 保存 cur.next
+  - 让 cur.next = prev
+  answer: 0
+  explain: 只有旧箭头仍在时才读得到待处理的第二格。
+- type: quiz
+  skill: algo.ll-reverse
+  q: 完整反转后，沿旧 head 再走一步会到哪？
+  options:
+  - 第二格
+  - 新的头
+  - None
+  answer: 2
+  explain: 第一轮已经让旧头指向空，它是新尾。

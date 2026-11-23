@@ -1,0 +1,49 @@
+id: algo-2-068-detect-squares
+title: 用登记过的点拼正方形
+track: algo
+stage: '2'
+order: 680
+format: combine
+mode: class
+difficulty: 67
+skills:
+  requires:
+  - algo.class-design
+  - py.break-continue
+  - py.dict-counting
+  - py.dict-iter
+  - py.nested-loop
+  - py.tuple
+  introduces: null
+source: neetcode250
+leetcode: detect-squares
+milestones:
+- nc150
+entry: DetectSquares
+compare: exact
+wrong_examples:
+- why: 没有乘同列顶点的份数。
+  code: |
+    class DetectSquares:
+        def __init__(self):
+            self.columns = {}
+
+        def add(self, point: list[int]) -> None:
+            x, y = point
+            column = self.columns.setdefault(x, {})
+            column[y] = column.get(y, 0) + 1
+
+        def count(self, point: list[int]) -> int:
+            x, y = point
+            total = 0
+            for other_y, copies in self.columns.get(x, {}).items():
+                side = other_y - y
+                if side == 0:
+                    continue
+                for other_x in (x - side, x + side):
+                    column = self.columns.get(other_x, {})
+                    total += column.get(y, 0) * column.get(other_y, 0)
+            return total
+hints:
+- 固定查询点同列的另一个角；竖边长度决定另两角的横坐标，左右各有一种可能。
+- 三个已登记顶点各有多少份？选择数要相乘。

@@ -1,0 +1,55 @@
+id: algo-3-089-redundant-connection
+title: 找出能拆掉的最后一条边
+track: algo
+stage: '3'
+order: 890
+format: write
+mode: function
+difficulty: 72
+skills:
+  requires:
+  - algo.union-find
+  - py.bool-ops
+  - py.class-methods
+  - py.list-concat-repeat
+  - py.multi-assign
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: redundant-connection
+milestones:
+- nc150
+entry: redundant
+signature: 'def redundant(edges: list[list[int]]) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 总把最后读到的边拆掉。
+  code: |
+    class Groups:
+        def __init__(self, n):
+            self.parent = list(range(n))
+            self.size = [1] * n
+
+        def root(self, node):
+            while node != self.parent[node]:
+                self.parent[node] = self.parent[self.parent[node]]
+                node = self.parent[node]
+            return node
+
+        def merge_sets(self, a, b):
+            a, b = self.root(a), self.root(b)
+            if a == b:
+                return False
+            if self.size[a] < self.size[b]:
+                a, b = b, a
+            self.parent[b] = a
+            self.size[a] += self.size[b]
+            return True
+
+    def redundant(edges: list[list[int]]) -> list[int]:
+        groups = Groups(len(edges) + 1)
+        for a, b in edges:
+            if not groups.merge_sets(a, b):
+                return edges[-1]
+hints:
+- 按输入顺序连边。若两端在连边之前已经同组，新增边在原来那条路上造成了什么？

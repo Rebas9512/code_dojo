@@ -1,0 +1,19 @@
+id: py-0a-298-predict-short-zip
+title: 落单的名字会出现吗
+track: python
+stage: 0A
+order: 4180
+format: predict
+mode: predict
+difficulty: 18
+skills:
+  requires:
+    - py.for-each
+  introduces: py.zip
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM63：以为 zip 会自动为较短的一列补 None。
+    code: |
+      print('叶 4\n柳 7\n林 None')

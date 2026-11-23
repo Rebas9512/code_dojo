@@ -1,0 +1,20 @@
+id: py-0a-254-predict-same-box
+title: 第二枚红签放到哪里
+track: python
+stage: 0A
+order: 3140
+format: predict
+mode: predict
+difficulty: 17
+skills:
+  requires:
+    - py.if-else
+    - py.list-append
+  introduces: py.dict-grouping
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM57：以为每次遇到同一颜色都要重新建盒子。
+    code: |
+      print('[3]')

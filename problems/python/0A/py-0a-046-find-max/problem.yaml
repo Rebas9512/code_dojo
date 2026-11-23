@@ -1,0 +1,20 @@
+id: py-0a-046-find-max
+title: 手写求最大值
+track: python
+stage: 0A
+order: 870
+format: fix
+mode: function
+difficulty: 14
+skills:
+  requires: [py.running-max, py.list-basics, py.for-each]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: find_max
+signature: "def find_max(nums: list[int]) -> int:"
+compare: exact
+hints:
+  - "全是负数时，0 比每个元素都大。"
+  - "擂主的初始值应该来自列表本身。"

@@ -1,0 +1,45 @@
+id: sql-2-020-students-and-examinations
+title: 每位学员在每科签到了几次
+track: sql
+stage: '2'
+order: 200
+format: combine
+difficulty: 38
+skills:
+  requires:
+    - sql.cross-join
+    - sql.multi-join
+    - sql.left-join
+    - sql.join-conditions
+    - sql.join-aggregate
+    - sql.count
+    - sql.and-or
+    - sql.order-by
+  introduces: null
+source: sql50
+leetcode: students-and-examinations
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/no-attendance.sql
+  - datasets/sample.sql + datasets/another-subject.sql
+ordered: true
+hints:
+  - 先用两个名册造出完整清单。计数时选签到记录里非空的一列。
+wrong_examples:
+  - why: 补出的一行被算成签到一次
+    sql: |
+      SELECT s.student_id, s.name, t.subject, COUNT(*) AS attended
+      FROM students s
+      CROSS JOIN subjects t
+      LEFT JOIN attendance a ON a.student_id = s.student_id AND a.subject = t.subject
+      GROUP BY s.student_id, s.name, t.subject
+      ORDER BY s.student_id, t.subject;
+  - why: 把该学员所有科的签到贴到每个科目
+    sql: |
+      SELECT s.student_id, s.name, t.subject, COUNT(a.student_id) AS attended
+      FROM students s
+      CROSS JOIN subjects t
+      LEFT JOIN attendance a ON a.student_id = s.student_id
+      GROUP BY s.student_id, s.name, t.subject
+      ORDER BY s.student_id, t.subject;

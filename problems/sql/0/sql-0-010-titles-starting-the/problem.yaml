@@ -1,0 +1,29 @@
+id: sql-0-010-titles-starting-the
+title: 以 The 开头的书名
+track: sql
+stage: "0"
+order: 170
+format: write
+difficulty: 8
+skills: {requires: [sql.where, sql.like], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/tricky-titles.sql
+ordered: false
+hints:
+  - "% 匹配任意多个字符。"
+  - "把空格也写进模式：'The %'。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "模式里没有空格，Theory 也被匹配"
+    sql: |
+      SELECT title FROM books WHERE title LIKE 'The%';
+  - why: "前面多了 %，书名中间的 The 也被匹配"
+    sql: |
+      SELECT title FROM books WHERE title LIKE '%The %';
+  - why: "用了 ILIKE，小写的 the 也被匹配"
+    sql: |
+      SELECT title FROM books WHERE title ILIKE 'the %';

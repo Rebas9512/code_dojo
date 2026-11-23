@@ -1,0 +1,24 @@
+id: wrangle-1-015-shelf-width
+title: 按货架宽度排货
+track: wrangle
+stage: '1'
+order: 150
+format: complete
+mode: function
+difficulty: 20
+skills:
+  requires:
+    - wrangle.reshape
+  introduces: null
+source: original
+entry: shelves
+signature: 'def shelves(values, width):'
+compare: allclose
+wrong_examples:
+  - why: 把宽度填在行轴。
+    code: |
+      import numpy as np
+
+
+      def shelves(values, width):
+          return np.array(values).reshape(width, -1)

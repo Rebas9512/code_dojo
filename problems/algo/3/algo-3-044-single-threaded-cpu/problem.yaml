@@ -1,0 +1,64 @@
+id: algo-3-044-single-threaded-cpu
+title: 单核处理器先执行哪项
+track: algo
+stage: '3'
+order: 440
+format: combine
+mode: function
+difficulty: 61
+skills:
+  requires:
+  - algo.heapq
+  - py.bool-ops
+  - py.enumerate
+  - py.genexp
+  - py.if-else
+  - py.nested-list
+  - py.sorted
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: single-threaded-cpu
+milestones: []
+entry: execution_order
+signature: 'def execution_order(tasks: list[list[int]]) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 并列任务先取大下标。
+  code: |
+    import heapq
+
+
+    def execution_order(tasks: list[list[int]]) -> list[int]:
+        waiting = sorted((start, cost, i) for i, (start, cost) in enumerate(tasks))
+        heap, order = [], []
+        time = index = 0
+        while heap or index < len(waiting):
+            if not heap:
+                time = max(time, waiting[index][0])
+            while index < len(waiting) and waiting[index][0] <= time:
+                start, cost, i = waiting[index]
+                heapq.heappush(heap, (cost, -i))
+                index += 1
+            cost, i = heapq.heappop(heap)
+            order.append(i)
+            time += cost
+        return order
+- why: 每处理一个任务，重新扫描全部未完成的任务寻找就绪者。
+  code: |
+    def execution_order(tasks: list[list[int]]) -> list[int]:
+        remaining = set(range(len(tasks)))
+        now = 0
+        order = []
+        while remaining:
+            ready = [i for i in remaining if tasks[i][0] <= now]
+            if not ready:
+                now = min(tasks[i][0] for i in remaining)
+                continue
+            current = min(ready, key=lambda i: (tasks[i][1], i))
+            remaining.remove(current)
+            order.append(current)
+            now += tasks[current][1]
+        return order
+hints:
+- 用一份按到达时间排好的清单和一个就绪堆。就绪堆空了，可把时钟跳到下一次到达。

@@ -1,0 +1,33 @@
+id: sql-2-003-orders-for-every-reader
+title: 补全：零订单的读者也上榜
+track: sql
+stage: '2'
+order: 30
+format: complete
+difficulty: 26
+skills:
+  requires:
+    - sql.coalesce
+    - sql.inner-join
+  introduces: sql.left-join
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/empty-right.sql
+  - db:bookstore + datasets/sample.sql + datasets/first-order.sql
+ordered: false
+hints:
+  - 先选必须完整保留的一侧，再把没有匹配到的数量补成 0。
+wrong_examples:
+  - why: 只保留有订单的用户
+    sql: |
+      SELECT u.user_id, COALESCE(c.n, 0) AS order_count
+      FROM users u
+      JOIN order_counts c ON c.user_id = u.user_id;
+  - why: 把缺失的统计单保留成空值
+    sql: |
+      SELECT u.user_id, c.n AS order_count
+      FROM users u
+      LEFT JOIN order_counts c ON c.user_id = u.user_id;

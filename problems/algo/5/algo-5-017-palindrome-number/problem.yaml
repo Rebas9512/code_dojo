@@ -1,0 +1,34 @@
+id: algo-5-017-palindrome-number
+title: 十进制编号反读是否相同
+track: algo
+stage: '5'
+order: 170
+format: write
+mode: function
+difficulty: 74
+week: 2
+skills:
+  requires:
+  - algo.math-module
+  - py.bool-ops
+  - py.early-return
+  - py.while
+  introduces: null
+source: grind169
+leetcode: palindrome-number
+milestones: []
+entry: is_palindrome
+signature: 'def is_palindrome(n: int) -> bool:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 奇数位时把中间位也拿来比较。
+  code: |
+    def is_palindrome(n: int) -> bool:
+        if n < 0 or (n and n % 10 == 0):
+            return False
+        half = 0
+        while n > half:
+            half = half * 10 + n % 10
+            n //= 10
+        return n == half

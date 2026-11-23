@@ -1,0 +1,27 @@
+id: sql-2-010-reader-referrers
+title: 谁推荐了这位读者
+track: sql
+stage: '2'
+order: 100
+format: complete
+difficulty: 31
+skills:
+  requires:
+    - sql.left-join
+  introduces: sql.self-join
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/new-link.sql
+  - db:bookstore + datasets/no-links.sql
+ordered: false
+hints:
+  - 左侧读自己的登记记录，右侧去找推荐人的那条登记记录。
+wrong_examples:
+  - why: 把推荐方向接反，列出这个用户推荐的人
+    sql: |
+      SELECT u.user_id, u.name, ref.name AS referrer_name
+      FROM users u
+      LEFT JOIN users ref ON ref.referrer_id = u.user_id;

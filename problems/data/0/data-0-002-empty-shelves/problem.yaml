@@ -1,0 +1,28 @@
+id: data-0-002-empty-shelves
+title: 数一数售罄的书
+track: data
+stage: '0'
+order: 20
+format: inspect
+mode: inspect
+difficulty: 1
+skills:
+  requires:
+    - data.table-intro
+  introduces: null
+data:
+  - kind: table
+    title: 书架登记
+    file: books.csv
+answer:
+  type: short
+  accept:
+    - '2'
+    - 两
+    - 二
+  misconceptions:
+    '29':
+      id: DM04
+      name: 把编号当数量
+      line: 5 和 24 是两条记录的编号。每找到一条库存为零的记录，就记一笔。
+explain: 在 stock 一列找到两个 0，分别对应编号 5 和 24，一共两条。

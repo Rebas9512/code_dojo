@@ -1,0 +1,52 @@
+id: algo-4-071-path-with-minimum-effort
+title: 找最大落差最小的山路
+track: algo
+stage: '4'
+order: 710
+format: variant
+mode: function
+difficulty: 79
+skills:
+  requires:
+  - algo.dijkstra
+  - py.matrix-traverse
+  - py.bool-ops
+  - py.break-continue
+  - py.early-return
+  - py.list-comp
+  - py.list-concat-repeat
+  - py.minmax-abs
+  - py.type-convert
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: path-with-minimum-effort
+milestones: []
+entry: minimum_effort
+signature: 'def minimum_effort(heights: list[list[int]]) -> int:'
+compare: exact
+wrong_examples:
+- why: 把所有落差相加，改变了路线的评价方式。
+  code: |
+    import heapq
+
+
+    def minimum_effort(heights: list[list[int]]) -> int:
+        rows, cols = len(heights), len(heights[0])
+        best = [[float("inf")] * cols for _ in range(rows)]
+        best[0][0] = 0
+        heap = [(0, 0, 0)]
+        while heap:
+            cost, r, c = heapq.heappop(heap)
+            if cost != best[r][c]:
+                continue
+            if (r, c) == (rows - 1, cols - 1):
+                return cost
+            for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < rows and 0 <= nc < cols:
+                    edge = abs(heights[r][c] - heights[nr][nc])
+                    candidate = cost + edge
+                    if candidate < best[nr][nc]:
+                        best[nr][nc] = candidate
+                        heapq.heappush(heap, (candidate, nr, nc))

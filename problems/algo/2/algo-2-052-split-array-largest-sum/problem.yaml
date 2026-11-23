@@ -1,0 +1,46 @@
+id: algo-2-052-split-array-largest-sum
+title: 分段后压低最重一段
+track: algo
+stage: '2'
+order: 520
+format: combine
+mode: function
+difficulty: 66
+skills:
+  requires:
+  - algo.binary-search-answer
+  - py.list-builtins
+  - py.multi-assign
+  introduces: null
+source: neetcode250
+leetcode: split-array-largest-sum
+milestones: []
+entry: split_min_largest
+signature: 'def split_min_largest(nums: list[int], k: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 只接受贪心得到恰好 k 段，忽略仍可再切。
+  code: |
+    def groups_needed(values: list[int], limit: int) -> int:
+        groups = 1
+        load = 0
+        for weight in values:
+            if load + weight > limit:
+                groups += 1
+                load = 0
+            load += weight
+        return groups
+
+
+    def split_min_largest(nums: list[int], k: int) -> int:
+        lo, hi = max(nums), sum(nums) + 1
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if groups_needed(nums, mid) == k:
+                hi = mid
+            else:
+                lo = mid + 1
+        return lo
+hints:
+- 给定段和上限 K，按顺序尽量装到当前段，计算最少需要几段。
+- 元素非负。若最少段数不超过 k，还能把一些非空段再切开而不超过 K。

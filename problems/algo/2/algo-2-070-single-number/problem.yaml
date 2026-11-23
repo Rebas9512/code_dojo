@@ -1,0 +1,29 @@
+id: algo-2-070-single-number
+title: 从成对编号中找单号
+track: algo
+stage: '2'
+order: 700
+format: write
+mode: function
+difficulty: 65
+skills:
+  requires:
+  - algo.bit-ops
+  - py.for-each
+  introduces: null
+source: neetcode250
+leetcode: single-number
+milestones:
+- nc150
+- top100
+entry: single
+signature: 'def single(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 把异或抵消错写成按位或。
+  code: |
+    def single(nums: list[int]) -> int:
+        result = 0
+        for value in nums:
+            result |= value
+        return result

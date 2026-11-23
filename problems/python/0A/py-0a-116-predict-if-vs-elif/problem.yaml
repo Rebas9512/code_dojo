@@ -1,0 +1,17 @@
+id: py-0a-116-predict-if-vs-elif
+title: if if 和 if elif
+track: python
+stage: 0A
+order: 290
+format: predict
+mode: predict
+difficulty: 6
+skills:
+  requires: [py.if-else]
+  introduces: py.elif
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "95 同时满足三个条件。"
+  - "--- 之后只会打印一行。"

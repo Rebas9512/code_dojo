@@ -1,0 +1,116 @@
+id: algo-2-l04-binary-boundaries
+title: 第一个满足条件的位置
+track: algo
+skills:
+- algo.binary-search
+- algo.binary-search-answer
+steps:
+- type: read
+  skill: algo.binary-search
+  md: |-
+    在有序表里定位某个值、第一次达标的位置或整段相等区间时，可以把条件写成一串先假后真的判断。找第一个大于等于 x 的位置，目标就是这条分界线。相等值可能有很多个，找到一个还要看左边。
+
+    统一维护左闭右开区间 [lo,hi)：lo 是尚未排除的第一格，hi 是右侧界标，本轮不会读到 hi。最初 lo=0，hi=n。mid 不达标就把 lo 移到 mid+1；达标就令 hi=mid，保留 mid 作为可能的答案边界。两者相等时，lo 即第一个达标的位置，所有值都太小则为 n。库函数 bisect_left 做的正是这个查找。每轮折半，时间 O(log n)，额外空间 O(1)。
+
+    **返回插入点就等于找到了 x**会把缺失值误判成存在。要查精确值，还要核对位置小于 n 且那里真是 x。无序表里的条件可能反复变真假，不能这样排除半边。
+- type: example
+  skill: algo.binary-search
+  code: |
+    # ① 待检查格子为 [lo, hi)
+    nums = [1, 4, 4, 7]
+    x = 4
+    lo, hi = 0, len(nums)
+    while lo < hi:
+        # ② 检查中点是否已经达标
+        mid = (lo + hi) // 2
+        print(lo, hi, mid)
+        # ③ 一边保留答案边界，一边排除已知不合格的格子
+        if nums[mid] >= x:
+            hi = mid
+        else:
+            lo = mid + 1
+    print(lo)
+
+    # 输出
+    # 0 4 2
+    # 0 2 1
+    # 0 1 0
+    # 1
+  md: |-
+    | 待查区间 | [0,4) | [0,2) | [0,1) | [1,1) |
+    |---|---|---|---|---|
+    | 中点的判断 | 真 | 真 | 假 | 停下 |
+
+    把 x 改成 8，观察最后的下标能否直接拿去访问 nums。
+- type: quiz
+  skill: algo.binary-search
+  q: 在 [2,3) 里 mid=2，不达标时把 lo 设成什么？
+  options:
+  - '2'
+  - '3'
+  answer: 1
+  explain: 只有下标 2 待查，它已不达标。令 lo=mid 会原地重复。
+- type: quiz
+  skill: algo.binary-search
+  q: 在 [1,4,4,7] 找 5，返回插入点 3 能说明什么？
+  options:
+  - 5 在第 3 格
+  - 第一项不小于 5 的值在下标 3
+  answer: 1
+  explain: nums[3] 是 7。要找完全相等的值，最后还要核对。
+- type: read
+  skill: algo.binary-search-answer
+  md: |-
+    题目问“最小的可行速度、容量或允许的最大段和”，候选答案可能并没有列在数组里。先固定一个候选值，写一个只回答能否完成的函数。若可行后再加大候选值仍然可行，假和真之间就有一条分界线。
+
+    例如每小时吃一堆，速度 v 时单堆花 (p+v-1)//v 小时。先逐堆向上取整，再求总和。速度越快，总小时数只会减少或持平。在从 1 到最大堆的整数中找第一个可行速度，用 [1,最大堆+1) 表示；可行就令 hi=mid，否则令 lo=mid+1。一次试速看 n 堆，速度范围有 M 项，总时间 O(n log(M+1))。
+
+    **把所有堆合起来再向上取整**会允许一小时换堆，改变规则。若问题问“总时间恰好为 h”，可能先不等、再相等、再不等，不能直接拿这个等式找第一真。
+- type: example
+  skill: algo.binary-search-answer
+  code: |
+    # ① 每堆分别结算小时
+    piles = [4, 9]
+    def feasible(speed):
+        return sum((p + speed - 1) // speed for p in piles) <= 4
+
+    # ② 用半开区间列出候选速度
+    lo, hi = 1, max(piles) + 1
+    while lo < hi:
+        mid = (lo + hi) // 2
+        works = feasible(mid)
+        print(mid, works)
+        # ③ 找到第一档能按时完成的速度
+        if works:
+            hi = mid
+        else:
+            lo = mid + 1
+    print(lo)
+
+    # 输出
+    # 5 True
+    # 3 False
+    # 4 True
+    # 4
+  md: |-
+    | 试速 | 5 | 3 | 4 |
+    |---|---:|---:|---:|
+    | 两堆总小时数 | 3 | 5 | 4 |
+
+    把预算从 4 改到 5，再看第一个可行速度。
+- type: quiz
+  skill: algo.binary-search-answer
+  q: 两堆各 1 根，速度 5，需几小时？
+  options:
+  - '1'
+  - '2'
+  answer: 1
+  explain: 一次只能选一堆，即使很快也要给每堆至少一小时。
+- type: quiz
+  skill: algo.binary-search-answer
+  q: 哪些条件能直接交给“找第一真”的模板？
+  options:
+  - 从低到高依次为假、假、真、真
+  - 从低到高依次为假、真、假、真
+  answer: 0
+  explain: 第一次为真后要一直为真，才可以安全丢掉半个范围。

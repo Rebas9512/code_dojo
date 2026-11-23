@@ -1,0 +1,30 @@
+id: algo-5-070-single-number-ii
+title: 每组三份之外的那个数
+track: algo
+stage: '5'
+order: 700
+format: write
+mode: function
+difficulty: 81
+week: 9
+skills:
+  requires:
+  - algo.bit-ops
+  - py.for-each
+  introduces: null
+source: top-interview-150
+leetcode: single-number-ii
+milestones: []
+entry: single
+signature: 'def single(nums: list[int]) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 返回出现次数模三为二的位集合。
+  code: |
+    def single(nums: list[int]) -> int:
+        once = twice = 0
+        for value in nums:
+            once = (once ^ value) & ~twice
+            twice = (twice ^ value) & ~once
+        return twice

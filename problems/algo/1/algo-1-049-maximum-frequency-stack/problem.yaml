@@ -1,0 +1,48 @@
+id: algo-1-049-maximum-frequency-stack
+title: 每次拿走当前最频繁的数
+track: algo
+stage: '1'
+order: 490
+unit: 2
+format: combine
+mode: class
+difficulty: 61
+skills:
+  requires:
+  - py.bool-ops
+  - py.minmax-abs
+  - py.stack-list
+  - algo.class-design
+  - algo.defaultdict
+  - algo.bucket
+  introduces: null
+source: neetcode250
+leetcode: maximum-frequency-stack
+milestones: []
+entry: FreqStack
+compare: exact
+wrong_examples:
+- why: 并列时拿到最早的。
+  code: |
+    from collections import defaultdict
+
+
+    class FreqStack:
+        def __init__(self):
+            self.counts = defaultdict(int)
+            self.levels = defaultdict(list)
+            self.highest = 0
+
+        def push(self, val: int) -> None:
+            self.counts[val] += 1
+            level = self.counts[val]
+            self.levels[level].append(val)
+            self.highest = max(self.highest, level)
+
+        def pop(self) -> int:
+            level = self.levels[self.highest]
+            val = level.pop(0)
+            self.counts[val] -= 1
+            if not level:
+                self.highest -= 1
+            return val

@@ -1,0 +1,34 @@
+id: py-0b-008-reverse-vowels
+title: 只交换元音的位置
+track: python
+stage: 0B
+order: 80
+format: write
+mode: function
+difficulty: 27
+skills:
+  requires: [py.swap-reverse, py.split-join, py.in-membership, py.list-basics, py.elif]
+  introduces: null
+source: leetcode75
+leetcode: reverse-vowels-of-a-string
+milestones: []
+entry: reverse_vowels
+signature: 'def reverse_vowels(text: str) -> str:'
+compare: exact
+wrong_examples:
+  - why: "只把小写字母当作元音。"
+    code: |
+      def reverse_vowels(text: str) -> str:
+          letters = list(text)
+          vowels = "aeiou"
+          left, right = 0, len(letters) - 1
+          while left < right:
+              if letters[left] not in vowels:
+                  left += 1
+              elif letters[right] not in vowels:
+                  right -= 1
+              else:
+                  letters[left], letters[right] = letters[right], letters[left]
+                  left += 1
+                  right -= 1
+          return "".join(letters)

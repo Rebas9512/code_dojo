@@ -1,0 +1,46 @@
+id: algo-5-068-integer-to-roman
+title: 把编号刻成罗马数字
+track: algo
+stage: '5'
+order: 680
+format: write
+mode: function
+difficulty: 81
+week: 9
+skills:
+  requires:
+  - algo.greedy
+  - py.split-join
+  - py.tuple
+  introduces: null
+source: top-interview-150
+leetcode: integer-to-roman
+milestones: []
+entry: roman
+signature: 'def roman(value: int) -> str:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 遇到 9 时仍使用加法写法。
+  code: |
+    def roman(value: int) -> str:
+        symbols = [
+            (1000, "M"),
+            (900, "CM"),
+            (500, "D"),
+            (400, "CD"),
+            (100, "C"),
+            (90, "XC"),
+            (50, "L"),
+            (40, "XL"),
+            (10, "X"),
+            (9, "VIIII"),
+            (5, "V"),
+            (4, "IV"),
+            (1, "I"),
+        ]
+        out = []
+        for size, mark in symbols:
+            copies, value = divmod(value, size)
+            out.append(mark * copies)
+        return "".join(out)

@@ -1,0 +1,20 @@
+id: py-0a-032-count-char
+title: 数一数某个字符
+track: python
+stage: 0A
+order: 630
+format: fix
+mode: function
+difficulty: 11
+skills:
+  requires: [py.index-len, py.for-range, py.accumulator, py.if-else]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: count_char
+signature: "def count_char(s: str, ch: str) -> int:"
+compare: exact
+hints:
+  - "\"banana\" 里漏数的是哪个 a？"
+  - "合法下标是 0 到 len(s) - 1，range 的终点应该是多少？"

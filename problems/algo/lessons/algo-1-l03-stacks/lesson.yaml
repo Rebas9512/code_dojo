@@ -1,0 +1,105 @@
+id: algo-1-l03-stacks
+title: 栈顶正在等什么
+track: algo
+skills:
+- algo.stack-matching
+- algo.monotonic-stack
+steps:
+- type: read
+  skill: algo.stack-matching
+  md: |
+    嵌套的括号有一个先后约束：后来打开的一层必须先关闭。把读过但尚未关闭的左括号按顺序压入栈，栈顶就是最新的一层。遇到右括号，先检查有没有待关的层，再核对栈顶类型，匹配时才弹出。整串处理完，栈也要正好清空。
+
+    每个括号最多压入和弹出一次，所以时间 O(n)，同时未关闭的层数决定额外空间。**只统计左右个数**会把 ([)] 这样的交叉错配放过去；而 **遇到右括号直接 pop** 会在字符串以右括号开头时访问空栈。
+- type: example
+  skill: algo.stack-matching
+  code: |
+    # ① 建配对表和待关栈
+    pairs = {")": "(", "]": "["}
+    stack = []
+    ok = True
+    for char in "([)]":
+        # ② 打开一层
+        if char not in pairs:
+            stack.append(char)
+        # ③ 关闭最近的一层
+        elif not stack or stack.pop() != pairs[char]:
+            ok = False
+            break
+    print(ok and not stack)
+
+    # 输出
+    # False
+  md: |-
+    | 输入 | 核对前的栈 | 动作 |
+    |---|---|---|
+    | ( | 空 | 压入 ( |
+    | [ | ( | 压入 [ |
+    | ) | ([ | 栈顶是 [，失败 |
+
+    改用 []() 和单独的 ]，观察两种边界。
+- type: quiz
+  skill: algo.stack-matching
+  q: 空栈时读到 ]，接下来该做什么？
+  options:
+  - 直接 pop
+  - 判定匹配失败
+  - 跳过继续
+  answer: 1
+  explain: 一个右括号需要一个已经打开的同型层，空栈没有候选。
+- type: quiz
+  skill: algo.stack-matching
+  q: 输入 (() 读完，已见的右括号都能配上，结论呢？
+  options:
+  - 有效
+  - 无效
+  answer: 1
+  explain: 还有一个未关闭的左括号留在栈里。
+- type: read
+  skill: algo.monotonic-stack
+  md: |
+    问题若问“右边第一个严格更大的数”，可以让暂时没找到答案的位置一起等待。栈内保存这些下标，对应的值从底到顶不增。每到一个新值，连续弹出栈顶比它小的位置；这些位置从入栈到现在没见过更大的数，所以眼前的值就是第一个。最后压入当前下标。
+
+    虽然代码有内层循环，每个下标一生只入栈一次、出栈至多一次，整趟 O(n)。**同样高也弹出**会把相等当成更大。若题目要等待的天数，存位置才能相减；若要整段的最大值，这种“第一次遇见”的答案也不能直接拿来用。
+- type: example
+  skill: algo.monotonic-stack
+  code: |
+    # ① 准备等待位置和答案
+    temps = [6, 4, 4, 8]
+    pending = []
+    days = [0] * len(temps)
+    for i, value in enumerate(temps):
+        # ② 替较低的旧位置结算距离
+        while pending and temps[pending[-1]] < value:
+            old = pending.pop()
+            days[old] = i - old
+        # ③ 让当前位置也开始等待
+        pending.append(i)
+    print(days)
+
+    # 输出
+    # [3, 2, 1, 0]
+  md: |-
+    | 新值 | 处理后待答下标 |
+    |---|---|
+    | 6 | 0 |
+    | 4，4 | 0、1、2 |
+    | 8 | 3 |
+
+    把最后的 8 改成 4，检查哪些位置还在等。
+- type: quiz
+  skill: algo.monotonic-stack
+  q: 两个气温都为 4，题目要严格更暖，后一天到来时要弹出前一天吗？
+  options:
+  - 弹出
+  - 保留
+  answer: 1
+  explain: 4 没有变暖，前一天仍在等待。
+- type: quiz
+  skill: algo.monotonic-stack
+  q: 输入 [4, 4, 8]，栈中只记两个值 4，缺少什么信息？
+  options:
+  - 当前最高温
+  - 两个 4 各自的位置
+  answer: 1
+  explain: 答案是不同的距离 2 和 1，必须区分它们的位置。

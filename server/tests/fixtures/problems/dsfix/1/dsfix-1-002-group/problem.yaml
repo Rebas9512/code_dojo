@@ -1,0 +1,16 @@
+id: dsfix-1-002-group
+title: 按组汇总
+track: dsfix
+stage: '1'
+order: 20
+format: write
+mode: function
+difficulty: 10
+skills:
+  requires: []
+  introduces: null
+entry: totals
+signature: 'def totals(rows):'
+compare: frame
+ignore_row_order: true
+ignore_index: true

@@ -1,0 +1,25 @@
+id: sql-0-102-complete-sale-price
+title: 补全：打八折的价格
+track: sql
+stage: "0"
+order: 30
+format: complete
+difficulty: 2
+skills: {requires: [sql.select-basic], introduces: sql.select-expr}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/new-prices.sql
+ordered: false
+hints:
+  - "乘号是 *。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "减了 0.8，不是乘"
+    sql: |
+      SELECT title, price - 0.8 AS sale_price FROM books;
+  - why: "除以 0.8"
+    sql: |
+      SELECT title, price / 0.8 AS sale_price FROM books;

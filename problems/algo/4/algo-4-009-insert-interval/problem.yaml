@@ -1,0 +1,41 @@
+id: algo-4-009-insert-interval
+title: 给已排好的范围插入一段
+track: algo
+stage: '4'
+order: 90
+format: variant
+mode: function
+difficulty: 64
+skills:
+  requires:
+  - algo.intervals
+  - py.bool-ops
+  - py.list-append
+  - py.list-concat-repeat
+  - py.nested-list
+  - py.slice
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: insert-interval
+milestones:
+- blind75
+entry: insert_span
+signature: 'def insert_span(intervals: list[list[int]], new: list[int]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+- why: 漏合并起点等于新右端点的区间。
+  code: |
+    def insert_span(intervals: list[list[int]], new: list[int]) -> list[list[int]]:
+        result = []
+        start, end = new
+        i = 0
+        while i < len(intervals) and intervals[i][1] < start:
+            result.append(intervals[i])
+            i += 1
+        while i < len(intervals) and intervals[i][0] < end:
+            start = min(start, intervals[i][0])
+            end = max(end, intervals[i][1])
+            i += 1
+        result.append([start, end])
+        return result + intervals[i:]

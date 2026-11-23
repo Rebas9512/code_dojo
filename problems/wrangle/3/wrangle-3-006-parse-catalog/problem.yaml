@@ -1,0 +1,26 @@
+id: wrangle-3-006-parse-catalog
+title: 接收一段书目 CSV
+track: wrangle
+stage: '3'
+order: 60
+format: complete
+mode: function
+difficulty: 26
+skills:
+  requires:
+    - wrangle.csv
+  introduces: null
+source: original
+entry: read_catalog
+signature: 'def read_catalog(text):'
+compare: frame
+wrong_examples:
+  - why: 将表头误当成第一本书。
+    code: |
+      from io import StringIO
+
+      import pandas as pd
+
+
+      def read_catalog(text):
+          return pd.read_csv(StringIO(text), header=None)

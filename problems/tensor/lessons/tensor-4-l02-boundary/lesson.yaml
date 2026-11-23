@@ -1,0 +1,36 @@
+id: tensor-4-l02-boundary
+title: 计算图的边界
+track: tensor
+skills:
+  - tensor.boundary
+steps:
+  - type: read
+    skill: tensor.boundary
+    md: |-
+      有些读数只作目标，有些要作为旋钮继续求导。比如在 x=3 时计算 x 乘自己的参考读数 3，如果参考固定，只让第一个因子变化，斜率就是 3；两个因子同时变化时，斜率是 6。数值一样，计算路径却不同。
+
+      `x.detach()` 取一个与原值共享存储、从此处切断求导路径的张量；改动其内容也可能影响原值。`with torch.no_grad():` 暂停记录代码块内的新运算。反向传播可能需要旧值：若前向保存了 x，即使在 no_grad 里提前原地改它，版本检查仍可能报错。先反向，再更新。
+
+      **TM20 常见误解：以为暂停记录就能随时原地改旧值**。在 x=2 时保存 x*x 的计算图。如果先在 no_grad 中把 x 加 1，反向会发现版本已变；先反向可得到旧点的斜率 4。
+  - type: example
+    skill: tensor.boundary
+    code: |
+      import torch
+      # ① 固定一个因子，另一个继续求导
+      x = torch.tensor(3., requires_grad=True)
+      y = x * x.detach()
+      y.backward()
+      print(y.item(), x.grad.item())  # 输出 9.0 3.0
+      with torch.no_grad():
+          preview = x + 1
+      print(preview.requires_grad)  # 输出 False
+    md: 去掉 detach 后再看第二个数字。
+  - type: quiz
+    skill: tensor.boundary
+    q: 已经用 x*x 建图，反向前在 no_grad 中改 x，能保证反向成功吗？
+    options:
+      - 能，已暂停记录
+      - 不能，旧值可能正等着用于反向
+      - 能，梯度会自动清空
+    answer: 1
+    explain: 反向需要前向保存的旧值；原地改动会改变它的版本。（TM20）

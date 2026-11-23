@@ -1,0 +1,40 @@
+id: algo-3-036-keep-k-largest
+title: 只保留最大的 k 个数
+track: algo
+stage: '3'
+order: 360
+format: fix
+mode: function
+difficulty: 57
+skills:
+  requires:
+  - algo.heapq
+  - py.if-else
+  introduces: algo.heap-topk
+source: original
+leetcode: null
+milestones: []
+entry: top_values
+signature: 'def top_values(values: list[int], k: int) -> list[int]:'
+compare: unordered
+wrong_examples:
+- why: 刚好 k 项也弹出。
+  code: |
+    import heapq
+
+
+    def top_values(values: list[int], k: int) -> list[int]:
+        kept = []
+        for value in values:
+            heapq.heappush(kept, value)
+            if len(kept) >= k:
+                heapq.heappop(kept)
+        return kept
+- why: 每次读数都把已读前缀重新排序再报告入围者。
+  code: |
+    def top_values(values: list[int], k: int) -> list[int]:
+        seen = []
+        for value in values:
+            seen.append(value)
+            kept = sorted(seen, reverse=True)[:k]
+        return kept

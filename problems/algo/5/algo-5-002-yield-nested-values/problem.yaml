@@ -1,0 +1,43 @@
+id: algo-5-002-yield-nested-values
+title: 把嵌套列表里的整数逐个交出来
+track: algo
+stage: '5'
+order: 20
+format: complete
+mode: function
+difficulty: 62
+skills:
+  requires:
+  - py.recursion
+  - py.break-continue
+  - py.class-basic
+  - py.none
+  - py.recursion-multi
+  introduces: algo.generator
+source: original
+leetcode: null
+milestones: []
+entry: run_case
+signature: 'def run_case(items: list, limit: int) -> list[int]:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 把子列表本身交给调用者。
+  code: |
+    def flatten(items: list):
+        for item in items:
+            if isinstance(item, list):
+                yield item
+            else:
+                yield item
+
+
+    def run_case(items: list, limit: int) -> list[int]:
+        stream = flatten(items)
+        values = []
+        for _ in range(limit):
+            value = next(stream, None)
+            if value is None:
+                break
+            values.append(value)
+        return values

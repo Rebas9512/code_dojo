@@ -1,0 +1,26 @@
+id: sql-3-007-max-reader-orders
+title: 补全：最常下单的人下了几单
+track: sql
+stage: '3'
+order: 70
+format: complete
+difficulty: 44
+skills:
+  requires:
+    - sql.sum-avg
+  introduces: sql.derived-table
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/empty.sql
+  - db:bookstore + datasets/tie.sql
+ordered: false
+hints:
+  - 内层每人一行，外层只需读计数那一列。
+wrong_examples:
+  - why: 计算买家人数
+    sql: |
+      SELECT COUNT(*) AS most_orders
+      FROM (SELECT user_id, COUNT(*) AS n FROM orders GROUP BY user_id) AS counts;

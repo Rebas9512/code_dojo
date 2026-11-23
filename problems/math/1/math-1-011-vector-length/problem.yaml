@@ -1,0 +1,25 @@
+id: math-1-011-vector-length
+title: 测量位移长度
+track: math
+stage: '1'
+order: 110
+format: complete
+mode: function
+difficulty: 22
+skills:
+  requires:
+    - py.genexp
+    - py.list-builtins
+    - math.dot
+    - math.distance
+  introduces: null
+source: original
+entry: vector_length
+signature: 'def vector_length(delta: list[float]) -> float:'
+compare: float
+wrong_examples:
+  - why: 停在平方和，没有开方。
+    code: |
+      def vector_length(delta: list[float]) -> float:
+          squared = sum(x * x for x in delta)
+          return squared

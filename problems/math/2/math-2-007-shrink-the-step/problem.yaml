@@ -1,0 +1,20 @@
+id: math-2-007-shrink-the-step
+title: 把第二个点移近
+track: math
+stage: '2'
+order: 70
+format: predict
+mode: predict
+difficulty: 23
+skills:
+  requires:
+    - py.list-basics
+    - math.slope
+  introduces: math.derivative
+source: original
+wrong_examples:
+  - why: 分母始终取 1，和实际小步不符。
+    code: |
+      x = 1
+      for h in [1, 0.5]:
+          print(((x + h) ** 2 - x ** 2) / 1)

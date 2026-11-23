@@ -1,0 +1,52 @@
+id: algo-3-012-diameter-of-binary-tree
+title: 任意两点之间最长的树路
+track: algo
+stage: '3'
+order: 120
+format: write
+mode: function
+difficulty: 51
+skills:
+  requires:
+  - algo.tree-postorder
+  - py.minmax-abs
+  - py.recursion-multi
+  introduces: null
+source: neetcode250
+leetcode: diameter-of-binary-tree
+milestones:
+- nc150
+- top100
+entry: diameter
+signature: 'def diameter(root: TreeNode | None) -> int:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 结算时把节点数当边数。
+  code: |
+    def measure(node):
+        if node is None:
+            return 0, 0
+        left, left_best = measure(node.left)
+        right, right_best = measure(node.right)
+        return 1 + max(left, right), max(left_best, right_best, left + right + 1)
+
+
+    def diameter(root: TreeNode | None) -> int:
+        return measure(root)[1]
+- why: 在每个节点重新向下测两侧高度，长链上重复扫描后缀。
+  code: |
+    def depth(node):
+        if not node:
+            return 0
+        return 1 + max(depth(node.left), depth(node.right))
+
+
+    def diameter(root: TreeNode | None) -> int:
+        if not root:
+            return 0
+        return max(depth(root.left) + depth(root.right), diameter(root.left), diameter(root.right))
+hints:
+- 经过当前点的路线可以使用两条手臂。想一想哪一条信息能向父亲延伸，哪一条只留作答案。

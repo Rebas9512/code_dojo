@@ -1,0 +1,11 @@
+{
+  "examples": [
+    {"args": ["TeaT"], "expected": {"t": 2, "e": 1, "a": 1}},
+    {"args": ["aaA"], "expected": {"a": 3}}
+  ],
+  "hidden": [
+    {"args": [""], "expected": {}},
+    {"args": ["X"], "expected": {"x": 1}},
+    {"args": ["ab"], "expected": {"a": 1, "b": 1}}
+  ]
+}

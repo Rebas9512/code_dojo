@@ -1,0 +1,29 @@
+id: math-1-024-repair-row-column
+title: 修好串行的用料账
+track: math
+stage: '1'
+order: 240
+format: fix
+mode: function
+difficulty: 31
+skills:
+  requires:
+    - py.genexp
+    - py.list-builtins
+    - math.matrix-product
+  introduces: null
+source: original
+entry: multiply
+signature: 'def multiply(a: list[list[int]], b: list[list[int]]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+  - why: 把右表的下标顺序颠倒。
+    code: |
+      def multiply(a: list[list[int]], b: list[list[int]]) -> list[list[int]]:
+          result = []
+          for row in a:
+              line = []
+              for c in range(len(b[0])):
+                  line.append(sum(row[k] * b[c][k] for k in range(len(row))))
+              result.append(line)
+          return result

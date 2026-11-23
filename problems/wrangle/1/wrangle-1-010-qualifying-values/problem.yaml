@@ -1,0 +1,25 @@
+id: wrangle-1-010-qualifying-values
+title: 抄出达标读数
+track: wrangle
+stage: '1'
+order: 100
+format: write
+mode: function
+difficulty: 18
+skills:
+  requires:
+    - wrangle.mask
+  introduces: null
+source: original
+entry: qualified
+signature: 'def qualified(values, limit):'
+compare: exact
+wrong_examples:
+  - why: 把真假标记作为读数返回。
+    code: |
+      import numpy as np
+
+
+      def qualified(values, limit):
+          a = np.array(values)
+          return (a >= limit).tolist()

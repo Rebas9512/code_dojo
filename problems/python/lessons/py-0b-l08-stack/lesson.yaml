@@ -1,0 +1,41 @@
+id: py-0b-l08-stack
+title: 从末尾撤销一个字符
+track: python
+skills: [py.stack-list]
+steps:
+  - type: read
+    skill: py.stack-list
+    md: |
+      把已经打出的字符依次摆在桌上。每来一个字母，就放在最右边；碰到退格符，就从右边拿走最近放下而且还留着的字母。这种后放先拿的顺序叫作栈，在 Python 中可以用列表的末尾充当栈顶。
+
+      **不变式**：读完前 i 个符号，栈从底到顶正好是这段输入编辑后保留的文字。pop() 取走末项并返回它，stack[-1] 只看末项。误把 pop() 当成从开头取（PM37），就会擦掉最早的字。空栈上不能直接取末项。
+  - type: example
+    skill: py.stack-list
+    code: |
+      # ① 从左到右读按键
+      stack = []
+      for key in "ab*c":
+          # ② 星号撤销最后一项，字母压入栈顶
+          if key == "*":
+              stack.pop()
+          else:
+              stack.append(key)
+          print("".join(stack))
+    md: |
+      | 刚读到 | 栈（底 → 顶） |
+      |---|---|
+      | a | a |
+      | b | a，b |
+      | * | a |
+      | c | a，c |
+
+      把按键串改成 ab*c*，先写下最后的结果。
+  - type: quiz
+    skill: py.stack-list
+    q: "栈从底到顶是 [2, 6]。读 stack[-1] 后再 pop()，最终留下什么？"
+    options:
+      - "空栈"
+      - "[6]"
+      - "[2]"
+    answer: 2
+    explain: "读取栈顶不会删除；pop() 才取走 6。"

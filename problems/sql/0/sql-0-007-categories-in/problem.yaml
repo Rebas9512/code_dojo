@@ -1,0 +1,25 @@
+id: sql-0-007-categories-in
+title: 三个分类的书
+track: sql
+stage: "0"
+order: 120
+format: write
+difficulty: 7
+skills: {requires: [sql.where, sql.in-list], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/new-category.sql
+ordered: false
+hints:
+  - "WHERE category IN ('history', 'cooking', 'kids')"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "漏了一个分类"
+    sql: |
+      SELECT title, category FROM books WHERE category IN ('history', 'cooking');
+  - why: "写成了 NOT IN"
+    sql: |
+      SELECT title, category FROM books WHERE category NOT IN ('history', 'cooking', 'kids');

@@ -1,0 +1,31 @@
+id: algo-4-020-jump-game-ii
+title: 跳到末格至少要几步
+track: algo
+stage: '4'
+order: 200
+format: variant
+mode: function
+difficulty: 67
+skills:
+  requires:
+  - algo.greedy
+  introduces: null
+source: neetcode250
+leetcode: jump-game-ii
+milestones:
+- nc150
+- top100
+entry: min_jumps
+signature: 'def min_jumps(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 在终点又开启一轮跳跃。
+  code: |
+    def min_jumps(nums: list[int]) -> int:
+        end = reach = jumps = 0
+        for i in range(len(nums)):
+            reach = max(reach, i + nums[i])
+            if i == end:
+                jumps += 1
+                end = reach
+        return jumps

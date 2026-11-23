@@ -1,0 +1,45 @@
+id: algo-3-041-reorganize-string
+title: 相邻的字母要错开
+track: algo
+stage: '3'
+order: 410
+format: write
+mode: function
+difficulty: 60
+skills:
+  requires:
+  - algo.counter
+  - algo.heapq
+  - py.dict-iter
+  - py.list-comp
+  - py.split-join
+  - py.ternary
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: reorganize-string
+milestones: []
+entry: reorganize
+signature: 'def reorganize(s: str) -> str:'
+compare: checker
+wrong_examples:
+- why: 堆空就交卷，漏看剩余次数。
+  code: |
+    import heapq
+    from collections import Counter
+
+
+    def reorganize(s: str) -> str:
+        heap = [(-count, char) for char, count in Counter(s).items()]
+        heapq.heapify(heap)
+        result = []
+        waiting = (0, '')
+        while heap:
+            count, char = heapq.heappop(heap)
+            result.append(char)
+            if waiting[0] < 0:
+                heapq.heappush(heap, waiting)
+            waiting = (count + 1, char)
+        return ''.join(result)
+hints:
+- 让刚放过的字母等一轮。取出下一个字母后，再把前一个字母未用完的部分放回堆。

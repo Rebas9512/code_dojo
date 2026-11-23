@@ -1,0 +1,14 @@
+{
+  "examples": [
+    {"args": [3], "expected": 15},
+    {"args": [25], "expected": 50}
+  ],
+  "hidden": [
+    {"args": [1], "expected": 10},
+    {"args": [5], "expected": 15},
+    {"args": [6], "expected": 30},
+    {"args": [20], "expected": 30},
+    {"args": [21], "expected": 50},
+    {"args": [2], "expected": 15}
+  ]
+}

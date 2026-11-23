@@ -1,0 +1,47 @@
+id: py-0b-l03-two-index
+title: 两列号码，各留一个下标
+track: python
+skills: [py.two-index]
+steps:
+  - type: read
+    skill: py.two-index
+    md: |
+      两列号码分别按从小到大排好。给两列各放一张书签，指向自己这边第一个还没有取出的数。每次只需要比较书签上的两个数，取出较小的，再移动刚用过的那张书签。相等时可以先取左边。
+
+      **不变式**：结果里恰好是两张书签之前已经取出的数，而且已经排好序。只要一列用完，比较循环就结束；另一列后面的数仍然在排队。忘记接上剩余部分会漏数（PM71）。
+  - type: example
+    skill: py.two-index
+    code: |
+      # ① 指向各自的第一项
+      a, b = [1, 4], [2, 3]
+      i = j = 0
+      out = []
+      # ② 每次取较小的一项
+      while i < len(a) and j < len(b):
+          if a[i] <= b[j]:
+              out.append(a[i])
+              i += 1
+          else:
+              out.append(b[j])
+              j += 1
+      # ③ 接上没有用完的尾巴
+      out.extend(a[i:])
+      out.extend(b[j:])
+      print(out)
+    md: |
+      | 刚取的数 | i | j | 已排好 |
+      |---|---:|---:|---|
+      | 1 | 1 | 0 | [1] |
+      | 2 | 1 | 1 | [1, 2] |
+      | 3 | 1 | 2 | [1, 2, 3] |
+
+      把 b 改成空列表，先猜两句 extend 各接上哪些数。
+  - type: quiz
+    skill: py.two-index
+    q: "a = [1, 4]、b = [2]。取出 2 后该做什么？"
+    options:
+      - "直接返回 [1, 2]"
+      - "把 a 里剩下的 4 接上"
+      - "再取一次 2"
+    answer: 1
+    explain: "比较循环在 b 用完时停止，a 的尾巴仍属于合并结果。"

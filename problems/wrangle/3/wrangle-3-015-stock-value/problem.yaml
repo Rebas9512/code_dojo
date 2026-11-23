@@ -1,0 +1,26 @@
+id: wrangle-3-015-stock-value
+title: 新增一列库存金额
+track: wrangle
+stage: '3'
+order: 150
+format: complete
+mode: function
+difficulty: 30
+skills:
+  requires:
+    - wrangle.columns
+  introduces: null
+source: original
+entry: with_value
+signature: 'def with_value(t):'
+compare: frame
+leetcode: create-a-new-column
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 将数量与单价相加。
+    code: |
+      def with_value(t):
+          t['total'] = t['n'] + t['p']
+          return t

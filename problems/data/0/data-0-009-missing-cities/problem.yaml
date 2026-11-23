@@ -1,0 +1,26 @@
+id: data-0-009-missing-cities
+title: 哪些城市还没登记
+track: data
+stage: '0'
+order: 90
+format: inspect
+mode: inspect
+difficulty: 4
+skills:
+  requires:
+    - data.value-kinds
+  introduces: data.missing
+data:
+  - kind: table
+    title: 合并导出的城市登记
+    file: users.csv
+answer:
+  type: short
+  accept:
+    - 4 10 11
+    - 4、10、11
+    - 4,10,11
+  misconceptions:
+    '0': DM03
+    0 0 0: DM03
+explain: 4 号的空字段、10 号的空文字和 11 号的 N/A 写法不同。这份导出说明把三者都列为缺失标记，所以要找三位用户补资料。

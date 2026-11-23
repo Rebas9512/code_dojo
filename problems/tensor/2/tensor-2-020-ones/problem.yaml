@@ -1,0 +1,42 @@
+id: tensor-2-020-ones
+title: 把每个编号变成一
+track: tensor
+stage: '2'
+order: 200
+format: complete
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - tensor.coordinates
+  introduces: null
+source: original
+entry: ones
+signature: 'def ones(n):'
+compare: checker
+wrong_examples:
+  - why: 直接调用现成运算，跳过了坐标构造。
+    code: |
+      import torch
+
+
+      def ones(n):
+          return torch.ones(n, dtype=torch.int64)
+  - why: 把“每格是一”写成“从一开始依次编号”。
+    code: |
+      import torch
+
+
+      def ones(n):
+          i = torch.arange(n)
+          return i + 1
+constraints:
+  no_loops: true
+  forbid_calls:
+    - torch.ones
+    - torch.ones_like
+    - torch.full
+    - torch.full_like
+  forbid_imports:
+    - numpy
+    - pandas

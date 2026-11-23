@@ -1,0 +1,16 @@
+id: wrangle-3-001-series-or-frame
+title: 货架册数是一列还是一张表
+track: wrangle
+stage: '3'
+order: 10
+format: predict
+mode: predict
+difficulty: 23
+skills:
+  requires: []
+  introduces: wrangle.table
+source: original
+wrong_examples:
+  - why: 把选一列的表也降成了一维。
+    code: |
+      print('(3,)\n(3,)')

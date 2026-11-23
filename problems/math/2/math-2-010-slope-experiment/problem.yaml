@@ -1,0 +1,29 @@
+id: math-2-010-slope-experiment
+title: 记录差商怎样靠近
+track: math
+stage: '2'
+order: 100
+format: write
+mode: function
+difficulty: 26
+skills:
+  requires:
+    - py.list-append
+    - math.slope
+    - math.function-table
+    - math.derivative
+  introduces: null
+source: original
+entry: motion_rates
+signature: 'def motion_rates(t: float, steps: list[float]) -> list[float]:'
+compare: float
+wrong_examples:
+  - why: 步长依次变化，却一直用第一段的分母。
+    code: |
+      def motion_rates(t: float, steps: list[float]) -> list[float]:
+          base = t ** 3 + t
+          rates = []
+          for h in steps:
+              after = (t + h) ** 3 + (t + h)
+              rates.append((after - base) / steps[0])
+          return rates

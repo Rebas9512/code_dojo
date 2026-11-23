@@ -1,0 +1,24 @@
+id: tensor-3-011-outer-weights
+title: 给每对位置留一格
+track: tensor
+stage: '3'
+order: 110
+format: complete
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - tensor.pair-scores
+  introduces: null
+source: original
+entry: weights
+signature: 'def weights(a, b):'
+compare: checker
+wrong_examples:
+  - why: 将第二个向量排在行轴上。
+    code: |
+      import torch
+
+
+      def weights(a, b):
+          return torch.einsum("i,j->ji", a, b)

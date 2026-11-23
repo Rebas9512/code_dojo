@@ -1,0 +1,12 @@
+{
+  "examples": [
+    {"args":["ink","go"],"expected":"ignok"},
+    {"args":["x","red"],"expected":"xred"}
+  ],
+  "hidden": [
+    {"args":["abc","d"],"expected":"adbc"},
+    {"args":["a","z"],"expected":"az"},
+    {"args":["xy","zz"],"expected":"xzyz"},
+    {"args":["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"],"expected":"abababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababa"}
+  ]
+}

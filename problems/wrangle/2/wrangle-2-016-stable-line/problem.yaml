@@ -1,0 +1,25 @@
+id: wrangle-2-016-stable-line
+title: 同分保持报到顺序
+track: wrangle
+stage: '2'
+order: 160
+format: write
+mode: function
+difficulty: 26
+skills:
+  requires:
+    - wrangle.rank-index
+    - wrangle.fancy
+  introduces: null
+source: original
+entry: queue
+signature: 'def queue(scores, names):'
+compare: exact
+wrong_examples:
+  - why: 把姓名按字母排序，忽略分数。
+    code: |
+      import numpy as np
+
+
+      def queue(scores, names):
+          return sorted(names)

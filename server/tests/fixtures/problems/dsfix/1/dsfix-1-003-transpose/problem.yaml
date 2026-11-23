@@ -1,0 +1,23 @@
+id: dsfix-1-003-transpose
+title: 交换张量的两个轴
+track: dsfix
+stage: '1'
+order: 30
+format: write
+mode: function
+difficulty: 15
+skills:
+  requires: []
+  introduces: null
+entry: transpose
+signature: 'def transpose(rows):'
+compare: allclose
+rtol: 0
+atol: 0
+wrong_examples:
+  - why: 原样返回，行数和列数没有交换。
+    code: |
+      import torch
+      
+      def transpose(rows):
+          return torch.tensor(rows)

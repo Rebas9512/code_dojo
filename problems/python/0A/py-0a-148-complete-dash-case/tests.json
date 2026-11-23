@@ -1,0 +1,11 @@
+{
+  "examples": [
+    {"args": ["Hello World"], "expected": "hello-world"},
+    {"args": ["  a  B "], "expected": "a-b"}
+  ],
+  "hidden": [
+    {"args": [""], "expected": ""},
+    {"args": ["One"], "expected": "one"},
+    {"args": ["Code Dojo Is Fun"], "expected": "code-dojo-is-fun"}
+  ]
+}

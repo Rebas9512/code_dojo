@@ -1,0 +1,11 @@
+def move_zeroes(nums: list[int]) -> None:
+    write = 0
+    for read in range(len(nums)):
+        if nums[read] != 0:
+            nums[write], nums[read] = nums[read], nums[write]
+            write += 1
+
+
+def run_case(nums: list[int]) -> list:
+    move_zeroes(nums)
+    return nums

@@ -1,0 +1,16 @@
+id: wrangle-1-008-flag-boundary
+title: 门槛上的数留在哪边
+track: wrangle
+stage: '1'
+order: 80
+format: predict
+mode: predict
+difficulty: 17
+skills:
+  requires: []
+  introduces: wrangle.mask
+source: original
+wrong_examples:
+  - why: 漏掉刚好等于门槛的读数。
+    code: |
+      print('[False, False, True, False]')

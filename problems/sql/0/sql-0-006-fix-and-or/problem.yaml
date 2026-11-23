@@ -1,0 +1,26 @@
+id: sql-0-006-fix-and-or
+title: 修一修：AND 和 OR 的优先级
+track: sql
+stage: "0"
+order: 100
+format: fix
+difficulty: 8
+skills: {requires: [sql.and-or], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/mixed-genres.sql
+ordered: false
+hints:
+  - "AND 比 OR 先结合。"
+  - "用括号把两个分类条件括起来。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "原来的写法：AND 先结合，变成 fantasy 或（scifi 且便宜）"
+    sql: |
+      SELECT title, category, price FROM books WHERE category = 'fantasy' OR category = 'scifi' AND price < 35;
+  - why: "括号放错位置：变成（fantasy 或 scifi）或 便宜"
+    sql: |
+      SELECT title, category, price FROM books WHERE category IN ('fantasy', 'scifi') OR price < 35;

@@ -1,0 +1,12 @@
+[
+  {
+    "book_id": 6,
+    "title": "Little Cloud",
+    "price": 18.5
+  },
+  {
+    "book_id": 7,
+    "title": "Noodles at Midnight",
+    "price": 29.9
+  }
+]

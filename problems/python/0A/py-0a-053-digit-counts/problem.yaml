@@ -1,0 +1,19 @@
+id: py-0a-053-digit-counts
+title: 数字计数表
+track: python
+stage: 0A
+order: 1030
+format: write
+mode: function
+difficulty: 16
+skills:
+  requires: [py.list-basics, py.for-each, py.list-concat-repeat]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: digit_counts
+signature: "def digit_counts(digits: list[int]) -> list[int]:"
+compare: exact
+hints:
+  - "counts[d] += 1。"

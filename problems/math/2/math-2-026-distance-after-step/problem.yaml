@@ -1,0 +1,26 @@
+id: math-2-026-distance-after-step
+title: 走一步后离谷底多远
+track: math
+stage: '2'
+order: 260
+format: combine
+mode: function
+difficulty: 37
+skills:
+  requires:
+    - math.distance
+    - math.gradient
+    - math.descent
+    - math.descent-plane
+  introduces: null
+source: original
+entry: distance_after
+signature: 'def distance_after(x: float, y: float, a: float, b: float, rate: float) -> float:'
+compare: float
+wrong_examples:
+  - why: 返回了新损失，漏掉距离的平方根。
+    code: |
+      def distance_after(x: float, y: float, a: float, b: float, rate: float) -> float:
+          x = x - rate*2*(x-a)
+          y = y - rate*2*(y-b)
+          return (x-a)**2 + (y-b)**2

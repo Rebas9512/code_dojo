@@ -1,0 +1,55 @@
+id: algo-5-072-substring-with-concatenation-of-all-words
+title: 找出整串口令的起点
+track: algo
+stage: '5'
+order: 720
+format: write
+mode: function
+difficulty: 81
+week: 9
+skills:
+  requires:
+  - algo.window-fixed
+  - algo.counter
+  - py.break-continue
+  - py.nested-loop
+  - py.slice
+  - py.while
+  introduces: null
+source: top-interview-150
+leetcode: substring-with-concatenation-of-all-words
+milestones: []
+entry: starts
+signature: 'def starts(s: str, words: list[str]) -> list[int]:'
+compare: unordered
+time_limit_ms: 800
+wrong_examples:
+- why: 只试从 0 对齐的词，漏掉其他起始余数。
+  code: |
+    from collections import Counter
+
+
+    def starts(s: str, words: list[str]) -> list[int]:
+        width = len(words[0])
+        need = Counter(words)
+        out = []
+        for offset in range(1):
+            have = Counter()
+            left = offset
+            size = 0
+            for pos in range(offset, len(s) - width + 1, width):
+                word = s[pos : pos + width]
+                if word not in need:
+                    have.clear()
+                    size = 0
+                    left = pos + width
+                    continue
+                have[word] += 1
+                size += 1
+                while have[word] > need[word]:
+                    have[s[left : left + width]] -= 1
+                    size -= 1
+                    left += width
+                if size == len(words):
+                    out.append(left)
+        return out

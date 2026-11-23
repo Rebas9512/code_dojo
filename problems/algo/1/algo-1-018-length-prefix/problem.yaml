@@ -1,0 +1,28 @@
+id: algo-1-018-length-prefix
+title: 长度前缀编码
+track: algo
+stage: '1'
+order: 180
+format: write
+mode: function
+difficulty: 41
+skills:
+  requires:
+  - py.fstring
+  - py.split-join
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: pack
+signature: 'def pack(words: list[str]) -> str:'
+compare: exact
+wrong_examples:
+- why: 跳过空段，拆包时就丢失了一项。
+  code: |
+    def pack(words: list[str]) -> str:
+        parts = []
+        for word in words:
+            if word:
+                parts.append(f"{len(word)}#{word}")
+        return ''.join(parts)

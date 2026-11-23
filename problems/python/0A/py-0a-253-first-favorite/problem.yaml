@@ -1,0 +1,34 @@
+id: py-0a-253-first-favorite
+title: 最常被点的歌
+track: python
+stage: 0A
+order: 3130
+format: write
+mode: function
+difficulty: 20
+skills:
+  requires:
+    - py.dict-counting
+    - py.running-max
+    - py.dict-iter
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: favorite
+signature: 'def favorite(log: list[str]) -> str:'
+compare: exact
+wrong_examples:
+  - why: 同分也替换冠军，取到后来才出现的歌。
+    code: |
+      def favorite(log: list[str]) -> str:
+          counts = {}
+          for song in log:
+              counts[song] = counts.get(song, 0) + 1
+          best = ""
+          maximum = 0
+          for song, count in counts.items():
+              if count >= maximum:
+                  best = song
+                  maximum = count
+          return best

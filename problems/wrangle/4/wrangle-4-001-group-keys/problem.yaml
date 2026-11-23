@@ -1,0 +1,16 @@
+id: wrangle-4-001-group-keys
+title: 架号是在列里还是在索引里
+track: wrangle
+stage: '4'
+order: 10
+format: predict
+mode: predict
+difficulty: 28
+skills:
+  requires: []
+  introduces: wrangle.group
+source: original
+wrong_examples:
+  - why: 把默认的分组键当作普通列。
+    code: |
+      print("['rack', 'total']\n['rack', 'total']")

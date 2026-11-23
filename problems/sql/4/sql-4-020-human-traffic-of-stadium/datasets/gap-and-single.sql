@@ -1,0 +1,2 @@
+INSERT INTO gate_days VALUES (10, '2025-02-07', 200),
+    (11, '2025-02-09', NULL);

@@ -1,0 +1,36 @@
+id: algo-5-045-joint-maintenance-gaps
+title: 各班组都能停机的空档
+track: algo
+stage: '5'
+order: 450
+format: write
+mode: function
+difficulty: 78
+week: 6
+skills:
+  requires:
+  - algo.intervals
+  - py.genexp
+  - py.if-else
+  - py.nested-list
+  - py.slice
+  introduces: null
+source: original
+leetcode: employee-free-time
+milestones: []
+entry: breaks
+signature: 'def breaks(groups: list[list[list[int]]]) -> list[list[int]]:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 遇到被包含的短段时，误把已经覆盖的终点向前缩。
+  code: |
+    def breaks(groups: list[list[list[int]]]) -> list[list[int]]:
+        spans = sorted(span for group in groups for span in group)
+        end = spans[0][1]
+        out = []
+        for left, right in spans[1:]:
+            if left > end:
+                out.append([end, left])
+            end = right
+        return out

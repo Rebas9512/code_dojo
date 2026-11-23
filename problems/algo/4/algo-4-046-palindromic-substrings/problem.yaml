@@ -1,0 +1,37 @@
+id: algo-4-046-palindromic-substrings
+title: 按起止位置数对称片段
+track: algo
+stage: '4'
+order: 460
+format: variant
+mode: function
+difficulty: 73
+unit: 4
+skills:
+  requires:
+  - algo.two-pointers
+  - py.bool-ops
+  - py.nested-loop
+  - py.tuple
+  introduces: null
+source: neetcode250
+leetcode: palindromic-substrings
+milestones:
+- blind75
+entry: palindrome_count
+signature: 'def palindrome_count(s: str) -> int:'
+compare: exact
+wrong_examples:
+- why: 偶数长的对称段没有参与计数。
+  code: |
+    def palindrome_count(s: str) -> int:
+        count = 0
+        for center in range(len(s)):
+            for left, right in [(center, center)]:
+                while left >= 0 and right < len(s) and s[left] == s[right]:
+                    count += 1
+                    left -= 1
+                    right += 1
+        return count
+hints:
+- 固定中心，每次向两边成功伸一格，就新找到一对起止位置。

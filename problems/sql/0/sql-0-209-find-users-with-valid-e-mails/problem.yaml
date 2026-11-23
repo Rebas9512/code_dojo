@@ -1,0 +1,37 @@
+id: sql-0-209-find-users-with-valid-e-mails
+title: 校验报名邮箱
+track: sql
+stage: "0"
+order: 490
+format: write
+difficulty: 20
+skills:
+  requires: [sql.regex]
+  introduces: null
+source: sql50
+leetcode: find-users-with-valid-e-mails
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/prefix-characters.sql
+  - datasets/sample.sql + datasets/domain-boundaries.sql
+ordered: false
+hints:
+  - 把用户名的第一个字符与后续字符分开写，再用行首、行尾标记约束整段文字。
+wrong_examples:
+  - why: 用户名没有单独限制第一个字符。
+    sql: |
+      SELECT user_id, name, mail FROM users
+      WHERE mail ~ '^[A-Za-z0-9_.-]+@leetcode[.]com$';
+  - why: 把域名中的点号当成了任意字符。
+    sql: |
+      SELECT user_id, name, mail FROM users
+      WHERE mail ~ '^[A-Za-z][A-Za-z0-9_.-]*@leetcode.com$';
+  - why: 忽略大小写，使域名拼写不合要求的用户也入选。
+    sql: |
+      SELECT user_id, name, mail FROM users
+      WHERE mail ~* '^[A-Za-z][A-Za-z0-9_.-]*@leetcode[.]com$';
+  - why: 只匹配地址的一段，放过了开头或结尾的额外字符。
+    sql: |
+      SELECT user_id, name, mail FROM users
+      WHERE mail ~ '[A-Za-z][A-Za-z0-9_.-]*@leetcode[.]com';

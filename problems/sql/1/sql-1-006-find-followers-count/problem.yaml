@@ -1,0 +1,31 @@
+id: sql-1-006-find-followers-count
+title: 作者的关注人数
+track: sql
+stage: '1'
+order: 60
+format: write
+difficulty: 22
+skills:
+  requires:
+    - sql.group-by
+    - sql.count
+    - sql.order-by
+    - sql.select-expr
+  introduces: null
+source: sql50
+leetcode: find-followers-count
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/ties.sql
+  - datasets/sample.sql + datasets/popular-author.sql
+ordered: true
+hints:
+  - 先说出结果中一行代表谁，再选分组键。
+wrong_examples:
+  - why: 统计成了每位读者关注几位作者
+    sql: |
+      SELECT reader_id, COUNT(*) AS followers
+      FROM follows
+      GROUP BY reader_id
+      ORDER BY reader_id;

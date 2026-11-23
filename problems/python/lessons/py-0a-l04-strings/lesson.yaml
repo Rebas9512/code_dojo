@@ -1,0 +1,234 @@
+id: py-0a-l04-strings
+title: 字符串
+track: python
+skills: [py.index-len, py.for-each, py.in-membership, py.slice, py.str-methods, py.ord-chr]
+steps:
+  - type: read
+    skill: py.index-len
+    md: |
+      字符串是一个个字符**排成的队**，每个字符有一个位置编号，叫**下标**。下标从 **0** 开始：
+
+      ```
+      s = "python"
+           p y t h o n
+      下标 0 1 2 3 4 5
+      ```
+      - `s[0]` 是第一个字符 `'p'`，`s[5]` 是 `'n'`；
+      - `len(s)` 是长度 6，所以最后一个字符的下标是 `len(s) - 1`；
+      - **负下标**从末尾倒着数：`s[-1]` 是最后一个，`s[-2]` 是倒数第二个。
+
+      字符串**不能修改**：`s[0] = "P"` 会报错。要"改"字符串，只能拼出一个新的。
+
+      常见误解：
+      - **"下标从 1 开始"**：从 0 开始；第 k 个字符的下标是 k - 1。
+      - **"`s[len(s)]` 是最后一个"**：它已经越界了，会报 IndexError；最后一个是 `s[len(s) - 1]` 或 `s[-1]`。
+  - type: example
+    skill: py.index-len
+    code: |
+      # ① 准备字符串
+      s = "python"
+      # ② 长度和首尾两个字符
+      print(len(s), s[0], s[-1])
+      # ③ 按下标逐个取出（下标从 0 到 len(s) - 1）
+      for i in range(len(s)):
+          print(i, s[i])
+    md: "把 s 换成你名字的拼音再运行；再试试 `print(s[len(s)])` 会报什么错。"
+  - type: quiz
+    skill: py.index-len
+    q: "`s = \"hello\"`，`s[len(s) - 1]` 是？"
+    options: ["'o'", "'l'", "会报错"]
+    answer: 0
+    explain: "长度是 5，下标 4 是最后一个字符 'o'。"
+  - type: read
+    skill: py.for-each
+    md: |
+      按下标遍历要写 `for i in range(len(s))` 再取 `s[i]`。如果只需要每个字符、不需要位置，可以直接：
+
+      ```python
+      for ch in s:
+          ...
+      ```
+      for 每一轮把 ch 贴到下一个字符上，从第一个到最后一个。对列表也一样：`for x in nums` 依次拿到每个元素。
+
+      什么时候还需要下标？要知道位置、要看相邻的字符（`s[i - 1]`）、或者要修改列表元素的时候。
+
+      常见用法是和累加器一起**拼字符串**：结果从空串 `""` 开始，每轮把字符接上去。接在后面是 `result = result + ch`，接在前面是 `result = ch + result`（结果会倒过来）。
+
+      常见误解：
+      - **"空格不算字符"**：空格、标点都是字符，都会被遍历到。
+      - **"ch 是下标"**：ch 是字符本身，不是位置。
+  - type: example
+    skill: py.for-each
+    code: |
+      def remove_spaces(s):
+          # ① 结果从空串开始
+          result = ""
+          # ② 逐个字符看
+          for ch in s:
+              # ③ 不是空格才接上去
+              if ch != " ":
+                  result = result + ch
+          return result
+
+      print(remove_spaces("a b  c"))
+    md: "把 `result + ch` 改成 `ch + result`，结果变成什么？"
+  - type: quiz
+    skill: py.for-each
+    q: "`for ch in \"a b\"` 一共循环几次？"
+    options: ["2 次", "3 次", "1 次"]
+    answer: 1
+    explain: "空格也是字符：'a'、' '、'b' 一共 3 个。"
+  - type: read
+    skill: py.in-membership
+    md: |
+      `x in 容器` 判断容器里有没有 x，结果是 True 或 False；`not in` 正好相反。
+
+      对字符串：
+      - 判断一个字符：`ch in "aeiou"`——比写五个 or 简洁得多；
+      - 判断一段文字：`"at" in "cat"` 是 True，判断的是**连续的一段**（子串）。
+
+      对列表、集合、字典也能用 in。
+
+      常见误解：
+      - **"in 检查的是每个字母分别在不在"**：`"ct" in "cat"` 是 False——c 和 t 都在，但 "ct" 不是连续的一段。
+      - **"in 不区分大小写"**：`"A" in "cat"` 是 False。
+  - type: example
+    skill: py.in-membership
+    code: |
+      def count_vowels(s):
+          count = 0
+          for ch in s:
+              # ① 用 in 判断是不是元音
+              if ch in "aeiouAEIOU":
+                  # ② 是元音就计数
+                  count += 1
+          return count
+
+      print(count_vowels("Programming"))
+      # ③ in 判断的是连续的一段
+      print("at" in "cat", "ct" in "cat")
+    md: "把 \"aeiouAEIOU\" 改成 \"aeiou\"，大写元音还会被数到吗？"
+  - type: quiz
+    skill: py.in-membership
+    q: "`\"ac\" in \"abc\"` 的结果是？"
+    options: ["True", "False"]
+    answer: 1
+    explain: "in 判断的是连续的一段，\"abc\" 里没有连续的 \"ac\"。"
+  - type: read
+    skill: py.slice
+    md: |
+      下标一次取一个字符；**切片**一次取一段：
+
+      ```python
+      s[start:stop]
+      ```
+      从下标 start 开始，到 stop **之前**结束（包含 start，不包含 stop），得到一个新字符串。
+
+      ```python
+      s = "abcdefg"
+      s[1:4]    # 'bcd'
+      s[:3]     # 'abc'      省略 start：从头开始
+      s[4:]     # 'efg'      省略 stop：到末尾
+      s[-3:]    # 'efg'      最后 3 个
+      s[::2]    # 'aceg'     第三个数是步长：隔一个取一个
+      s[::-1]   # 'gfedcba'  步长 -1：反转
+      ```
+      切片超出范围不会报错，只是截到边界为止。列表的切片规则完全一样。
+
+      常见误解：
+      - **"右端也包含"**：`s[1:4]` 只有 3 个字符（下标 1、2、3）。好记的规律：长度 = stop - start。
+      - **"切片会修改原字符串"**：切片得到的是新字符串，原来的不变。
+  - type: example
+    skill: py.slice
+    code: |
+      def is_palindrome(s):
+          # ① 用步长 -1 得到反过来的字符串
+          reversed_s = s[::-1]
+          # ② 和原来比较
+          return s == reversed_s
+
+      word = "level"
+      # ③ 再看几种切片
+      print(word[1:4], word[:2], word[-2:])
+      print(is_palindrome(word), is_palindrome("abc"))
+    md: "试试 `word[2:100]`，越界了会报错吗？"
+  - type: quiz
+    skill: py.slice
+    q: "`\"python\"[1:3]` 是？"
+    options: ["'yt'", "'yth'", "'pyt'"]
+    answer: 0
+    explain: "从下标 1 到 3 之前：下标 1、2，也就是 'y'、't'。"
+  - type: read
+    skill: py.str-methods
+    md: |
+      字符串自带很多实用的**方法**，用"字符串.方法名()"调用：
+
+      | 方法 | 作用 | 例子 |
+      |---|---|---|
+      | `strip()` | 去掉首尾空白 | `"  hi ".strip()` → `'hi'` |
+      | `lower()` / `upper()` | 转小写 / 大写 | `"Hi".lower()` → `'hi'` |
+      | `replace(a, b)` | 把 a 都换成 b | `"a-b".replace("-", "")` → `'ab'` |
+      | `count(x)` | x 出现几次 | `"banana".count("an")` → 2 |
+      | `find(x)` | x 第一次出现的下标，找不到是 -1 | `"abc".find("c")` → 2 |
+      | `isdigit()` / `isalpha()` | 是否全是数字 / 字母 | `"7".isdigit()` → True |
+
+      方法可以连着调用：`s.strip().lower()`——先去空白，再把结果转小写。
+
+      常见误解：
+      - **"方法会修改原字符串"**：字符串不能修改，方法**返回一个新字符串**。只写 `s.upper()` 而不接住结果，s 没有任何变化；要写 `s = s.upper()` 或 `t = s.upper()`。
+  - type: example
+    skill: py.str-methods
+    code: |
+      def same_word(a, b):
+          # ① 两边都先去掉首尾空格
+          a = a.strip()
+          b = b.strip()
+          # ② 都转成小写再比较
+          return a.lower() == b.lower()
+
+      print(same_word(" Hello", "hello "))
+      # ③ 方法不会改原字符串
+      s = "hello"
+      s.upper()
+      print(s)
+    md: "把第 ③ 步改成 `s = s.upper()` 再运行。"
+  - type: quiz
+    skill: py.str-methods
+    q: "`s = \"Hi\"`，执行 `s.lower()` 之后 `print(s)` 显示？"
+    options: ["hi", "Hi"]
+    answer: 1
+    explain: "lower() 返回一个新字符串，没有被接住；s 本身不变。"
+  - type: read
+    skill: py.ord-chr
+    md: |
+      计算机里每个字符都对应一个整数**编码**。`ord(ch)` 得到字符的编码，`chr(n)` 把编码变回字符：`ord("a")` 是 97，`chr(97)` 是 `'a'`。
+
+      最有用的事实是：**字母的编码是连续的**。a 是 97，b 是 98……z 是 122。于是：
+      - 字母的编号（a 是 0，z 是 25）：`ord(ch) - ord("a")`；
+      - 编号变回字母：`chr(ord("a") + index)`；
+      - 往后移 k 位、z 之后绕回 a：编号加 k 再 `% 26`。
+
+      步骤名：① 字母 → 编号 ② 在编号上做运算 ③ 编号 → 字母。判断小写字母可以写 `"a" <= ch <= "z"`（字符按编码比较）。
+
+      常见误解：
+      - **"大写和小写连在一起"**：`ord("A")` 是 65，大写字母另成一段，和小写不连续。
+      - **"`ch + 1` 就是下一个字母"**：字符串不能和数字相加，要先 ord、算完再 chr。
+  - type: example
+    skill: py.ord-chr
+    code: |
+      def shift_letter(ch, k):
+          # ① 字母 → 编号（a 是 0）
+          index = ord(ch) - ord("a")
+          # ② 在编号上后移 k 位，超过 z 就绕回
+          index = (index + k) % 26
+          # ③ 编号 → 字母
+          return chr(ord("a") + index)
+
+      print(shift_letter("a", 1), shift_letter("z", 1), shift_letter("x", 3))
+    md: "把 k 改成 26，结果是什么？为什么？"
+  - type: quiz
+    skill: py.ord-chr
+    q: "`chr(ord(\"c\") - ord(\"a\") + ord(\"A\"))` 是？"
+    options: ["'C'", "'c'", "'a'"]
+    answer: 0
+    explain: "c 的编号是 2，加上 ord(\"A\") 得到大写字母里的第 3 个：'C'。"

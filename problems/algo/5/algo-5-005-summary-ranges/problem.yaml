@@ -1,0 +1,39 @@
+id: algo-5-005-summary-ranges
+title: 将连续刻度写成区间
+track: algo
+stage: '5'
+order: 50
+format: write
+mode: function
+difficulty: 73
+week: 1
+skills:
+  requires:
+  - py.two-index
+  - py.bool-ops
+  - py.fstring
+  - py.nested-loop
+  - py.ternary
+  - py.type-convert
+  introduces: null
+source: top-interview-150
+leetcode: summary-ranges
+milestones: []
+entry: ranges
+signature: 'def ranges(nums: list[int]) -> list[str]:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 把单个刻度也输出成区间。
+  code: |
+    def ranges(nums: list[int]) -> list[str]:
+        out = []
+        i = 0
+        while i < len(nums):
+            first = nums[i]
+            while i + 1 < len(nums) and nums[i + 1] == nums[i] + 1:
+                i += 1
+            last = nums[i]
+            out.append(f"{first}->{last}" if first == last else f"{first}->{last}")
+            i += 1
+        return out

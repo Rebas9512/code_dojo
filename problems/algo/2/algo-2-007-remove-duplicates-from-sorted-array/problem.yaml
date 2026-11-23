@@ -1,0 +1,36 @@
+id: algo-2-007-remove-duplicates-from-sorted-array
+title: 有序记录每种只留一项
+track: algo
+stage: '2'
+order: 70
+format: write
+mode: function
+difficulty: 49
+skills:
+  requires:
+  - algo.read-write-pointer
+  - py.bool-ops
+  - py.helper-func
+  - py.slice
+  introduces: null
+source: neetcode250
+leetcode: remove-duplicates-from-sorted-array
+milestones: []
+entry: run_case
+signature: 'def run_case(nums: list[int]) -> list:'
+compare: exact
+wrong_examples:
+- why: 首项还没有可比较的前驱。
+  code: |
+    def unique_prefix(nums: list[int]) -> int:
+        write = 0
+        for value in nums:
+            if value != nums[write - 1]:
+                nums[write] = value
+                write += 1
+        return write
+
+
+    def run_case(nums: list[int]) -> list:
+        size = unique_prefix(nums)
+        return [size, nums[:size]]

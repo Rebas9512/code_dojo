@@ -1,0 +1,16 @@
+id: tensor-2-013-which-wire
+title: 两个分支各贡献哪几格
+track: tensor
+stage: '2'
+order: 130
+format: predict
+mode: predict
+difficulty: 28
+skills:
+  requires: []
+  introduces: tensor.where
+source: original
+wrong_examples:
+  - why: 把真时和假时读取的电路接反。
+    code: |
+      print('[True, False, True]\n[5, -2, 7]')

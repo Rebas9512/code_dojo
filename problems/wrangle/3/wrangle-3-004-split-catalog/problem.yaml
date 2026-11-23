@@ -1,0 +1,25 @@
+id: wrangle-3-004-split-catalog
+title: 从建好的表取一列
+track: wrangle
+stage: '3'
+order: 40
+format: write
+mode: function
+difficulty: 25
+skills:
+  requires:
+    - wrangle.table
+  introduces: null
+source: original
+entry: quantities
+signature: 'def quantities(shelves, stock):'
+compare: frame
+wrong_examples:
+  - why: 交成了二维表。
+    code: |
+      import pandas as pd
+
+
+      def quantities(shelves, stock):
+          t = pd.DataFrame({'shelf': shelves, 'stock': stock})
+          return t[['stock']]

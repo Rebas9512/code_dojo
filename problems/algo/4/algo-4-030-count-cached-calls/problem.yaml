@@ -1,0 +1,38 @@
+id: algo-4-030-count-cached-calls
+title: 斐波那契：用缓存数一数重复调用
+track: algo
+stage: '4'
+order: 300
+format: complete
+mode: function
+difficulty: 63
+skills:
+  requires:
+  - py.list-basics
+  introduces: algo.memo-cache
+source: original
+leetcode: null
+milestones: []
+entry: fib_visits
+signature: 'def fib_visits(n: int) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 递归调用没有缓存，同一参数会多次进入函数体。
+  code: |
+    from functools import cache
+
+
+    def fib_visits(n: int) -> list[int]:
+        visits = 0
+
+        def fib(i):
+            nonlocal visits
+            visits += 1
+            if i < 2:
+                return i
+            return fib(i - 1) + fib(i - 2)
+
+        value = fib(n)
+        return [value, visits]
+hints:
+- 可以在纸上画 fib(4) 的调用树，把第一次出现的参数圈起来。试着只数圈里的调用。

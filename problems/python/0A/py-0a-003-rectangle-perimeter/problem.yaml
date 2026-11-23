@@ -1,0 +1,20 @@
+id: py-0a-003-rectangle-perimeter
+title: 长方形周长
+track: python
+stage: 0A
+order: 115
+format: write
+mode: function
+difficulty: 3
+skills:
+  requires: [py.var-arith, py.func-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: rectangle_perimeter
+signature: "def rectangle_perimeter(width: int, height: int) -> int:"
+compare: exact
+hints:
+  - "周长 = 2 ×（宽 + 高）。"
+  - "函数体可以只有一行：return 后面跟计算式。"

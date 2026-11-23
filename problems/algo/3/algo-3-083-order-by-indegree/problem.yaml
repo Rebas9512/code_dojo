@@ -1,0 +1,45 @@
+id: algo-3-083-order-by-indegree
+title: 入度表 + 队列给课程排顺序（Kahn）
+track: algo
+stage: '3'
+order: 830
+format: complete
+mode: function
+difficulty: 68
+skills:
+  requires:
+  - algo.graph-bfs
+  - py.genexp
+  - py.list-concat-repeat
+  - py.nested-loop
+  - py.ternary
+  - py.while
+  introduces: algo.topo-sort
+source: original
+leetcode: null
+milestones: []
+entry: schedule
+signature: 'def schedule(n: int, prerequisites: list[list[int]]) -> list[int]:'
+compare: checker
+wrong_examples:
+- why: 把尚欠一门课的节点当作已经解锁。
+  code: |
+    from collections import deque
+
+
+    def schedule(n: int, prerequisites: list[list[int]]) -> list[int]:
+        after = [[] for _ in range(n)]
+        degree = [0] * n
+        for course, before in prerequisites:
+            after[before].append(course)
+            degree[course] += 1
+        queue = deque(i for i in range(n) if degree[i] == 0)
+        order = []
+        while queue:
+            current = queue.popleft()
+            order.append(current)
+            for course in after[current]:
+                degree[course] -= 1
+                if degree[course] == 1:
+                    queue.append(course)
+        return order if len(order) == n else []

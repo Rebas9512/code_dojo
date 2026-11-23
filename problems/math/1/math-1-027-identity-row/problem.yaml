@@ -1,0 +1,23 @@
+id: math-1-027-identity-row
+title: 补上一行直通权重
+track: math
+stage: '1'
+order: 270
+format: complete
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - py.list-comp
+    - py.ternary
+    - math.identity
+  introduces: null
+source: original
+entry: identity_row
+signature: 'def identity_row(n: int, r: int) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: 恰好关掉要直通的通道。
+    code: |
+      def identity_row(n: int, r: int) -> list[int]:
+          return [1 if c != r else 0 for c in range(n)]

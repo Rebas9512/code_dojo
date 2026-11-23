@@ -1,0 +1,34 @@
+id: algo-1-015-group-anagrams
+title: 整理能够重排成彼此的词
+track: algo
+stage: '1'
+order: 150
+format: write
+mode: function
+difficulty: 44
+skills:
+  requires:
+  - py.split-join
+  - py.sorted
+  - algo.defaultdict
+  introduces: null
+source: neetcode250
+leetcode: group-anagrams
+milestones:
+- blind75
+- top100
+entry: group_anagrams
+signature: 'def group_anagrams(words: list[str]) -> list[list[str]]:'
+compare: checker
+wrong_examples:
+- why: 拿不同字母的集合做键，漏掉字母个数。
+  code: |
+    from collections import defaultdict
+
+
+    def group_anagrams(words: list[str]) -> list[list[str]]:
+        groups = defaultdict(list)
+        for word in words:
+            key = ''.join(sorted(set(word)))
+            groups[key].append(word)
+        return list(groups.values())

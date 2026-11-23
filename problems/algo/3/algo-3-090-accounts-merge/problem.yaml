@@ -1,0 +1,68 @@
+id: algo-3-090-accounts-merge
+title: 把属于同一人的账户合起来
+track: algo
+stage: '3'
+order: 900
+format: write
+mode: function
+difficulty: 72
+skills:
+  requires:
+  - algo.union-find
+  - py.class-methods
+  - py.dict-get
+  - py.dict-iter
+  - py.enumerate
+  - py.list-comp
+  - py.list-concat-repeat
+  - py.multi-assign
+  - py.nested-list
+  - py.slice
+  - py.sorted
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: accounts-merge
+milestones: []
+entry: merge_accounts
+signature: 'def merge_accounts(accounts: list[list[str]]) -> list[list[str]]:'
+compare: unordered
+wrong_examples:
+- why: 只登记邮箱最后所属行，遗漏跨行合并。
+  code: |
+    class Groups:
+        def __init__(self, n):
+            self.parent = list(range(n))
+            self.size = [1] * n
+
+        def root(self, node):
+            while node != self.parent[node]:
+                self.parent[node] = self.parent[self.parent[node]]
+                node = self.parent[node]
+            return node
+
+        def merge_sets(self, a, b):
+            a, b = self.root(a), self.root(b)
+            if a == b:
+                return False
+            if self.size[a] < self.size[b]:
+                a, b = b, a
+            self.parent[b] = a
+            self.size[a] += self.size[b]
+            return True
+
+
+    def merge_accounts(accounts: list[list[str]]) -> list[list[str]]:
+        groups = Groups(len(accounts))
+        owner = {}
+        for i, account in enumerate(accounts):
+            for email in account[1:]:
+                if email in owner:
+                    pass
+                owner[email] = i
+        merged = {}
+        for email, i in owner.items():
+            merged.setdefault(groups.root(i), []).append(email)
+        return [[accounts[i][0]] + sorted(emails) for i, emails in merged.items()]
+hints:
+- 每个邮箱先记一个已见账户。下次重逢同一邮箱时，把这两行的代表合并。

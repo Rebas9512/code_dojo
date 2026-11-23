@@ -1,0 +1,17 @@
+id: py-0a-118-predict-and-or
+title: and、or、not
+track: python
+stage: 0A
+order: 330
+format: predict
+mode: predict
+difficulty: 7
+skills:
+  requires: [py.compare-bool]
+  introduces: py.bool-ops
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "倒数第二行：x == 1 是 False，于是 or 的结果是右边的 2。"
+  - "最后一行 and 左边是 False。"

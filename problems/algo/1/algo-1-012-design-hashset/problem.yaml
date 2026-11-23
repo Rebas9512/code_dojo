@@ -1,0 +1,33 @@
+id: algo-1-012-design-hashset
+title: 实现号码登记簿
+track: algo
+stage: '1'
+order: 120
+format: write
+mode: class
+difficulty: 40
+skills:
+  requires:
+  - py.list-concat-repeat
+  - algo.class-design
+  introduces: null
+source: neetcode250
+leetcode: design-hashset
+milestones: []
+entry: MyHashSet
+compare: exact
+wrong_examples:
+- why: 注销时仍将位置标为存在。
+  code: |
+    class MyHashSet:
+        def __init__(self):
+            self.present = [False] * 1000001
+
+        def add(self, key: int) -> None:
+            self.present[key] = True
+
+        def remove(self, key: int) -> None:
+            self.present[key] = True
+
+        def contains(self, key: int) -> bool:
+            return self.present[key]

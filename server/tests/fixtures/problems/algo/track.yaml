@@ -1,0 +1,20 @@
+id: algo
+name: 算法与数据结构
+summary: 从数组、栈和链表开始，练习算法套路和面试综合题。
+order: 2
+language: python
+runtime: python
+status: active
+requires: [python]
+skill_prefix: algo
+stages:
+  - id: "1"
+    name: 基础数据结构
+  - id: "2"
+    name: 核心套路
+  - id: "3"
+    name: 树和图
+  - id: "4"
+    name: 进阶
+  - id: "5"
+    name: 面试混合

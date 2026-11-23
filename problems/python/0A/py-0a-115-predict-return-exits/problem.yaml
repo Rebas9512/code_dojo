@@ -1,0 +1,17 @@
+id: py-0a-115-predict-return-exits
+title: return 之后还会运行吗
+track: python
+stage: 0A
+order: 260
+format: predict
+mode: predict
+difficulty: 6
+skills:
+  requires: [py.if-else, py.func-return]
+  introduces: py.early-return
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "size(10)：10 > 10 吗？"
+  - "一共 4 行输出。"

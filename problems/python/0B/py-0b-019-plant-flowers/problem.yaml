@@ -1,0 +1,28 @@
+id: py-0b-019-plant-flowers
+title: 花坛还能种下几株花
+track: python
+stage: 0B
+order: 190
+format: write
+mode: function
+difficulty: 29
+skills:
+  requires: [py.simulation, py.bool-ops, py.for-range, py.if-else]
+  introduces: null
+source: leetcode75
+leetcode: can-place-flowers
+milestones: []
+entry: can_plant
+signature: 'def can_plant(bed: list[int], needed: int) -> bool:'
+compare: exact
+wrong_examples:
+  - why: "没记下新种的花，下一格仍然把这里当作空地。"
+    code: |
+      def can_plant(bed: list[int], needed: int) -> bool:
+          planted = 0
+          for i in range(len(bed)):
+              left_free = i == 0 or bed[i - 1] == 0
+              right_free = i == len(bed) - 1 or bed[i + 1] == 0
+              if bed[i] == 0 and left_free and right_free:
+                  planted += 1
+          return planted >= needed

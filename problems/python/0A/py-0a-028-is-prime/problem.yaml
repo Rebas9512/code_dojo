@@ -1,0 +1,21 @@
+id: py-0a-028-is-prime
+title: 质数判断
+track: python
+stage: 0A
+order: 510
+format: write
+mode: function
+difficulty: 11
+skills:
+  requires: [py.while, py.early-return, py.floordiv-mod]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: is_prime
+signature: "def is_prime(n: int) -> bool:"
+compare: exact
+hints:
+  - "0 和 1 不是质数，先处理掉。"
+  - "d 从 2 开始试，n % d == 0 说明找到了因数。"
+  - "循环正常结束（没找到因数）才说明是质数。"

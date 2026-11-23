@@ -1,0 +1,94 @@
+id: sql-0-l00-tables
+title: 看整张表，读表结构
+track: sql
+skills:
+  - sql.select-star
+  - sql.schema-types
+steps:
+  - type: read
+    skill: sql.select-star
+    md: |-
+      书店把用户资料放在名叫 users 的表里。要看看店员登记了什么，可以向数据库交一条查询。`SELECT * FROM users;` 读作“从 users 取出全部列”。这里的星号代指表头下的每一列，FROM 后面是表名，分号表示这一句结束。
+
+      结果也是一张表，每条原始记录占一行。同名用户还在各自的行里，空着的手机号也不会让那一行消失。想认出一条记录就看它的编号，行在屏幕上的先后顺序可能变化。把表名换成 orders 就能看另一份登记。
+  - type: example
+    skill: sql.select-star
+    db: bookstore
+    code: |
+      -- ① 打开用户登记，连同编号、电话和城市一起读出
+      SELECT * FROM users;
+    md: 把表名改为 orders。结果的表头里，哪一列表示订单日期？
+  - type: quiz
+    skill: sql.select-star
+    q: 星号放在 SELECT 后面，这条查询会拿到什么？
+    options:
+      - 只拿作为主键的列
+      - 这张表的全部列
+    answer: 1
+    explain: SELECT * 保留表的各列；没有筛选条件时，每一条记录也都会保留。
+  - type: read
+    skill: sql.schema-types
+    md: |-
+      看结果时，有一行 publisher 刚好空着。怎么知道是允许留空，还是漏填了？要读表结构。这里的每一行说明一列的规则，依次读列名、类型、可为空、主键。主键唯一地标出记录，而且一定有值。NOT NULL 表示每条记录都必须填这一项。
+
+      books 的 stock 用 integer 装整册数，哪怕库存为 0 也要填。price 用 numeric(6,2) 装价格，最多六位数字，其中两位是小数。text 保存书名这样的文字，date 保存出版日期。即便样例里恰好每本书都有日期，结构仍可能允许这列留空。
+  - type: example
+    skill: sql.schema-types
+    data:
+      kind: schema
+      title: 图书登记手册
+      content: |
+        columns:
+          - name: book_id
+            type: integer
+            nullable: false
+            primary_key: true
+          - name: title
+            type: text
+            nullable: false
+            primary_key: false
+          - name: author_id
+            type: integer
+            nullable: true
+            primary_key: false
+          - name: category
+            type: text
+            nullable: false
+            primary_key: false
+          - name: price
+            type: numeric(6,2)
+            nullable: false
+            primary_key: false
+          - name: stock
+            type: integer
+            nullable: false
+            primary_key: false
+          - name: publisher
+            type: text
+            nullable: true
+            primary_key: false
+          - name: published_on
+            type: date
+            nullable: true
+            primary_key: false
+          - name: pages
+            type: integer
+            nullable: true
+            primary_key: false
+    md: 先找到 stock，再找到 published_on，比较它们的类型和“可为空”一列。
+  - type: quiz
+    skill: sql.schema-types
+    q: 库存 stock 是 integer。如果值为 7，PostgreSQL 计算 stock / 4 会得到什么？
+    options:
+      - '1'
+      - '1.75'
+    answer: 0
+    explain: 两边都是整数时，PostgreSQL 的除法会截去小数部分，7 / 4 得到 1。
+  - type: quiz
+    skill: sql.schema-types
+    q: 哪一项能由表结构直接判断？
+    options:
+      - 今天有几本书售罄
+      - 一条新记录能不能缺出版日期
+    answer: 1
+    explain: 表结构写着每列的类型和是否允许空值。当前库存要看实际记录。

@@ -1,0 +1,25 @@
+id: sql-0-113-complete-cheapest-three
+title: 补全：最便宜的三本
+track: sql
+stage: "0"
+order: 250
+format: complete
+difficulty: 10
+skills: {requires: [sql.order-by], introduces: sql.limit}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/cheap-ties.sql
+ordered: true
+hints:
+  - "LIMIT n 只要前 n 行。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "多取了一行"
+    sql: |
+      SELECT book_id, title, price FROM books ORDER BY price, book_id LIMIT 4;
+  - why: "跳过了第一行"
+    sql: |
+      SELECT book_id, title, price FROM books ORDER BY price, book_id LIMIT 3 OFFSET 1;

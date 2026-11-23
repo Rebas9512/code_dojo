@@ -1,0 +1,29 @@
+id: sql-1-007-city-buyers
+title: 每座城市有多少位下单读者
+track: sql
+stage: '1'
+order: 70
+format: complete
+difficulty: 23
+skills:
+  requires:
+    - sql.group-by
+    - sql.count
+    - sql.select-expr
+  introduces: sql.count-distinct
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/repeat-order.sql
+  - db:bookstore + datasets/sample.sql + datasets/unknown-cities.sql
+ordered: false
+hints:
+  - 先固定一个城市，再看里面出现过几个不同的用户编号。
+wrong_examples:
+  - why: 一人多单被多次计数
+    sql: |
+      SELECT city, COUNT(user_id) AS buyers
+      FROM buyer_orders
+      GROUP BY city;

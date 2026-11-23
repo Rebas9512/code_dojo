@@ -1,0 +1,66 @@
+id: algo-5-079-all-nodes-distance-k-in-binary-tree
+title: 和指定节点恰好相隔 k 条边
+track: algo
+stage: '5'
+order: 790
+format: write
+mode: function
+difficulty: 82
+week: 10
+skills:
+  requires:
+  - algo.tree-basics
+  - algo.graph-bfs
+  - py.bool-ops
+  - py.break-continue
+  - py.genexp
+  - py.nested-loop
+  - py.set-basics
+  - py.tuple
+  - py.while
+  introduces: null
+source: grind169
+leetcode: all-nodes-distance-k-in-binary-tree
+milestones: []
+entry: run_case
+signature: 'def run_case(root: TreeNode, value: int, k: int) -> list[int]:'
+compare: unordered
+time_limit_ms: 800
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 只从目标向下走，漏掉先向上的路线。
+  code: |
+    def distance_k(root: TreeNode, target: TreeNode, k: int) -> list[int]:
+        parent = {root: None}
+        stack = [root]
+        while stack:
+            node = stack.pop()
+            for child in (node.left, node.right):
+                if child:
+                    parent[child] = node
+                    stack.append(child)
+        level = [target]
+        seen = {target}
+        for _ in range(k):
+            following = []
+            for node in level:
+                for other in (node.left, node.right):
+                    if other and other not in seen:
+                        seen.add(other)
+                        following.append(other)
+            level = following
+            if not level:
+                break
+        return [node.val for node in level]
+
+
+    def run_case(root: TreeNode, value: int, k: int) -> list[int]:
+        stack = [root]
+        while stack:
+            node = stack.pop()
+            if node.val == value:
+                return distance_k(root, node, k)
+            stack.extend(c for c in (node.left, node.right) if c)
+        return []

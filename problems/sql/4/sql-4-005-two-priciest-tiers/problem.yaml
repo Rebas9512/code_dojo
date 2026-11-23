@@ -1,0 +1,29 @@
+id: sql-4-005-two-priciest-tiers
+title: 每个分类最高的两档书
+track: sql
+stage: '4'
+order: 50
+format: write
+difficulty: 55
+skills:
+  requires: []
+  introduces: sql.top-n-per-group
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/ties-and-null.sql
+  - db:bookstore + datasets/sample.sql + datasets/singletons.sql
+ordered: false
+hints:
+  - 两本书并列最高时，第二种价格还在清单里吗？
+wrong_examples:
+  - why: 按竞赛名次筛会漏掉第二档
+    sql: |
+      WITH ranked AS (
+          SELECT book_id, category, price,
+                 RANK() OVER (PARTITION BY category ORDER BY price DESC) AS tier
+          FROM shelf WHERE price IS NOT NULL
+      )
+      SELECT book_id, category, price FROM ranked WHERE tier <= 2;

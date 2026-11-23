@@ -1,0 +1,31 @@
+id: algo-5-031-event-register
+title: 脉冲计数第 1 级：累计次数
+track: algo
+stage: '5'
+order: 310
+format: write
+mode: class
+difficulty: 76
+week: 4
+skills:
+  requires:
+  - algo.oop-design
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: EventCounter
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 每次登记只留下最后一次脉冲。
+  code: |
+    class EventCounter:
+        def __init__(self):
+            self.total = 0
+
+        def hit(self, time: int) -> None:
+            self.total = 1
+
+        def count(self, time: int) -> int:
+            return self.total

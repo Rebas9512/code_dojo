@@ -1,0 +1,32 @@
+id: wrangle-3-013-restock-order
+title: 写一张补货次序表
+track: wrangle
+stage: '3'
+order: 130
+format: write
+mode: function
+difficulty: 29
+skills:
+  requires:
+    - wrangle.filter-sort
+    - wrangle.csv
+    - wrangle.loc
+  introduces: null
+source: original
+entry: restock
+signature: 'def restock(text):'
+compare: frame
+leetcode: method-chaining
+ignore_index: true
+wrong_examples:
+  - why: 忽略首要的库存排序。
+    code: |
+      from io import StringIO
+
+      import pandas as pd
+
+
+      def restock(text):
+          t = pd.read_csv(StringIO(text))
+          kept = t.loc[t['stock'] > 0]
+          return kept.sort_values('id')

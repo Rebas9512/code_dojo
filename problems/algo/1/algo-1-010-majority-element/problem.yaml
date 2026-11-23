@@ -1,0 +1,33 @@
+id: algo-1-010-majority-element
+title: 绝对多数票
+track: algo
+stage: '1'
+order: 100
+format: write
+mode: function
+difficulty: 37
+skills:
+  requires:
+  - py.floordiv-mod
+  - py.early-return
+  - py.dict-iter
+  - algo.counter
+  introduces: null
+source: neetcode250
+leetcode: majority-element
+milestones:
+- top100
+entry: majority_element
+signature: 'def majority_element(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 把向下取整的一半也认作多数。
+  code: |
+    from collections import Counter
+
+
+    def majority_element(nums: list[int]) -> int:
+        counts = Counter(nums)
+        for value, count in counts.items():
+            if count >= len(nums) // 2:
+                return value

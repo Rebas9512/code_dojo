@@ -1,0 +1,31 @@
+id: sql-1-010-order-status-totals
+title: 两列看懂读者的订单
+track: sql
+stage: '1'
+order: 100
+format: complete
+difficulty: 25
+skills:
+  requires:
+    - sql.group-by
+    - sql.sum-avg
+    - sql.case
+  introduces: sql.conditional-agg
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/pending-only.sql
+  - db:bookstore + datasets/mixed-status.sql
+ordered: false
+hints:
+  - 每行分别为两个计数贡献 0 或 1，再按用户相加。
+wrong_examples:
+  - why: 把其他状态也计入取消数
+    sql: |
+      SELECT user_id,
+             SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) AS delivered_count,
+             SUM(CASE WHEN status <> 'delivered' THEN 1 ELSE 0 END) AS cancelled_count
+      FROM orders
+      GROUP BY user_id;

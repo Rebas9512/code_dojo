@@ -1,0 +1,17 @@
+id: py-0a-101-write-greeting
+title: 写出三行问候
+track: python
+stage: 0A
+order: 10
+format: write
+mode: stdio
+difficulty: 1
+skills:
+  requires: [py.print]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "每一行写一个 print。"
+  - "文字要放在引号里，数字不用。"

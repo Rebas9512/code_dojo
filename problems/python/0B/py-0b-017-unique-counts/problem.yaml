@@ -1,0 +1,27 @@
+id: py-0b-017-unique-counts
+title: 每种编号的出现次数都不同吗
+track: python
+stage: 0B
+order: 170
+unit: 5
+format: write
+mode: function
+difficulty: 27
+skills:
+  requires: [py.linear-search, py.dict-counting, py.dict-iter, py.set-basics]
+  introduces: null
+source: leetcode75
+leetcode: unique-number-of-occurrences
+milestones: []
+entry: unique_counts
+signature: 'def unique_counts(records: list[int]) -> bool:'
+compare: exact
+wrong_examples:
+  - why: "PM70：取出了互异的编号，实际要比较的是次数。"
+    code: |
+      def unique_counts(records: list[int]) -> bool:
+          counts = {}
+          for badge in records:
+              counts[badge] = counts.get(badge, 0) + 1
+          frequencies = set(counts)
+          return len(frequencies) == len(counts)

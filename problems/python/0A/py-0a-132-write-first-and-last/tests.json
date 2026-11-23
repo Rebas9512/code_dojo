@@ -1,0 +1,11 @@
+{
+  "examples": [
+    {"args": ["hello"], "expected": "ho"},
+    {"args": ["a"], "expected": "aa"}
+  ],
+  "hidden": [
+    {"args": ["ab"], "expected": "ab"},
+    {"args": ["xyz"], "expected": "xz"},
+    {"args": ["Python"], "expected": "Pn"}
+  ]
+}

@@ -1,0 +1,23 @@
+id: sql-0-114-complete-all-users
+title: 补全：打开用户表
+track: sql
+stage: '0'
+order: 1
+format: complete
+difficulty: 1
+skills:
+  requires:
+    - data.table-intro
+  introduces: sql.select-star
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/extra.sql
+ordered: false
+wrong_examples:
+  - why: 只取了姓名一列
+    sql: SELECT name FROM users;
+  - why: 把样例的行数写成上限
+    sql: SELECT * FROM users LIMIT 20;

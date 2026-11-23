@@ -1,0 +1,40 @@
+id: algo-2-019-trapping-rain-water
+title: 雨后柱间能留下多少水
+track: algo
+stage: '2'
+order: 190
+format: combine
+mode: function
+difficulty: 57
+skills:
+  requires:
+  - algo.two-pointers
+  - py.if-else
+  introduces: null
+source: neetcode250
+leetcode: trapping-rain-water
+milestones:
+- nc150
+- top100
+entry: trapped_water
+signature: 'def trapped_water(height: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 只记相邻挡板而丢掉更高旧墙。
+  code: |
+    def trapped_water(height: list[int]) -> int:
+        left, right = 0, len(height) - 1
+        left_wall = right_wall = total = 0
+        while left <= right:
+            if height[left] <= height[right]:
+                left_wall = height[left]
+                total += left_wall - height[left]
+                left += 1
+            else:
+                right_wall = max(right_wall, height[right])
+                total += right_wall - height[right]
+                right -= 1
+        return total
+hints:
+- 一格的水面受左右两侧最高柱中较矮的一侧限制。
+- 可先试用前缀、后缀最大值建两张表，再想能否从两端一边移动一边结算。

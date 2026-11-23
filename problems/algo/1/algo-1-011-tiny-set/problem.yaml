@@ -1,0 +1,31 @@
+id: algo-1-011-tiny-set
+title: TinySet：用列表实现 add / contains 的小集合类
+track: algo
+stage: '1'
+order: 110
+format: write
+mode: class
+difficulty: 36
+skills:
+  requires:
+  - py.bool-ops
+  - py.list-append
+  introduces: algo.class-design
+source: original
+leetcode: null
+milestones: []
+entry: TinySet
+compare: exact
+wrong_examples:
+- why: 条件写反，第一次加入会被跳过。
+  code: |
+    class TinySet:
+        def __init__(self):
+            self.values = []
+
+        def contains(self, x: int) -> bool:
+            return x in self.values
+
+        def add(self, x: int) -> None:
+            if self.contains(x):
+                self.values.append(x)

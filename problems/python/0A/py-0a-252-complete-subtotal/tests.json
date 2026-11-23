@@ -1,0 +1,11 @@
+{
+  "examples": [
+    {"args": [{"收入": 8, "退款": -2}], "expected": 6},
+    {"args": [{"茶": 3, "梨": 3}], "expected": 6}
+  ],
+  "hidden": [
+    {"args": [{}], "expected": 0},
+    {"args": [{"券": -5}], "expected": -5},
+    {"args": [{"a": 0}], "expected": 0}
+  ]
+}

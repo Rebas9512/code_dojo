@@ -1,0 +1,32 @@
+id: algo-4-017-maximum-sum-circular-subarray
+title: 环形记录上的最大连续和
+track: algo
+stage: '4'
+order: 170
+format: fix
+mode: function
+difficulty: 66
+skills:
+  requires:
+  - algo.greedy
+  - py.early-return
+  - py.slice
+  introduces: null
+source: neetcode250
+leetcode: maximum-sum-circular-subarray
+milestones: []
+entry: max_circular
+signature: 'def max_circular(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 全负时也减掉整圈，留下空段。
+  code: |
+    def max_circular(nums: list[int]) -> int:
+        high = low = largest = smallest = total = nums[0]
+        for value in nums[1:]:
+            high = max(value, high + value)
+            low = min(value, low + value)
+            largest = max(largest, high)
+            smallest = min(smallest, low)
+            total += value
+        return max(largest, total - smallest)

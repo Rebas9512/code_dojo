@@ -1,0 +1,33 @@
+id: sql-4-016-reader-order-streaks
+title: 每位读者的连续下单段
+track: sql
+stage: '4'
+order: 160
+format: write
+difficulty: 61
+skills:
+  requires:
+    - sql.cte
+  introduces: sql.gaps-islands
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/month-break.sql
+  - db:bookstore + datasets/sample.sql + datasets/single-day.sql
+ordered: false
+hints:
+  - 同一段里，经过的日历天数和行号都会逐步加一。
+wrong_examples:
+  - why: 未合并同日多单
+    sql: |
+      WITH days AS (
+          SELECT user_id, order_date AS day FROM orders
+      ), numbered AS (
+          SELECT user_id, day, (day - DATE '2000-01-01')
+                 - ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY day) AS block
+          FROM days
+      )
+      SELECT user_id, MIN(day) AS start_day, MAX(day) AS end_day, COUNT(*) AS days
+      FROM numbered GROUP BY user_id, block;

@@ -1,0 +1,16 @@
+id: tensor-2-007-address-shapes
+title: 地址表有多宽
+track: tensor
+stage: '2'
+order: 70
+format: predict
+mode: predict
+difficulty: 25
+skills:
+  requires: []
+  introduces: tensor.route
+source: original
+wrong_examples:
+  - why: 所有行套同一个地址；写回时把地址表当作底表。
+    code: |
+      print('[[2, 5], [9, 4]]\n(2, 2)')

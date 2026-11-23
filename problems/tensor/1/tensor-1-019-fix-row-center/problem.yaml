@@ -1,0 +1,26 @@
+id: tensor-1-019-fix-row-center
+title: 修好逐行校正
+track: tensor
+stage: '1'
+order: 190
+format: fix
+mode: function
+difficulty: 26
+skills:
+  requires:
+    - tensor.reduce
+  introduces: null
+source: original
+entry: center
+signature: 'def center(rows):'
+compare: allclose
+wrong_examples:
+  - why: 删掉列轴后，一维均值会对齐末轴。
+    code: |
+      import torch
+
+
+      def center(rows):
+          x = torch.tensor(rows, dtype=torch.float32)
+          m = torch.mean(x, dim=1)
+          return x - m

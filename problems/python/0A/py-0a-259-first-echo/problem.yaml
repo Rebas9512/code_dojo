@@ -1,0 +1,30 @@
+id: py-0a-259-first-echo
+title: 首先再次响起的字符
+track: python
+stage: 0A
+order: 3190
+format: write
+mode: function
+difficulty: 20
+skills:
+  requires:
+    - py.early-return
+    - py.set-basics
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: first_echo
+signature: 'def first_echo(text: str) -> str:'
+compare: exact
+wrong_examples:
+  - why: 先登记再查，任何字符都会看起来出现过。
+    code: |
+      def first_echo(text: str) -> str:
+          seen = set()
+          for ch in text:
+              seen.add(ch)
+              if ch in seen:
+                  return ch
+              seen.add(ch)
+          return ""

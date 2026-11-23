@@ -1,0 +1,297 @@
+id: py-0a-l00-values
+title: 值和类型
+track: python
+skills:
+  - py.print
+  - py.value-types
+  - py.var-arith
+  - py.type-ops
+  - py.type-convert
+  - py.stdio-input
+  - py.compare-bool
+steps:
+  - type: read
+    skill: py.print
+    md: |
+      **程序**就是一条条按顺序执行的指令。Python 里最简单的指令是 `print(...)`：把括号里的东西显示在屏幕上，显示完换一行。
+
+      `print(7)` 和 `print("7")` 打印出来都只有一个 7。屏幕上的字形相同，原来的值却有类型之分。
+
+      为什么先学它？因为它能让你**看见**程序在做什么——以后检查程序对不对，第一招就是把值 print 出来看看。
+
+      怎么写：
+      - 文字要放在引号里：`print("你好")`。引号本身不会显示出来。
+      - 数字直接写：`print(2026)`。
+      - 一次显示几个值，用逗号隔开：`print("code", "dojo")` 显示 `code dojo`，中间**自动加一个空格**。
+      - `print()` 括号里什么都不写，就显示一个空行。
+
+      常见误解：
+      - **"引号里的算式会被计算"**：`print("1 + 2")` 显示的是文字 `1 + 2`；不带引号的 `print(1 + 2)` 才显示 3。
+      - **"逗号会被显示出来"**：逗号只是分隔，显示出来的是一个空格。
+  - type: example
+    skill: py.print
+    code: |
+      # ① 显示一行文字
+      print("早上好")
+      # ② 显示一个数字
+      print(2026)
+      # ③ 一次显示几个值：逗号变成空格
+      print("code", "dojo", 2026)
+      # ④ 先显示一个空行，再显示一行
+      print()
+      print("结束")
+    md: 运行看看，再改一改：把第 ③ 步的文字换成你的名字；在 `print()` 里随便写点什么，空行还在吗？
+  - type: quiz
+    skill: py.print
+    q: 哪一行会在屏幕上显示 `3`？
+    options:
+      - print("1 + 2")
+      - print(1 + 2)
+      - print(1, 2)
+    answer: 1
+    explain: 带引号的是文字，原样显示 `1 + 2`；`print(1, 2)` 显示 `1 2`；只有不带引号的 `1 + 2` 会先算出 3。
+  - type: quiz
+    skill: py.print
+    q: 只看到屏幕上有一行 7，能判断原值的类型吗？
+    options:
+      - 能，一定是整数
+      - 不能，文字也能这样显示
+    answer: 1
+    explain: print 显示的是值的文字外观。写 7 或写带引号的 7 都能产生相同输出。
+  - type: read
+    skill: py.value-types
+    md: |-
+      把 7 和 "7" 各打印一次，屏幕上都只有一个 7。想知道拿到的是数还是文字，可以请 Python 报出类型。`type(值)` 的结果可以交给 print 显示；例如 `<class 'int'>` 中间的 int 就是类型名。
+
+      整数是 int，带小数点的数是 float，文字是 str。`9.0` 即使数值刚好是整数，写法仍给出 float。真假值 True 和 False 的类型叫 bool；引号里的 "True" 只是一段文字。用 None 表示没有值，它自己也有类型，名字叫 NoneType。
+  - type: example
+    skill: py.value-types
+    code: |
+      # ① 观察三个看起来相似的值
+      print(type(7))       # <class 'int'>
+      print(type(7.0))     # <class 'float'>
+      print(type("7"))     # <class 'str'>
+      # ② 看真假值、文字和没有值分别叫什么
+      print(type(True))    # <class 'bool'>
+      print(type("True"))  # <class 'str'>
+      print(type(None))    # <class 'NoneType'>
+    md: 把 True 改成 False，再把它放入引号，看类型名在哪一次发生变化。
+  - type: quiz
+    skill: py.value-types
+    q: '`type("3.5")` 报出的类型名是？'
+    options:
+      - float
+      - str
+      - int
+    answer: 1
+    explain: 引号把 3、小数点和 5 放进同一段文字。
+  - type: quiz
+    skill: py.value-types
+    q: '`"False"` 和 `False` 的类型依次是什么？'
+    options:
+      - bool 和 bool
+      - str 和 bool
+      - str 和 str
+    answer: 1
+    explain: 第一个值有引号。第二个是 Python 的真假值。
+  - type: read
+    skill: py.var-arith
+    md: |
+      **变量**是给一个值起的名字。`price = 12` 的意思是：先得到右边的值 12，再把名字 `price` **贴**到这个值上。以后写 `price` 就代表 12。
+
+      为什么需要变量？同一个数要用很多次、或者要一步步算的时候，起了名字的程序更好读、也更好改。
+
+      `=` 叫**赋值**，读作"把右边的值交给左边的名字"，它不是数学里的"等于"。执行顺序永远是**先算右边，再贴名字**，所以 `count = count + 1` 是合法的：用旧的 count 算出新值，再把名字贴到新值上。`count += 1` 是它的简写。
+
+      算术：`+ - *`，除法 `/`，乘方 `**`。`/` 的结果**总是小数**：`6 / 2` 是 `3.0`。
+
+      常见误解：
+      - **"名字会跟着走"**：`b = a` 之后再改 a，b **不会**跟着变——b 贴的是当时那个值。
+      - **"`/` 能整除"**：`7 / 2` 是 3.5，整除要用 `//`。
+  - type: example
+    skill: py.var-arith
+    code: |
+      # ① 准备数据：给值起名字
+      price = 12
+      count = 3
+      # ② 计算：先算右边，再把结果贴给 total
+      total = price * count
+      print(total)
+      # ③ 更新：用旧值算出新值
+      count = count + 1
+      total = price * count
+      print(count, total)
+      # ④ 名字不会跟着走
+      a = 5
+      b = a
+      a = 100
+      print(a, b)
+    md: 把 `price` 改成 15 再运行，看哪些输出变了。最后一行为什么 b 还是 5？
+  - type: quiz
+    skill: py.var-arith
+    q: 依次执行 `x = 4`、`y = x`、`x = x + 1` 之后，y 是多少？
+    options:
+      - '4'
+      - '5'
+      - 会报错
+    answer: 0
+    explain: '`y = x` 那一刻 x 是 4，y 就贴到 4 上；之后 x 换成了 5，y 不受影响。'
+  - type: read
+    skill: py.type-ops
+    md: |-
+      书店要把两张价签排在一起，也可能要算两本书一共多少钱。这是两个不同的操作，Python 恰好都用加号表示。它会看左右两边的类型：两个数就求和，两段文字就依次接在一起，引号不会成为结果中的字符。
+
+      文字乘整数表示重复，比如 `"-" * 3` 得到三个短横线。数做除法 `4 / 2` 会得到小数 2.0。要是把文字和整数直接相加，Python 无法替你决定是拼起来还是求和，会报告 TypeError。
+  - type: example
+    skill: py.type-ops
+    code: |
+      # ① 同一个加号，用在数和文字上
+      print(5 + 5)        # 10
+      print("5" + "5")    # 55
+      # ② 重复文字，再看除法结果
+      print("5" * 3)      # 555
+      print(4 / 2)        # 2.0
+    md: 把第一行算式中的两个 5 都加上引号，先猜结果再运行。
+  - type: quiz
+    skill: py.type-ops
+    q: 哪一行运行时会报 TypeError？
+    options:
+      - print("5" * 3)
+      - print("5" + 3)
+      - print(5 + 3)
+    answer: 1
+    explain: 这组加法要求把文字与整数相加，两边的类型不支持这种组合。
+  - type: quiz
+    skill: py.type-ops
+    q: '`"12" + "30"` 得到什么？'
+    options:
+      - 数 42
+      - 文字 1230
+    answer: 1
+    explain: 两个操作数都是文字，加号把字符依次接在一起。
+  - type: read
+    skill: py.type-convert
+    md: |-
+      两张价签上写着 "12" 和 "30"。要算总价，先让 int 分别把文字读成整数，再相加。要把数字放进一句话，可以用 str 得到文字。小数写法的文字可以交给 float，例如 `float("3.5")`。
+
+      转换还要看具体内容。`int(3.5)` 收到小数，可以截去小数部分；`int("3.5")` 收到文字，里面的小数点不符合整数写法，报 ValueError。和文字加数字引起的 TypeError 相比，这里是参数类型可以接收，内容却不合要求。
+  - type: example
+    skill: py.type-convert
+    code: |
+      # ① 把两张价签上的文字转成数
+      print(int("12") + int("30"))  # 42
+      print(float("3.5"))           # 3.5
+      # ② 截去小数部分
+      print(int(7.9))               # 7
+      # ③ 将结果写回一张文字标签
+      print("合计" + str(42))       # 合计42
+    md: 把 7.9 换成 -7.9，看 int 去掉的是哪一部分。想试试取最近的整数，可以另写一行 `print(round(7.9))`，看看它为什么显示 8。
+  - type: quiz
+    skill: py.type-convert
+    q: '`int("3.5")` 会怎样？'
+    options:
+      - 得到 3
+      - 报 ValueError
+      - 报 TypeError
+    answer: 1
+    explain: int 可以接收文字，但要求内容写成整数。带小数点的文字不符合这个要求。
+  - type: read
+    skill: py.stdio-input
+    md: |
+      有些题不是函数题，而是**读输入、打印输出**的程序（stdio 模式）：判题程序把测试数据当成"键盘输入"喂给你，再比较你打印出来的内容。
+
+      `input()` 读入**一整行**，返回的是**字符串**（不含末尾的换行）。每调用一次读下一行。所以读一个整数要写：
+
+      ```python
+      n = int(input())
+      ```
+
+      一道 stdio 题的步骤：① 读输入 ② 计算 ③ 用 print 输出。输出要和题目要求的格式一模一样（行尾空格和最后多出的空行不算）。
+
+      常见误解：
+      - **"input 读到的就是数字"**：读到的是字符串，`input() + input()` 是把两行文字接起来。
+      - **"一次 input 读完所有行"**：一次只读一行。
+      - **"要先打印一句提示"**：不要写 `input("请输入：")`，提示文字会混进你的输出，判题就对不上了。
+  - type: example
+    skill: py.stdio-input
+    code: |
+      # ① 读输入：每次读一行，转成整数
+      a = int(input())
+      b = int(input())
+      # ② 计算
+      total = a + b
+      # ③ 按要求输出，一个结果一行
+      print(total)
+      print(a * b)
+    stdin: |
+      3
+      4
+    md: 这个示例运行时会自动输入 3 和 4。把示例的输入改成另外两个数再运行。
+  - type: quiz
+    skill: py.stdio-input
+    q: 输入是两行：`2` 和 `3`。`print(input() + input())` 显示什么？
+    options:
+      - '5'
+      - '23'
+      - 会报错
+    answer: 1
+    explain: input() 返回字符串，两个字符串相加是拼接，得到 23。要求和得先用 int 转换。
+  - type: quiz
+    skill: py.stdio-input
+    q: 输入一行 42，`print(type(input()))` 会显示哪个类型名？
+    options:
+      - int
+      - str
+    answer: 1
+    explain: input 取走的是这一行的字符。需要整数时还要显式调用 int。
+  - type: read
+    skill: py.compare-bool
+    md: |
+      程序常常要**判断**：钱够不够？年龄到没到？比较运算回答这类问题，结果是两种值之一：`True`（真）或 `False`（假），叫**布尔值**。
+
+      | 写法 | 意思 |
+      |---|---|
+      | `a == b` | 等于 |
+      | `a != b` | 不等于 |
+      | `a < b`、`a > b` | 小于、大于 |
+      | `a <= b`、`a >= b` | 小于等于、大于等于 |
+
+      比较可以连着写：`0 <= x < 10` 表示 x 在 0（含）到 10（不含）之间。字符串也能比较是否相等，区分大小写。
+
+      比较的结果本身就是一个值，可以存进变量，也可以直接 `print(age >= 18)`。
+
+      常见误解：
+      - **"`=` 就是等于"**：一个等号是赋值，判断相等要用两个 `==`。
+      - **"True 要加引号"**：`True`、`False` 是 Python 的关键字，首字母大写，不加引号。
+  - type: example
+    skill: py.compare-bool
+    code: |
+      # ① 准备数据
+      age = 17
+      limit = 18
+      # ② 比较，结果是 True 或 False
+      print(age >= limit)
+      print(age == 17, age != 17)
+      # ③ 比较的结果可以存起来
+      is_adult = age >= limit
+      print(is_adult)
+      # ④ 连着写：在 0 到 20 之间吗
+      print(0 <= age < 20)
+    md: 把 age 改成 18、30 再运行。
+  - type: quiz
+    skill: py.compare-bool
+    q: 想判断 x 是否等于 5，哪个写法对？
+    options:
+      - x = 5
+      - x == 5
+      - x === 5
+    answer: 1
+    explain: '`x = 5` 是赋值；Python 里判断相等用 `==`（没有 `===`）。'
+  - type: quiz
+    skill: py.compare-bool
+    q: 已经给 age 赋值，怎样直接显示是否年满 18 岁？
+    options:
+      - print(age >= 18)
+      - 必须先写 if 才能得到真假值
+    answer: 0
+    explain: 比较本身就会得到一个布尔值，print 可以直接显示它。

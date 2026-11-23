@@ -1,0 +1,16 @@
+id: py-0a-111-complete-read-multiply
+title: 补全：读两个数相乘
+track: python
+stage: 0A
+order: 75
+format: complete
+mode: stdio
+difficulty: 5
+skills:
+  requires: [py.type-convert]
+  introduces: py.stdio-input
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "和第一行写法一样。"

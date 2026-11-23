@@ -1,0 +1,21 @@
+id: py-0a-041-compress-runs
+title: 压缩连续字符
+track: python
+stage: 0A
+order: 790
+format: combine
+mode: function
+difficulty: 15
+skills:
+  requires: [py.index-len, py.for-range, py.type-convert, py.early-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: compress_runs
+signature: "def compress_runs(s: str) -> str:"
+compare: exact
+hints:
+  - "从下标 1 开始，每次比较 s[i] 和前一个 s[i - 1]。"
+  - "字符变了，就把上一段写进结果、计数重置为 1。"
+  - "循环结束后，最后一段还没写进结果。"

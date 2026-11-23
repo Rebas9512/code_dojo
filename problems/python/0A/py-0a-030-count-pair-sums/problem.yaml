@@ -1,0 +1,19 @@
+id: py-0a-030-count-pair-sums
+title: 和为目标的数对
+track: python
+stage: 0A
+order: 600
+format: write
+mode: function
+difficulty: 12
+skills:
+  requires: [py.nested-loop, py.accumulator, py.if-else]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: count_pair_sums
+signature: "def count_pair_sums(n: int, target: int) -> int:"
+compare: exact
+hints:
+  - "内层循环从 a + 1 开始，就不会出现 a == b，也不会把 (2, 4) 和 (4, 2) 算两次。"

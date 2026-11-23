@@ -1,0 +1,39 @@
+id: algo-3-019-validate-binary-search-tree
+title: 整棵搜索树守序吗
+track: algo
+stage: '3'
+order: 190
+format: write
+mode: function
+difficulty: 54
+skills:
+  requires:
+  - algo.bst
+  - py.bool-ops
+  - py.recursion-multi
+  - py.type-convert
+  introduces: null
+source: neetcode250
+leetcode: validate-binary-search-tree
+milestones:
+- blind75
+- top100
+entry: valid_bst
+signature: 'def valid_bst(root: TreeNode | None) -> bool:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 进入左子树时丢弃当前上界。
+  code: |
+    def within(node, low, high):
+        if node is None:
+            return True
+        if not low < node.val < high:
+            return False
+        return within(node.left, low, high) and within(node.right, node.val, high)
+
+
+    def valid_bst(root: TreeNode | None) -> bool:
+        return within(root, float('-inf'), float('inf'))

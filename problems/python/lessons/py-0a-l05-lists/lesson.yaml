@@ -1,0 +1,352 @@
+id: py-0a-l05-lists
+title: 列表
+track: python
+skills: [py.list-basics, py.list-append, py.list-builtins, py.enumerate, py.multi-assign, py.split-join, py.list-pop, py.list-concat-repeat, py.nested-list]
+steps:
+  - type: read
+    skill: py.list-basics
+    md: |
+      **列表**把很多值按顺序放在一起：`nums = [3, 8, 5]`，空列表是 `[]`。字符串学过的东西对列表都成立：下标从 0 开始、负下标、`len`、`in`、`for x in nums`、切片。
+
+      和字符串最大的不同是：列表**可以修改**。
+
+      ```python
+      nums[1] = 10        # 把下标 1 的元素换掉，nums 变成 [3, 10, 5]
+      ```
+      要改列表里的元素，必须通过下标：
+
+      ```python
+      for i in range(len(nums)):
+          nums[i] = nums[i] * 2
+      ```
+
+      常见误解：
+      - **"`for x in nums: x = 0` 会把元素改成 0"**：x 只是拿到了元素的值，给 x 重新赋值不影响列表。改元素要用 `nums[i] = ...`。
+      - **"列表的下标从 1 开始"**：和字符串一样，从 0 开始。
+  - type: example
+    skill: py.list-basics
+    code: |
+      def clip_negatives(nums):
+          # ① 按下标遍历（要修改元素，必须拿到下标）
+          for i in range(len(nums)):
+              # ② 检查这个位置的值
+              if nums[i] < 0:
+                  # ③ 通过下标修改
+                  nums[i] = 0
+          return nums
+
+      print(clip_negatives([1, -2, 3, -4]))
+      nums = [1, 2, 3]
+      print(len(nums), nums[0], nums[-1], 2 in nums)
+    md: "把函数改成 `for x in nums:` 加 `if x < 0: x = 0` 再运行，列表变了吗？"
+  - type: quiz
+    skill: py.list-basics
+    q: "`nums = [1, 2]` 之后执行 `for x in nums: x = x * 10`，nums 是？"
+    options: ["[1, 2]", "[10, 20]", "会报错"]
+    answer: 0
+    explain: "x 只是拿到元素的值；给 x 赋值不会改动列表。"
+  - type: read
+    skill: py.list-append
+    md: |
+      很多题要"收集"结果：从一堆数里挑出符合条件的，组成一个**新列表**。标准写法分三步：
+
+      ```python
+      result = []              # ① 从空列表开始
+      for x in nums:
+          if x % 2 == 0:
+              result.append(x) # ② 符合条件就加到末尾
+      return result            # ③ 返回收集好的列表
+      ```
+      `append(x)` 把 x 加到列表**末尾**，直接修改这个列表。`extend(另一个列表)` 一次加入多个。
+
+      常见误解：
+      - **"append 会返回新列表"**：append 直接改原列表，自己**没有返回值**（返回 None）。写成 `result = result.append(x)` 会把 result 变成 None，只写 `result.append(x)` 就够了。
+      - **"每轮重新建空列表也行"**：`result = []` 写进循环里，每一轮都会清空。
+  - type: example
+    skill: py.list-append
+    code: |
+      def filter_evens(nums):
+          # ① 从空列表开始
+          result = []
+          for x in nums:
+              # ② 符合条件就加到末尾
+              if x % 2 == 0:
+                  result.append(x)
+          # ③ 返回收集好的列表
+          return result
+
+      print(filter_evens([1, 2, 3, 4, 6]))
+    md: "改成收集奇数；再试试把 append 那行写成 `result = result.append(x)`，看看会发生什么。"
+  - type: quiz
+    skill: py.list-append
+    q: "`a = [1]`，`b = a.append(2)`，`print(b)` 显示？"
+    options: ["[1, 2]", "None", "2"]
+    answer: 1
+    explain: "append 修改 a 本身，自己没有返回值（None）。a 变成了 [1, 2]。"
+  - type: read
+    skill: py.list-builtins
+    md: |
+      处理列表时，很多事有现成的内置函数：
+      - `sum(nums)`：求和（空列表是 0）；
+      - `max(nums)` / `min(nums)`：最大、最小；
+      - `len(nums)`：元素个数；
+      - 平均值：`sum(nums) / len(nums)`。
+
+      求和、求最值都能用循环手写出来，但平时就用这些内置函数：更短，也更快。面试题如果说"不能用 max"，再手写。
+
+      字符串组成的列表也能用 max / min，按字母顺序比较：`max(["pear", "apple"])` 是 `'pear'`。
+
+      常见误解：
+      - **"max 遇到空列表返回 0"**：`max([])` 会报错，先确认列表不为空。
+      - **"平均值用 // 算"**：`//` 会丢掉小数部分，平均值用 `/`。
+  - type: example
+    skill: py.list-builtins
+    code: |
+      def score_summary(scores):
+          # ① 用内置函数算出三个统计量
+          high = max(scores)
+          low = min(scores)
+          average = sum(scores) / len(scores)
+          # ② 拼成一句话
+          return f"最高{high} 最低{low} 平均{average:.1f}"
+
+      print(score_summary([90, 80, 75]))
+    md: "试试 `print(max([]))`，读一读报错信息。"
+  - type: quiz
+    skill: py.list-builtins
+    q: "`sum([])` 的结果是？"
+    options: ["0", "会报错", "None"]
+    answer: 0
+    explain: "空列表的和是 0；但 max([])、min([]) 会报错。"
+  - type: read
+    skill: py.enumerate
+    md: |
+      遍历时既要**位置**又要**值**，用 `enumerate`：
+
+      ```python
+      for i, x in enumerate(nums):
+          print(i, x)
+      ```
+      `enumerate(nums)` 每一轮给出一对（下标, 值），用两个名字 i、x 分别接住。它等价于 `for i in range(len(nums))` 再写 `x = nums[i]`，但更短、更不容易写错。`enumerate(nums, 1)` 让下标从 1 开始数。
+
+      典型用途是**找位置**：找到第一个等于 target 的元素就返回它的下标；整个循环都没找到，才返回 -1。
+
+      常见误解：
+      - **"i 和 x 的顺序随便写"**：顺序固定是"下标在前，值在后"。
+      - **"没找到就在循环里立刻 return -1"**：那样看完第一个元素就返回了，后面的根本没检查。"没找到"要等循环结束才能下结论。
+  - type: example
+    skill: py.enumerate
+    code: |
+      def find_index(nums, target):
+          # ① 同时拿到下标和值
+          for i, x in enumerate(nums):
+              # ② 找到就立刻返回下标
+              if x == target:
+                  return i
+          # ③ 整个列表都看完了还没找到
+          return -1
+
+      print(find_index([4, 2, 7, 2], 2))
+      print(find_index([1, 2, 3], 5))
+    md: "把最后的 `return -1` 缩进到 for 里面（和 if 对齐）再运行，第一行的结果还对吗？"
+  - type: quiz
+    skill: py.enumerate
+    q: "`for i, ch in enumerate(\"ab\")` 第一轮的 i 和 ch 是？"
+    options: ["0 和 'a'", "1 和 'a'", "'a' 和 0"]
+    answer: 0
+    explain: "下标在前、值在后，下标从 0 开始。"
+  - type: read
+    skill: py.multi-assign
+    md: |
+      Python 可以一次给多个名字赋值：
+
+      ```python
+      a, b = 1, 2
+      ```
+      规则是：**右边先全部算好**，再按顺序贴给左边。利用这一点，交换两个变量只要一行：
+
+      ```python
+      a, b = b, a
+      ```
+      交换列表里的两个元素也一样：`nums[i], nums[j] = nums[j], nums[i]`。
+
+      原地反转列表就是不停地交换：左右两个下标从两端往中间走，每一步交换它们指向的元素，直到相遇。步骤名：① 两个下标放两端 ② 交换 ③ 往中间走一步。
+
+      常见误解：
+      - **"分两行也能交换"**：`x = y` 之后 x 的旧值已经没了，接着 `y = x` 只是把 y 设成它自己——两个变量变得一样。
+  - type: example
+    skill: py.multi-assign
+    code: |
+      def reverse_in_place(nums):
+          # ① 两个下标放在两端
+          left = 0
+          right = len(nums) - 1
+          while left < right:
+              # ② 交换两端的元素
+              nums[left], nums[right] = nums[right], nums[left]
+              # ③ 两个下标往中间走一步
+              left += 1
+              right -= 1
+          return nums
+
+      print(reverse_in_place([1, 2, 3, 4, 5]))
+    md: "把交换那一行拆成两行 `nums[left] = nums[right]` 和 `nums[right] = nums[left]`，结果还对吗？"
+  - type: quiz
+    skill: py.multi-assign
+    q: "`x = 1`、`y = 2` 之后依次执行 `x = y` 和 `y = x`，x 和 y 是？"
+    options: ["2 和 1", "2 和 2", "1 和 1"]
+    answer: 1
+    explain: "`x = y` 后 x 是 2，原来的 1 已经没了；`y = x` 又把 y 设成 2。"
+  - type: read
+    skill: py.split-join
+    md: |
+      字符串和列表之间经常要互相转换：
+      - `s.split()`（不带参数）：按任意多个空白切开，得到单词列表，自动丢掉空串：`"a b  c".split()` → `['a', 'b', 'c']`；
+      - `s.split(",")`（带参数）：严格按这个分隔符切：`"a,,b".split(",")` → `['a', '', 'b']`；
+      - `"分隔符".join(列表)`：用分隔符把字符串列表连起来：`" ".join(['x', 'y'])` → `'x y'`。
+
+      注意 join 的写法：它是**分隔符**的方法，参数是列表，列表里必须都是字符串。
+
+      套路是"切开 → 处理列表 → 连回去"。比如把单词顺序反过来：split，切片 `[::-1]`，再 join。
+
+      常见误解：
+      - **"`split()` 和 `split(" ")` 一样"**：遇到连续空格时不一样，带参数的会切出空串 `''`。
+      - **"join 是列表的方法"**：写成 `words.join(" ")` 会报错，要写 `" ".join(words)`。
+  - type: example
+    skill: py.split-join
+    code: |
+      def reverse_words(s):
+          # ① 切开：得到单词列表
+          words = s.split()
+          # ② 处理列表：反转
+          words = words[::-1]
+          # ③ 连回去：用一个空格
+          return " ".join(words)
+
+      print(reverse_words("  hello   world "))
+      print("a b  c".split(" "))
+    md: "把 `\" \".join` 换成 `\"-\".join` 试试。"
+  - type: quiz
+    skill: py.split-join
+    q: "`\"-\".join([\"a\", \"b\", \"c\"])` 的结果是？"
+    options: ["'a-b-c'", "'-a-b-c-'", "['a', '-', 'b']"]
+    answer: 0
+    explain: "分隔符只放在相邻两个元素之间。"
+  - type: read
+    skill: py.list-pop
+    md: |
+      列表还可以删除和插入：
+      - `nums.pop()`：删掉**最后一个**元素，并把它返回；
+      - `nums.pop(i)`：删掉下标 i 的元素并返回；
+      - `nums.insert(i, x)`：把 x 插到下标 i，后面的元素都往后挪；
+      - `nums.remove(x)`：删掉第一个等于 x 的元素。
+
+      `append` 和 `pop()` 都在末尾操作，很快。只在末尾放、只从末尾拿，这种用法叫**栈**（后放进去的先拿出来），像一摞盘子。键盘的退格、撤销都是栈：输入就 append，退格就 pop。
+
+      常见误解：
+      - **"pop 删的是第一个"**：不带参数的 pop() 删最后一个。
+      - **"空列表也能 pop"**：会报 IndexError，先判断 `len(nums) > 0`。
+      - **"pop(0) 和 pop() 一样快"**：pop(0) 要把后面所有元素往前挪，列表很长时很慢。
+  - type: example
+    skill: py.list-pop
+    code: |
+      def apply_backspaces(s):
+          # ① 用列表存屏幕上的字符
+          typed = []
+          for ch in s:
+              if ch == "#":
+                  # ② 退格：有字符才删掉最后一个
+                  if len(typed) > 0:
+                      typed.pop()
+              else:
+                  # ③ 普通字符：加到末尾
+                  typed.append(ch)
+          return "".join(typed)
+
+      print(apply_backspaces("ab#c"))
+    md: "试试输入 \"#a\"；再去掉 `if len(typed) > 0` 这个判断，看看会怎样。"
+  - type: quiz
+    skill: py.list-pop
+    q: "`stack = [1, 2, 3]`，`print(stack.pop())` 显示？"
+    options: ["3", "1", "[1, 2]"]
+    answer: 0
+    explain: "不带参数的 pop() 删除并返回最后一个元素。"
+  - type: read
+    skill: py.list-concat-repeat
+    md: |
+      列表也能用 `*` 和 `+`：
+      - `[0] * 5` 得到 `[0, 0, 0, 0, 0]`，一步建出固定长度的列表；
+      - `[1, 2] + [3]` 得到新列表 `[1, 2, 3]`。
+
+      一个很常用的技巧是**计数表**：值的范围很小时（比如数字 0–9），建一个 `counts = [0] * 10`，把**值本身当下标**：遇到数字 d 就 `counts[d] += 1`。最后 `counts[d]` 就是 d 出现的次数。
+
+      常见误解：
+      - **"`[[0] * 3] * 2` 是两行独立的列表"**：外层的 `* 2` 只是把**同一行**放了两次，改一行另一行也变。二维表要用循环逐行建。
+      - **"`+` 会修改原列表"**：`a + b` 得到新列表，a、b 都不变；要在原列表末尾加元素用 append。
+  - type: example
+    skill: py.list-concat-repeat
+    code: |
+      def digit_counts(digits):
+          # ① 建计数表：10 个 0
+          counts = [0] * 10
+          for d in digits:
+              # ② 值本身当下标，对应位置加 1
+              counts[d] += 1
+          # ③ 返回整张表
+          return counts
+
+      print(digit_counts([1, 2, 2, 9]))
+      print([1, 2] + [3])
+    md: "把 `[0] * 10` 改成 `[0] * 5` 再运行，会出什么错？为什么？"
+  - type: quiz
+    skill: py.list-concat-repeat
+    q: "`[\"a\"] * 3` 的结果是？"
+    options: ["['a', 'a', 'a']", "['aaa']", "会报错"]
+    answer: 0
+    explain: "列表乘 3 是把里面的元素重复 3 次。"
+  - type: read
+    skill: py.nested-list
+    md: |
+      列表的元素也可以是列表，这样就能表示**表格**（二维列表）：
+
+      ```python
+      grid = [[1, 2, 3],
+              [4, 5, 6]]
+      ```
+      - `grid[r]` 是第 r 行（一个列表），`grid[r][c]` 是第 r 行第 c 列；
+      - 行数是 `len(grid)`，列数是 `len(grid[0])`；
+      - 遍历每个格子用两层循环：外层行、内层列；`for row in grid` 一次拿到一整行。
+
+      建一个 R 行 C 列、全是 0 的表，要每行单独建：
+
+      ```python
+      grid = []
+      for r in range(R):
+          grid.append([0] * C)
+      ```
+
+      常见误解：
+      - **"`[[0] * C] * R` 也行"**：那样 R 行其实是**同一个列表**，改一格，同一列的格子全都跟着变。
+      - **"先列后行"**：`grid[r][c]` 是先行后列。
+  - type: example
+    skill: py.nested-list
+    code: |
+      def column_sums(grid):
+          # ① 列数，以及每列一个累加器
+          cols = len(grid[0])
+          sums = [0] * cols
+          # ② 外层行、内层列，逐格加到对应的列上
+          for r in range(len(grid)):
+              for c in range(cols):
+                  sums[c] += grid[r][c]
+          # ③ 返回每列的和
+          return sums
+
+      print(column_sums([[1, 2, 3], [4, 5, 6]]))
+    md: "试试 `grid = [[0] * 3] * 2`，再执行 `grid[0][0] = 1`，然后打印 grid。"
+  - type: quiz
+    skill: py.nested-list
+    q: "`grid = [[1, 2], [3, 4]]`，`grid[1][0]` 是？"
+    options: ["3", "2", "1"]
+    answer: 0
+    explain: "先行后列：第 1 行是 [3, 4]，其中下标 0 的是 3。"

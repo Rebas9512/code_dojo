@@ -1,0 +1,44 @@
+id: algo-4-076-reconstruct-itinerary
+title: 把所有机票接成字典序最小的行程
+track: algo
+stage: '4'
+order: 760
+format: combine
+mode: function
+difficulty: 85
+unit: 6
+skills:
+  requires:
+  - algo.graph-adj-list
+  - py.stack-list
+  - py.dict-get
+  - py.if-else
+  - py.slice
+  - py.sorted
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: reconstruct-itinerary
+milestones:
+- nc150
+entry: itinerary
+signature: 'def itinerary(tickets: list[list[str]]) -> list[str]:'
+compare: exact
+wrong_examples:
+- why: 从列表末尾取票时，先取了字典序大的目的地。
+  code: |
+    def itinerary(tickets: list[list[str]]) -> list[str]:
+        outgoing = {}
+        for src, dst in sorted(tickets):
+            outgoing.setdefault(src, []).append(dst)
+        stack = ["JFK"]
+        reverse_route = []
+        while stack:
+            node = stack[-1]
+            if outgoing.get(node):
+                stack.append(outgoing[node].pop())
+            else:
+                reverse_route.append(stack.pop())
+        return reverse_route[::-1]
+hints:
+- 遇到一个没有剩余出边的机场，它只能是当前子行程的终点。按退回时的顺序记录，最后反向读出整条行程。

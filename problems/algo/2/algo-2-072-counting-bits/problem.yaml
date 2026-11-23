@@ -1,0 +1,28 @@
+id: algo-2-072-counting-bits
+title: 列出从零开始的亮位数
+track: algo
+stage: '2'
+order: 720
+format: write
+mode: function
+difficulty: 66
+skills:
+  requires:
+  - algo.bit-ops
+  - py.list-concat-repeat
+  introduces: null
+source: neetcode250
+leetcode: counting-bits
+milestones:
+- blind75
+entry: bit_counts
+signature: 'def bit_counts(n: int) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 每加一格总当成新增一个亮位。
+  code: |
+    def bit_counts(n: int) -> list[int]:
+        counts = [0] * (n + 1)
+        for i in range(1, n + 1):
+            counts[i] = counts[i >> 1] + 1
+        return counts

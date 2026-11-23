@@ -1,0 +1,50 @@
+id: algo-3-056-skip-equal-siblings
+title: 有重复元素时：排序后同一层跳过相同值
+track: algo
+stage: '3'
+order: 560
+format: fix
+mode: function
+difficulty: 62
+skills:
+  requires:
+  - algo.backtracking
+  - algo.nested-func
+  - py.bool-ops
+  - py.break-continue
+  - py.list-comp
+  - py.multi-assign
+  - py.slice
+  - py.sorted
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: run_case
+signature: 'def run_case(nums: list[int]) -> list[list[int]]:'
+compare: unordered
+wrong_examples:
+- why: 把本层起点也按上一层的值跳过。
+  code: |
+    def choose_pairs(nums: list[int]) -> list[list[int]]:
+        values = sorted(nums)
+        result, path = [], []
+        def visit(start):
+            if len(path) == 2:
+                result.append(path[:])
+                return
+            for i in range(start, len(values)):
+                if i > 0 and values[i] == values[i - 1]:
+                    continue
+                path.append(values[i])
+                visit(i + 1)
+                path.pop()
+        visit(0)
+        return result
+
+
+    def run_case(nums: list[int]) -> list[list[int]]:
+        # 组合的成员可以任意排列；保留每一项和全部重复次数。
+        return [sorted(group) for group in choose_pairs(nums)]
+hints:
+- 比较相邻两个同值候选时，先核对前一个下标是否仍在本层允许选择的范围内。

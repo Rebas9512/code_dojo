@@ -1,0 +1,25 @@
+id: tensor-1-013-remove-channel
+title: 只移除通道轴
+track: tensor
+stage: '1'
+order: 130
+format: write
+mode: function
+difficulty: 23
+skills:
+  requires:
+    - tensor.singleton
+    - tensor.axes
+  introduces: null
+source: original
+entry: remove_channel
+signature: 'def remove_channel(rows):'
+compare: allclose
+wrong_examples:
+  - why: 无参数挤压还会删除单批或单时刻。
+    code: |
+      import torch
+
+
+      def remove_channel(rows):
+          return torch.tensor(rows).squeeze().transpose(0, 1)

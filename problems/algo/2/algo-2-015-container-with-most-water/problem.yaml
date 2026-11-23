@@ -1,0 +1,43 @@
+id: algo-2-015-container-with-most-water
+title: 选两块挡板装最多的水
+track: algo
+stage: '2'
+order: 150
+format: write
+mode: function
+difficulty: 53
+skills:
+  requires:
+  - algo.two-pointers
+  - py.if-else
+  introduces: null
+source: neetcode250
+leetcode: container-with-most-water
+milestones:
+- blind75
+- top100
+entry: max_area
+signature: 'def max_area(height: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 移走较高的挡板。
+  code: |
+    def max_area(height: list[int]) -> int:
+        left, right = 0, len(height) - 1
+        best = 0
+        while left < right:
+            best = max(best, (right - left) * min(height[left], height[right]))
+            if height[left] >= height[right]:
+                left += 1
+            else:
+                right -= 1
+        return best
+- why: 逐对计算挡板面积，重复尝试本可排除的配对。
+  code: |
+    def max_area(height: list[int]) -> int:
+        best = 0
+        for left in range(len(height)):
+            for right in range(left + 1, len(height)):
+                area = (right - left) * min(height[left], height[right])
+                best = max(best, area)
+        return best

@@ -1,0 +1,43 @@
+id: py-0b-l07-matrix
+title: 先选行，再在行里找邻居
+track: python
+skills: [py.matrix-traverse]
+steps:
+  - type: read
+    skill: py.matrix-traverse
+    md: |
+      两行三列的座位表里，行号只有 0、1，而列号可以是 0、1、2。写 grid[r][c] 相当于先取整行，再在这一行选一格。转置时把相同列号的值收成一行，原来的列数就成了新表的行数。
+
+      只走上下左右，可以把一步记成“行、列各改变多少”。**不变式**：每试完一个方向，计数里恰好包含已检查方向中合法且为 1 的邻居。先检查两个坐标再读。行号 −1 在 Python 会读到最后一行，容易把边界另一端当作邻居（PM74）。
+  - type: example
+    skill: py.matrix-traverse
+    code: |
+      # ① 标出要观察的位置和四个方向
+      grid = [[0, 1, 0], [1, 1, 0]]
+      row, col = 0, 0
+      ones = 0
+      for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+          # ② 算出候选邻居
+          r, c = row + dr, col + dc
+          # ③ 在表内才读取
+          if 0 <= r < len(grid) and 0 <= c < len(grid[0]):
+              ones += grid[r][c]
+      print(ones)
+    md: |
+      | 方向 | 候选坐标 | 读完后的计数 |
+      |---|---|---:|
+      | 上 | (-1, 0) | 0 |
+      | 下 | (1, 0) | 1 |
+      | 左 | (0, -1) | 1 |
+      | 右 | (0, 1) | 2 |
+
+      把位置改为 (0, 2)，用同一张方向表重新试。
+  - type: quiz
+    skill: py.matrix-traverse
+    q: "在一张两行三列的表里，从 (0, 1) 向上走一步会怎样？"
+    options:
+      - "读最后一行"
+      - "跳过这个方向"
+      - "读 (0, 0)"
+    answer: 1
+    explain: "候选行号是 −1，已经越过上边界。"

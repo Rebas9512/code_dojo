@@ -1,0 +1,39 @@
+id: algo-4-027-valid-parenthesis-string
+title: 星号能否补成合法括号
+track: algo
+stage: '4'
+order: 270
+format: write
+mode: function
+difficulty: 68
+skills:
+  requires:
+  - algo.greedy
+  - py.early-return
+  - py.elif
+  introduces: null
+source: neetcode250
+leetcode: valid-parenthesis-string
+milestones:
+- nc150
+entry: valid_stars
+signature: 'def valid_stars(s: str) -> bool:'
+compare: exact
+wrong_examples:
+- why: 只检查右括号是否太多，漏查收尾的左括号。
+  code: |
+    def valid_stars(s: str) -> bool:
+        low = high = 0
+        for ch in s:
+            if ch == "(":
+                low += 1
+                high += 1
+            elif ch == ")":
+                low = max(0, low - 1)
+                high -= 1
+            else:
+                low = max(0, low - 1)
+                high += 1
+            if high < 0:
+                return False
+        return high >= 0

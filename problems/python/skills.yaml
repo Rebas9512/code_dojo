@@ -1,0 +1,1161 @@
+# Python 技能图（code-dojo）
+# 设计说明见 docs/curriculum.md；格式见 docs/problem-format.md。
+# 约定：prereqs 只写"直接"前置，传递前置由检查脚本自动展开。
+track: python
+skills:
+  # ===================== 0A 第 0 组：值和类型 =====================
+  - id: py.print
+    name: print 显示一个值
+    stage: 0A
+    group: 0
+    prereqs: [data.value-kinds]
+    card: |
+      `print(...)` 会把括号里的值显示在屏幕上，然后换行。
+      数字直接写，文字放在引号里。`print(7)` 和 `print("7")` 都显示 7，引号不出现在输出里。
+      `print("书", 7)` 显示 `书 7`，中间有一个空格。`print()` 单独输出一行空行。
+      预测输出时，每调用一次 print，就按顺序写一行。
+
+  - id: py.value-types
+    name: 五种值和 type()
+    stage: 0A
+    group: 0
+    prereqs: [py.print]
+    card: |
+      每个值都有类型。整数 `7` 是 int，小数 `7.0` 是 float，文字 `"7"` 是 str。
+      真假值 `True` 和 `False` 是 bool；`None` 表示没有值，它的类型叫 NoneType。
+      `print(type("7"))` 显示 `<class 'str'>`。只用 `print("7")` 看不到类型。
+      `"True"` 也是文字：引号内的拼写不会改变类型。
+
+  - id: py.var-arith
+    name: 变量、赋值和算术
+    stage: 0A
+    group: 0
+    prereqs: [py.value-types]
+    card: |
+      变量给值起名字。`x = 3` 后，`print(x)` 显示 3，`print("x")` 显示字母 x。
+      赋值先算右边：`x = x + 1` 用原来的 3 加 1，再把 4 交给 x；也可以写 `x += 1`。
+      `+ - * /` 分别做加减乘除，`**` 表示乘方。先乘除后加减，括号里的先算。
+      `4 / 2` 得到小数 2.0。`y = x` 会取当时的值，后来给 x 赋新值不会让 y 跟着变。
+
+  - id: py.type-ops
+    name: 类型决定运算的意思
+    stage: 0A
+    group: 0
+    prereqs: [py.var-arith]
+    card: |
+      看到运算符，先看两边各是什么类型。数加数得到和，文字加文字接成一段。
+      `5 + 5` 得到 10，`"5" + "5"` 得到文字 `"55"`。文字乘整数表示重复：`"5" * 3` 得到 `"555"`。
+      `4 / 2` 得到小数 2.0。`"5" + 5` 这组类型无法做加法，Python 会报告 TypeError。
+
+  - id: py.type-convert
+    name: 类型转换 int / str / float
+    stage: 0A
+    group: 0
+    prereqs: [py.type-ops]
+    card: |
+      `int("12")` 把整数写法的文字转成整数，`float("3.5")` 把小数写法的文字转成小数。
+      `str(12)` 得到文字 `"12"`。`int(7.9)` 截去小数部分得到 7，`round(7.9)` 取最近的整数得到 8。
+      `int("3.5")` 的文字不符合整数写法，会报 ValueError；`int(3.5)` 接到的是一个数，可以截成 3。
+
+  - id: py.stdio-input
+    name: input() 读进来的是文字
+    stage: 0A
+    group: 0
+    prereqs: [py.type-convert]
+    card: |
+      `input()` 读下一整行，去掉末尾换行，交回一个字符串。两行输入就调用两次。
+      输入 42 时，`print(type(input()))` 显示 `<class 'str'>`。
+      要计算数量就先转成数，例如 `n = int(input())`，再写 `print(n * 2)`。
+      电话号码等标识可直接保留文字。判题比较屏幕上的输出，读入时不用显示提示语。
+
+  - id: py.compare-bool
+    name: 比较得到真假值
+    stage: 0A
+    group: 0
+    prereqs: [py.var-arith, py.value-types]
+    card: |
+      `== != < > <= >=` 比较两个值，结果是 `True` 或 `False`。单个等号用来给名字赋值。
+      `age = 18` 后，`print(age >= 18)` 直接显示 True。比较结果可以保存，也可以直接打印。
+      `"5" == 5` 是 False，文字和数类型不同；`5 == 5.0` 是 True，两边都是数，数值相等。
+      `0 <= age < 18` 检查年龄是否落在含 0、不含 18 的区间。
+
+  # ===================== 0A 第 1 组：函数、整除和格式化 =====================
+  - id: py.func-return
+    name: 定义和调用函数，return 结果
+    stage: 0A
+    group: 1
+    prereqs: [py.var-arith]
+    card: |
+      `def` 定义函数（这时不运行），`f(参数)` 调用它，`return` 把结果交回调用处。
+      function 模式的题会给出函数的第一行（签名），你在缩进的函数体里写代码，
+      用 `return` 把结果交回去。判题程序直接调用函数、检查返回值。
+      ```python
+      def rectangle_area(width: int, height: int) -> int:
+          area = width * height
+          return area
+      ```
+      - 参数（width、height）就是已经有值的变量，直接用。
+      - `: int`、`-> int` 是类型标注，只是说明，不影响运行。
+      - 函数体统一缩进 4 个空格。
+      常见坑：用 `print` 代替 `return`——打印出来不等于返回，判题看到的是 `None`。
+
+  - id: py.floordiv-mod
+    name: 整除 // 和取余 %
+    stage: 0A
+    group: 1
+    prereqs: [py.var-arith]
+    card: |
+      `a // b` 整除（向下取整），`a % b` 取余数。两者满足 `a == (a // b) * b + a % b`。
+      拆数字的固定套路：
+      ```python
+      n = 1234
+      n % 10        # 4，个位
+      n // 10       # 123，去掉个位
+      n // 10 % 10  # 3，十位
+      ```
+      其他常用：`n % 2 == 0` 判偶数；`total // 60` 和 `total % 60` 把分钟拆成小时和分钟。
+      常见坑：负数向下取整，`-7 // 2` 是 `-4`（不是 -3），`-7 % 2` 是 `1`。
+
+  - id: py.fstring
+    name: f-string 格式化
+    stage: 0A
+    group: 1
+    prereqs: [py.var-arith]
+    card: |
+      字符串前加 `f`，花括号里可以放变量或表达式，运行时替换成它的值。
+      ```python
+      name, n = "Li", 3
+      f"{name} 有 {n * 2} 本书"     # 'Li 有 6 本书'
+      price = 3.14159
+      f"{price:.2f}"                 # '3.14'，保留 2 位小数
+      ```
+      - `{x:.1f}` 保留 1 位小数（四舍五入到显示位）。
+      - 花括号外面的文字原样保留，包括空格和汉字。
+      常见坑：忘了开头的 `f`，结果就是字面上的 `"{name}"`。
+
+  # ===================== 0A 第 2 组：条件和布尔逻辑 =====================
+  - id: py.if-else
+    name: if / else
+    stage: 0A
+    group: 2
+    prereqs: [py.compare-bool]
+    card: |
+      条件为 True 执行 if 下的缩进块，否则执行 else 下的块（else 可以省略）。
+      ```python
+      if age < 12:
+          price = 50
+      else:
+          price = 100
+      ```
+      - 条件后面有冒号 `:`，块内统一缩进 4 个空格。
+      - 任何表达式都能当条件：`0`、`""`、`[]` 视为假，其他视为真。
+      常见坑：漏写冒号；if 和 else 的缩进没对齐。
+
+  - id: py.early-return
+    name: 在分支和循环里 return（提前返回）
+    stage: 0A
+    group: 2
+    prereqs: [py.if-else, py.func-return]
+    card: |
+      函数执行到 `return` 就**立刻结束**，后面的代码不再运行——在 if 里、循环里都一样。
+      常用来先处理特殊情况（"守卫"），再写正常情况：
+      ```python
+      def safe_divide(a: int, b: int) -> int:
+          if b == 0:
+              return 0          # 特殊情况，直接结束
+          return a // b         # 走到这里说明 b != 0
+      ```
+      在循环里找到答案就 return，找完都没找到再在循环外 return 默认值。
+      常见坑：某条路径没有 return，函数会返回 `None`。
+      （0A 原计划放在第 6 组；function 模式从第一题就要 return，所以提前到这里。）
+
+  - id: py.elif
+    name: if / elif / else 多分支
+    stage: 0A
+    group: 2
+    prereqs: [py.if-else]
+    card: |
+      多个条件**从上往下**依次检查，第一个为 True 的分支执行，其余全部跳过。
+      ```python
+      if score >= 90:
+          grade = "A"
+      elif score >= 80:     # 走到这里说明 score < 90
+          grade = "B"
+      else:
+          grade = "C"
+      ```
+      常见坑：条件顺序写反。区间判断要么从大到小写 `>=`，要么从小到大写 `<=`，
+      否则宽的条件先匹配，窄的分支永远到不了。
+
+  - id: py.bool-ops
+    name: and / or / not
+    stage: 0A
+    group: 2
+    prereqs: [py.compare-bool]
+    card: |
+      - `a and b`：两个都为 True 才是 True。
+      - `a or b`：有一个为 True 就是 True。
+      - `not a`：取反。
+      优先级 `not` > `and` > `or`，混用时加括号最清楚：
+      ```python
+      leap = (y % 4 == 0 and y % 100 != 0) or y % 400 == 0
+      ```
+      短路：`and` 左边为假、`or` 左边为真时，右边不再计算——
+      可以用来先检查再访问：`i < len(s) and s[i] == "a"`。
+      常见坑：`x == 1 or 2` 永远为真，应写 `x == 1 or x == 2`。
+
+  - id: py.minmax-abs
+    name: abs / min / max / round
+    stage: 0A
+    group: 2
+    prereqs: [py.func-return]
+    card: |
+      常用的数值内置函数：
+      ```python
+      abs(-5)          # 5
+      min(3, 8)        # 3，可以传多个数：min(a, b, c)
+      max(3, 8)        # 8
+      round(2.567, 2)  # 2.57
+      ```
+      夹逼到区间：`max(low, min(x, high))`。
+      常见坑：`round(2.5)` 是 `2`、`round(3.5)` 是 `4`（"银行家舍入"，.5 取偶数）；
+      要显示固定小数位，用 f-string 的 `{x:.2f}` 更直观。
+
+  # ===================== 0A 第 3 组：循环 =====================
+  - id: py.for-range
+    name: for 循环与 range
+    stage: 0A
+    group: 3
+    prereqs: [py.var-arith]
+    card: |
+      `for i in range(...)` 让 i 依次取一串整数，每取一个执行一次循环体。
+      - `range(n)`：0, 1, …, n-1（共 n 个，**不含 n**）
+      - `range(a, b)`：a, …, b-1
+      - `range(a, b, step)`：步长 step，可以为负：`range(10, 0, -3)` → 10, 7, 4, 1
+      ```python
+      for i in range(1, n + 1):   # 1 到 n，含 n
+          print(i)
+      ```
+      常见坑：差一错误（off-by-one）——要包含 n 必须写 `range(1, n + 1)`。
+
+  - id: py.accumulator
+    name: 累加器（求和、计数、累乘）
+    stage: 0A
+    group: 3
+    prereqs: [py.for-range, py.func-return]
+    card: |
+      循环外先准备一个变量，循环里每轮把新东西"累积"进去，循环结束后它就是答案。
+      ```python
+      total = 0                  # 求和从 0 开始
+      for i in range(1, n + 1):
+          total += i
+      count = 0                  # 计数：满足条件才 +1
+      for i in range(1, n + 1):
+          if i % 3 == 0:
+              count += 1
+      ```
+      累乘从 1 开始；拼字符串从 `""` 开始；收集列表从 `[]` 开始（第 5 组）。
+      常见坑：初始化写进了循环里，每轮都被清零。
+
+  - id: py.while
+    name: while 循环
+    stage: 0A
+    group: 3
+    prereqs: [py.compare-bool]
+    card: |
+      条件为 True 就一直重复，适合"不知道要循环几次、直到某个状态"的情况。
+      ```python
+      count = 0
+      while n > 0:        # 每次去掉一位，直到变成 0
+          n = n // 10
+          count += 1
+      ```
+      写 while 时问自己三件事：变量在循环前初始化了吗？条件对吗？循环体里有让条件最终变假的更新吗？
+      常见坑：忘了更新变量，死循环（判题会超时）。
+
+  - id: py.running-max
+    name: 求最值（打擂台）
+    stage: 0A
+    group: 3
+    prereqs: [py.accumulator, py.if-else]
+    card: |
+      用一个变量记住"目前最好的"，每来一个新值就和它比，更好就替换。
+      ```python
+      best = nums[0]          # 用第一个元素当初始擂主
+      for x in nums:
+          if x > best:
+              best = x
+      ```
+      常见坑：用 `best = 0` 初始化——全是负数时答案会错成 0。
+      要么用第一个元素，要么用 `float("-inf")`（比任何数都小）。
+
+  - id: py.break-continue
+    name: break / continue
+    stage: 0A
+    group: 3
+    prereqs: [py.for-range, py.if-else]
+    card: |
+      - `break`：立刻跳出**当前这一层**循环。
+      - `continue`：跳过本轮剩下的代码，直接进入下一轮。
+      ```python
+      for ch in s:
+          if ch == " ":
+              continue        # 空格不处理
+          if ch == "#":
+              break           # 遇到 # 停止
+          result += ch
+      ```
+      在函数里如果找到答案后不需要再做别的事，直接 `return` 往往比 break 更简单。
+      常见坑：嵌套循环里 break 只跳出内层。
+
+  - id: py.nested-loop
+    name: 嵌套循环
+    stage: 0A
+    group: 3
+    prereqs: [py.for-range]
+    card: |
+      循环体里再放一个循环：外层每走一步，内层完整跑一遍。总次数是两者相乘。
+      ```python
+      for a in range(1, n + 1):
+          for b in range(a + 1, n + 1):   # 只看 b > a，避免重复和自己配对
+              if a + b == target:
+                  count += 1
+      ```
+      内层范围可以依赖外层变量（如上面的 `a + 1`）。
+      常见坑：内外层用了同一个变量名；O(n²) 在 n 很大时会很慢（0B 会亲手计时）。
+
+  # ===================== 0A 第 4 组：字符串 =====================
+  - id: py.index-len
+    name: 下标与 len
+    stage: 0A
+    group: 4
+    prereqs: [py.func-return]
+    card: |
+      字符串（以及之后的列表）里每个元素有位置编号，**从 0 开始**。`len(s)` 是长度。
+      ```python
+      s = "python"
+      s[0]           # 'p'
+      s[len(s) - 1]  # 'n'，最后一个
+      s[-1]          # 'n'，负下标从末尾数
+      s[-2]          # 'o'
+      ```
+      合法下标是 `0 … len(s)-1`，或 `-len(s) … -1`。
+      配合 `for i in range(len(s))` 可以按位置遍历。
+      常见坑：`s[len(s)]` 越界，报 IndexError；空串没有 `s[0]`。
+
+  - id: py.for-each
+    name: for 直接遍历序列
+    stage: 0A
+    group: 4
+    prereqs: [py.for-range, py.index-len]
+    card: |
+      `for ch in s` 依次取出字符串的每个字符（对列表就是每个元素），不用管下标。
+      ```python
+      for ch in "abc":
+          print(ch)      # a、b、c 各一行
+      ```
+      什么时候还要用下标？需要位置信息、需要看相邻元素（`s[i-1]`）、或要修改列表元素时，
+      用 `for i in range(len(s))`（或第 5 组的 enumerate）。
+      常见坑：在 `for x in nums` 里给 x 赋值不会改动列表本身。
+
+  - id: py.in-membership
+    name: in / not in 成员判断
+    stage: 0A
+    group: 4
+    prereqs: [py.compare-bool]
+    card: |
+      `x in 容器` 判断是否包含，结果是布尔值。
+      ```python
+      "a" in "cat"            # True，单个字符
+      "at" in "cat"           # True，字符串里判断的是子串
+      ch in "aeiouAEIOU"      # 判断元音，比 5 个 or 简洁
+      5 not in [1, 2, 3]      # True（列表，第 5 组）
+      ```
+      常见坑：对列表用 `in` 要逐个比较，是 O(n)；之后的集合 / 字典用 `in` 是 O(1)（第 7 组）。
+
+  - id: py.slice
+    name: 切片
+    stage: 0A
+    group: 4
+    prereqs: [py.index-len]
+    card: |
+      `s[start:stop:step]` 取一段，**含 start、不含 stop**，结果是新的字符串（列表同理）。
+      ```python
+      s = "abcdefg"
+      s[1:4]    # 'bcd'
+      s[:3]     # 'abc'，省略 start 从头
+      s[4:]     # 'efg'，省略 stop 到尾
+      s[-3:]    # 'efg'，最后 3 个
+      s[::2]    # 'aceg'，隔一个取一个
+      s[::-1]   # 'gfedcba'，反转
+      ```
+      切片越界不报错，只是截到边界：`s[2:100]` 是 `'cdefg'`。
+      常见坑：切片会复制，循环里反复切大串很慢。
+
+  - id: py.str-methods
+    name: 常用字符串方法
+    stage: 0A
+    group: 4
+    prereqs: [py.index-len]
+    card: |
+      字符串不可修改，方法都**返回新字符串**，原串不变。
+      ```python
+      s = "  Hello "
+      s.strip()            # 'Hello'，去首尾空白
+      s.lower(), s.upper() # 大小写
+      "a-b".replace("-", "+")   # 'a+b'
+      "banana".count("a")  # 3
+      "banana".find("n")   # 2，找不到返回 -1
+      "abc".startswith("ab")    # True
+      "7".isdigit(), "x".isalpha(), "A".isupper()
+      ```
+      方法可以连着调用：`s.strip().lower()`。
+      常见坑：只写 `s.lower()` 而不接住返回值，s 并没有变。
+
+  - id: py.ord-chr
+    name: ord / chr 字符编码
+    stage: 0A
+    group: 4
+    prereqs: [py.index-len, py.type-convert]
+    card: |
+      每个字符对应一个整数编码。`ord("a")` → 97，`chr(97)` → `"a"`。
+      字母编码是连续的，所以可以做"字母 ↔ 0–25 编号"的换算：
+      ```python
+      index = ord(ch) - ord("a")          # 'a'→0 … 'z'→25
+      ch = chr(ord("a") + (index + k) % 26)   # 后移 k 位，z 之后回到 a
+      ```
+      判断小写字母：`"a" <= ch <= "z"`（字符按编码比较）。
+      常见坑：大写字母 `ord("A")` 是 65，和小写不连在一起。
+
+  # ===================== 0A 第 5 组：列表 =====================
+  - id: py.list-basics
+    name: 列表基础：创建、下标读写、遍历
+    stage: 0A
+    group: 5
+    prereqs: [py.for-each, py.in-membership, data.shapes]
+    card: |
+      列表是有序、可修改的序列：`nums = [3, 8, 5]`，空列表 `[]`。
+      下标、负下标、`len`、`in`、`for x in nums`、切片都和字符串一样。
+      不同点：列表**可以修改元素**。
+      ```python
+      nums[1] = 10            # [3, 10, 5]
+      for i in range(len(nums)):
+          if nums[i] < 0:
+              nums[i] = 0     # 要改元素，必须通过下标
+      ```
+      常见坑：`for x in nums: x = 0` 只改了变量 x，列表没变。
+
+  - id: py.list-append
+    name: append 构建新列表
+    stage: 0A
+    group: 5
+    prereqs: [py.list-basics]
+    card: |
+      "收集结果"的标准写法：从空列表开始，满足条件就 `append` 到末尾。
+      ```python
+      result = []
+      for x in nums:
+          if x % 2 == 0:
+              result.append(x)
+      return result
+      ```
+      `append` 直接修改列表、返回 `None`。
+      常见坑：写成 `result = result.append(x)`，result 变成 None。
+      `extend(其他列表)` 一次追加多个元素。
+
+  - id: py.list-builtins
+    name: sum / min / max / len 作用于列表
+    stage: 0A
+    group: 5
+    prereqs: [py.list-basics, py.minmax-abs]
+    card: |
+      内置函数可以直接处理整个列表：
+      ```python
+      sum(nums)           # 求和，空列表为 0
+      max(nums), min(nums)
+      sum(nums) / len(nums)   # 平均值（注意空列表会除以 0）
+      ```
+      会写手动版（累加器、打擂台）以后，平时就用内置函数——更短也更快。
+      常见坑：`max([])` 报 ValueError，先判断列表是否为空。
+
+  - id: py.enumerate
+    name: enumerate 同时拿下标和值
+    stage: 0A
+    group: 5
+    prereqs: [py.list-basics]
+    card: |
+      `enumerate(seq)` 每次给出一对 (下标, 值)，在 for 里用两个变量接住：
+      ```python
+      for i, x in enumerate(nums):
+          if x == target:
+              return i
+      return -1
+      ```
+      等价于 `for i in range(len(nums)): x = nums[i]`，但更清楚。
+      `enumerate(seq, 1)` 让下标从 1 开始。
+
+  - id: py.multi-assign
+    name: 同时赋值与交换
+    stage: 0A
+    group: 5
+    prereqs: [py.list-basics]
+    card: |
+      等号两边可以各放多个，右边先全部算好，再依次赋给左边：
+      ```python
+      a, b = 0, 1
+      a, b = b, a                 # 交换，不需要临时变量
+      nums[i], nums[j] = nums[j], nums[i]   # 交换列表的两个元素
+      ```
+      这其实是第 8 组"元组解包"的一种用法。
+      常见坑：分两行写 `a = b` 再 `b = a`，第二行时 a 已经被覆盖了。
+
+  - id: py.split-join
+    name: split / join：字符串和列表互转
+    stage: 0A
+    group: 5
+    prereqs: [py.list-append, py.str-methods]
+    card: |
+      ```python
+      "a b  c".split()          # ['a', 'b', 'c']：不带参数时按任意空白切，丢掉空串
+      "a,b,,c".split(",")       # ['a', 'b', '', 'c']：带参数时严格按分隔符切
+      " ".join(["x", "y"])      # 'x y'：用分隔符把字符串列表连起来
+      "".join(chars)            # 把字符列表拼回字符串
+      ```
+      join 是**分隔符**的方法，参数是列表；列表元素必须都是字符串。
+      逐字符修改字符串的常用办法：先放进列表，改完再 `"".join`。
+      常见坑：`" ".join([1, 2])` 报 TypeError，先转成字符串。
+
+  - id: py.list-pop
+    name: pop / insert / remove
+    stage: 0A
+    group: 5
+    prereqs: [py.list-append]
+    card: |
+      ```python
+      stack = [1, 2, 3]
+      stack.pop()        # 返回并删除最后一个：3
+      stack.pop(0)       # 返回并删除下标 0 的元素（O(n)，要挪动后面所有元素）
+      stack.insert(1, 9) # 在下标 1 处插入 9
+      stack.remove(9)    # 删除第一个值为 9 的元素（找不到报错）
+      ```
+      `append` + `pop()` 都在末尾操作，很快——这就是"栈"（0B、阶段 1）。
+      常见坑：对空列表 `pop()` 报 IndexError，先判断 `len(stack) > 0`（或 `if stack:`）。
+
+  - id: py.list-concat-repeat
+    name: 列表的 * 重复和 + 拼接
+    stage: 0A
+    group: 5
+    prereqs: [py.list-basics]
+    card: |
+      ```python
+      counts = [0] * 10        # 10 个 0，常用来建计数表
+      [1, 2] + [3]             # [1, 2, 3]，得到新列表
+      ```
+      计数表用法：值本身当下标，`counts[d] += 1`。
+      常见坑：`[[0] * 3] * 2` 建二维表是错的——两行是**同一个**列表，改一行另一行也变。
+      二维表要用循环逐行建（第 5 组二维列表 / 第 8 组推导式）。
+
+  - id: py.nested-list
+    name: 二维列表
+    stage: 0A
+    group: 5
+    prereqs: [py.list-basics, py.nested-loop, data.shapes]
+    card: |
+      列表的元素也可以是列表，用来表示表格 / 矩阵：`grid[i][j]` 是第 i 行第 j 列。
+      ```python
+      grid = [[1, 2, 3],
+              [4, 5, 6]]
+      rows, cols = len(grid), len(grid[0])
+      for i in range(rows):
+          for j in range(cols):
+              print(grid[i][j])
+      ```
+      `for row in grid` 一次拿到一整行。
+      常见坑：行列搞反；`grid[0]` 在空表上越界，先确认至少一行。
+
+  # ===================== 0A 第 6 组：函数 =====================
+  - id: py.helper-func
+    name: 自己定义并调用函数（辅助函数）
+    stage: 0A
+    group: 6
+    prereqs: [py.func-return, py.early-return]
+    card: |
+      把一个小功能写成函数，起个好名字，在别处调用它：
+      ```python
+      def is_vowel(ch: str) -> bool:
+          return ch in "aeiouAEIOU"
+
+      def count_vowels(s: str) -> int:
+          count = 0
+          for ch in s:
+              if is_vowel(ch):
+                  count += 1
+          return count
+      ```
+      好处：主函数读起来像步骤清单；小函数可以单独测试。
+      参数是本次调用的局部名字。给参数重新赋值，不会把外面的名字重新绑定到新值。
+      常见坑：定义了没调用；调用时漏了括号（`is_vowel` 是函数本身，`is_vowel(c)` 才是结果）。
+
+  - id: py.default-args
+    name: 默认参数与关键字参数
+    stage: 0A
+    group: 6
+    prereqs: [py.helper-func]
+    card: |
+      ```python
+      def greet(name: str, polite: bool = True) -> str:
+          ...
+      greet("Li")                 # polite 用默认值 True
+      greet("Li", polite=False)   # 关键字参数，按名字传
+      ```
+      有默认值的参数必须放在没有默认值的参数后面。
+      常见坑：**可变默认值**——`def f(path=[])` 的列表在多次调用间共享，
+      若每次调用都应从一张空表开始，就在函数体里新建列表。
+
+  - id: py.none
+    name: 没写 return 的函数与 is None 判断
+    stage: 0A
+    group: 6
+    prereqs: [py.helper-func]
+    card: |
+      一次调用走到函数末尾，或只执行了空的 `return`，调用者会得到 `None`。
+      用 `is None` 可以把这条路径与真正返回了 0 的路径区分开：
+      ```python
+      def reading(n):
+          if n >= 0:
+              return n
+
+      print(reading(0) is None)   # False
+      print(reading(-1) is None)  # True
+      ```
+      常见坑：函数里打印了读数，忘记 return；调用者照样得到 None。
+
+  - id: py.aliasing
+    name: 可变对象与别名（列表的共享与复制）
+    stage: 0A
+    group: 6
+    prereqs: [py.helper-func, py.list-append]
+    card: |
+      变量是贴在对象上的"标签"。`b = a` 不复制列表，a 和 b 指向**同一个**列表。
+      ```python
+      a = [1, 2]
+      b = a
+      b.append(3)      # a 也变成 [1, 2, 3]
+      c = a[:]         # 浅复制，也可以 list(a) / a.copy()
+      ```
+      把列表传进函数，函数里 `append` / 下标赋值会影响外面；重新赋值 `nums = []` 则不会。
+      常见坑：回溯时把 `path` 直接 append 进结果，之后 path 改了结果也跟着变——要 append `path[:]`。
+
+  # ===================== 0A 第 7 组：字典和集合 =====================
+  - id: py.dict-basics
+    name: 字典基础：键值查找
+    stage: 0A
+    group: 7
+    prereqs: [py.list-basics, py.in-membership, data.shapes]
+    card: |
+      字典把"键"映射到"值"，按键查找是 O(1)。
+      ```python
+      price = {"apple": 3, "pear": 5}
+      price["apple"]         # 3
+      price["kiwi"] = 8      # 新增或修改
+      "pear" in price        # True，判断的是键
+      len(price)             # 3
+      del price["pear"]
+      ```
+      键必须是不可变的（数字、字符串、元组），值可以是任何东西。
+      常见坑：读取不存在的键报 KeyError——先用 `in` 判断，或用 `get`。
+
+  - id: py.dict-get
+    name: get 带默认值读取
+    stage: 0A
+    group: 7
+    prereqs: [py.dict-basics]
+    card: |
+      `d.get(key, default)`：键存在返回对应值，不存在返回 default（不写则为 None），不会报错。
+      ```python
+      stock = {"apple": 3}
+      stock.get("apple", 0)   # 3
+      stock.get("kiwi", 0)    # 0
+      ```
+      `get` 只读不写，不会把键加进字典。
+      常见坑：`d.get(k) + 1` 在键不存在时变成 `None + 1` 报错，要写默认值。
+
+  - id: py.dict-iter
+    name: 遍历字典：keys / values / items
+    stage: 0A
+    group: 7
+    prereqs: [py.dict-basics, py.for-each]
+    card: |
+      ```python
+      for name in scores:              # 遍历键
+          ...
+      for name, s in scores.items():   # 同时拿键和值
+          ...
+      total = sum(scores.values())
+      ```
+      字典按**插入顺序**遍历（Python 3.7+）。
+      常见坑：遍历字典时增删键会报 RuntimeError；要删就先 `list(d)` 复制一份键再循环。
+
+  - id: py.dict-counting
+    name: 用字典计数
+    stage: 0A
+    group: 7
+    prereqs: [py.dict-get, py.accumulator]
+    card: |
+      统计每个元素出现几次——哈希表最常见的用途：
+      ```python
+      counts = {}
+      for x in items:
+          counts[x] = counts.get(x, 0) + 1
+      ```
+      之后可以找出现最多的、判断两组是否"字符相同"（异位词）等。
+      阶段 1 会学 `collections.Counter`，一行完成同样的事。
+      常见坑：写成 `counts[x] += 1`，第一次遇到 x 时 KeyError。
+
+  - id: py.dict-grouping
+    name: 用字典分组（值是列表）
+    stage: 0A
+    group: 7
+    prereqs: [py.dict-iter, py.list-append]
+    card: |
+      按某个"签名"把元素分到不同的组：
+      ```python
+      groups = {}
+      for word in words:
+          key = word[0]                    # 按首字母分组
+          if key not in groups:
+              groups[key] = []
+          groups[key].append(word)
+      ```
+      签名可以是首字母、长度、排序后的字母（异位词）等，设计签名就是设计算法。
+      常见坑：每次都 `groups[key] = [word]`，把之前的组员覆盖了。
+
+  - id: py.set-basics
+    name: 集合：去重、成员判断、交并差
+    stage: 0A
+    group: 7
+    prereqs: [py.list-basics, py.in-membership, data.shapes]
+    card: |
+      集合是无序、不重复的容器，`in` 是 O(1)。
+      ```python
+      seen = set()            # 空集合（{} 是空字典！）
+      seen.add(3)
+      3 in seen               # True
+      set([1, 2, 2])          # {1, 2}，去重
+      a & b, a | b, a - b     # 交集、并集、差集
+      ```
+      "见过没有"是集合最常见的用法：遍历时先查、再加。
+      常见坑：集合没有顺序，不能用下标；要有序输出先 `sorted(...)`。
+
+  # ===================== 0A 第 8 组：元组、排序、推导式 =====================
+  - id: py.tuple
+    name: 元组与解包
+    stage: 0A
+    group: 8
+    prereqs: [py.multi-assign, data.shapes]
+    card: |
+      元组是不可修改的序列：`p = (3, 4)`，单元素要加逗号 `(5,)`。
+      ```python
+      x, y = p                     # 解包
+      def min_max(nums):
+          return min(nums), max(nums)   # 返回多个值，其实是一个元组
+      lo, hi = min_max([3, 1, 2])
+      seen = {(0, 0), (1, 2)}      # 元组可以当集合元素 / 字典键（列表不行）
+      ```
+      常见坑：`(5)` 只是带括号的 5，不是元组。
+
+  - id: py.sorted
+    name: sorted 与 list.sort
+    stage: 0A
+    group: 8
+    prereqs: [py.list-builtins]
+    card: |
+      - `sorted(seq)`：返回**新的**排好序的列表，原序列不变；字符串也能排：`sorted("cba")` → `['a','b','c']`。
+      - `nums.sort()`：原地排序，返回 None。
+      - `reverse=True` 从大到小；`reversed(seq)` 反向遍历。
+      ```python
+      top3 = sorted(scores, reverse=True)[:3]
+      ```
+      排序是 O(n log n)。
+      常见坑：`nums = nums.sort()` 把 nums 变成了 None。
+
+  - id: py.sort-key
+    name: key= 与 lambda：按规则排序
+    stage: 0A
+    group: 8
+    prereqs: [py.sorted, py.tuple]
+    card: |
+      `key` 是一个函数，排序按"对每个元素调用 key 的结果"来比较。
+      `lambda 参数: 表达式` 是写一次性小函数的简写。
+      ```python
+      words.sort(key=len)                         # 按长度
+      people.sort(key=lambda p: p[1])             # 按第二个字段
+      people.sort(key=lambda p: (-p[1], p[0]))    # 先按分数降序，再按名字升序
+      max(counts, key=counts.get)                 # 出现次数最多的键
+      ```
+      多关键字：key 返回元组，按元组逐项比较。
+
+  - id: py.list-comp
+    name: 列表推导式
+    stage: 0A
+    group: 8
+    prereqs: [py.list-append]
+    card: |
+      "从空列表开始 append"的一行写法：
+      ```python
+      squares = [x * x for x in nums]
+      evens = [x for x in nums if x % 2 == 0]
+      grid = [[0] * cols for _ in range(rows)]   # 正确的二维表
+      ```
+      读法：`[结果 for 变量 in 序列 if 条件]`。
+      逻辑复杂（多分支、要 break）时还是写普通循环更清楚。
+      常见坑：推导式里的变量在外面不可见；嵌套推导式的 for 顺序和普通嵌套循环相同。
+
+  - id: py.dict-set-comp
+    name: 字典 / 集合推导式
+    stage: 0A
+    group: 8
+    prereqs: [py.list-comp, py.dict-basics, py.set-basics]
+    card: |
+      ```python
+      index_of = {x: i for i, x in enumerate(nums)}   # 值 → 下标（重复值保留最后一个）
+      lengths = {w: len(w) for w in words}
+      firsts = {w[0] for w in words}                  # 集合推导式
+      ```
+      常见坑：`{}` 是空字典，集合推导式至少要有一个 for。
+
+  - id: py.genexp
+    name: 生成器表达式与 any / all
+    stage: 0A
+    group: 8
+    prereqs: [py.list-comp]
+    card: |
+      把列表推导式的方括号换成圆括号，就不会真正建出列表，逐个产生值：
+      ```python
+      total = sum(x * x for x in nums)
+      has_neg = any(x < 0 for x in nums)       # 有一个为真就是 True
+      all_pos = all(x > 0 for x in nums)       # 全部为真才是 True（空序列为 True）
+      ```
+      作为函数唯一参数时，可以省掉一层括号。
+
+  - id: py.zip
+    name: zip 并行遍历
+    stage: 0A
+    group: 8
+    prereqs: [py.for-each, py.tuple]
+    card: |
+      `zip(a, b)` 把两个序列按位置配对，长度取较短的那个。
+      ```python
+      for name, score in zip(names, scores):
+          ...
+      for prev, cur in zip(nums, nums[1:]):   # 相邻两项
+          ...
+      pairs = list(zip([1, 2], "ab"))          # [(1, 'a'), (2, 'b')]
+      ```
+      常见坑：两个序列长度不同时多出来的部分被悄悄丢掉。
+
+  - id: py.ternary
+    name: 条件表达式 a if c else b
+    stage: 0A
+    group: 8
+    prereqs: [py.if-else]
+    card: |
+      一行写出"二选一"的值：
+      ```python
+      label = "偶数" if n % 2 == 0 else "奇数"
+      step = 1 if a < b else -1
+      ```
+      只适合简单的二选一；多分支或有副作用的逻辑写普通 if。
+
+  - id: py.choose-container
+    name: 按需求选列表、元组、字典或集合
+    stage: 0A
+    group: 8
+    prereqs: [py.list-basics, py.tuple, py.dict-basics, py.set-basics]
+    card: |
+      先问要保留哪些信息，再看取回一项时手里有什么。
+
+      | 容器 | 有序吗 | 能改吗 | 能重复吗 | 按什么取 |
+      | --- | --- | --- | --- | --- |
+      | 列表 list | 有位置顺序 | 可增删、替换 | 元素可重复 | 整数下标 |
+      | 元组 tuple | 有位置顺序 | 位置固定，不能替换元素 | 元素可重复 | 整数下标或解包 |
+      | 字典 dict | 保留键的插入顺序 | 可增删、更新 | 键唯一，值可重复 | 键 |
+      | 集合 set | 无位置顺序 | 可增删 | 元素唯一 | 用 in 判断成员 |
+
+      逐次打卡用列表保留先后和重复；固定的整数坐标用元组，可作字典键；
+      按人名找次数用字典；只问有几个人来过用集合。
+      常见坑：打卡记录一旦转成集合，就无法从集合恢复打卡次数和先后。
+
+  # ===================== 0A 第 9 组：类 =====================
+  - id: py.class-basic
+    name: 类：__init__、self 和属性
+    stage: 0A
+    group: 9
+    prereqs: [py.helper-func, py.dict-basics]
+    card: |
+      类把"数据 + 操作"打包。`__init__` 在创建对象时运行，用 `self.属性` 保存状态。
+      ```python
+      class Counter:
+          def __init__(self, start: int):
+              self.value = start
+
+      c = Counter(5)      # 调用 __init__，self 就是 c
+      c.value             # 5
+      ```
+      常见坑：忘了 `self.`，写成局部变量，方法结束就没了；方法第一个参数漏写 self。
+
+  - id: py.class-methods
+    name: 方法与对象状态（类模式题）
+    stage: 0A
+    group: 9
+    prereqs: [py.class-basic]
+    card: |
+      方法是定义在类里的函数，通过 `self` 读写对象自己的状态。
+      ```python
+      class Counter:
+          def __init__(self):
+              self.value = 0
+          def add(self, k: int) -> None:
+              self.value += k
+          def get(self) -> int:
+              return self.value
+      ```
+      **class 模式的题**：判题按操作序列调用，如 `["Counter","add","get"]` 配参数 `[[],[3],[]]`，
+      期望 `[null, null, 3]`（构造函数和无返回值的方法对应 null）。
+
+  - id: py.node-class
+    name: 节点类：用引用把对象串起来
+    stage: 0A
+    group: 9
+    prereqs: [py.class-methods, py.none]
+    card: |
+      一个对象的属性可以指向另一个对象，这样就能串成链：
+      ```python
+      class Node:
+          def __init__(self, val, next=None):
+              self.val = val
+              self.next = next
+
+      head = Node(1, Node(2, Node(3)))
+      node = head
+      while node is not None:
+          print(node.val)
+          node = node.next
+      ```
+      链表（阶段 1）、树（阶段 3）都是这个思路。判题平台提供 `ListNode` / `TreeNode`。
+      常见坑：访问 `node.next.val` 前没检查 `node.next is None`。
+
+  # ===================== 0A 第 10 组：简单递归 =====================
+  - id: py.recursion
+    name: 递归：基线条件 + 递推
+    stage: 0A
+    group: 10
+    prereqs: [py.helper-func, py.early-return]
+    card: |
+      函数调用自己。写递归只想两件事：
+      1. **基线条件**：最小的问题直接返回答案；
+      2. **递推**：假设"小一号的问题"已经能算对，用它拼出当前答案。
+      ```python
+      def factorial(n: int) -> int:
+          if n <= 1:
+              return 1
+          return n * factorial(n - 1)
+      ```
+      常见坑：没有基线或递推不收敛，RecursionError；Python 默认深度约 1000 层。
+
+  - id: py.recursion-seq
+    name: 对字符串 / 列表递归
+    stage: 0A
+    group: 10
+    prereqs: [py.recursion, py.slice]
+    card: |
+      把序列拆成"第一个 + 剩下的"：
+      ```python
+      def total(nums, i=0):
+          if i == len(nums):
+              return 0
+          return nums[i] + total(nums, i + 1)
+      ```
+      也可以写 `nums[0] + total(nums[1:])`，更直观但每次切片要复制，O(n²)。
+      实际中优先传下标（或左右边界），这也是之后分治、DFS 的写法。
+
+  - id: py.recursion-multi
+    name: 多分支递归与调用树
+    stage: 0A
+    group: 10
+    prereqs: [py.recursion]
+    card: |
+      一次调用里调用自己不止一次，调用关系画出来是一棵树：
+      ```python
+      def fib(n: int) -> int:
+          if n < 2:
+              return n
+          return fib(n - 1) + fib(n - 2)
+      ```
+      fib(30) 已经很慢：同样的子问题被算了很多遍，调用次数指数增长。
+      解决办法是记住算过的结果（阶段 4 的 `@cache` 记忆化 / 动态规划）。
+      分治（归并排序）、回溯（阶段 3）都是多分支递归。
+
+  # ===================== 0B 算法入门 =====================
+  - id: py.linear-search
+    name: 线性查找
+    stage: 0B
+    group: 1
+    prereqs: [py.enumerate, py.early-return]
+    card: |
+      查找可以从一端开始，逐个位置与目标比较。求最后一次出现的位置，从右往左走，第一次相等就可以停。
+      ```python
+      def last_index(nums, target):
+          for i in range(len(nums) - 1, -1, -1):
+              if nums[i] == target:
+                  return i
+          return -1
+      ```
+      在 `[4, 7, 4, 9]` 中找 4，先排除 9，再命中下标 2。一次失配只排除了一个位置。
+      若要收集所有位置，就继续走到末尾。找最值时可以同样扫描，把已读部分的最大值留在变量里。
+
+  - id: py.swap-reverse
+    name: 原地交换与反转
+    stage: 0B
+    group: 2
+    prereqs: [py.multi-assign, py.while]
+    card: |
+      反转闭区间时，左右下标从区间两端向中间走，交换后的两个位置就定下来了。
+      ```python
+      a = [8, 3, 5, 7]
+      left, right = 1, 3
+      while left < right:
+          a[left], a[right] = a[right], a[left]
+          left += 1
+          right -= 1
+      ```
+      结果是 `[8, 7, 5, 3]`。同时赋值先读两个旧值，分成两行直接覆盖会丢掉其中一个。
+      下标相遇时，中间的元素已经在正确的位置。整个过程只需两个下标。
+
+  - id: py.two-index
+    name: 双下标：两个下标各走一个序列
+    stage: 0B
+    group: 3
+    prereqs: [py.while, py.list-append]
+    card: |
+      合并两个从小到大排列的列表时，各用一个下标指向本表第一项待处理的数。两项中较小的一项一定可以接到结果末尾。
+      ```python
+      a, b = [1, 4], [2]
+      i = j = 0
+      out = []
+      while i < len(a) and j < len(b):
+          if a[i] <= b[j]:
+              out.append(a[i])
+              i += 1
+          else:
+              out.append(b[j])
+              j += 1
+      out.extend(a[i:])
+      out.extend(b[j:])
+      ```
+      取出 2 时右表耗尽，左表还留着 4。每次只推进刚刚取数的那一侧，最后把余项接上。
+
+  - id: py.prefix-sum
+    name: 前缀和
+    stage: 0B
+    group: 4
+    prereqs: [py.list-concat-repeat, py.accumulator, py.list-append]
+    card: |
+      把每个边界之前的总和记下来，多次查询时就能复用同一张表。
+      ```python
+      nums = [3, -2, 5]
+      pre = [0]
+      for x in nums:
+          pre.append(pre[-1] + x)
+      ```
+      `pre` 是 `[0, 3, 1, 6]`。比如 `pre[2] = 1`，表示已经读了两项。
+      闭区间 `[1, 2]` 的和是 `pre[3] - pre[1] = 3`。右端要再前进一格才包含末项。
+      开头的 0 表示尚未读数，查询从下标 0 开始的区间也能用同一个式子。
+
+  - id: py.simulation
+    name: 模拟
+    stage: 0B
+    group: 6
+    prereqs: [py.while, py.list-basics]
+    card: |
+      先写出手头的状态，再把题目的一条规则翻译成一次更新。用小输入一行一行记录旧状态与新状态。
+      ```python
+      jumps = [2, 1, 3]
+      pos = steps = 0
+      while pos < len(jumps):
+          distance = jumps[pos]
+          pos += distance
+          steps += 1
+      ```
+      从 0 到 2，再从 2 到 5，一共两跳。跨过边界的那一跳也要计数。
+      先检查下标还在格子里才能读步长。每格步长为正保证位置始终前进。
+
+  - id: py.matrix-traverse
+    name: 矩阵遍历与方向数组
+    stage: 0B
+    group: 7
+    prereqs: [py.nested-list, py.tuple]
+    card: |
+      矩阵由若干行组成。对于矩形表，`grid[r][c]` 先选行，再选那一行的第 c 列。
+      ```python
+      grid = [[2, 5, 1], [4, 0, 8]]
+      rows, cols = len(grid), len(grid[0])
+      for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+          r, c = 0 + dr, 2 + dc
+          if 0 <= r < rows and 0 <= c < cols:
+              print(grid[r][c])
+      ```
+      从右上角出发，只会读到下方的 8 和左边的 5。两维分别查界，负下标在 Python 中会绕到另一端。
+      转置时，旧表的第 c 列按顺序变成新表的第 c 行。
+
+  - id: py.stack-list
+    name: 列表当栈
+    stage: 0B
+    group: 8
+    prereqs: [py.list-pop]
+    card: |
+      撤销最近一次操作时，可以把还有效的操作依次压在列表末尾。后放入的先取出，这就是栈。
+      ```python
+      stack = []
+      stack.append("草稿")
+      stack.append("签名")
+      print(stack[-1])   # 看顶端，仍有两项
+      print(stack.pop()) # 取走签名
+      ```
+      一次撤销只影响最后一项。`pop(0)` 会取走最早的一项，空栈上调用 `pop()` 会报错。
+      在末尾连续追加或弹出时，每次操作的均摊成本是 O(1)。
+      文字退格时，可以把仍保留的字符当作栈，最后按原顺序拼接。
+
+  - id: py.deque
+    name: collections.deque 当队列
+    stage: 0B
+    group: 8
+    prereqs: [py.stack-list]
+    card: |
+      排队时，新到的人从右端入队，轮到左端的人先离开。`collections.deque` 支持两端进出。
+      ```python
+      from collections import deque
+      line = deque([6, 9])
+      line.append(2)
+      print(line.popleft())  # 6
+      print(line[0])         # 9，仍在队首
+      ```
+      `popleft()` 直接取走队首，耗时为 O(1)。列表的 `pop(0)` 还要让剩下的项都向前挪位。
+      按时间入队时，过期记录集中在左端，可能一次要移走好几项。
+
+  - id: py.big-o
+    name: 复杂度直觉
+    stage: 0B
+    group: 9
+    prereqs: [py.nested-loop, py.helper-func]
+    card: |
+      设输入有 n 项。单次扫描约做 n 次工作；让每一项都与全部 n 项比较，则做 n² 次比较。输入翻倍，两种工作量分别变为 2 倍和 4 倍。
+      ```python
+      import time
+      nums = list(range(1000))
+      start = time.perf_counter()
+      total = sum(nums)
+      print(time.perf_counter() - start)
+      ```
+      把 1000 改成 2000，记录秒数；短程序的测量会波动，可以重复运行，再对照操作次数。
+      复杂度要算上每行内部的工作。在列表里查找可能扫完整表，集合的成员查询平均只需常数时间。

@@ -1,0 +1,13 @@
+{
+  "name": "code-dojo-curriculum-scripts",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Local verification helpers for the code-dojo problem bank (SQL solutions run on PGlite).",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.5.16"
+  }
+}

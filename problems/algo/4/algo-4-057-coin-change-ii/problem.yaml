@@ -1,0 +1,30 @@
+id: algo-4-057-coin-change-ii
+title: 凑零钱有几种面值组合
+track: algo
+stage: '4'
+order: 570
+format: variant
+mode: function
+difficulty: 76
+skills:
+  requires:
+  - algo.dp-knapsack
+  introduces: null
+source: neetcode250
+leetcode: coin-change-ii
+milestones:
+- nc150
+entry: coin_combos
+signature: 'def coin_combos(amount: int, coins: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 倒序扫描，把无限供应误当成每种一枚。
+  code: |
+    def coin_combos(amount: int, coins: list[int]) -> int:
+        ways = [1] + [0] * amount
+        for coin in coins:
+            for total in range(amount, coin - 1, -1):
+                ways[total] += ways[total - coin]
+        return ways[amount]
+hints:
+- 同一组硬币以不同顺序取出只算一次。让外层循环固定面值，再用这一种面值更新各个金额。

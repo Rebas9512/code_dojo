@@ -1,0 +1,26 @@
+id: py-0a-247-complete-clicks
+title: 补全按钮点击次数
+track: python
+stage: 0A
+order: 3070
+format: complete
+mode: function
+difficulty: 18
+skills:
+  requires:
+    - py.dict-counting
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: clicks
+signature: 'def clicks(log: str) -> dict[str, int]:'
+compare: exact
+wrong_examples:
+  - why: 每次都从 0 开始，只记成一次。
+    code: |
+      def clicks(log: str) -> dict[str, int]:
+          counts = {}
+          for key in log:
+              counts[key] = 1
+          return counts

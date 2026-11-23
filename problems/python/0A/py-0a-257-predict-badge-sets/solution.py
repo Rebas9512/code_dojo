@@ -1,0 +1,6 @@
+a = set(["林", "林", "叶"])
+b = set(["林", "周"])
+print(len(a))
+print(len(a.intersection(b)))
+print(len(a.union(b)))
+print(len(a.difference(b)))

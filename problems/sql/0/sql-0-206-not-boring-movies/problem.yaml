@@ -1,0 +1,33 @@
+id: sql-0-206-not-boring-movies
+title: 给周末放映清单排个序
+track: sql
+stage: "0"
+order: 460
+format: combine
+difficulty: 18
+skills:
+  requires: [sql.select-expr, sql.and-or, sql.order-by]
+  introduces: null
+source: sql50
+leetcode: not-boring-movies
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/whole-description.sql
+  - datasets/sample.sql + datasets/rating-order.sql
+ordered: true
+hints:
+  - 编号除以 2 的余数能区分奇偶。先筛影片，再给留下的影片排序。
+wrong_examples:
+  - why: 把条件连成 OR，偶数编号或短评为 boring 的影片也可能入选。
+    sql: |
+      SELECT id, movie, description, rating FROM cinema
+      WHERE id % 2 = 1 OR description <> 'boring' ORDER BY rating DESC;
+  - why: 按评分升序，使低分影片排在前面。
+    sql: |
+      SELECT id, movie, description, rating FROM cinema
+      WHERE id % 2 = 1 AND description <> 'boring' ORDER BY rating;
+  - why: 短评里只要含有 boring 这段文字就跳过。
+    sql: |
+      SELECT id, movie, description, rating FROM cinema
+      WHERE id % 2 = 1 AND description NOT LIKE '%boring%' ORDER BY rating DESC;

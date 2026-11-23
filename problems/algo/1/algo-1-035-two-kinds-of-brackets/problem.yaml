@@ -1,0 +1,33 @@
+id: algo-1-035-two-kinds-of-brackets
+title: 多种括号：栈 + 配对字典
+track: algo
+stage: '1'
+order: 350
+format: complete
+mode: function
+difficulty: 44
+skills:
+  requires:
+  - py.early-return
+  - py.bool-ops
+  introduces: algo.stack-matching
+source: original
+leetcode: null
+milestones: []
+entry: match_pairs
+signature: 'def match_pairs(text: str) -> bool:'
+compare: exact
+wrong_examples:
+- why: 忽略栈空时可能先遇到右括号。
+  code: |
+    def match_pairs(text: str) -> bool:
+        pairs = {')': '(', ']': '['}
+
+        stack = []
+        for char in text:
+            if char in pairs:
+                if stack.pop() != pairs[char]:
+                    return False
+            else:
+                stack.append(char)
+        return not stack

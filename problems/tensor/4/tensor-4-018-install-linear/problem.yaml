@@ -1,0 +1,33 @@
+id: tensor-4-018-install-linear
+title: 按标定系数装配线性层
+track: tensor
+stage: '4'
+order: 180
+format: write
+mode: function
+difficulty: 41
+skills:
+  requires:
+    - tensor.linear
+    - tensor.boundary
+  introduces: null
+source: original
+entry: calibrated
+signature: 'def calibrated(weights, bias):'
+compare: checker
+wrong_examples:
+  - why: 忽略了给定偏置。
+    code: |
+      import torch
+      import torch.nn as nn
+
+
+      def calibrated(weights, bias):
+          w = torch.tensor(weights, dtype=torch.float32)
+          b = torch.tensor(bias, dtype=torch.float32)
+          torch.manual_seed(0)
+          layer = nn.Linear(w.shape[1], w.shape[0])
+          with torch.no_grad():
+              layer.weight.copy_(w)
+              layer.bias.copy_(b * 0)
+          return layer

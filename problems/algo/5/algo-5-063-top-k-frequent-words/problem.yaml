@@ -1,0 +1,32 @@
+id: algo-5-063-top-k-frequent-words
+title: 按频次和字典序选词
+track: algo
+stage: '5'
+order: 630
+format: write
+mode: function
+difficulty: 80
+week: 8
+skills:
+  requires:
+  - algo.counter
+  - algo.heap-topk
+  - py.sort-key
+  introduces: null
+source: grind169
+leetcode: top-k-frequent-words
+milestones: []
+entry: top_words
+signature: 'def top_words(words: list[str], k: int) -> list[str]:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 平票时保留输入先后，遗漏字典序。
+  code: |
+    from collections import Counter
+    import heapq
+
+
+    def top_words(words: list[str], k: int) -> list[str]:
+        counts = Counter(words)
+        return heapq.nsmallest(k, counts, key=lambda word: -counts[word])

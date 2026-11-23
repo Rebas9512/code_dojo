@@ -1,0 +1,26 @@
+id: data-0-001-book-key
+title: 哪一列能认出一本书
+track: data
+stage: "0"
+order: 10
+format: inspect
+mode: inspect
+difficulty: 1
+skills: {requires: [], introduces: data.column-key}
+data:
+  - kind: table
+    title: 图书
+    file: books.csv
+  - kind: schema
+    title: 列的约定
+    content: |
+      columns:
+        - {name: book_id, type: text, nullable: false, primary_key: true}
+        - {name: title, type: text, nullable: false, primary_key: false}
+        - {name: note, type: text, nullable: true, primary_key: false}
+answer:
+  type: choice
+  options: ["书名 title", "图书编号 book_id"]
+  correct: 1
+  misconceptions: {"0": DM05}
+explain: 两本书都叫《夜航》，但它们各有自己的图书编号。

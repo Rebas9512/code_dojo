@@ -1,0 +1,25 @@
+id: wrangle-2-013-per-shop-trail
+title: 分店逐日累计销量
+track: wrangle
+stage: '2'
+order: 130
+format: write
+mode: function
+difficulty: 24
+skills:
+  requires:
+    - wrangle.cumsum
+    - wrangle.axis
+  introduces: null
+source: original
+entry: running_sales
+signature: 'def running_sales(rows):'
+compare: allclose
+wrong_examples:
+  - why: 省略 axis 后各店数据连成一串。
+    code: |
+      import numpy as np
+
+
+      def running_sales(rows):
+          return np.cumsum(rows)

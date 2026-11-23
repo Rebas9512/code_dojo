@@ -1,0 +1,16 @@
+id: wrangle-4-017-count-categories
+title: 空白会占一个类别吗
+track: wrangle
+stage: '4'
+order: 170
+format: predict
+mode: predict
+difficulty: 36
+skills:
+  requires: []
+  introduces: wrangle.frequency
+source: original
+wrong_examples:
+  - why: 认为默认就会统计空值。
+    code: |
+      print('3\n3')

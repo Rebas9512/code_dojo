@@ -1,0 +1,15 @@
+id: dsfix-1-l01-vector
+title: 同时把每项翻倍
+track: dsfix
+skills: [dsfix.vector]
+steps:
+  - type: read
+    skill: dsfix.vector
+    md: 列表乘二会重复整张列表。先用 np.array 把列表装进数组，再乘二，每个数字就会变为原来的两倍。
+  - type: example
+    skill: dsfix.vector
+    code: |
+      import numpy as np
+      values = np.array([2, 3])
+      print(values * 2)
+    md: 把 2 换成 3，运行后看看两项各是多少。

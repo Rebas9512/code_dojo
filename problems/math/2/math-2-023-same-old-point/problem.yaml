@@ -1,0 +1,24 @@
+id: math-2-023-same-old-point
+title: 两只旋钮同时动
+track: math
+stage: '2'
+order: 230
+format: predict
+mode: predict
+difficulty: 33
+skills:
+  requires:
+    - py.multi-assign
+    - math.gradient
+    - math.descent
+    - math.vector-arithmetic
+  introduces: math.descent-plane
+source: original
+wrong_examples:
+  - why: 只给纵坐标换用中途的斜率。
+    code: |
+      x, y = 2, 0
+      g = 2 * (x + y)
+      x = x - 0.25 * g
+      y = y - 0.25 * 2 * (x + y)
+      print([x, y])

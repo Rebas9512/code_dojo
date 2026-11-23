@@ -1,0 +1,47 @@
+id: algo-4-069-all-station-distances
+title: 带权图与堆：从起点算出各站最短路
+track: algo
+stage: '4'
+order: 690
+format: complete
+mode: function
+difficulty: 73
+skills:
+  requires:
+  - py.break-continue
+  - py.list-comp
+  - py.list-concat-repeat
+  - py.nested-loop
+  - py.ternary
+  - py.type-convert
+  - py.while
+  introduces: algo.dijkstra
+source: original
+leetcode: null
+milestones: []
+entry: distances
+signature: 'def distances(n: int, edges: list[list[int]], start: int) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 第一次发现就定案，廉价的绕行无法改写旧记录。
+  code: |
+    import heapq
+
+
+    def distances(n: int, edges: list[list[int]], start: int) -> list[int]:
+        graph = [[] for _ in range(n)]
+        for u, v, weight in edges:
+            graph[u].append((v, weight))
+        dist = [float("inf")] * n
+        dist[start] = 0
+        heap = [(0, start)]
+        while heap:
+            cost, node = heapq.heappop(heap)
+            if cost != dist[node]:
+                continue
+            for neighbor, weight in graph[node]:
+                candidate = cost + weight
+                if dist[neighbor] == float("inf"):
+                    dist[neighbor] = candidate
+                    heapq.heappush(heap, (candidate, neighbor))
+        return [-1 if value == float("inf") else value for value in dist]

@@ -1,0 +1,8 @@
+[
+  {"name":"NULL 与重复行", "types":[23], "a":[[null],[1],[1]], "b":[[1],[null],[1]], "ordered":false, "equal":true},
+  {"name":"重复次数不同", "types":[23], "a":[[1],[2],[2]], "b":[[1],[1],[2]], "ordered":false, "equal":false},
+  {"name":"数字相对容差", "types":[1700], "a":[["1000000.6"]], "b":[["1000000"]], "ordered":true, "equal":true},
+  {"name":"数字绝对容差", "types":[1700], "a":[["0.0000011"]], "b":[["0"]], "ordered":true, "equal":false},
+  {"name":"ISO 时间", "types":[1114], "a":[["2026-08-01 00:01:02"]], "b":[["2026-08-01T00:01:02"]], "ordered":true, "equal":true},
+  {"name":"顺序不同", "types":[25], "a":[["B"],["A"]], "b":[["A"],["B"]], "ordered":true, "equal":false}
+]

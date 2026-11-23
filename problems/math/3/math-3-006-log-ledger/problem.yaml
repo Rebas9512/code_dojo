@@ -1,0 +1,27 @@
+id: math-3-006-log-ledger
+title: 累计多日的对数变化
+track: math
+stage: '3'
+order: 60
+format: write
+mode: function
+difficulty: 28
+skills:
+  requires:
+    - math.log
+  introduces: null
+source: original
+entry: log_change
+signature: 'def log_change(factors: list[float]) -> float:'
+compare: float
+wrong_examples:
+  - why: 把连乘照搬到对数域，累计值还会停在零。
+    code: |
+      from math import log
+
+
+      def log_change(factors: list[float]) -> float:
+          total = 0.0
+          for factor in factors:
+              total *= log(factor)
+          return total

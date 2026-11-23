@@ -1,0 +1,17 @@
+id: py-0a-051-predict-pop
+title: pop 和 insert
+track: python
+stage: 0A
+order: 990
+format: predict
+mode: predict
+difficulty: 15
+skills:
+  requires: [py.list-append]
+  introduces: py.list-pop
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "append(4) 之后列表是 [1, 2, 3, 4]。"
+  - "pop(0) 之后剩 [2, 3]。"

@@ -1,0 +1,44 @@
+id: algo-1-039-min-stack
+title: 随时查看最低刻度
+track: algo
+stage: '1'
+order: 390
+unit: 2
+format: write
+mode: class
+difficulty: 53
+skills:
+  requires:
+  - py.minmax-abs
+  - py.nested-list
+  - py.tuple
+  - py.ternary
+  - py.stack-list
+  - algo.class-design
+  introduces: null
+source: neetcode250
+leetcode: min-stack
+milestones:
+- nc150
+- top100
+entry: MinStack
+compare: exact
+wrong_examples:
+- why: 把栈顶值当作整栈最小值。
+  code: |
+    class MinStack:
+        def __init__(self):
+            self.stack = []
+
+        def push(self, val: int) -> None:
+            smallest = min(val, self.stack[-1][1]) if self.stack else val
+            self.stack.append((val, smallest))
+
+        def pop(self) -> None:
+            self.stack.pop()
+
+        def top(self) -> int:
+            return self.stack[-1][0]
+
+        def getMin(self) -> int:
+            return self.stack[-1][0]

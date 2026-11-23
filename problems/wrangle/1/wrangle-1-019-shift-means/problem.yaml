@@ -1,0 +1,25 @@
+id: wrangle-1-019-shift-means
+title: 每班的平均读数
+track: wrangle
+stage: '1'
+order: 190
+format: write
+mode: function
+difficulty: 22
+skills:
+  requires:
+    - wrangle.axis
+    - wrangle.reshape
+  introduces: null
+source: original
+entry: means
+signature: 'def means(values, width):'
+compare: allclose
+wrong_examples:
+  - why: 按测量位置求了跨班平均。
+    code: |
+      import numpy as np
+
+
+      def means(values, width):
+          return np.mean(np.array(values).reshape(-1, width), axis=0)

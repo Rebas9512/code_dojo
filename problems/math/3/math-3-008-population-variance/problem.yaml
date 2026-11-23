@@ -1,0 +1,24 @@
+id: math-3-008-population-variance
+title: 补齐总体方差的分母
+track: math
+stage: '3'
+order: 80
+format: complete
+mode: function
+difficulty: 28
+skills:
+  requires:
+    - py.genexp
+    - math.spread
+  introduces: null
+source: original
+entry: population_variance
+signature: 'def population_variance(values: list[float]) -> float:'
+compare: float
+wrong_examples:
+  - why: 使用样本方差的分母，单个值时还会除零。
+    code: |
+      def population_variance(values: list[float]) -> float:
+          mean = sum(values)/len(values)
+          square_sum = sum((v-mean)**2 for v in values)
+          return square_sum / (len(values)-1)

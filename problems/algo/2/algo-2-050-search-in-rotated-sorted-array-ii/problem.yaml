@@ -1,0 +1,45 @@
+id: algo-2-050-search-in-rotated-sorted-array-ii
+title: 含重复值的旋转表里有没有目标
+track: algo
+stage: '2'
+order: 500
+format: variant
+mode: function
+difficulty: 62
+skills:
+  requires:
+  - algo.binary-search
+  - py.early-return
+  - py.elif
+  - py.multi-assign
+  introduces: null
+source: neetcode250
+leetcode: search-in-rotated-sorted-array-ii
+milestones: []
+entry: has_rotated
+signature: 'def has_rotated(nums: list[int], target: int) -> bool:'
+compare: exact
+wrong_examples:
+- why: 相等时草率丢弃左半段。
+  code: |
+    def has_rotated(nums: list[int], target: int) -> bool:
+        lo, hi = 0, len(nums)
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if nums[mid] == target:
+                return True
+            if nums[lo] == nums[mid]:
+                lo = mid + 1
+            elif nums[lo] < nums[mid]:
+                if nums[lo] <= target < nums[mid]:
+                    hi = mid
+                else:
+                    lo = mid + 1
+            elif nums[mid] < target <= nums[hi - 1]:
+                lo = mid + 1
+            else:
+                hi = mid
+        return False
+hints:
+- 若左端和中点的值相同、也都不是目标，可以安全排除几格？
+- 两端有大量重复值时，最坏情况下可能需要逐格检查。

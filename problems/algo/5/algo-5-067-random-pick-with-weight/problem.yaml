@@ -1,0 +1,65 @@
+id: algo-5-067-random-pick-with-weight
+title: 让每张号码按权重被抽中
+track: algo
+stage: '5'
+order: 670
+format: write
+mode: class
+difficulty: 81
+week: 9
+skills:
+  requires:
+  - algo.binary-search
+  - py.prefix-sum
+  - algo.class-design
+  - py.bool-ops
+  - py.list-builtins
+  - py.none
+  - py.zip
+  introduces: null
+source: grind169
+leetcode: random-pick-with-weight
+milestones: []
+entry: PickTrial
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 按下标等概率抽取，遗漏输入权重。
+  code: |
+    from bisect import bisect_right
+    from random import Random, randrange, setstate
+
+
+    class WeightedPicker:
+        def __init__(self, weights: list[int]):
+            self.ends = []
+            total = 0
+            for weight in weights:
+                total += weight
+                self.ends.append(total)
+
+        def pickIndex(self) -> int:
+            ticket = randrange(self.ends[-1])
+            return randrange(len(self.ends))
+
+
+    class PickTrial(WeightedPicker):
+        def __init__(self, weights: list[int]):
+            super().__init__(weights)
+            self.weights = weights
+
+        def sample(self, draws: int) -> bool:
+            # 判题入口统计每个下标的抽中次数。
+            setstate(Random(983).getstate())
+            counts = [0] * len(self.weights)
+            for _ in range(draws):
+                index = self.pickIndex()
+                if type(index) is not int or not 0 <= index < len(counts):
+                    return False
+                counts[index] += 1
+            total = sum(self.weights)
+            for count, weight in zip(counts, self.weights):
+                mean = draws * weight / total
+                if abs(count - mean) > 8 * mean**0.5 + 8:
+                    return False
+            return True

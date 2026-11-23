@@ -1,0 +1,17 @@
+id: py-0a-039-predict-ord-chr
+title: 字符和编码
+track: python
+stage: 0A
+order: 760
+format: predict
+mode: predict
+difficulty: 13
+skills:
+  requires: [py.index-len, py.type-convert]
+  introduces: py.ord-chr
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "a 往后数 2 个是 c。"
+  - "从 a 到 z 一共有几个字母？"

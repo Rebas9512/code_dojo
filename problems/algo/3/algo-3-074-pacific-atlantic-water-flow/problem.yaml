@@ -1,0 +1,48 @@
+id: algo-3-074-pacific-atlantic-water-flow
+title: 能流到两侧海岸的格子
+track: algo
+stage: '3'
+order: 740
+format: write
+mode: function
+difficulty: 68
+skills:
+  requires:
+  - algo.grid-dfs
+  - algo.nested-func
+  - py.bool-ops
+  - py.list-comp
+  - py.list-concat-repeat
+  - py.list-pop
+  - py.set-basics
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: pacific-atlantic-water-flow
+milestones:
+- blind75
+entry: two_coasts
+signature: 'def two_coasts(heights: list[list[int]]) -> list[list[int]]:'
+compare: unordered
+wrong_examples:
+- why: 从海岸向内也只走下坡。
+  code: |
+    def two_coasts(heights: list[list[int]]) -> list[list[int]]:
+        rows, cols = len(heights), len(heights[0])
+        def inland(starts):
+            seen = set(starts)
+            stack = list(seen)
+            while stack:
+                r, c = stack.pop()
+                for dr, dc in ((-1,0), (1,0), (0,-1), (0,1)):
+                    nr, nc = r + dr, c + dc
+                    if (0 <= nr < rows and 0 <= nc < cols and (nr,nc) not in seen
+                            and heights[nr][nc] <= heights[r][c]):
+                        seen.add((nr,nc))
+                        stack.append((nr,nc))
+            return seen
+        first = inland([(0,c) for c in range(cols)] + [(r,0) for r in range(rows)])
+        second = inland([(rows-1,c) for c in range(cols)] + [(r,cols-1) for r in range(rows)])
+        return [list(cell) for cell in first.intersection(second)]
+hints:
+- 从海岸反着搜时，允许去哪些高度？分别记录从两片海能反向到达的格子。

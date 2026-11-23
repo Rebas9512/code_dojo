@@ -1,0 +1,19 @@
+id: py-0a-128-complete-first-multiple
+title: 补全：找到就停
+track: python
+stage: 0A
+order: 560
+format: complete
+mode: function
+difficulty: 10
+skills:
+  requires: [py.break-continue, py.for-range, py.floordiv-mod, py.func-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: first_multiple
+signature: "def first_multiple(a: int, b: int, k: int) -> int:"
+compare: exact
+hints:
+  - "哪个关键字能立刻跳出循环？"

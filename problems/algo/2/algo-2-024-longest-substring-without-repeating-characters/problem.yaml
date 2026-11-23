@@ -1,0 +1,38 @@
+id: algo-2-024-longest-substring-without-repeating-characters
+title: 最长的一段不重样字符
+track: algo
+stage: '2'
+order: 240
+format: write
+mode: function
+difficulty: 56
+skills:
+  requires:
+  - algo.hash-index-map
+  - algo.window-variable
+  - py.if-else
+  - py.minmax-abs
+  introduces: null
+source: neetcode250
+leetcode: longest-substring-without-repeating-characters
+milestones:
+- blind75
+- top100
+entry: longest_distinct
+signature: 'def longest_distinct(text: str) -> int:'
+compare: exact
+wrong_examples:
+- why: 旧重复点把左边界拉回去了。
+  code: |
+    def longest_distinct(text: str) -> int:
+        last = {}
+        left = best = 0
+        for right, char in enumerate(text):
+            if char in last:
+                left = last[char] + 1
+            best = max(best, right - left + 1)
+            last[char] = right
+        return best
+hints:
+- 重复字符的上次位置可能已经落在窗口外。
+- 更新左端时与原左端取较大值，避免退回已排除的位置。

@@ -1,0 +1,47 @@
+id: algo-1-044-daily-temperatures
+title: 等几天会更暖
+track: algo
+stage: '1'
+order: 440
+format: write
+mode: function
+difficulty: 55
+skills:
+  requires:
+  - py.bool-ops
+  - py.while
+  - py.nested-loop
+  - py.enumerate
+  - py.list-concat-repeat
+  - algo.monotonic-stack
+  introduces: null
+source: neetcode250
+leetcode: daily-temperatures
+milestones:
+- nc150
+- top100
+entry: daily_temperatures
+signature: 'def daily_temperatures(temperatures: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 相同气温也结束等待。
+  code: |
+    def daily_temperatures(temperatures: list[int]) -> list[int]:
+        wait = [0] * len(temperatures)
+        pending = []
+        for day, temp in enumerate(temperatures):
+            while pending and temperatures[pending[-1]] <= temp:
+                old = pending.pop()
+                wait[old] = day - old
+            pending.append(day)
+        return wait
+- why: 为每天向后重新扫描，长时间不升温时会超时。
+  code: |
+    def daily_temperatures(temperatures: list[int]) -> list[int]:
+        wait = [0] * len(temperatures)
+        for day, value in enumerate(temperatures):
+            for later in range(day + 1, len(temperatures)):
+                if temperatures[later] > value:
+                    wait[day] = later - day
+                    break
+        return wait

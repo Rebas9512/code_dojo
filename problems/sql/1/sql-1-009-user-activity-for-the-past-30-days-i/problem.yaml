@@ -1,0 +1,38 @@
+id: sql-1-009-user-activity-for-the-past-30-days-i
+title: 最近三十天的活跃读者
+track: sql
+stage: '1'
+order: 90
+format: combine
+difficulty: 25
+skills:
+  requires:
+    - sql.count-distinct
+    - sql.between
+    - sql.where
+    - sql.group-by
+    - sql.select-expr
+  introduces: null
+source: sql50
+leetcode: user-activity-for-the-past-30-days-i
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/repeat-visit.sql
+  - datasets/sample.sql + datasets/outside-window.sql
+ordered: false
+hints:
+  - 含截止日在内，往前数 29 天就是第一天。
+wrong_examples:
+  - why: 把一天内的访问次数当人数
+    sql: |
+      SELECT visited_on, COUNT(*) AS active_readers
+      FROM visits
+      WHERE visited_on BETWEEN '2025-06-01' AND '2025-06-30'
+      GROUP BY visited_on;
+  - why: 多包含了一天
+    sql: |
+      SELECT visited_on, COUNT(DISTINCT reader_id) AS active_readers
+      FROM visits
+      WHERE visited_on BETWEEN '2025-05-31' AND '2025-06-30'
+      GROUP BY visited_on;

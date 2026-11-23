@@ -1,0 +1,16 @@
+id: wrangle-2-008-where-branches
+title: 折扣给了哪一格
+track: wrangle
+stage: '2'
+order: 80
+format: predict
+mode: predict
+difficulty: 22
+skills:
+  requires: []
+  introduces: wrangle.where
+source: original
+wrong_examples:
+  - why: 交换了两个分支。
+    code: |
+      print('[1, 0, 0]')

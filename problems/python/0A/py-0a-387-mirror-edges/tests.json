@@ -1,0 +1,12 @@
+{
+  "examples": [
+    {"args": ["abba"], "expected": true},
+    {"args": ["abca"], "expected": false}
+  ],
+  "hidden": [
+    {"args": [""], "expected": true},
+    {"args": ["x"], "expected": true},
+    {"args": ["Aa"], "expected": false},
+    {"args": ["a a"], "expected": true}
+  ]
+}

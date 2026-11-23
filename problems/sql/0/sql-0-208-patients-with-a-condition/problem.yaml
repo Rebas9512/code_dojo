@@ -1,0 +1,29 @@
+id: sql-0-208-patients-with-a-condition
+title: 在空格分开的记录里找编号
+track: sql
+stage: "0"
+order: 480
+format: write
+difficulty: 18
+skills:
+  requires: [sql.and-or, sql.like]
+  introduces: null
+source: sql50
+leetcode: patients-with-a-condition
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/token-start.sql
+  - datasets/sample.sql + datasets/similar-codes.sql
+ordered: false
+hints:
+  - 一个编号的首字符可能是整段文字的第一个字符，也可能紧跟在空格后面。
+wrong_examples:
+  - why: 只从整段开头找，漏掉第二个或更后面的编号。
+    sql: |
+      SELECT patient_id, patient_name, conditions FROM patients
+      WHERE conditions LIKE 'DIAB1%';
+  - why: 在编号内部也匹配了 DIAB1。
+    sql: |
+      SELECT patient_id, patient_name, conditions FROM patients
+      WHERE conditions LIKE '%DIAB1%';

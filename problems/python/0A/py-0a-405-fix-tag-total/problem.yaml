@@ -1,0 +1,15 @@
+id: py-0a-405-fix-tag-total
+title: 改错：两张价签的总额
+track: python
+stage: 0A
+order: 65
+format: fix
+mode: stdio
+difficulty: 4
+skills:
+  requires:
+    - py.type-convert
+  introduces: null
+source: original
+leetcode: null
+milestones: []

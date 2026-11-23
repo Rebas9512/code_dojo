@@ -1,0 +1,45 @@
+id: algo-2-079-minimum-array-end
+title: 按位与固定时最小的末项
+track: algo
+stage: '2'
+order: 790
+format: combine
+mode: function
+difficulty: 69
+skills:
+  requires:
+  - algo.bit-ops
+  - py.func-return
+  - py.if-else
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: minimum-array-end
+milestones: []
+entry: min_end
+signature: 'def min_end(n: int, x: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 用 n 编号，跳过了 x 本身。
+  code: |
+    def min_end(n: int, x: int) -> int:
+        remaining = n
+        value = x
+        place = 1
+        while remaining:
+            if (x & place) == 0:
+                if remaining & 1:
+                    value |= place
+                remaining >>= 1
+            place <<= 1
+        return value
+- why: 逐项构造整个递增序列，只为返回末项。
+  code: |
+    def min_end(n: int, x: int) -> int:
+        value = x
+        for _ in range(n - 1):
+            value = (value + 1) | x
+        return value
+hints:
+- x 为 1 的位，每个候选数都必须是 1。其余空位允许从小到大填入一个计数器的位。
+- 从 x 本身开始计数，用 n−1 的最低位填入 x 的最低空位，再依次向高位填。

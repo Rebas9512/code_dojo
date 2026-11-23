@@ -1,0 +1,20 @@
+id: py-0a-025-count-digits
+title: 数字有几位
+track: python
+stage: 0A
+order: 500
+format: write
+mode: function
+difficulty: 10
+skills:
+  requires: [py.while, py.floordiv-mod, py.early-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: count_digits
+signature: "def count_digits(n: int) -> int:"
+compare: exact
+hints:
+  - "循环条件是 n > 0。"
+  - "n 为 0 时循环一次都不执行——需要单独处理。"

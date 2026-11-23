@@ -1,0 +1,7 @@
+track: algo
+skills:
+  - id: algo.reverse-list
+    name: 反转链表
+    stage: 1
+    prereqs: [py.function-return]
+    card: 逐个反转节点的连接方向。

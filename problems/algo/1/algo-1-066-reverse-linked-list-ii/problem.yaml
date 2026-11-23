@@ -1,0 +1,38 @@
+id: algo-1-066-reverse-linked-list-ii
+title: 只翻转指定的一段
+track: algo
+stage: '1'
+order: 660
+format: write
+mode: function
+difficulty: 69
+skills:
+  requires:
+  - algo.ll-dummy
+  - algo.ll-reverse
+  introduces: null
+source: neetcode250
+leetcode: reverse-linked-list-ii
+milestones: []
+entry: reverse_between
+signature: 'def reverse_between(head: ListNode, left: int, right: int) -> ListNode:'
+compare: exact
+convert:
+  args:
+    '0': listnode
+  returns: listnode
+wrong_examples:
+- why: 忘记新头可能变化。
+  code: |
+    def reverse_between(head: ListNode, left: int, right: int) -> ListNode:
+        dummy = ListNode(0, head)
+        before = dummy
+        for _ in range(left - 1):
+            before = before.next
+        tail = before.next
+        for _ in range(right - left):
+            moved = tail.next
+            tail.next = moved.next
+            moved.next = before.next
+            before.next = moved
+        return head

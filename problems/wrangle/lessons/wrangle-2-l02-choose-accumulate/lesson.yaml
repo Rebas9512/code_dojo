@@ -1,0 +1,87 @@
+id: wrangle-2-l02-choose-accumulate
+title: 条件选择、累计与名次
+track: wrangle
+skills:
+  - wrangle.where
+  - wrangle.cumsum
+  - wrangle.rank-index
+steps:
+  - type: read
+    skill: wrangle.where
+    md: |-
+      逐格选择会给每个位置安排一个值，适合修正无效读数。温度记录为 [3, -2, 0]，仪表约定负数都替换为零，修正后仍有三次记录 [3, 0, 0]。
+
+      np.where(条件, 成立时取值, 否则取值) 会把三个部分按形状对齐，再在对应位置选择。条件筛选会让不合格的行消失，而这里每次记录都要占原来的位置。
+
+      **WM09 条件不成立就删掉那一格**。把负数改零时，三格输入仍给三格输出，另一分支决定原格里写什么。
+  - type: example
+    skill: wrangle.where
+    code: |
+      import numpy as np
+      # ① 判断哪些格子需要修正
+      x = np.array([3, -2, 0])
+      # ② 只在负数处放入零
+      print(np.where(x < 0, 0, x).tolist())  # 输出 [3, 0, 0]
+    md: 把零替换成 99，观察哪个位置改变。
+  - type: quiz
+    skill: wrangle.where
+    q: 对四格库存用 where 逐格选 1 或 0，结果有几格？
+    options:
+      - 只剩库存大于零的格数
+      - '4'
+      - '1'
+    answer: 1
+    explain: 每个位置都会取到一个分支的值。（WM09）
+  - type: read
+    skill: wrangle.cumsum
+    md: |-
+      累计值回答“从开头到这里总共多少”。若前三笔入账依次为 2、5、1，第一笔后是 2，第二笔后是 7，第三笔后是 8。每天保留一个小计，就能读出任一天结束时的余额。
+
+      np.cumsum 沿给定轴依次相加，每个中途结果都存下来。二维表若省略 axis，会先摊成一维。按店看每天的累计需要在每店的一行内前进。
+
+      **WM10 累计只留最终总额**。两笔收支 4、−1 的余额要记录 4 和 3，两笔各有一个阶段结果。
+  - type: example
+    skill: wrangle.cumsum
+    code: |
+      import numpy as np
+      # ① 每天的收支可以为负
+      changes = np.array([4, -2, 3])
+      # ② 每过一天留下当时余额
+      print(np.cumsum(changes).tolist())  # 输出 [4, 2, 5]
+    md: 把第一天改成 0，看后两天的余额怎样变化。
+  - type: quiz
+    skill: wrangle.cumsum
+    q: 收支 [3, -1, 5] 的第二个累计值是多少？
+    options:
+      - '2'
+      - '-1'
+      - '7'
+    answer: 0
+    explain: 第二天结束时包括前两天，3 加 -1 得 2。（WM10）
+  - type: read
+    skill: wrangle.rank-index
+    md: |-
+      排队单关心的是“哪一个”，所以要返回位置。读数 [8, 3, 5] 中最大的是 8，所在位置为 0；从小到大依次来自位置 1、2、0。保存这些位置，就能用同一顺序排列旁边的姓名列。
+
+      np.argmax 找第一个最大值的位置。np.argsort 给出由小到大的全部位置；指定 kind='stable'，相等时仍让原先靠前的人先排。
+
+      **WM11 把名次位置当成原值**。读数 [8, 3] 的最大位置是 0；由小到大的位置清单是 [1, 0]。
+  - type: example
+    skill: wrangle.rank-index
+    code: |
+      import numpy as np
+      # ① 三个货位各有一笔报价
+      price = np.array([8, 3, 5])
+      # ② 找最贵的位置，再列出由便宜到贵的位置
+      print(np.argmax(price))  # 输出 0
+      print(np.argsort(price, kind="stable").tolist())  # 输出 [1, 2, 0]
+    md: 让后两项都等于 8，看并列时先报哪个最大位置。
+  - type: quiz
+    skill: wrangle.rank-index
+    q: '[6, 9, 9] 的 argmax 是什么？'
+    options:
+      - '9'
+      - '2'
+      - '1'
+    answer: 2
+    explain: 第一次见到 9 时下标为 1。（WM11）

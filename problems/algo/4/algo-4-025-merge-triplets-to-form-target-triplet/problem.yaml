@@ -1,0 +1,31 @@
+id: algo-4-025-merge-triplets-to-form-target-triplet
+title: 拼出指定的三个读数
+track: algo
+stage: '4'
+order: 250
+format: write
+mode: function
+difficulty: 68
+skills:
+  requires:
+  - algo.greedy
+  - py.genexp
+  - py.nested-loop
+  introduces: null
+source: neetcode250
+leetcode: merge-triplets-to-form-target-triplet
+milestones:
+- nc150
+entry: make_target
+signature: 'def make_target(triplets: list[list[int]], target: list[int]) -> bool:'
+compare: exact
+wrong_examples:
+- why: 一项没超标就采用整个三元组，超标值无法再降低。
+  code: |
+    def make_target(triplets: list[list[int]], target: list[int]) -> bool:
+        best = [0, 0, 0]
+        for row in triplets:
+            if any(row[i] <= target[i] for i in range(3)):
+                for i in range(3):
+                    best[i] = max(best[i], row[i])
+        return best == target

@@ -1,0 +1,46 @@
+id: sql-2-008-author-sales
+title: 每位作者卖出了多少钱
+track: sql
+stage: '2'
+order: 80
+format: write
+difficulty: 32
+skills:
+  requires:
+    - sql.multi-join
+    - sql.left-join
+    - sql.conditional-agg
+    - sql.sum-avg
+    - sql.group-by
+    - sql.select-expr
+  introduces: sql.join-aggregate
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/many-reviews.sql
+  - db:bookstore + datasets/no-sales.sql
+ordered: false
+hints:
+  - 写下金额的单位：这一行是某一条成交明细。每条这样的明细应该只加一次。
+wrong_examples:
+  - why: 再连接评分，每条销售明细按评分条数被重复结算
+    sql: |
+      SELECT a.author_id,
+             SUM(CASE WHEN o.status <> 'cancelled' THEN i.quantity * i.unit_price ELSE 0 END) AS sales_amount
+      FROM authors a
+      LEFT JOIN books b ON b.author_id = a.author_id
+      LEFT JOIN order_items i ON i.book_id = b.book_id
+      LEFT JOIN orders o ON o.order_id = i.order_id
+      LEFT JOIN ratings r ON r.book_id = b.book_id
+      GROUP BY a.author_id;
+  - why: 用当前标价重算旧订单
+    sql: |
+      SELECT a.author_id,
+             SUM(CASE WHEN o.status <> 'cancelled' THEN i.quantity * b.price ELSE 0 END) AS sales_amount
+      FROM authors a
+      LEFT JOIN books b ON b.author_id = a.author_id
+      LEFT JOIN order_items i ON i.book_id = b.book_id
+      LEFT JOIN orders o ON o.order_id = i.order_id
+      GROUP BY a.author_id;

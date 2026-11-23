@@ -1,0 +1,25 @@
+id: data-0-014-price-with-unit
+title: 找出混入文字的价格
+track: data
+stage: '0'
+order: 140
+format: inspect
+mode: inspect
+difficulty: 5
+skills:
+  requires:
+    - data.column-type-key
+  introduces: null
+data:
+  - kind: json
+    title: 价签抄录（第一行保留了货币符号）
+    file: price-tags.json
+answer:
+  type: short
+  accept:
+    - '1'
+    - 一
+  misconceptions:
+    没有: DM07
+    都可以直接用: DM07
+explain: 1 号书的金额被抄成了文字 ¥42。其余 price 值都是数，可以按相同规则计算。

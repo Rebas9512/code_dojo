@@ -1,0 +1,29 @@
+id: math-2-022-loss-history
+title: 记录进货试算的损失
+track: math
+stage: '2'
+order: 220
+format: write
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - py.list-append
+    - math.slope-rules
+    - math.function-table
+    - math.descent
+  introduces: null
+source: original
+entry: loss_history
+signature: 'def loss_history(x: float, target: float, rate: float, steps: int) -> list[float]:'
+compare: float
+wrong_examples:
+  - why: 沿梯度上升。
+    code: |
+      def loss_history(x: float, target: float, rate: float, steps: int) -> list[float]:
+          losses = [(x-target)**2]
+          for i in range(steps):
+              slope = 2 * (x-target)
+              x = x + rate*slope
+              losses.append((x-target)**2)
+          return losses

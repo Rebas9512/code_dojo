@@ -1,0 +1,36 @@
+id: algo-1-036-valid-parentheses
+title: 三种括号的关闭顺序
+track: algo
+stage: '1'
+order: 360
+format: write
+mode: function
+difficulty: 49
+skills:
+  requires:
+  - py.early-return
+  - py.bool-ops
+  - algo.stack-matching
+  introduces: null
+source: neetcode250
+leetcode: valid-parentheses
+milestones:
+- blind75
+- top100
+entry: is_valid
+signature: 'def is_valid(text: str) -> bool:'
+compare: exact
+wrong_examples:
+- why: 把取栈顶写成从栈底取。
+  code: |
+    def is_valid(text: str) -> bool:
+        pairs = {')': '(', ']': '[', '}': '{'}
+
+        stack = []
+        for char in text:
+            if char in pairs:
+                if not stack or stack.pop(0) != pairs[char]:
+                    return False
+            else:
+                stack.append(char)
+        return not stack

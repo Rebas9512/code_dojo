@@ -1,0 +1,48 @@
+id: algo-2-045-koko-eating-bananas
+title: 能赶上截止时间的最低速度
+track: algo
+stage: '2'
+order: 450
+format: write
+mode: function
+difficulty: 61
+skills:
+  requires:
+  - algo.binary-search-answer
+  - py.genexp
+  - py.list-builtins
+  - py.multi-assign
+  introduces: null
+source: neetcode250
+leetcode: koko-eating-bananas
+milestones:
+- nc150
+entry: min_speed
+signature: 'def min_speed(piles: list[int], h: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 整除时额外多算一小时。
+  code: |
+    def can_finish(piles: list[int], speed: int, h: int) -> bool:
+        return sum((pile + speed) // speed for pile in piles) <= h
+
+
+    def min_speed(piles: list[int], h: int) -> int:
+        lo, hi = 1, max(piles) + 1
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if can_finish(piles, mid, h):
+                hi = mid
+            else:
+                lo = mid + 1
+        return lo
+- why: 从一开始逐个尝试速度。
+  code: |
+    def min_speed(piles: list[int], h: int) -> int:
+        speed = 1
+        while sum((p + speed - 1) // speed for p in piles) > h:
+            speed += 1
+        return speed
+hints:
+- 上限可取最大堆的数量，这时每堆都只用一小时。
+- 速度增大时各堆所需时间不会变长。找第一档能在 h 小时内完成的速度。

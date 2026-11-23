@@ -1,0 +1,42 @@
+id: py-0b-l08-queue
+title: 从队首移走过期记录
+track: python
+skills: [py.deque]
+steps:
+  - type: read
+    skill: py.deque
+    md: |
+      按到达时间排队，新记录从右边入队，最早的一条在左端。deque 的 append 加到右边，popleft 从左边取走。用列表的 pop(0) 虽然也能得到队首，但后面所有元素都要移动，长队反复这样做很费时。
+
+      把刚到达的时刻写作 t。**不变式**：处理完一次请求，队列从左到右按时间排列，且只含闭区间 [t − 3000, t] 内的记录。队首比左边界更早才删除，正好踩在左边界的记录仍有效（PM75）。
+  - type: example
+    skill: py.deque
+    code: |
+      from collections import deque
+
+      # ① 最早的记录排在左边
+      recent = deque()
+      for t in [1, 2, 3001, 3003]:
+          recent.append(t)
+          # ② 从队首逐条清理过期记录
+          while recent[0] < t - 3000:
+              recent.popleft()
+          print(t, list(recent))
+    md: |
+      | t | 窗口左端 | 清理后的队列 |
+      |---:|---:|---|
+      | 1 | -2999 | [1] |
+      | 2 | -2998 | [1, 2] |
+      | 3001 | 1 | [1, 2, 3001] |
+      | 3003 | 3 | [3001, 3003] |
+
+      把最后一个时刻改为 3002，观察队首会留下谁。
+  - type: quiz
+    skill: py.deque
+    q: "时刻 3001 的队列里还有一条时刻 1 的请求，该留下吗？"
+    options:
+      - "留下，恰在窗口左边界"
+      - "移走，已经过去 3000 毫秒"
+      - "移走，只留下当前请求"
+    answer: 0
+    explain: "要求包含 t − 3000 和 t 两端，因此时刻 1 仍计数。"

@@ -1,0 +1,16 @@
+id: tensor-1-001-three-layouts
+title: 一个数、一排数和一行表
+track: tensor
+stage: '1'
+order: 10
+format: predict
+mode: predict
+difficulty: 17
+skills:
+  requires: []
+  introduces: tensor.create
+source: original
+wrong_examples:
+  - why: 漏数了表格外层。
+    code: |
+      print('(1,)\n(1,)\n(2,) 1 torch.float32')

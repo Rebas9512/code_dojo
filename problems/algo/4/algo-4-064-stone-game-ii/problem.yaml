@@ -1,0 +1,43 @@
+id: algo-4-064-stone-game-ii
+title: 取石堆时下一轮可以拿几堆
+track: algo
+stage: '4'
+order: 640
+format: write
+mode: function
+difficulty: 78
+skills:
+  requires:
+  - algo.dp-2d
+  - algo.memo-cache
+  - py.genexp
+  - py.list-builtins
+  introduces: null
+source: neetcode250
+leetcode: stone-game-ii
+milestones: []
+entry: stone_limit
+signature: 'def stone_limit(piles: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 不考虑刚好拿满 2M 堆。
+  code: |
+    from functools import cache
+
+
+    def stone_limit(piles: list[int]) -> int:
+        n = len(piles)
+        suffix = [0] * (n + 1)
+        for i in range(n - 1, -1, -1):
+            suffix[i] = piles[i] + suffix[i + 1]
+
+        @cache
+        def best(i, limit):
+            if i + 2 * limit >= n:
+                return suffix[i]
+            return max(suffix[i] - best(i + take, max(take, limit))
+                       for take in range(1, 2 * limit))
+
+        return best(0, 1)
+hints:
+- 从同一起点开始，M 不同就会改变可选堆数，两者都要进入缓存键。剩余总数减去对手能拿的最多颗数，就是当前玩家的收益。

@@ -1,0 +1,23 @@
+id: algo-2-069-predict-bit-operations
+title: 预测位开关的六个读数
+track: algo
+stage: '2'
+order: 690
+format: complete
+mode: function
+difficulty: 65
+skills:
+  requires:
+  - py.list-basics
+  introduces: algo.bit-ops
+source: original
+leetcode: null
+milestones: []
+entry: inspect_bits
+signature: 'def inspect_bits(a: int, b: int, i: int) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 右移后没有只保留最后一位。
+  code: |
+    def inspect_bits(a: int, b: int, i: int) -> list[int]:
+        return [a & b, a | b, a ^ b, a << i, a >> i, a >> i]

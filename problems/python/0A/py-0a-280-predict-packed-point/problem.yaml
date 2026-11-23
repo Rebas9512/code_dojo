@@ -1,0 +1,19 @@
+id: py-0a-280-predict-packed-point
+title: 坐标是怎样交回来的
+track: python
+stage: 0A
+order: 4000
+format: predict
+mode: predict
+difficulty: 18
+skills:
+  requires:
+    - py.multi-assign
+  introduces: py.tuple
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM45：把返回的一个元组当成 print 的两个独立参数。
+    code: |
+      print('4 7\n7 4')

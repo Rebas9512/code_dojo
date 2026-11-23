@@ -1,0 +1,20 @@
+id: py-0a-011-ticket-price
+title: 门票价格
+track: python
+stage: 0A
+order: 240
+format: complete
+mode: function
+difficulty: 5
+skills:
+  requires: [py.compare-bool, py.func-return, py.if-else]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: ticket_price
+signature: "def ticket_price(age: int) -> int:"
+compare: exact
+hints:
+  - "第一个空是一个比较表达式。"
+  - "12 岁已经不算儿童。"

@@ -1,0 +1,33 @@
+id: algo-2-021-contains-duplicate-ii
+title: 在近邻位置找到重复编号
+track: algo
+stage: '2'
+order: 210
+format: write
+mode: function
+difficulty: 53
+skills:
+  requires:
+  - algo.hash-seen
+  - algo.window-fixed
+  - py.early-return
+  - py.enumerate
+  introduces: null
+source: neetcode250
+leetcode: contains-duplicate-ii
+milestones: []
+entry: near_duplicate
+signature: 'def near_duplicate(nums: list[int], k: int) -> bool:'
+compare: exact
+wrong_examples:
+- why: 忘了让过期的号码离开窗口。
+  code: |
+    def near_duplicate(nums: list[int], k: int) -> bool:
+        recent = set()
+        for i, value in enumerate(nums):
+            if i > k:
+                pass
+            if value in recent:
+                return True
+            recent.add(value)
+        return False

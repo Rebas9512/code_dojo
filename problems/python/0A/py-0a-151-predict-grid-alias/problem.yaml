@@ -1,0 +1,16 @@
+id: py-0a-151-predict-grid-alias
+title: 两行其实是同一行
+track: python
+stage: 0A
+order: 1050
+format: predict
+mode: predict
+difficulty: 16
+skills:
+  requires: [py.nested-list, py.list-concat-repeat, py.list-append]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "第一个 grid 的两行指向同一个列表。"

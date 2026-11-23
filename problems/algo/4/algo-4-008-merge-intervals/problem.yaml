@@ -1,0 +1,35 @@
+id: algo-4-008-merge-intervals
+title: 整理覆盖刻度的区间
+track: algo
+stage: '4'
+order: 80
+format: write
+mode: function
+difficulty: 64
+skills:
+  requires:
+  - algo.intervals
+  - py.bool-ops
+  - py.if-else
+  - py.list-append
+  - py.nested-list
+  introduces: null
+source: neetcode250
+leetcode: merge-intervals
+milestones:
+- blind75
+- top100
+entry: merge_ranges
+signature: 'def merge_ranges(intervals: list[list[int]]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+- why: 被包含的短区间会缩小已经合并的右端点。
+  code: |
+    def merge_ranges(intervals: list[list[int]]) -> list[list[int]]:
+        merged = []
+        for start, end in sorted(intervals):
+            if merged and start <= merged[-1][1]:
+                merged[-1][1] = end
+            else:
+                merged.append([start, end])
+        return merged

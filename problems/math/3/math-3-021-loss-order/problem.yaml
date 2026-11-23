@@ -1,0 +1,23 @@
+id: math-3-021-loss-order
+title: 哪张照片损失更大
+track: math
+stage: '3'
+order: 210
+format: predict
+mode: predict
+difficulty: 35
+skills:
+  requires:
+    - math.log
+    - math.expectation
+    - math.softmax
+  introduces: math.cross-entropy
+source: original
+wrong_examples:
+  - why: 选置信度最高的类别，即使它不是正确标签。
+    code: |
+      from math import log
+
+      first = [0.8, 0.2]
+      second = [0.3, 0.7]
+      print(-log(max(first)) > -log(second[1]))

@@ -1,0 +1,13 @@
+{
+  "examples": [
+    {"args": ["hello"], "expected": 2},
+    {"args": ["AEIOU"], "expected": 5}
+  ],
+  "hidden": [
+    {"args": ["xyz"], "expected": 0},
+    {"args": [""], "expected": 0},
+    {"args": ["Programming"], "expected": 3},
+    {"args": ["Queue"], "expected": 4},
+    {"args": ["rhythm"], "expected": 0}
+  ]
+}

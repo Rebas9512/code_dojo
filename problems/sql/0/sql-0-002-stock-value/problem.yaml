@@ -1,0 +1,26 @@
+id: sql-0-002-stock-value
+title: 每本书的库存总值
+track: sql
+stage: "0"
+order: 40
+format: write
+difficulty: 3
+skills: {requires: [sql.select-basic, sql.select-expr], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/big-stock.sql
+ordered: false
+hints:
+  - "SELECT title, price * stock ..."
+  - "AS stock_value 写在表达式后面。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "把乘号写成了加号"
+    sql: |
+      SELECT title, price + stock AS stock_value FROM books;
+  - why: "只给了价格，没乘库存"
+    sql: |
+      SELECT title, price AS stock_value FROM books;

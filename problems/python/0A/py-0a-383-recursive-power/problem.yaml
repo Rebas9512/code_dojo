@@ -1,0 +1,25 @@
+id: py-0a-383-recursive-power
+title: 用小一次的幂拼出结果
+track: python
+stage: 0A
+order: 5030
+format: write
+mode: function
+difficulty: 23
+skills:
+  requires:
+    - py.recursion
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: power
+signature: 'def power(x: int, n: int) -> int:'
+compare: exact
+wrong_examples:
+  - why: 把零次方当成 0，使乘积一直为 0。
+    code: |
+      def power(x: int, n: int) -> int:
+          if n == 0:
+              return 0
+          return x * power(x, n - 1)

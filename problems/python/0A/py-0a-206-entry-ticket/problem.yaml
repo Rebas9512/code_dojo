@@ -1,0 +1,28 @@
+id: py-0a-206-entry-ticket
+title: 有默认票价的售票窗
+track: python
+stage: 0A
+order: 2060
+format: write
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - py.list-basics
+    - py.default-args
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: ticket_pair
+signature: 'def ticket_pair(n: int) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: 第二次也沿用默认票价。
+    code: |
+      def ticket(n: int, price: int = 8) -> int:
+          return n * price
+
+
+      def ticket_pair(n: int) -> list[int]:
+          return [ticket(n), ticket(n)]

@@ -1,0 +1,11 @@
+{
+  "examples": [
+    {"ops": ["Account", "deposit", "withdraw", "balance"], "args": [[5], [2], [7], []], "expected": [null, null, true, 0]},
+    {"ops": ["Account", "withdraw", "balance"], "args": [[1], [3], []], "expected": [null, false, 1]}
+  ],
+  "hidden": [
+    {"ops": ["Account", "balance"], "args": [[0], []], "expected": [null, 0]},
+    {"ops": ["Account", "withdraw", "balance"], "args": [[0], [0], []], "expected": [null, true, 0]},
+    {"ops": ["Account", "deposit", "deposit", "balance"], "args": [[2], [2], [2], []], "expected": [null, null, null, 6]}
+  ]
+}

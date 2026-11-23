@@ -1,0 +1,17 @@
+id: py-0a-102-predict-names
+title: 名字跟着谁走
+track: python
+stage: 0A
+order: 30
+format: predict
+mode: predict
+difficulty: 2
+skills:
+  requires: [py.var-arith]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "执行完第 3 行时，a 是 6，b 呢？"
+  - "c 在第 5 行就算好了。"

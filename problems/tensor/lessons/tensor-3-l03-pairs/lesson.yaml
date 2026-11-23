@@ -1,0 +1,34 @@
+id: tensor-3-l03-pairs
+title: 外积与注意力打分
+track: tensor
+skills:
+  - tensor.pair-scores
+steps:
+  - type: read
+    skill: tensor.pair-scores
+    md: |-
+      外积枚举两串数的所有配对，例如 [2, 3] 与 [4, 5, 6] 会产生两行三列，第一行是 [8, 10, 12]。注意力打分也为每对位置留一格，只是每个位置携带一串特征：一个查询和一个候选键各自对应分量相乘，再把这些贡献相加。
+
+      外积 i,j->ij 保留两个位置字母。查询 q 和键 k 共享特征轴 d，qd,kd->qk 只消掉 d。加批次可写 bqd,bkd->bqk。这里算原始点积分数；缩放、概率归一化和对值向量加权留到后续课程。
+
+      **TM17 常见误解：把键的位置也缩掉，只剩每个查询一个数**。两个查询和三个键各有四个特征。每对的四项贡献压成一格，最后留下六格原始分数。
+  - type: example
+    skill: tensor.pair-scores
+    code: |
+      import torch
+      # ① 两个候选各自和同一查询做点积
+      q = torch.tensor([[2, 1]])
+      k = torch.tensor([[3, 0], [1, 4]])
+      s = torch.einsum("qd,kd->qk", q, k)
+      print(s.tolist())  # 输出 [[6, 6]]
+      print(torch.equal(s, q @ k.transpose(0, 1)))  # 输出 True
+    md: 只改第二个键的一个分量，观察哪个分数会变。
+  - type: quiz
+    skill: tensor.pair-scores
+    q: 有 2 个查询、3 个键、各 4 个特征，不分批时有几格分数？
+    options:
+      - 2 格
+      - 6 格
+      - 24 格
+    answer: 1
+    explain: 每个查询与三个键各有一个分数，四个特征贡献在一格内相加。（TM17）

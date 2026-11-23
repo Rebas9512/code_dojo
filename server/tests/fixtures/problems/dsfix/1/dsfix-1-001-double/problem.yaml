@@ -1,0 +1,18 @@
+id: dsfix-1-001-double
+title: 数组逐项翻倍
+track: dsfix
+stage: '1'
+order: 10
+format: write
+mode: function
+difficulty: 5
+skills:
+  requires: []
+  introduces: dsfix.vector
+entry: double
+signature: 'def double(values):'
+compare: allclose
+constraints:
+  no_loops: true
+  forbid_imports:
+  - sklearn

@@ -1,0 +1,17 @@
+id: tensor-2-001-slice-trail
+title: 取一帧和切一帧
+track: tensor
+stage: '2'
+order: 10
+format: predict
+mode: predict
+difficulty: 22
+skills:
+  requires:
+    - tensor.reshape
+  introduces: tensor.slice
+source: original
+wrong_examples:
+  - why: 整数下标会拿掉列轴。
+    code: |
+      print('(3, 1)\n(3, 1)\n(2, 2)')

@@ -1,0 +1,25 @@
+id: py-0a-211-complete-backup
+title: 补全值班表备份
+track: python
+stage: 0A
+order: 2110
+format: complete
+mode: function
+difficulty: 17
+skills:
+  requires:
+    - py.aliasing
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: roster
+signature: 'def roster(ids: list[int], new_id: int) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+  - why: 备份与原表共用同一个列表。
+    code: |
+      def roster(ids: list[int], new_id: int) -> list[list[int]]:
+          before = ids
+          ids.append(new_id)
+          return [before, ids]

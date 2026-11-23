@@ -1,0 +1,178 @@
+id: py-0a-l07-dicts-sets
+title: 按键查找与去重
+track: python
+skills:
+  - py.dict-basics
+  - py.dict-get
+  - py.dict-counting
+  - py.dict-iter
+  - py.dict-grouping
+  - py.set-basics
+steps:
+  - type: read
+    skill: py.dict-basics
+    md: |
+      价目表的一条记录有两个部分：左边写商品名，右边写价格。字典用键标识这条记录，凭键就能取出相应的值。例如 `prices['梨']` 的意思是去找写着梨的价签。
+
+      给已有键赋值会更新价签；给新键赋值才会多一项。直接读一个没有登记的键会报 KeyError，可以先检查它在不在。
+
+      **“in 会查右边的价格”（PM43）**。成员检查查的是键，所以要把商品名放在 in 的左边。
+  - type: example
+    skill: py.dict-basics
+    code: |
+      # ① 建价目表，再给旧商品改价
+      prices = {"梨": 4}
+      prices["梨"] = 7
+      # ② 分别拿名字和价格查找
+      print(prices["梨"])   # 7
+      print("梨" in prices)  # True
+      print(7 in prices)     # False
+    md: 把改价那行的梨换成桃，再打印 len(prices)。
+  - type: quiz
+    skill: py.dict-basics
+    q: '3 in {''笔'': 3} 的结果是什么？'
+    options:
+      - 'True'
+      - 'False'
+      - 报错
+    answer: 1
+    explain: 唯一的键是字符串“笔”，数字 3 只出现在值的位置。
+  - type: read
+    skill: py.dict-get
+    md: |
+      查借书登记表时，书名可能还没登记。想给这种情况显示一个约定的数字，可以写 `loans.get(title, 0)`。键存在就取实际的值，包括 0；键缺失才会用默认值。
+
+      get 的第二个参数由你选择，省略时默认是 None。它只是这次查询的备用结果，之后仍然可以用 in 查看表里到底有哪些键。
+
+      **“查到默认值就等于填了一条新记录”（PM55）**。只有显式赋值等写入操作才会改变字典。
+  - type: example
+    skill: py.dict-get
+    code: |
+      # ① 记录确实存在的一项
+      loans = {"河流": 0}
+      # ② 分别查看未登记和已登记的书
+      print(loans.get("山风", 5))  # 5
+      print(loans.get("河流", 5))  # 0
+      print("山风" in loans)       # False
+    md: 在两次查询前加上 loans['山风'] = 2 再运行。
+  - type: quiz
+    skill: py.dict-get
+    q: d = {}；执行 d.get('木', 8) 后 len(d) 是多少？
+    options:
+      - '8'
+      - '1'
+      - '0'
+    answer: 2
+    explain: get 把 8 交给调用者，没有给字典增加条目。
+  - type: read
+    skill: py.dict-counting
+    md: |
+      把每一种颜色出现了几次写在字典里，可以让每种颜色拥有自己的计数器。读一枚颜色签，就只更新这支计数器；其他颜色留在原来的数字上。
+
+      更新分成三步：取旧次数，没有记录时暂用 0；加上手里这一枚；把新次数写回同一个键。这样第一次看到红签之后就是 1，第二次就是 2。
+
+      **“直接写 counts[key] += 1 总行得通”（PM42）**。它需要先读旧值；空表没有那个键，会在加一之前报 KeyError。
+  - type: example
+    skill: py.dict-counting
+    code: |
+      # ① 摆好空的计数表
+      counts = {}
+      # ② 每来一张票，取旧次数、加一、写回
+      for color in ["青", "白", "青"]:
+          counts[color] = counts.get(color, 0) + 1
+      print(counts)  # {'青': 2, '白': 1}
+    md: 把青和白对调，再看每个键对应的次数。
+  - type: quiz
+    skill: py.dict-counting
+    q: 空字典 d 上直接执行 d['青'] += 1，会发生什么？
+    options:
+      - 写入 0
+      - 写入 1
+      - 读取旧值时发生 KeyError
+    answer: 2
+    explain: 复合赋值也要先读。可以用 get 处理第一票，再写回。
+  - type: read
+    skill: py.dict-iter
+    md: |
+      有时要把整本账读一遍。直接写 for name in scores，每轮拿到一个键；用 values() 时每轮拿到一个值。要在同一行写名字和分数，可用 items()，把一条记录拆给两个名字。
+
+      字典按键最初插入的顺序遍历。因此先登记的人，在重报分数后仍排在原来的位置。遇到并列需要保留先登记者时，这个顺序就有用。
+
+      **“更新分数会让这个人排到末尾”（PM56）**。已有键换了值，并没有再次插入这个键。
+  - type: example
+    skill: py.dict-iter
+    code: |
+      # ① 先登记，再修正第一人的分数
+      scores = {"叶": 2, "柳": 6}
+      scores["叶"] = 8
+      # ② 一次展开一对键值
+      for name, score in scores.items():
+          print(name, score)
+      # 输出依次为 叶 8、柳 6
+    md: 把修正分数的名字换成全新的名字，看看它排在哪。
+  - type: quiz
+    skill: py.dict-iter
+    q: 先记 a、再记 b，之后更新 a。遍历 items() 时先拿到谁？
+    options:
+      - a
+      - b
+      - 看分数大小
+    answer: 0
+    explain: 更新 a 的值没有改变它首次插入的位置。
+  - type: read
+    skill: py.dict-grouping
+    md: |
+      把词卡按首字母装进信封时，一只信封里往往有多张卡。可以用一个字典管理信封：键是首字母，值是一张列表。读完后想取某一叠，只要按首字母查一次。
+
+      拿到单词，先算出键。如果字典里还没有这只信封，就放一张空列表进去。然后把单词追加到列表末尾；追加这步对新组和旧组都要做。
+
+      **“每次都建列表才算分组”（PM57）**。遇到旧首字母时再赋空列表，会让先前的卡片全部消失。
+  - type: example
+    skill: py.dict-grouping
+    code: |
+      # ① 为没有信封的首字母建组
+      groups = {}
+      for word in ["pen", "ink", "pad"]:
+          letter = word[0]
+          if letter not in groups:
+              groups[letter] = []
+          # ② 追加到对应信封
+          groups[letter].append(word)
+      print(groups["p"])  # ['pen', 'pad']
+    md: 再加入一个 pen，检查重复卡片留在什么位置。
+  - type: quiz
+    skill: py.dict-grouping
+    q: 已经有 groups['p'] = ['pen']，要保留 pen 并收进 pad，该做什么？
+    options:
+      - 重新赋值 ['pad']
+      - 对原列表 append('pad')
+    answer: 1
+    explain: 列表已存在，追加保留其中已有的全部成员。
+  - type: read
+    skill: py.set-basics
+    md: |
+      统计到场的人数时，重复刷卡不能多算一人。集合给每个不同的值留一个位置。用 set() 建空集合，用 add 登记，用 in 询问某人是否来过。集合没有供你访问的第几个位置。
+
+      两份集合还能比较：intersection 取两边都有的成员，union 合并，difference 只留左边独有的成员。用 len 观察人数，输出就与集合内部排列无关。
+
+      **“同一个人再刷一次会让集合变长”（PM58）**。重复添加已存在的值，成员数保持原样。
+  - type: example
+    skill: py.set-basics
+    code: |
+      # ① 将打卡记录变成成员表
+      day = set(["方", "余", "方"])
+      # ② 再打一次卡，与晚班比较
+      day.add("余")
+      night = {"余", "安"}
+      print(len(day))                      # 2
+      print(len(day.intersection(night)))  # 1
+    md: 把再次打卡的名字改成安，同时观察两个人数。
+  - type: quiz
+    skill: py.set-basics
+    q: 空集合里依次 add(3)、add(3)、add(4)，len 是多少？
+    options:
+      - '3'
+      - '2'
+      - '1'
+    answer: 1
+    explain: 集合里只有 3 和 4 两个不同的值。

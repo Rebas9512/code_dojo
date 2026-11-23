@@ -1,0 +1,37 @@
+id: algo-3-035-last-stone-weight
+title: 反复碰撞最重的两块石料
+track: algo
+stage: '3'
+order: 350
+format: write
+mode: function
+difficulty: 56
+skills:
+  requires:
+  - algo.heapq
+  - py.list-comp
+  - py.ternary
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: last-stone-weight
+milestones:
+- nc150
+entry: last_weight
+signature: 'def last_weight(stones: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 相减方向颠倒，放回了错误符号。
+  code: |
+    import heapq
+
+
+    def last_weight(stones: list[int]) -> int:
+        heap = [-s for s in stones]
+        heapq.heapify(heap)
+        while len(heap) >= 2:
+            first = heapq.heappop(heap)
+            second = heapq.heappop(heap)
+            if first != second:
+                heapq.heappush(heap, second - first)
+        return -heap[0] if heap else 0

@@ -1,0 +1,75 @@
+id: py-0b-l01-scan
+title: 从右找位置，从左数次数
+track: python
+skills: [py.linear-search]
+steps:
+  - type: read
+    skill: py.linear-search
+    md: |
+      从书架右端找一本书，碰到的第一本同名书，就是从左边数的最后一本。用下标走一遍列表，也可以按这个顺序检查。
+
+      **不变式**：检查下标 i 之前，它右边的位置都已经排除。一次失配只排除当前位置（PM34），还有格子就继续往左。目标换成“收集全部位置”时，要读到列表末尾。若要找最高读数，可以边走边留住已读部分的最高值；初值可取第一条真实读数，全负数也适用（PM22）。
+  - type: example
+    skill: py.linear-search
+    code: |
+      # ① 从书架最右边开始
+      def last_index(books, target):
+          for i in range(len(books) - 1, -1, -1):
+              print(i, books[i])
+              # ② 已经排除右边，命中即可返回
+              if books[i] == target:
+                  return i
+          # ③ 所有格子都检查过了
+          return -1
+
+
+      print(last_index([4, 7, 4, 8], 4))
+    md: |
+      | 检查下标 | 读到的值 | 下一步 |
+      |---|---|---|
+      | 3 | 8 | 向左一步 |
+      | 2 | 4 | 返回 2 |
+
+      把目标改为 6，先圈出循环访问的下标，再运行。
+  - type: quiz
+    skill: py.linear-search
+    q: "从右检查 [2, 8, 3] 查找 8，看到 3 后该怎么做？"
+    options:
+      - "返回 -1"
+      - "往左查下标 1"
+      - "返回下标 2"
+    answer: 1
+    explain: "3 只排除了下标 2，目标还可能在左边。"
+  - type: read
+    skill: py.linear-search
+    md: |
+      扫描签到记录时，还可以把“已经看过什么”保存在容器里。只关心某个编号来过没有，就登记到集合；要知道来了几次，就在字典里把这个编号的计数加一。
+
+      **不变式**：扫完前 i 条记录，字典里的每个数恰好是该编号在这 i 条中的出现次数。检查“次数是否重复”时，要比较字典中的次数。两个不同的编号也可能都出现一次（PM70）。
+  - type: example
+    skill: py.linear-search
+    code: |
+      # ① 顺着记录更新每个编号的次数
+      counts = {}
+      for badge in [4, 7, 4]:
+          counts[badge] = counts.get(badge, 0) + 1
+          print(badge, counts[badge])
+      # ② 换一个问题：这些次数有几种？
+      print(set(counts.values()))
+    md: |
+      | 已读记录 | 4 的次数 | 7 的次数 |
+      |---|---:|---:|
+      | 4 | 1 | 0 |
+      | 4，7 | 1 | 1 |
+      | 4，7，4 | 2 | 1 |
+
+      在末尾再加一个 7，观察不同次数的个数。
+  - type: quiz
+    skill: py.linear-search
+    q: "编号 4 和 7 都恰好刷卡两次。哪样东西重复了？"
+    options:
+      - "字典里的键"
+      - "字典里的次数"
+      - "没有重复"
+    answer: 1
+    explain: "两个编号对应两个键，值却同为 2。"

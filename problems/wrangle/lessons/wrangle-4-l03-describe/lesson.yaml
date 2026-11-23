@@ -1,0 +1,89 @@
+id: wrangle-4-l03-describe
+title: 日期、频数与逐项函数
+track: wrangle
+skills:
+  - wrangle.dates
+  - wrangle.frequency
+  - wrangle.apply
+steps:
+  - type: read
+    skill: wrangle.dates
+    md: |-
+      日期是日历上的位置。3 月 1 日和 2 月 28 日之间可能隔一天，也可能隔两天，取决于当年有没有 2 月 29 日。把日期留作字符串，只能直接比较字符，无法按日历算间隔。
+
+      pd.to_datetime 把格式为年-月-日的文字解析成日期。日期列的 .dt.month 取月份；两列日期相减会得到时长，再用 .dt.days 取相隔的整天数。当天到当天的间隔是零。
+
+      **WM23 直接用日号相减就得到天数**。2024 年 2 月 28 日至 3 月 1 日经过两天，先解析日期才能处理闰日与跨月。
+  - type: example
+    skill: wrangle.dates
+    code: |
+      import pandas as pd
+      # ① 把两次登记解析为日期
+      a = pd.to_datetime(pd.Series(["2024-02-28"]))
+      b = pd.to_datetime(pd.Series(["2024-03-01"]))
+      # ② 读取实际经过的天数
+      print((b - a).dt.days.tolist())  # 输出 [2]
+    md: 把两处年份一起改为 2023，重新量一遍。
+  - type: quiz
+    skill: wrangle.dates
+    q: 周一借、周三还，按结束减开始算几天？
+    options:
+      - '2'
+      - '3'
+      - '1'
+    answer: 0
+    explain: 跨过周一到周二、周二到周三两个日界。（WM23）
+  - type: read
+    skill: wrangle.frequency
+    md: |-
+      频数是某个值出现了几次。三单的状态分别是“待取、待取、已取”，就有待取 2 次、已取 1 次。只知道有两种状态，还不足以安排人手；每种有多少单才是这份报表要的数。
+
+      对一列调用 value_counts()，不同值变成结果的索引，次数是内容。默认跳过缺失。要把缺失也作为一类，可指定 dropna=False。若约定将缺失归到一个已有状态，则先填补再计数。
+
+      **WM24 默认频数会列出缺失类别**。A、A、空只产生一个非空类别；指定 dropna=False 或先按业务约定填补。
+  - type: example
+    skill: wrangle.frequency
+    code: |
+      import pandas as pd
+      # ① 收件情况，有一单没登记
+      s = pd.Series(["待取", "已取", "待取", None])
+      # ② 取出待取的频数，再数包含空值时有几类
+      print(s.value_counts()["待取"])  # 输出 2
+      print(len(s.value_counts(dropna=False)))  # 输出 3
+    md: 把最后一项改成“已取”，观察第二行。
+  - type: quiz
+    skill: wrangle.frequency
+    q: 一列是 A、A、空，默认 value_counts 中 A 的次数是多少？
+    options:
+      - '1'
+      - '2'
+      - '3'
+    answer: 1
+    explain: 两行含 A，缺失值默认跳过。（WM24）
+  - type: read
+    skill: wrangle.apply
+    md: |-
+      有时现成公式已经覆盖整列，有时手里只有一个接收单值的函数。比如包装规则是每份装 4 本，数量为 5 本要占两份。Series.apply(fn) 让一列的每个数分别进入这个函数，结果按原行标签对应回来。
+
+      若业务只是每项加 1 或乘 2，可以直接写整列公式，避免每一行都进入 Python 函数。对复杂的单值规则，先试一个值，再用 apply 展到整列。比较两种写法时先核对结果。
+
+      **WM25 逐项函数拿到的是整列**。Series.apply(len) 中，一次调用只量一个字符串。整列的 len 则数记录行数。
+  - type: example
+    skill: wrangle.apply
+    code: |
+      import pandas as pd
+      # ① 小函数把正负重量都换成绝对量
+      s = pd.Series([-3, 0, 2])
+      print(s.apply(abs).tolist())  # 输出 [3, 0, 2]
+      # ② 只有加法时整列写一次
+      print((s + 1).tolist())  # 输出 [-2, 1, 3]
+    md: 将中间值改成 -1，对比同一行在两个规则下的变化。
+  - type: quiz
+    skill: wrangle.apply
+    q: 一列所有价格都涨 2 元，哪个表达式直接描述整列运算？
+    options:
+      - s + 2
+      - s.apply(len)
+      - len(s) + 2
+    answer: 0
+    explain: 列和一个数相加，会逐格加上同一个数。（WM25）

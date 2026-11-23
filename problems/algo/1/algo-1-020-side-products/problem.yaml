@@ -1,0 +1,30 @@
+id: algo-1-020-side-products
+title: 前缀积数组和后缀积数组
+track: algo
+stage: '1'
+order: 200
+format: write
+mode: function
+difficulty: 43
+skills:
+  requires:
+  - py.list-concat-repeat
+  - py.prefix-sum
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: side_products
+signature: 'def side_products(nums: list[int]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+- why: 把当前位置也算进了左积。
+  code: |
+    def side_products(nums: list[int]) -> list[list[int]]:
+        left = [1] * len(nums)
+        right = [1] * len(nums)
+        for i in range(1, len(nums)):
+            left[i] = left[i - 1] * nums[i]
+        for i in range(len(nums) - 2, -1, -1):
+            right[i] = right[i + 1] * nums[i + 1]
+        return [left, right]

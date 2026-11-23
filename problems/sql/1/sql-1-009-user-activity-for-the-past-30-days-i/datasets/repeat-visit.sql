@@ -1,0 +1,1 @@
+INSERT INTO visits VALUES ('2025-06-15',4),('2025-06-15',4);

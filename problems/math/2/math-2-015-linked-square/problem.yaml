@@ -1,0 +1,22 @@
+id: math-2-015-linked-square
+title: 补上旋钮的传动比
+track: math
+stage: '2'
+order: 150
+format: complete
+mode: function
+difficulty: 28
+skills:
+  requires:
+    - math.chain-rule
+  introduces: null
+source: original
+entry: dial_slope
+signature: 'def dial_slope(a: float, b: float, x: float) -> float:'
+compare: float
+wrong_examples:
+  - why: 忽略位置对旋钮的变化率。
+    code: |
+      def dial_slope(a: float, b: float, x: float) -> float:
+          u = a * x + b
+          return 2 * u * 1

@@ -1,0 +1,17 @@
+id: wrangle-3-018-nan-equality
+title: 用等号能认出空读数吗
+track: wrangle
+stage: '3'
+order: 180
+format: predict
+mode: predict
+difficulty: 32
+skills:
+  requires:
+    - py.type-convert
+  introduces: wrangle.missing
+source: original
+wrong_examples:
+  - why: 以为 NaN 等于自身。
+    code: |
+      print('True\n[False, True]')

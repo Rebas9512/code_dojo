@@ -1,0 +1,7 @@
+track: dsfix
+skills:
+  - id: dsfix.vector
+    name: 数组的逐项运算
+    stage: "1"
+    prereqs: []
+    card: NumPy 数组乘以一个数，会把每一项都乘以这个数。

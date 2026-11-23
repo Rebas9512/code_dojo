@@ -1,0 +1,16 @@
+id: py-0a-134-predict-in
+title: in 判断的是什么
+track: python
+stage: 0A
+order: 670
+format: predict
+mode: predict
+difficulty: 12
+skills:
+  requires: [py.compare-bool]
+  introduces: py.in-membership
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "一共 6 行，每行 True 或 False。"

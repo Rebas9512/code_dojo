@@ -1,0 +1,39 @@
+id: algo-2-042-search-a-2d-matrix
+title: 把整张升序表当作一列
+track: algo
+stage: '2'
+order: 420
+format: write
+mode: function
+difficulty: 60
+skills:
+  requires:
+  - algo.binary-search
+  - py.bool-ops
+  - py.if-else
+  - py.multi-assign
+  - py.nested-list
+  introduces: null
+source: neetcode250
+leetcode: search-a-2d-matrix
+milestones:
+- nc150
+- top100
+entry: search_grid
+signature: 'def search_grid(matrix: list[list[int]], target: int) -> bool:'
+compare: exact
+wrong_examples:
+- why: 扁平坐标除以了行数。
+  code: |
+    def search_grid(matrix: list[list[int]], target: int) -> bool:
+        rows, cols = len(matrix), len(matrix[0])
+        lo, hi = 0, rows * cols
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if matrix[mid // rows][mid % cols] < target:
+                lo = mid + 1
+            else:
+                hi = mid
+        return lo < rows * cols and matrix[lo // cols][lo % cols] == target
+hints:
+- 每行有 cols 格。整张表平铺后，第 i 格怎样换回行、列？

@@ -1,0 +1,24 @@
+id: wrangle-4-021-label-lengths
+title: 已有单值函数怎样用到一列
+track: wrangle
+stage: '4'
+order: 210
+format: complete
+mode: function
+difficulty: 38
+skills:
+  requires:
+    - wrangle.apply
+  introduces: null
+source: original
+entry: label_lengths
+signature: 'def label_lengths(t):'
+compare: frame
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 只数出整列有几行。
+    code: |
+      def label_lengths(t):
+          return len(t['label'])

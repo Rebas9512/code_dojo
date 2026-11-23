@@ -1,0 +1,39 @@
+id: algo-3-009-subtree-of-another-tree
+title: 大树里有没有整棵样本树
+track: algo
+stage: '3'
+order: 90
+format: write
+mode: function
+difficulty: 50
+skills:
+  requires:
+  - algo.tree-basics
+  - py.bool-ops
+  - py.recursion-multi
+  introduces: null
+source: neetcode250
+leetcode: subtree-of-another-tree
+milestones:
+- blind75
+entry: contains_tree
+signature: 'def contains_tree(root: TreeNode | None, sub: TreeNode) -> bool:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+    '1': treenode
+wrong_examples:
+- why: 只比对候选根的值。
+  code: |
+    def same(a: TreeNode | None, b: TreeNode | None) -> bool:
+        if a is None or b is None:
+            return a is b
+        return a.val == b.val and same(a.left, b.left) and same(a.right, b.right)
+
+    def contains_tree(root: TreeNode | None, sub: TreeNode) -> bool:
+        if root is None:
+            return False
+        return root.val == sub.val or contains_tree(root.left, sub) or contains_tree(root.right, sub)
+hints:
+- 只要候选根匹配，还要把两侧的形状一路比到空位置。值出现多次时，每个匹配位置都可能是起点。

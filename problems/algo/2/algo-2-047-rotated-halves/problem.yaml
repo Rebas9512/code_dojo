@@ -1,0 +1,25 @@
+id: algo-2-047-rotated-halves
+title: 旋转后哪一段仍然有序
+track: algo
+stage: '2'
+order: 470
+format: complete
+mode: function
+difficulty: 59
+skills:
+  requires:
+  - algo.binary-search
+  - py.list-basics
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: sorted_halves
+signature: 'def sorted_halves(nums: list[int]) -> list[bool]:'
+compare: exact
+wrong_examples:
+- why: 单元素也要求端点严格小于。
+  code: |
+    def sorted_halves(nums: list[int]) -> list[bool]:
+        mid = (len(nums) - 1) // 2
+        return [nums[0] < nums[mid], nums[mid] <= nums[-1]]

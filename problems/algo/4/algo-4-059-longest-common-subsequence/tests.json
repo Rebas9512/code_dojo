@@ -1,0 +1,12 @@
+{
+  "examples": [
+    {"args":["abcde","axcye"],"expected":3},
+    {"args":["ab","ba"],"expected":1}
+  ],
+  "hidden": [
+    {"args":["q","r"],"expected":0},
+    {"args":["a","aa"],"expected":1},
+    {"args":["aab","abb"],"expected":2},
+    {"args":["abababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab","babababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababa"],"expected":699}
+  ]
+}

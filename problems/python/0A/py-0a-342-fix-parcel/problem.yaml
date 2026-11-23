@@ -1,0 +1,29 @@
+id: py-0a-342-fix-parcel
+title: 修好包裹上消失的重量
+track: python
+stage: 0A
+order: 4520
+format: fix
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - py.class-basic
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: weigh
+signature: 'def weigh(net: int, tare: int) -> int:'
+compare: exact
+wrong_examples:
+  - why: weight 只存在于构造函数里，包裹对象上没有这个属性。
+    code: |
+      class Parcel:
+          def __init__(self, net: int, tare: int):
+              weight = net + tare
+
+
+      def weigh(net: int, tare: int) -> int:
+          parcel = Parcel(net, tare)
+          return parcel.weight

@@ -1,0 +1,19 @@
+id: py-0a-152-complete-row-sums
+title: 补全：每行之和
+track: python
+stage: 0A
+order: 1060
+format: complete
+mode: function
+difficulty: 16
+skills:
+  requires: [py.nested-list, py.list-builtins, py.list-append]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: row_sums
+signature: "def row_sums(grid: list[list[int]]) -> list[int]:"
+compare: exact
+hints:
+  - "row 就是一整行（一个列表），sum(row) 是这一行的和。"

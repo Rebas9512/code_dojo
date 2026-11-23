@@ -1,0 +1,19 @@
+id: py-0a-107-complete-minutes-left
+title: 补全：不满一小时的分钟
+track: python
+stage: 0A
+order: 135
+format: complete
+mode: function
+difficulty: 4
+skills:
+  requires: [py.floordiv-mod, py.func-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: minutes_left
+signature: "def minutes_left(total_minutes: int) -> int:"
+compare: exact
+hints:
+  - "一小时 60 分钟；\"拿走整小时后剩下的\"就是除以 60 的余数。"

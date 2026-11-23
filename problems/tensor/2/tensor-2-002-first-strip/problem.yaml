@@ -1,0 +1,24 @@
+id: tensor-2-002-first-strip
+title: 留下最左侧一列
+track: tensor
+stage: '2'
+order: 20
+format: complete
+mode: function
+difficulty: 23
+skills:
+  requires:
+    - tensor.slice
+  introduces: null
+source: original
+entry: first_strip
+signature: 'def first_strip(rows):'
+compare: allclose
+wrong_examples:
+  - why: 整数下标把列轴移除了。
+    code: |
+      import torch
+
+
+      def first_strip(rows):
+          return torch.tensor(rows)[:, 0]

@@ -1,0 +1,14 @@
+id: python
+name: Python 基础
+summary: 从输出第一行文字，到用循环、函数和列表解决小问题。
+order: 1
+language: python
+runtime: python
+status: active
+requires: [data]
+skill_prefix: py
+stages:
+  - id: "0A"
+    name: 语法基础
+  - id: "0B"
+    name: 算法入门

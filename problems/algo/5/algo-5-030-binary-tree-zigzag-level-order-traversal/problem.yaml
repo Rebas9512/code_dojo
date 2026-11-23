@@ -1,0 +1,40 @@
+id: algo-5-030-binary-tree-zigzag-level-order-traversal
+title: 逐层折返读树
+track: algo
+stage: '5'
+order: 300
+format: write
+mode: function
+difficulty: 76
+week: 4
+skills:
+  requires:
+  - algo.tree-bfs
+  - py.floordiv-mod
+  - py.list-comp
+  - py.slice
+  - py.ternary
+  - py.tuple
+  - py.while
+  introduces: null
+source: grind169
+leetcode: binary-tree-zigzag-level-order-traversal
+milestones: []
+entry: zigzag
+signature: 'def zigzag(root: TreeNode | None) -> list[list[int]]:'
+compare: exact
+time_limit_ms: 800
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 把开始折返的层数错开了一层。
+  code: |
+    def zigzag(root: TreeNode | None) -> list[list[int]]:
+        level = [root] if root else []
+        rows = []
+        while level:
+            values = [node.val for node in level]
+            rows.append(values[::-1] if (len(rows) + 1) % 2 else values)
+            level = [c for node in level for c in (node.left, node.right) if c]
+        return rows

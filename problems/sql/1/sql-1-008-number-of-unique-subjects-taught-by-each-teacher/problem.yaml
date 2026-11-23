@@ -1,0 +1,29 @@
+id: sql-1-008-number-of-unique-subjects-taught-by-each-teacher
+title: 讲师教过几门不同的课
+track: sql
+stage: '1'
+order: 80
+format: variant
+difficulty: 24
+skills:
+  requires:
+    - sql.count-distinct
+    - sql.group-by
+    - sql.select-expr
+  introduces: null
+source: sql50
+leetcode: number-of-unique-subjects-taught-by-each-teacher
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/cross-branch.sql
+  - datasets/sample.sql + datasets/many-tutors.sql
+ordered: false
+hints:
+  - 同一位讲师的哪一列重复时应折叠？
+wrong_examples:
+  - why: 多教一个分馆就多算一门课
+    sql: |
+      SELECT tutor_id, COUNT(*) AS subjects
+      FROM teaching
+      GROUP BY tutor_id;

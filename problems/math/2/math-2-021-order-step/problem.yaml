@@ -1,0 +1,23 @@
+id: math-2-021-order-step
+title: 试调一次订量
+track: math
+stage: '2'
+order: 210
+format: complete
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - math.slope-rules
+    - math.descent
+  introduces: null
+source: original
+entry: order_step
+signature: 'def order_step(x: float, target: float, rate: float) -> float:'
+compare: float
+wrong_examples:
+  - why: 更新符号反了，使费用上升。
+    code: |
+      def order_step(x: float, target: float, rate: float) -> float:
+          slope = 2 * (x - target)
+          return x + rate * slope

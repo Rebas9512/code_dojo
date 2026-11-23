@@ -1,0 +1,29 @@
+id: sql-0-014-sort-by-price
+title: 按价格排序
+track: sql
+stage: "0"
+order: 240
+format: write
+difficulty: 10
+skills: {requires: [sql.select-basic, sql.order-by], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/ties.sql
+ordered: true
+hints:
+  - "ORDER BY 后面可以写多个排序键，用逗号隔开。"
+  - "每个排序键单独写 ASC / DESC。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "只按价格排，价格相同时顺序不确定"
+    sql: |
+      SELECT title, price FROM books ORDER BY price DESC;
+  - why: "书名排反了"
+    sql: |
+      SELECT title, price FROM books ORDER BY price DESC, title DESC;
+  - why: "价格排成了从低到高"
+    sql: |
+      SELECT title, price FROM books ORDER BY price, title;

@@ -1,0 +1,19 @@
+id: py-0a-149-complete-drop-last
+title: 补全：删掉最后 k 个
+track: python
+stage: 0A
+order: 1000
+format: complete
+mode: function
+difficulty: 15
+skills:
+  requires: [py.list-pop, py.for-range, py.if-else]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: drop_last
+signature: "def drop_last(items: list[str], k: int) -> list[str]:"
+compare: exact
+hints:
+  - "不带参数的 pop() 删掉最后一个。"

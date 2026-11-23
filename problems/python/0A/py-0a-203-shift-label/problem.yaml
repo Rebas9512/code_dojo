@@ -1,0 +1,34 @@
+id: py-0a-203-shift-label
+title: 把字母轮转拆成两步
+track: python
+stage: 0A
+order: 2030
+format: variant
+mode: function
+difficulty: 20
+skills:
+  requires:
+    - py.floordiv-mod
+    - py.for-each
+    - py.ord-chr
+    - py.helper-func
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: shift_label
+signature: 'def shift_label(text: str, step: int) -> str:'
+compare: exact
+wrong_examples:
+  - why: 直接加位移，越过字母表末端时走进了别的字符。
+    code: |
+      def shift_char(ch: str, step: int) -> str:
+          offset = ord(ch) - ord("a") + step
+          return chr(ord("a") + offset)
+
+
+      def shift_label(text: str, step: int) -> str:
+          result = ""
+          for ch in text:
+              result += shift_char(ch, step)
+          return result

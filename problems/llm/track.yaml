@@ -1,0 +1,20 @@
+id: llm
+name: 手搓 LLM
+summary: 从分词和注意力开始，逐步写出能训练和采样的小型 GPT。
+order: 9
+language: python
+runtime: ds
+status: planned
+requires: [train]
+skill_prefix: llm
+stages:
+  - id: "1"
+    name: 分词
+  - id: "2"
+    name: 嵌入和注意力
+  - id: "3"
+    name: Transformer 块
+  - id: "4"
+    name: GPT 前向和采样
+  - id: "5"
+    name: 训练和 KV cache

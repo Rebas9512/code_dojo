@@ -1,0 +1,26 @@
+id: sql-4-003-category-row-numbers
+title: 补全：每类图书从一号开始
+track: sql
+stage: '4'
+order: 30
+format: complete
+difficulty: 54
+skills:
+  requires: []
+  introduces: sql.partition-by
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/ties-and-null.sql
+  - db:bookstore + datasets/sample.sql + datasets/singletons.sql
+ordered: false
+hints:
+  - 一条新分类的记录应该从哪个号开始？
+wrong_examples:
+  - why: 全店只排一份序号
+    sql: |
+      SELECT category, book_id,
+             ROW_NUMBER() OVER (ORDER BY price DESC NULLS LAST, book_id) AS position
+      FROM shelf;

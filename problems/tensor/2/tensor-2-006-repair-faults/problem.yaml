@@ -1,0 +1,25 @@
+id: tensor-2-006-repair-faults
+title: 用哨兵值标出断线
+track: tensor
+stage: '2'
+order: 60
+format: write
+mode: function
+difficulty: 25
+skills:
+  requires:
+    - tensor.mask
+  introduces: null
+source: original
+entry: repair
+signature: 'def repair(rows, fill):'
+compare: allclose
+wrong_examples:
+  - why: 掩码选中了正常读数。
+    code: |
+      import torch
+
+
+      def repair(rows, fill):
+          x = torch.tensor(rows)
+          return x.masked_fill(x >= 0, fill)

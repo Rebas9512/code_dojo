@@ -1,0 +1,27 @@
+id: py-0a-299-complete-pair-sums
+title: 补全两排数的对应之和
+track: python
+stage: 0A
+order: 4190
+format: complete
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - py.list-append
+    - py.zip
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: pair_sums
+signature: 'def pair_sums(a: list[int], b: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: 把第一排与自己配对。
+    code: |
+      def pair_sums(a: list[int], b: list[int]) -> list[int]:
+          result = []
+          for x, y in zip(a, a):
+              result.append(x + y)
+          return result

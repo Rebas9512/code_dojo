@@ -1,0 +1,28 @@
+id: math-3-011-simulated-heads
+title: 记录本次抛币的正面频率
+track: math
+stage: '3'
+order: 110
+format: complete
+mode: function
+difficulty: 30
+skills:
+  requires:
+    - math.frequency
+  introduces: null
+source: original
+entry: head_frequency
+signature: 'def head_frequency(n: int, s: int) -> float:'
+compare: float
+wrong_examples:
+  - why: 直接报告理论概率。
+    code: |
+      from random import seed, randint
+
+
+      def head_frequency(n: int, s: int) -> float:
+          seed(s)
+          heads = 0
+          for i in range(n):
+              heads += randint(0, 1)
+          return 0.5

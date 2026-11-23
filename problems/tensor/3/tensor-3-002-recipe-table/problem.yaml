@@ -1,0 +1,24 @@
+id: tensor-3-002-recipe-table
+title: 补齐配方表的轴名
+track: tensor
+stage: '3'
+order: 20
+format: complete
+mode: function
+difficulty: 28
+skills:
+  requires:
+    - tensor.contract
+  introduces: null
+source: original
+entry: recipes
+signature: 'def recipes(a, b):'
+compare: checker
+wrong_examples:
+  - why: 把规格写成了输出的第一轴。
+    code: |
+      import torch
+
+
+      def recipes(a, b):
+          return torch.einsum("ij,jk->ki", a, b)

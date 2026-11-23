@@ -1,0 +1,31 @@
+id: algo-4-028-candy
+title: 按相邻评分发最少的糖
+track: algo
+stage: '4'
+order: 280
+format: write
+mode: function
+difficulty: 73
+skills:
+  requires:
+  - algo.greedy
+  - py.list-concat-repeat
+  introduces: null
+source: neetcode250
+leetcode: candy
+milestones: []
+entry: min_candy
+signature: 'def min_candy(ratings: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 从右扫时覆盖左侧长上坡已经要求的糖数。
+  code: |
+    def min_candy(ratings: list[int]) -> int:
+        candies = [1] * len(ratings)
+        for i in range(1, len(ratings)):
+            if ratings[i] > ratings[i - 1]:
+                candies[i] = candies[i - 1] + 1
+        for i in range(len(ratings) - 2, -1, -1):
+            if ratings[i] > ratings[i + 1]:
+                candies[i] = candies[i + 1] + 1
+        return sum(candies)

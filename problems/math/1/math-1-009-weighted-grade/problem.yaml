@@ -1,0 +1,24 @@
+id: math-1-009-weighted-grade
+title: 交出一门课的总评
+track: math
+stage: '1'
+order: 90
+format: write
+mode: function
+difficulty: 22
+skills:
+  requires:
+    - py.list-builtins
+    - py.list-comp
+    - math.dot
+  introduces: null
+source: original
+entry: weighted_grade
+signature: 'def weighted_grade(scores: list[float], weights: list[float]) -> float:'
+compare: float
+wrong_examples:
+  - why: 交回所有分项分数，没有合计。
+    code: |
+      def weighted_grade(scores: list[float], weights: list[float]) -> float:
+          parts = [scores[i] * weights[i] for i in range(len(scores))]
+          return parts

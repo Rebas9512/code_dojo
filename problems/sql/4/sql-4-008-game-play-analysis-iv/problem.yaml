@@ -1,0 +1,39 @@
+id: sql-4-008-game-play-analysis-iv
+title: 首登次日还来的玩家
+track: sql
+stage: '4'
+order: 80
+format: combine
+difficulty: 57
+skills:
+  requires:
+    - sql.conditional-agg
+    - sql.count-distinct
+    - sql.cte
+    - sql.partition-by
+  introduces: null
+source: sql50
+leetcode: game-play-analysis-iv
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/one-day.sql
+  - datasets/sample.sql + datasets/late-streak.sql
+ordered: false
+hints:
+  - 给每个登录日贴上该玩家的首登日。两日之差应当是多少？
+wrong_examples:
+  - why: 把登录天数当作玩家数
+    sql: |
+      WITH visits AS (
+          SELECT player, day, MIN(day) OVER (PARTITION BY player) AS first_day FROM play_days
+      )
+      SELECT 1.0 * COUNT(CASE WHEN day = first_day + 1 THEN 1 END) / COUNT(*) AS fraction
+      FROM visits;
+  - why: 只要后来回来过就算
+    sql: |
+      WITH visits AS (
+          SELECT player, day, MIN(day) OVER (PARTITION BY player) AS first_day FROM play_days
+      )
+      SELECT 1.0 * COUNT(CASE WHEN day > first_day THEN 1 END) / COUNT(DISTINCT player) AS fraction
+      FROM visits;

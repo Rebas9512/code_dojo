@@ -1,0 +1,19 @@
+id: py-0a-117-complete-clothing
+title: 补全：穿什么
+track: python
+stage: 0A
+order: 300
+format: complete
+mode: function
+difficulty: 7
+skills:
+  requires: [py.elif, py.early-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: clothing
+signature: "def clothing(temp: int) -> str:"
+compare: exact
+hints:
+  - "走到 elif 时已经知道 temp < 30，只需要写下限。"

@@ -1,0 +1,86 @@
+id: algo-3-076-clone-graph
+title: 复制一张有环的关系网
+track: algo
+stage: '3'
+order: 760
+format: combine
+mode: function
+difficulty: 69
+skills:
+  requires:
+  - algo.graph-adj-list
+  - py.bool-ops
+  - py.break-continue
+  - py.default-args
+  - py.enumerate
+  - py.genexp
+  - py.list-pop
+  - py.nested-loop
+  - py.node-class
+  - py.set-basics
+  - py.sorted
+  - py.ternary
+  - py.while
+  - py.zip
+  introduces: null
+source: neetcode250
+leetcode: clone-graph
+milestones:
+- blind75
+entry: run_case
+signature: 'def run_case(adjacency: list[list[int]]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+- why: 直接返回原图。
+  code: |
+    def clone(start: Node | None) -> Node | None:
+        if start is None:
+            return None
+        copies = {start: Node(start.val)}
+        stack = [start]
+        while stack:
+            node = stack.pop()
+            for neighbor in node.neighbors:
+                if neighbor not in copies:
+                    copies[neighbor] = Node(neighbor.val)
+                    stack.append(neighbor)
+                copies[node].neighbors.append(copies[neighbor])
+        return start
+
+
+    class Node:
+        def __init__(self, val=0, neighbors=None):
+            self.val = val
+            self.neighbors = [] if neighbors is None else neighbors
+
+
+    def run_case(adjacency: list[list[int]]) -> list[list[int]]:
+        originals = [Node(i + 1) for i in range(len(adjacency))]
+        for node, row in zip(originals, adjacency):
+            node.neighbors = [originals[i-1] for i in row]
+        root = clone(originals[0] if originals else None)
+        if not originals:
+            return [] if root is None else None
+        if root is None or root.val != 1:
+            return None
+        by_value = {}
+        stack = [root]
+        old_nodes = set(originals)
+        while stack:
+            node = stack.pop()
+            if node in old_nodes or not 1 <= node.val <= len(originals):
+                return None
+            if node.val in by_value:
+                if by_value[node.val] is not node:
+                    return None
+                continue
+            by_value[node.val] = node
+            stack.extend(node.neighbors)
+        if len(by_value) != len(originals):
+            return None
+        for i, node in enumerate(originals):
+            if node.val != i+1 or node.neighbors != [originals[k-1] for k in adjacency[i]]:
+                return None
+        return [sorted(other.val for other in by_value[i+1].neighbors) for i in range(len(originals))]
+hints:
+- 先登记原节点对应的新节点，再处理邻居。沿环回到旧节点时应该复用哪个对象？

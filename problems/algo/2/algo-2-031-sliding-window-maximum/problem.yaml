@@ -1,0 +1,52 @@
+id: algo-2-031-sliding-window-maximum
+title: 每次滑动后最高的读数
+track: algo
+stage: '2'
+order: 310
+format: combine
+mode: function
+difficulty: 60
+skills:
+  requires:
+  - algo.monotonic-stack
+  - algo.window-fixed
+  - py.bool-ops
+  - py.deque
+  - py.enumerate
+  - py.if-else
+  - py.nested-loop
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: sliding-window-maximum
+milestones:
+- nc150
+- top100
+entry: window_max
+signature: 'def window_max(nums: list[int], k: int) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 让刚过期的最大值多留一步。
+  code: |
+    from collections import deque
+
+
+    def window_max(nums: list[int], k: int) -> list[int]:
+        candidates = deque()
+        result = []
+        for right, value in enumerate(nums):
+            if candidates and candidates[0] < right - k:
+                candidates.popleft()
+            while candidates and nums[candidates[-1]] <= value:
+                candidates.pop()
+            candidates.append(right)
+            if right + 1 >= k:
+                result.append(nums[candidates[0]])
+        return result
+- why: 每格都重新寻找整窗最大值。
+  code: |
+    def window_max(nums: list[int], k: int) -> list[int]:
+        return [max(nums[i:i + k]) for i in range(len(nums) - k + 1)]
+hints:
+- 把仍有机会成为最大值的下标放进双端队列，使对应数值从前到后递减。
+- 过期下标从队首退出。新值会使队尾比它小的旧值失去机会，每格最多进出一次。

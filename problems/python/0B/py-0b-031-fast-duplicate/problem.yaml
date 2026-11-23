@@ -1,0 +1,34 @@
+id: py-0b-031-fast-duplicate
+title: 把重复编号的查找加快
+track: python
+stage: 0B
+order: 310
+format: variant
+mode: function
+difficulty: 34
+skills:
+  requires: [py.big-o, py.set-basics, py.early-return, py.list-append, py.list-basics]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: run_case
+signature: 'def run_case(n: int, tail: list[int]) -> bool:'
+compare: exact
+time_limit_ms: 2000
+wrong_examples:
+  - why: "PM76：每个编号都在越来越长的列表里逐项查找，大规模无重复输入超时。"
+    code: |
+      def has_duplicate(badges: list[int]) -> bool:
+          seen = []
+          for badge in badges:
+              if badge in seen:
+                  return True
+              seen.append(badge)
+          return False
+
+
+      def run_case(n: int, tail: list[int]) -> bool:
+          badges = list(range(n))
+          badges.extend(tail)
+          return has_duplicate(badges)

@@ -1,0 +1,41 @@
+id: algo-2-035-subarray-sum-equals-k
+title: 数出合计恰为 k 的连续段
+track: algo
+stage: '2'
+order: 350
+format: write
+mode: function
+difficulty: 58
+skills:
+  requires:
+  - algo.prefix-hash
+  introduces: null
+source: neetcode250
+leetcode: subarray-sum-equals-k
+milestones:
+- top100
+entry: count_segments
+signature: 'def count_segments(nums: list[int], k: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 查成比当前前缀多 k 的旧和。
+  code: |
+    def count_segments(nums: list[int], k: int) -> int:
+        counts = {0: 1}
+        prefix = answer = 0
+        for value in nums:
+            prefix += value
+            answer += counts.get(prefix + k, 0)
+            counts[prefix] = counts.get(prefix, 0) + 1
+        return answer
+- why: 固定左端后重新枚举所有右端。
+  code: |
+    def count_segments(nums: list[int], k: int) -> int:
+        count = 0
+        for left in range(len(nums)):
+            total = 0
+            for right in range(left, len(nums)):
+                total += nums[right]
+                if total == k:
+                    count += 1
+        return count

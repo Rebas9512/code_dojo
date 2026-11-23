@@ -1,0 +1,8 @@
+track: data
+skills:
+  - id: data.column-key
+    name: 用编号辨认记录
+    stage: "0"
+    group: 1
+    prereqs: []
+    card: 一本书占一行。书名可能重复，用唯一的图书编号辨认一本书。

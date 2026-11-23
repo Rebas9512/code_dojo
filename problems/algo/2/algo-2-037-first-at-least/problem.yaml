@@ -1,0 +1,32 @@
+id: algo-2-037-first-at-least
+title: 找第一个不小于 x 的位置
+track: algo
+stage: '2'
+order: 370
+format: complete
+mode: function
+difficulty: 57
+skills:
+  requires:
+  - algo.binary-search
+  - py.if-else
+  - py.multi-assign
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: lower_bound
+signature: 'def lower_bound(nums: list[int], x: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 把相等位置一并越过。
+  code: |
+    def lower_bound(nums: list[int], x: int) -> int:
+        lo, hi = 0, len(nums)
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if nums[mid] <= x:
+                lo = mid + 1
+            else:
+                hi = mid
+        return lo

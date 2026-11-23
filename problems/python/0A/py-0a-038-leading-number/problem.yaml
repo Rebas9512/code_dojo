@@ -1,0 +1,20 @@
+id: py-0a-038-leading-number
+title: 开头的数字
+track: python
+stage: 0A
+order: 750
+format: write
+mode: function
+difficulty: 13
+skills:
+  requires: [py.str-methods, py.for-each, py.break-continue, py.bool-ops]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: leading_number
+signature: "def leading_number(s: str) -> str:"
+compare: exact
+hints:
+  - "拼字符串的累加器从空串 \"\" 开始。"
+  - "遇到不是数字的字符就 break。"

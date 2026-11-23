@@ -1,0 +1,47 @@
+id: algo-3-014-binary-tree-level-order-traversal
+title: 给树的每一层列清单
+track: algo
+stage: '3'
+order: 140
+format: write
+mode: function
+difficulty: 53
+skills:
+  requires:
+  - algo.tree-bfs
+  - py.nested-loop
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: binary-tree-level-order-traversal
+milestones:
+- blind75
+- top100
+entry: levels
+signature: 'def levels(root: TreeNode | None) -> list[list[int]]:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 把队列尾当出口。
+  code: |
+    from collections import deque
+
+
+    def levels(root: TreeNode | None) -> list[list[int]]:
+        if root is None:
+            return []
+        queue = deque([root])
+        result = []
+        while queue:
+            layer = []
+            for _ in range(len(queue)):
+                node = queue.pop()
+                layer.append(node.val)
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+            result.append(layer)
+        return result

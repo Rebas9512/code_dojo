@@ -1,0 +1,21 @@
+id: math-3-004-reverse-exponent
+title: 从增长倍数取回指数
+track: math
+stage: '3'
+order: 40
+format: predict
+mode: predict
+difficulty: 25
+skills:
+  requires:
+    - py.minmax-abs
+    - math.exp
+  introduces: math.log
+source: original
+wrong_examples:
+  - why: 直接把增长倍数当成指数。
+    code: |
+      from math import exp, log
+
+      print(round(exp(3)))
+      print(round(log(1)))

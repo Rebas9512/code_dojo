@@ -1,0 +1,40 @@
+id: wrangle
+name: 数据处理
+summary: 用 NumPy 操作数组，用 pandas 筛选、分组和合并数据。
+order: 5
+language: python
+runtime: ds
+status: active
+requires:
+  - python
+skill_prefix: wrangle
+stages:
+  - id: '1'
+    name: NumPy 数组
+    units:
+      1: 数组与形状
+      2: 位置、区间与筛选
+      3: 重排形状与沿轴汇总
+  - id: '2'
+    name: 广播和向量化
+    units:
+      1: 广播与整批运算
+      2: 条件选择、累计与名次
+  - id: '3'
+    name: pandas 基础
+    units:
+      1: 从列到表与 CSV
+      2: 选行、排序与更新列
+      3: 缺失值与列类型
+  - id: '4'
+    name: 分组合并和透视
+    units:
+      1: 分组统计与连接
+      2: 宽表与长表
+      3: 日期、频数与逐项函数
+  - id: '5'
+    name: pandas 版 SQL 题
+    units:
+      1: 书店的书目与读者清单
+      2: 书店的统计与关联清单
+      3: 每行的组内名次与累计

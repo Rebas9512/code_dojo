@@ -1,0 +1,12 @@
+{
+  "examples": [
+    {"args":[7,1,0],"expected":"aabaa"},
+    {"args":[0,0,5],"expected":"cc"}
+  ],
+  "hidden": [
+    {"args":[0,1,0],"expected":"b"},
+    {"args":[2,2,2],"expected":"abcabc"},
+    {"args":[2,1,0],"expected":"aab"},
+    {"args":[100,100,100],"expected":"abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc"}
+  ]
+}

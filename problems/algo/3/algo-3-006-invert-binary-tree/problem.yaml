@@ -1,0 +1,33 @@
+id: algo-3-006-invert-binary-tree
+title: 交换每个岔口的两侧
+track: algo
+stage: '3'
+order: 60
+format: write
+mode: function
+difficulty: 49
+skills:
+  requires:
+  - algo.tree-basics
+  - py.multi-assign
+  - py.recursion-multi
+  introduces: null
+source: neetcode250
+leetcode: invert-binary-tree
+milestones:
+- blind75
+- top100
+entry: invert
+signature: 'def invert(root: TreeNode | None) -> TreeNode | None:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+  returns: treenode
+wrong_examples:
+- why: 只交换根的两个孩子。
+  code: |
+    def invert(root: TreeNode | None) -> TreeNode | None:
+        if root:
+            root.left, root.right = root.right, root.left
+        return root

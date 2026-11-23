@@ -1,0 +1,35 @@
+id: wrangle-5-012-orders-for-every-reader
+title: 为每位读者补齐订单数
+track: wrangle
+stage: '5'
+order: 120
+format: write
+mode: function
+difficulty: 39
+skills:
+  requires:
+    - wrangle.report-grain
+    - wrangle.merge
+    - wrangle.missing
+    - wrangle.columns
+    - wrangle.cast
+  introduces: null
+source: original
+entry: reader_counts
+signature: 'def reader_counts(users, order_counts):'
+compare: frame
+leetcode: replace-employee-id-with-the-unique-identifier
+sql_twin: sql-2-003-orders-for-every-reader
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+    '1': dataframe
+wrong_examples:
+  - why: 内连接把从未下单的读者丢了。
+    code: |
+      def reader_counts(users, order_counts):
+          out = users.merge(order_counts, on='user_id', how='inner')
+          out['order_count'] = out['n']
+          return out[['user_id', 'order_count']]

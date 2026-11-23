@@ -1,0 +1,73 @@
+track: data
+skills:
+  - id: data.table-intro
+    name: 一张表：行是记录，列是属性
+    stage: '0'
+    group: 1
+    prereqs: []
+    card: |
+      横着读一行，就能看到同一本书的几项资料。竖着读一列，就能比较几本书的同一项资料。
+      第一行写列名，叫表头。数书时从表头下面数起，同名的两个版本各占一行。
+      例如沿 `stock`（库存）这一列找 0，就能数出有几种书已售罄。看销量还需要订单明细。
+  - id: data.value-kinds
+    name: 值的种类：整数、小数、文字、真假、空
+    stage: '0'
+    group: 2
+    prereqs:
+      - data.table-intro
+    card: |
+      一个格子存一个值。数量可以写成整数 `7`，价格可以写成小数 `18.50`，书名是一段文字。
+      “还有库存吗”只有真、假两种答案，属于真假值。没有登记的资料可以留空。
+      看保留类型的原文时，要连引号一起看：`"7"` 是一个字符，`"true"` 是四个字符。
+  - id: data.quantity-vs-label
+    name: 数量还是标签：哪些数能拿来算
+    stage: '0'
+    group: 3
+    prereqs:
+      - data.value-kinds
+    card: |
+      先问这个数在量什么。库存量的是册数，加起来是总册数；价格量的是金额，可以算平均价。
+      图书编号靠数字辨认一本书。把两本书的编号加起来，得不到任何一本书的数量。
+      手机号、ISBN 也用来辨认对象。用文字保存能留下开头的 0 和分隔符。
+  - id: data.missing
+    name: 缺失值：区分空、零和空文字
+    stage: '0'
+    group: 4
+    prereqs:
+      - data.value-kinds
+    card: |
+      库存 0 表示盘点过，架上有零本。出版社留空表示这份登记里缺少出版社信息。
+      表格里标出的“空”、长度为零的文字 `""` 和文字 `"N/A"` 含义由登记约定决定。
+      统计时说清口径。例如算已知年份的平均值，只用填了年份的行作分母。
+  - id: data.column-type-key
+    name: 每列一种类型，用主键标识记录
+    stage: '0'
+    group: 5
+    prereqs:
+      - data.table-intro
+      - data.value-kinds
+    card: |
+      一列约定同一种类型，才知道每格该怎样处理。售价列约定是数，货币单位可以写在表头。
+      主键是用来认出一条记录的标识。每行都必须有，而且不同记录的主键不能相同。
+      例如 `Data at Dawn` 有两个版本，`book_id` 分别是 12 和 27。只报书名，店员还得追问版本。
+  - id: data.shapes
+    name: 数据的形状：单值、列、记录、表和嵌套
+    stage: '0'
+    group: 6
+    prereqs:
+      - data.column-type-key
+    card: |
+      单独一个价格是一个值；多本书的价格排在一起是一列。一本书的编号、书名和价格合在一起是一条记录。
+      同样的列排上多行记录，就有了一张表。把多条明细放进一笔订单，就是嵌套。
+      同一批书可以按行或按列整理。查一本书的全部资料时看一行，比较售价时看一列。
+  - id: data.text-formats
+    name: 存成文字的数据：CSV 和 JSON
+    stage: '0'
+    group: 7
+    prereqs:
+      - data.missing
+      - data.shapes
+    card: |
+      CSV 用文字保存行和字段。表头写列名，逗号分开字段；字段自己带逗号时，要用双引号包住整格。
+      JSON 用 `{}` 装带名字的字段，用 `[]` 装一串值，订单里可以放一串明细。
+      读 CSV 时要约定怎样解释每列。Python 默认的 `csv.reader` 将 `18.50` 读成文字 `"18.50"`。

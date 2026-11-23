@@ -1,0 +1,50 @@
+id: sql-2-014-average-time-of-process-per-machine
+title: 装订机每批平均用时
+track: sql
+stage: '2'
+order: 140
+format: combine
+difficulty: 35
+skills:
+  requires:
+    - sql.self-join
+    - sql.join-aggregate
+    - sql.join-conditions
+    - sql.sum-avg
+    - sql.and-or
+    - sql.select-expr
+    - sql.where
+    - sql.round-cast
+  introduces: null
+source: sql50
+leetcode: average-time-of-process-per-machine
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/reused-batch.sql
+  - datasets/sample.sql + datasets/decimal-time.sql
+ordered: false
+hints:
+  - 把两个事件看成同一批的两端。机器号和批号要同时相同。
+wrong_examples:
+  - why: 只用批号配对，混入别台机器的结束时刻
+    sql: |
+      SELECT s.machine_id, ROUND(AVG(e.moment - s.moment), 3) AS mean_seconds
+      FROM events s
+      JOIN events e ON e.batch_id = s.batch_id
+      WHERE s.kind = 'start' AND e.kind = 'end'
+      GROUP BY s.machine_id;
+  - why: 拿最长批次作为平均用时
+    sql: |
+      SELECT s.machine_id, ROUND(MAX(e.moment - s.moment), 3) AS mean_seconds
+      FROM events s
+      JOIN events e ON e.machine_id = s.machine_id AND e.batch_id = s.batch_id
+      WHERE s.kind = 'start' AND e.kind = 'end'
+      GROUP BY s.machine_id;
+  - why: 忘了把每台机器的平均用时四舍五入到三位小数
+    sql: |
+      SELECT s.machine_id, AVG(e.moment - s.moment) AS mean_seconds
+      FROM events s
+      JOIN events e ON e.machine_id = s.machine_id AND e.batch_id = s.batch_id
+      WHERE s.kind = 'start' AND e.kind = 'end'
+      GROUP BY s.machine_id;

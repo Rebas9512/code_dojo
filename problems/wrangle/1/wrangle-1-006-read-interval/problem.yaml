@@ -1,0 +1,25 @@
+id: wrangle-1-006-read-interval
+title: 截取时间区间
+track: wrangle
+stage: '1'
+order: 60
+format: complete
+mode: function
+difficulty: 16
+skills:
+  requires:
+    - wrangle.slice
+  introduces: null
+source: original
+entry: interval
+signature: 'def interval(values, start, stop):'
+compare: exact
+wrong_examples:
+  - why: 多取了终点。
+    code: |
+      import numpy as np
+
+
+      def interval(values, start, stop):
+          a = np.array(values)
+          return a[start:stop + 1].tolist()

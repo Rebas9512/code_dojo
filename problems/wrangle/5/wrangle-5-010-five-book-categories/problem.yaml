@@ -1,0 +1,32 @@
+id: wrangle-5-010-five-book-categories
+title: 达到五种书的分类
+track: wrangle
+stage: '5'
+order: 100
+format: write
+mode: function
+difficulty: 38
+skills:
+  requires:
+    - wrangle.report-grain
+    - wrangle.group
+    - wrangle.loc
+    - wrangle.frequency
+  introduces: null
+source: original
+entry: big_categories
+signature: 'def big_categories(books):'
+compare: frame
+leetcode: classes-with-at-least-5-students
+sql_twin: sql-1-004-five-book-categories
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 漏掉刚好五种书的类别。
+    code: |
+      def big_categories(books):
+          counts = books['category'].value_counts().reset_index(name='book_count')
+          return counts.loc[counts['book_count'] > 5]

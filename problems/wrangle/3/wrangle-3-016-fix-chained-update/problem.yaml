@@ -1,0 +1,25 @@
+id: wrangle-3-016-fix-chained-update
+title: 修好负库存登记
+track: wrangle
+stage: '3'
+order: 160
+format: fix
+mode: function
+difficulty: 31
+skills:
+  requires:
+    - wrangle.columns
+  introduces: null
+source: original
+entry: repair_stock
+signature: 'def repair_stock(t):'
+compare: frame
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 链式赋值只更新了中间对象。
+    code: |
+      def repair_stock(t):
+          t[t['n'] < 0]['n'] = 0
+          return t

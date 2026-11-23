@@ -1,0 +1,16 @@
+id: tensor-2-004-mask-or-fill
+title: 抽出与替换后的形状
+track: tensor
+stage: '2'
+order: 40
+format: predict
+mode: predict
+difficulty: 24
+skills:
+  requires: []
+  introduces: tensor.mask
+source: original
+wrong_examples:
+  - why: 混淆筛选与原位对应的替换。
+    code: |
+      print('(2, 3)\n(2, 3)\n(2,)')

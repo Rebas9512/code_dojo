@@ -1,0 +1,40 @@
+id: tensor-2-026-diff
+title: 相邻时刻的变化量
+track: tensor
+stage: '2'
+order: 260
+format: write
+mode: function
+difficulty: 35
+skills:
+  requires:
+    - tensor.coordinates
+    - tensor.slice
+  introduces: null
+source: original
+entry: diff
+signature: 'def diff(x):'
+compare: checker
+wrong_examples:
+  - why: 直接调用现成运算，跳过了坐标构造。
+    code: |
+      import torch
+
+
+      def diff(x):
+          return torch.diff(x)
+  - why: 把前一个读数减后一个读数，变化量符号颠倒。
+    code: |
+      import torch
+
+
+      def diff(x):
+          return x[:-1] - x[1:]
+constraints:
+  no_loops: true
+  forbid_calls:
+    - torch.diff
+    - torch.Tensor.diff
+  forbid_imports:
+    - numpy
+    - pandas

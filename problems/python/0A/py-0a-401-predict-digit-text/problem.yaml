@@ -1,0 +1,15 @@
+id: py-0a-401-predict-digit-text
+title: 看起来像数的文字
+track: python
+stage: 0A
+order: 20
+format: predict
+mode: predict
+difficulty: 2
+skills:
+  requires:
+    - py.value-types
+  introduces: null
+source: original
+leetcode: null
+milestones: []

@@ -1,0 +1,29 @@
+id: sql-1-005-classes-with-at-least-5-students
+title: 哪些读书班可以开课
+track: sql
+stage: '1'
+order: 50
+format: write
+difficulty: 22
+skills:
+  requires:
+    - sql.having
+    - sql.count
+  introduces: null
+source: sql50
+leetcode: classes-with-at-least-5-students
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/two-classes.sql
+  - datasets/sample.sql + datasets/above-threshold.sql
+ordered: false
+hints:
+  - 每条报名只属于一个班；先数一个班里有几行。
+wrong_examples:
+  - why: 把报名刚好满五人的班落下
+    sql: |
+      SELECT class_name
+      FROM enrolments
+      GROUP BY class_name
+      HAVING COUNT(*) > 5;

@@ -1,0 +1,25 @@
+id: math-1-017-sensor-transpose
+title: 按传感器整理日志
+track: math
+stage: '1'
+order: 170
+format: complete
+mode: function
+difficulty: 26
+skills:
+  requires:
+    - py.list-comp
+    - math.transpose
+  introduces: null
+source: original
+entry: by_sensor
+signature: 'def by_sensor(log: list[list[int]]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+  - why: 用行号取整行，矩形表还可能越界。
+    code: |
+      def by_sensor(log: list[list[int]]) -> list[list[int]]:
+          result = []
+          for col in range(len(log[0])):
+              result.append(log[col])
+          return result

@@ -1,0 +1,32 @@
+id: algo-4-006-merge-three-spans
+title: 按起点排序后合并重叠区间
+track: algo
+stage: '4'
+order: 60
+format: complete
+mode: function
+difficulty: 57
+skills:
+  requires:
+  - py.bool-ops
+  - py.if-else
+  - py.list-append
+  - py.nested-list
+  introduces: algo.intervals
+source: original
+leetcode: null
+milestones: []
+entry: merge_three
+signature: 'def merge_three(intervals: list[list[int]]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+- why: 漏掉两个闭区间共用的端点。
+  code: |
+    def merge_three(intervals: list[list[int]]) -> list[list[int]]:
+        merged = []
+        for start, end in sorted(intervals):
+            if merged and start < merged[-1][1]:
+                merged[-1][1] = max(merged[-1][1], end)
+            else:
+                merged.append([start, end])
+        return merged

@@ -1,0 +1,41 @@
+id: algo-2-014-rotate-array
+title: 把整列向右轮转
+track: algo
+stage: '2'
+order: 140
+format: write
+mode: function
+difficulty: 53
+skills:
+  requires:
+  - algo.two-pointers
+  - py.floordiv-mod
+  - py.helper-func
+  introduces: null
+source: neetcode250
+leetcode: rotate-array
+milestones:
+- top100
+entry: run_case
+signature: 'def run_case(nums: list[int], k: int) -> list:'
+compare: exact
+wrong_examples:
+- why: 没有对长度取余。
+  code: |
+    def reverse_part(nums: list[int], left: int, right: int) -> None:
+        while left < right:
+            nums[left], nums[right] = nums[right], nums[left]
+            left += 1
+            right -= 1
+
+
+    def rotate(nums: list[int], k: int) -> None:
+        k = min(k, len(nums))
+        reverse_part(nums, 0, len(nums) - 1)
+        reverse_part(nums, 0, k - 1)
+        reverse_part(nums, k, len(nums) - 1)
+
+
+    def run_case(nums: list[int], k: int) -> list:
+        rotate(nums, k)
+        return nums

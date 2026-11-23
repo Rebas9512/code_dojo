@@ -1,0 +1,25 @@
+id: sql-0-110-complete-stock-label
+title: 补全：库存标签
+track: sql
+stage: "0"
+order: 290
+format: complete
+difficulty: 11
+skills: {requires: [sql.select-expr, sql.and-or], introduces: sql.case}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/stock-edges.sql
+ordered: false
+hints:
+  - "走到第二个 WHEN 时已经知道 stock 不是 0。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "5 本也算成了 low"
+    sql: |
+      SELECT title, CASE WHEN stock = 0 THEN 'sold out' WHEN stock <= 5 THEN 'low' ELSE 'in stock' END FROM books;
+  - why: "4 本算成了 in stock"
+    sql: |
+      SELECT title, CASE WHEN stock = 0 THEN 'sold out' WHEN stock < 4 THEN 'low' ELSE 'in stock' END FROM books;

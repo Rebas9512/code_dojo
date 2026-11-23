@@ -1,0 +1,17 @@
+id: tensor-1-017-reduce-shapes
+title: 汇总时被压缩的是哪根轴
+track: tensor
+stage: '1'
+order: 170
+format: predict
+mode: predict
+difficulty: 25
+skills:
+  requires:
+    - tensor.reshape
+  introduces: tensor.reduce
+source: original
+wrong_examples:
+  - why: 漏掉了汇总后保留的一格。
+    code: |
+      print('(2, 3, 4)\n(2, 4)\n(2,)')

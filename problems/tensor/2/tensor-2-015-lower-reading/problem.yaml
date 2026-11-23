@@ -1,0 +1,26 @@
+id: tensor-2-015-lower-reading
+title: 每格选较低的报价
+track: tensor
+stage: '2'
+order: 150
+format: write
+mode: function
+difficulty: 29
+skills:
+  requires:
+    - tensor.where
+  introduces: null
+source: original
+entry: lower
+signature: 'def lower(left, right):'
+compare: allclose
+wrong_examples:
+  - why: 选成了较大的报价。
+    code: |
+      import torch
+
+
+      def lower(left, right):
+          a = torch.tensor(left)
+          b = torch.tensor(right)
+          return torch.where(a >= b, a, b)

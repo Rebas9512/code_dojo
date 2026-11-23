@@ -1,0 +1,28 @@
+id: wrangle-3-017-double-selected
+title: 只给指定货架补一倍
+track: wrangle
+stage: '3'
+order: 170
+format: write
+mode: function
+difficulty: 31
+skills:
+  requires:
+    - wrangle.columns
+    - wrangle.filter-sort
+  introduces: null
+source: original
+entry: top_up
+signature: 'def top_up(t, shelf):'
+compare: frame
+leetcode: modify-columns
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 把所有货架都翻倍。
+    code: |
+      def top_up(t, shelf):
+          t['n'] = t['n'] * 2
+          return t.sort_values(['n', 'shelf'])

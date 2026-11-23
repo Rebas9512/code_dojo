@@ -1,0 +1,28 @@
+id: sql-1-002-catalog-price-summary
+title: 书目价格简报
+track: sql
+stage: '1'
+order: 20
+format: write
+difficulty: 17
+skills:
+  requires:
+    - sql.count
+    - sql.select-expr
+  introduces: sql.sum-avg
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/empty-catalog.sql
+  - db:bookstore + datasets/same-prices.sql
+ordered: false
+hints:
+  - 一本书对应一个标价，书的库存不参与计算。
+wrong_examples:
+  - why: 把库存金额当成每种一本的合计
+    sql: |
+      SELECT SUM(price * stock) AS total_price, AVG(price) AS mean_price,
+             MIN(price) AS lowest, MAX(price) AS highest
+      FROM books;

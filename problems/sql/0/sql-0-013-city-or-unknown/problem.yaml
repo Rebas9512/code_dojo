@@ -1,0 +1,25 @@
+id: sql-0-013-city-or-unknown
+title: 城市未填写时显示 unknown
+track: sql
+stage: "0"
+order: 220
+format: write
+difficulty: 9
+skills: {requires: [sql.is-null, sql.select-expr, sql.coalesce], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/cities.sql
+ordered: false
+hints:
+  - "COALESCE(city, 'unknown') 在 city 为空时返回 'unknown'。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "没处理空值"
+    sql: |
+      SELECT name, city FROM users;
+  - why: "默认值大小写不对"
+    sql: |
+      SELECT name, COALESCE(city, 'Unknown') FROM users;

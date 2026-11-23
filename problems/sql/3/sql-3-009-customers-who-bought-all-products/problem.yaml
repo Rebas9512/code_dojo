@@ -1,0 +1,28 @@
+id: sql-3-009-customers-who-bought-all-products
+title: 集齐目录的买家
+track: sql
+stage: '3'
+order: 90
+format: combine
+difficulty: 45
+skills:
+  requires:
+    - sql.count-distinct
+    - sql.having
+    - sql.subquery-scalar
+  introduces: null
+source: sql50
+leetcode: customers-who-bought-all-products
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/repeat.sql
+  - datasets/sample.sql + datasets/larger-catalog.sql
+ordered: false
+hints:
+  - 对照目录种数，买家的计数单位也应是商品种数。
+wrong_examples:
+  - why: 把重复购买算成不同商品
+    sql: |
+      SELECT customer FROM receipts GROUP BY customer
+      HAVING COUNT(*) = (SELECT COUNT(*) FROM catalog);

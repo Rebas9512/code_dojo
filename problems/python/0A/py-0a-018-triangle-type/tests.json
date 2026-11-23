@@ -1,0 +1,15 @@
+{
+  "examples": [
+    {"args": [3, 3, 3], "expected": "等边"},
+    {"args": [3, 4, 5], "expected": "普通"}
+  ],
+  "hidden": [
+    {"args": [2, 2, 3], "expected": "等腰"},
+    {"args": [1, 2, 3], "expected": "不是三角形"},
+    {"args": [5, 1, 1], "expected": "不是三角形"},
+    {"args": [2, 3, 2], "expected": "等腰"},
+    {"args": [10, 10, 19], "expected": "等腰"},
+    {"args": [4, 4, 8], "expected": "不是三角形"},
+    {"args": [7, 10, 5], "expected": "普通"}
+  ]
+}

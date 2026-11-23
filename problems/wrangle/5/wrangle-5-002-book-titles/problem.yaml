@@ -1,0 +1,29 @@
+id: wrangle-5-002-book-titles
+title: 收银台的书名价签
+track: wrangle
+stage: '5'
+order: 20
+format: complete
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - wrangle.projection
+    - wrangle.table
+  introduces: null
+source: original
+entry: price_tags
+signature: 'def price_tags(books):'
+compare: frame
+leetcode: select-data
+sql_twin: sql-0-001-book-titles
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 漏掉售价列。
+    code: |
+      def price_tags(books):
+          return books[['title']]

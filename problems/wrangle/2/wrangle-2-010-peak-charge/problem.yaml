@@ -1,0 +1,28 @@
+id: wrangle-2-010-peak-charge
+title: 两个时段的运费
+track: wrangle
+stage: '2'
+order: 100
+format: write
+mode: function
+difficulty: 23
+skills:
+  requires:
+    - wrangle.where
+    - wrangle.mask
+    - wrangle.vectorize
+  introduces: null
+source: original
+entry: fees
+signature: 'def fees(weights, limit):'
+compare: allclose
+constraints:
+  no_loops: true
+wrong_examples:
+  - why: 误收恰好等于门槛的包裹。
+    code: |
+      import numpy as np
+
+
+      def fees(weights, limit):
+          return np.where(np.array(weights) < limit, 3, 8)

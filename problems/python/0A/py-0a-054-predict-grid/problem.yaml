@@ -1,0 +1,17 @@
+id: py-0a-054-predict-grid
+title: 二维列表
+track: python
+stage: 0A
+order: 1040
+format: predict
+mode: predict
+difficulty: 16
+skills:
+  requires: [py.list-builtins, py.nested-loop]
+  introduces: py.nested-list
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "grid[1][0] 是第 2 行第 1 列。"
+  - "改完以后第一行变成 [1, 2, 30]。"

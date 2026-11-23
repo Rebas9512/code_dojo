@@ -1,0 +1,34 @@
+id: algo-4-043-maximum-product-subarray
+title: 连续一段的最大乘积
+track: algo
+stage: '4'
+order: 430
+format: write
+mode: function
+difficulty: 72
+skills:
+  requires:
+  - algo.dp-1d
+  - py.minmax-abs
+  - py.multi-assign
+  - py.slice
+  introduces: null
+source: neetcode250
+leetcode: maximum-product-subarray
+milestones:
+- blind75
+- top100
+entry: max_product
+signature: 'def max_product(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 只记上一格的最大积，漏掉负负得正。
+  code: |
+    def max_product(nums: list[int]) -> int:
+        low = high = best = nums[0]
+        for value in nums[1:]:
+            a, b = low * value, high * value
+            low = min(value, a, b)
+            high = max(value, b)
+            best = max(best, high)
+        return best

@@ -1,0 +1,17 @@
+id: py-0a-126-predict-running-max
+title: 擂主怎么换
+track: python
+stage: 0A
+order: 520
+format: predict
+mode: predict
+difficulty: 9
+skills:
+  requires: [py.while, py.if-else, py.floordiv-mod]
+  introduces: py.running-max
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "拆出的顺序是 8、3、9、1。"
+  - "每轮打印当前数字和当前擂主。"

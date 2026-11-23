@@ -1,0 +1,30 @@
+id: py-0a-256-initial-trays
+title: 按首字母装词卡
+track: python
+stage: 0A
+order: 3160
+format: write
+mode: function
+difficulty: 20
+skills:
+  requires:
+    - py.if-else
+    - py.dict-grouping
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: trays
+signature: 'def trays(words: list[str]) -> dict[str, list[str]]:'
+compare: exact
+wrong_examples:
+  - why: 用末字母当成了分组依据。
+    code: |
+      def trays(words: list[str]) -> dict[str, list[str]]:
+          groups = {}
+          for word in words:
+              key = word[-1]
+              if key not in groups:
+                  groups[key] = []
+              groups[key].append(word)
+          return groups

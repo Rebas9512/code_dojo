@@ -1,0 +1,27 @@
+id: wrangle-4-007-four-joins
+title: 为两份登记选择保留范围
+track: wrangle
+stage: '4'
+order: 70
+format: write
+mode: function
+difficulty: 31
+skills:
+  requires:
+    - wrangle.merge
+  introduces: null
+source: original
+entry: reconcile
+signature: 'def reconcile(books, lots, how):'
+compare: frame
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+    '1': dataframe
+wrong_examples:
+  - why: 不论参数为何都保留左侧。
+    code: |
+      def reconcile(books, lots, how):
+          return books.merge(lots, on='id', how='left')

@@ -1,0 +1,92 @@
+id: sql-2-l03-roles-periods-and-pairs
+title: 同表的两个角色、价期和完整组合
+track: sql
+skills:
+  - sql.self-join
+  - sql.join-conditions
+  - sql.cross-join
+steps:
+  - type: read
+    skill: sql.self-join
+    md: |
+      用户资料中的推荐人编号，指向的仍是用户资料表。读一遍表能看到推荐人的编号，再读一遍才能取到那个人的姓名。给这两次读取起不同的别名：u 扮演被推荐人，ref 扮演推荐人。连的是 u 的推荐人编号和 ref 自己的编号。
+
+      先沿着箭头用嘴说一次“谁找谁”。如果把等号两侧的角色选反，就会列出这个人推荐过的人。要保留没有推荐人的用户，可让 u 放在左侧做 LEFT JOIN。同样的办法还能用来给员工查直属主管，或让今天的记录去找昨天。
+  - type: example
+    skill: sql.self-join
+    db: bookstore
+    code: |
+      -- ① 两个别名各读一次用户表
+      -- ② 顺着用户的推荐人编号查对方的姓名
+      SELECT u.name, u.referrer_id, ref.name AS referrer
+      FROM users u
+      LEFT JOIN users ref ON u.referrer_id = ref.user_id
+      WHERE u.user_id IN (1, 2, 7);
+    md: 把 ON 改成 `ref.referrer_id = u.user_id`。第二个姓名现在扮演什么角色？
+  - type: quiz
+    skill: sql.self-join
+    q: 小安的编号是 8，推荐人编号是 3。要找推荐人姓名，右边应查哪一条？
+    options:
+      - user_id = 8
+      - user_id = 3
+      - referrer_id = 8
+    answer: 1
+    explain: 从小安的 referrer_id 读到 3，再把它当作右侧用户自己的编号去查。
+  - type: read
+    skill: sql.join-conditions
+    md: |
+      一本书调价时，旧价签和新价签有相同的书号。只用书号连接，一笔销售会同时配上两张价签。第二个条件用销售日期确定是哪段定价期；两个条件都要满足，所以放在同一个 ON 中，用 AND 连起来。
+
+      BETWEEN 包含两端。若两段价期把同一天都当作有效日，即使连接写对也会产生两行。做题前先看表是否保证同一商品的区间不重叠。不同商品可在同一天采用不同价格，所以仅用日期配对也不够。
+  - type: example
+    skill: sql.join-conditions
+    db: bookstore
+    patch: |
+      CREATE TABLE desk_sales (book_id integer, sold_on date);
+      CREATE TABLE shelf_prices (book_id integer, starts_on date, ends_on date, price numeric);
+      INSERT INTO desk_sales VALUES (3,'2025-04-15'),(3,'2025-04-16');
+      INSERT INTO shelf_prices VALUES (3,'2025-04-01','2025-04-15',49),(3,'2025-04-16','2025-04-30',55);
+    code: |
+      -- ① 先匹配书号，再检查购买日期落在哪段有效期
+      -- ② 只读出能匹配上的价签
+      SELECT s.book_id, s.sold_on, p.price
+      FROM desk_sales s
+      JOIN shelf_prices p ON p.book_id = s.book_id
+                         AND s.sold_on BETWEEN p.starts_on AND p.ends_on;
+    md: 删去 AND 和后面的日期条件，看看同一笔销售现在会配到几个价格。
+  - type: quiz
+    skill: sql.join-conditions
+    q: 同本书第一张价签有效至 4 月 15 日，第二张从 4 月 16 日开始。4 月 15 日的销售该配哪张？
+    options:
+      - 第一张
+      - 第二张
+      - 两张都配
+    answer: 0
+    explain: BETWEEN 包含终止日 15 日，第二段的起始日还没到。
+  - type: read
+    skill: sql.cross-join
+    md: |
+      准备一张打勾表，纵向列读者，横向列分类。即便还没有人买过某一类，你也希望那个格子存在。CROSS JOIN 会先造出所有组合：每个左行配每个右行，没有 ON 条件。两个读者和三个不同分类会得到六行；其中任何一侧为空，组合数就是零。
+
+      有了完整的格子，再用 LEFT JOIN 对接实际记录。配对时同时检查读者和分类，计数时数右表真正的记录。若只从购买记录开始分组，从未发生的组合原本就没有输入行，也就没有机会显示 0。
+  - type: example
+    skill: sql.cross-join
+    db: bookstore
+    code: |
+      -- ① 取两位读者和三本候选书
+      -- ② 看完整的“读者、候选书”清单
+      SELECT u.user_id, b.book_id
+      FROM users u
+      CROSS JOIN books b
+      WHERE u.user_id IN (1, 2) AND b.book_id IN (1, 2, 3)
+      ORDER BY u.user_id, b.book_id;
+    md: 把 IN 列表里的一位读者删掉。运行前先预测输出会少几行。
+  - type: quiz
+    skill: sql.cross-join
+    q: 有四位学员、两门课。即使完全没有签到，用两个名册做 CROSS JOIN 能先建出几行？
+    options:
+      - 0 行
+      - 6 行
+      - 8 行
+    answer: 2
+    explain: 清单由两个名册决定，每位学员都配两门课，共 4 × 2 行。

@@ -1,0 +1,45 @@
+id: algo-2-049-search-in-rotated-sorted-array
+title: 在旋转过的编号表中找位置
+track: algo
+stage: '2'
+order: 490
+format: write
+mode: function
+difficulty: 62
+skills:
+  requires:
+  - algo.binary-search
+  - py.bool-ops
+  - py.multi-assign
+  - py.ternary
+  introduces: null
+source: neetcode250
+leetcode: search-in-rotated-sorted-array
+milestones:
+- blind75
+- top100
+entry: find_rotated
+signature: 'def find_rotated(nums: list[int], target: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 交回重新排好后的下标。
+  code: |
+    def find_rotated(nums: list[int], target: int) -> int:
+        lo, hi = 0, len(nums)
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if nums[mid] > nums[-1]:
+                lo = mid + 1
+            else:
+                hi = mid
+        start = lo
+        lo, hi = 0, len(nums)
+        while lo < hi:
+            mid = (lo + hi) // 2
+            actual = (start + mid) % len(nums)
+            if nums[actual] < target:
+                lo = mid + 1
+            else:
+                hi = mid
+        actual = (start + lo) % len(nums)
+        return lo if lo < len(nums) and nums[actual] == target else -1

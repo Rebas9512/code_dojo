@@ -1,0 +1,65 @@
+id: algo-1-058-intersection-of-two-linked-lists
+title: 两条线路从哪里开始共用节点
+track: algo
+stage: '1'
+order: 580
+format: write
+mode: function
+difficulty: 63
+skills:
+  requires:
+  - py.bool-ops
+  - py.nested-loop
+  - py.multi-assign
+  - py.dict-iter
+  - py.genexp
+  - py.ternary
+  - py.two-index
+  - algo.ll-traverse
+  introduces: null
+source: top-100-liked
+leetcode: intersection-of-two-linked-lists
+milestones:
+- top100
+entry: run_case
+signature: 'def run_case(a: ListNode | None, b: ListNode | None, shared: ListNode | None):'
+compare: exact
+convert:
+  args:
+    '0': listnode
+    '1': listnode
+    '2': listnode
+wrong_examples:
+- why: 同值也会提前相遇。
+  code: |
+    def intersection(a: ListNode | None, b: ListNode | None) -> ListNode | None:
+        first, second = a, b
+        while first is not second and not (first and second and first.val == second.val):
+            first = first.next if first else b
+            second = second.next if second else a
+        return first
+
+
+    def attach(head, shared):
+        if not head:
+            return shared
+        tail = head
+        while tail.next:
+            tail = tail.next
+        tail.next = shared
+        return head
+
+
+    def run_case(a: ListNode | None, b: ListNode | None, shared: ListNode | None):
+        a, b = attach(a, shared), attach(b, shared)
+        links = {}
+        for node in [a, b]:
+            while node and node not in links:
+                links[node] = node.next
+                node = node.next
+        result = intersection(a, b)
+        if any(node.next is not following for node, following in links.items()):
+            return '输入链的连接发生了变化'
+        if result is not shared:
+            return '返回的节点不是第一个共用节点'
+        return result.val if result else None

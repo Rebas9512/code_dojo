@@ -1,0 +1,26 @@
+id: algo-2-061-transpose-matrix
+title: 交换网格的行和列
+track: algo
+stage: '2'
+order: 610
+format: write
+mode: function
+difficulty: 63
+skills:
+  requires:
+  - py.list-comp
+  - py.multi-assign
+  - py.nested-list
+  introduces: null
+source: neetcode250
+leetcode: transpose-matrix
+milestones: []
+entry: transpose
+signature: 'def transpose(matrix: list[list[int]]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+- why: 假设行数等于列数。
+  code: |
+    def transpose(matrix: list[list[int]]) -> list[list[int]]:
+        rows, cols = len(matrix), len(matrix[0])
+        return [[matrix[r][c] for r in range(rows)] for c in range(rows)]

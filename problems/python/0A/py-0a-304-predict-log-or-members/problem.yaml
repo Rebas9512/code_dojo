@@ -1,0 +1,20 @@
+id: py-0a-304-predict-log-or-members
+title: 签到簿与到场名单
+track: python
+stage: 0A
+order: 4240
+format: predict
+mode: predict
+difficulty: 18
+skills:
+  requires:
+    - py.list-basics
+    - py.set-basics
+  introduces: py.choose-container
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM65：以为换容器后仍保留每次刷卡的记录。
+    code: |
+      print('林\n3\n3')

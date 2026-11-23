@@ -1,0 +1,27 @@
+id: math-2-016-composite-check
+title: 实测两段传动
+track: math
+stage: '2'
+order: 160
+format: write
+mode: function
+difficulty: 30
+skills:
+  requires:
+    - py.list-basics
+    - math.derivative
+    - math.slope-rules
+    - math.chain-rule
+  introduces: null
+source: original
+entry: check_link
+signature: 'def check_link(a: float, b: float, x: float, h: float) -> list[float]:'
+compare: float
+wrong_examples:
+  - why: 把原始输入误当外层的输入。
+    code: |
+      def check_link(a: float, b: float, x: float, h: float) -> list[float]:
+          u = a*x + b
+          next_u = a*(x+h) + b
+          measured = (next_u**2 - u**2) / h
+          return [2*x*a, measured]

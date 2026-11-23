@@ -1,0 +1,32 @@
+id: tensor-1-l01-grid
+title: 张量的格子
+track: tensor
+skills:
+  - tensor.create
+steps:
+  - type: read
+    skill: tensor.create
+    md: |-
+      张量让一批同类读数共用一套坐标，便于稍后整批运算。两只温度计各测三次，可以把六个数排成两行三列。即使今天只开一只温度计，保留外层的一行，别人仍知道哪一轴表示仪器。
+
+      `torch.tensor` 把规则的列表装进张量。`shape` 按顺序列出各轴长度，`ndim` 数轴；标量的形状是空元组。整数和浮点数能表示的读数不同，`dtype=torch.float32` 能把整数刻度也存成浮点数。
+
+      **TM01 常见误解：把一行表看成一串数**。在 [8, 9] 外再套一对方括号，形状从 (2,) 变为 (1, 2)，读数仍是两个。
+  - type: example
+    skill: tensor.create
+    code: |
+      import torch
+      # ① 用外层括号保留仪器轴
+      x = torch.tensor([[2, 4, 7]], dtype=torch.float32)
+      print(tuple(x.shape), x.ndim)  # 输出 (1, 3) 2
+      print(x.dtype)  # 输出 torch.float32
+    md: 去掉一层方括号，再观察轴数。
+  - type: quiz
+    skill: tensor.create
+    q: 只记录一台仪器，[[8, 9]] 有几个轴？
+    options:
+      - '1'
+      - '2'
+      - '8'
+    answer: 1
+    explain: 外层选仪器，内层选时刻，两个轴各有自己的长度。（TM01）

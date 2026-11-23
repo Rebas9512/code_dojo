@@ -1,0 +1,9 @@
+id: py-0a-002-print-sum
+title: 读入并求和
+track: python
+stage: 0A
+order: 20
+format: write
+mode: stdio
+difficulty: 2
+skills: {requires: [py.var-arith], introduces: null}

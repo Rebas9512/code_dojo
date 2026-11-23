@@ -1,0 +1,7 @@
+print(abs(-7))
+print(abs(3))
+print(min(3, 8, 1))
+print(max(-2, -9))
+print(round(2.567, 2))
+print(round(2.5))
+print(round(3.5))

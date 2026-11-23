@@ -1,0 +1,11 @@
+{
+  "examples": [
+    {"args": [["云", "松", "云"]], "expected": {"云": 2, "松": 1}},
+    {"args": [[]], "expected": {}}
+  ],
+  "hidden": [
+    {"args": [["a"]], "expected": {"a": 1}},
+    {"args": [["b", "b", "b"]], "expected": {"b": 3}},
+    {"args": [["a", "b"]], "expected": {"a": 1, "b": 1}}
+  ]
+}

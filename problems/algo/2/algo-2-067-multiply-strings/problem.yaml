@@ -1,0 +1,40 @@
+id: algo-2-067-multiply-strings
+title: 逐位算出两串数字的积
+track: algo
+stage: '2'
+order: 670
+format: combine
+mode: function
+difficulty: 66
+skills:
+  requires:
+  - py.bool-ops
+  - py.floordiv-mod
+  - py.genexp
+  - py.list-concat-repeat
+  - py.nested-loop
+  - py.split-join
+  - py.type-convert
+  introduces: null
+source: neetcode250
+leetcode: multiply-strings
+milestones:
+- nc150
+entry: multiply
+signature: 'def multiply(a: str, b: str) -> str:'
+compare: exact
+wrong_examples:
+- why: 覆盖了已有进位。
+  code: |
+    def multiply(a: str, b: str) -> str:
+        digits = [0] * (len(a) + len(b))
+        for i in range(len(a) - 1, -1, -1):
+            for j in range(len(b) - 1, -1, -1):
+                place = i + j + 1
+                total = digits[place] + int(a[i]) * int(b[j])
+                digits[place] = total % 10
+                digits[place - 1] = total // 10
+        return "".join(str(d) for d in digits).lstrip("0") or "0"
+hints:
+- 最低位对齐后，两位相乘影响哪一格、又向哪一格进位？
+- 为 m 位和 n 位的两个数预留 m+n 格，按从低位到高位处理。

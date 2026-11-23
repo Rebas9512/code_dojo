@@ -1,0 +1,18 @@
+id: train
+name: 训练
+summary: 编写数据管道和训练循环，读评估结果，修正训练脚本。
+order: 8
+language: python
+runtime: ds
+status: planned
+requires: [ml]
+skill_prefix: train
+stages:
+  - id: "1"
+    name: 数据管道
+  - id: "2"
+    name: 训练循环
+  - id: "3"
+    name: 评估和调参
+  - id: "4"
+    name: 训练脚本改错

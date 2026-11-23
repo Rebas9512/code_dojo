@@ -1,0 +1,29 @@
+id: sql-0-117-inspect-books-schema
+title: 读懂图书表的列约定
+track: sql
+stage: '0'
+order: 7
+format: inspect
+mode: inspect
+difficulty: 2
+skills:
+  requires:
+    - sql.select-star
+    - data.column-type-key
+    - data.missing
+  introduces: sql.schema-types
+data:
+  - kind: schema
+    title: books 的登记规则
+    file: books-schema.yaml
+answer:
+  type: choice
+  options:
+    - 售价 numeric、库存 integer、出版日 date；author_id、publisher、published_on、pages 可空。
+    - 售价 numeric、库存 integer、出版日 date；库存为零时可把 stock 留空，其他列都必须填。
+    - 售价可逐行选 text 或 numeric、库存 integer、出版日 date；author_id、publisher、published_on、pages 可空。
+  correct: 0
+  misconceptions:
+    '1': DM03
+    '2': DM07
+explain: price 的 numeric(6,2) 是有两位小数的精确数值类型；stock 是 integer 且必填，published_on 是可空的 date。逐行看“可为空”一列，共有四个“是”。

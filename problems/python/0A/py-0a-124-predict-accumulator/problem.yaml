@@ -1,0 +1,17 @@
+id: py-0a-124-predict-accumulator
+title: 累加器每一轮的值
+track: python
+stage: 0A
+order: 440
+format: predict
+mode: predict
+difficulty: 8
+skills:
+  requires: [py.for-range]
+  introduces: py.accumulator
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "每轮打印 i 和当时的 total。"
+  - "第二个循环每一轮开头都把 count 清零了。"

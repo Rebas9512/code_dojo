@@ -1,0 +1,59 @@
+id: algo-1-062-linked-list-cycle-ii
+title: 返回第一次进入环的节点
+track: algo
+stage: '1'
+order: 620
+format: write
+mode: function
+difficulty: 65
+skills:
+  requires:
+  - py.bool-ops
+  - py.nested-loop
+  - py.list-append
+  - py.enumerate
+  - algo.fast-slow
+  introduces: null
+source: top-100-liked
+leetcode: linked-list-cycle-ii
+milestones:
+- top100
+entry: run_case
+signature: 'def run_case(head: ListNode | None, pos: int) -> int:'
+compare: exact
+convert:
+  args:
+    '0': listnode
+wrong_examples:
+- why: 把第一次相遇的节点认成环入口。
+  code: |
+    def detect_cycle(head: ListNode | None) -> ListNode | None:
+        slow = fast = head
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+            if slow is fast:
+                probe = slow
+                while probe is not slow:
+                    probe = probe.next
+                    slow = slow.next
+                return probe
+        return None
+
+
+    def run_case(head: ListNode | None, pos: int) -> int:
+
+        nodes = []
+        node = head
+        while node:
+            nodes.append(node)
+            node = node.next
+        if pos >= 0:
+            nodes[-1].next = nodes[pos]
+        result = detect_cycle(head)
+        if result is None:
+            return -1
+        for i, node in enumerate(nodes):
+            if node is result:
+                return i
+        return -2

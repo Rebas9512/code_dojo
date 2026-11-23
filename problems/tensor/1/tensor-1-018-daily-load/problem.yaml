@@ -1,0 +1,24 @@
+id: tensor-1-018-daily-load
+title: 按时刻合计所有仪器
+track: tensor
+stage: '1'
+order: 180
+format: complete
+mode: function
+difficulty: 26
+skills:
+  requires:
+    - tensor.reduce
+  introduces: null
+source: original
+entry: totals
+signature: 'def totals(rows):'
+compare: allclose
+wrong_examples:
+  - why: 沿着每台的时刻轴加成了每台一个数。
+    code: |
+      import torch
+
+
+      def totals(rows):
+          return torch.sum(torch.tensor(rows), dim=1)

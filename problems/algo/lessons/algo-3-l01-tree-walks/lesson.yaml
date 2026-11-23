@@ -1,0 +1,180 @@
+id: algo-3-l01-tree-walks
+title: 沿树向下走、向上交回结果
+track: algo
+skills:
+- algo.tree-basics
+- algo.tree-postorder
+- algo.tree-bfs
+steps:
+- type: read
+  skill: algo.tree-basics
+  md: |-
+    当一份数据从同一起点不断分出左右两支，可以把一个节点看成值和两个孩子的入口。每个孩子又是一棵树的根。问整棵树有多少节点时，先给空树写下答案 0，再把问题原样交给两个孩子，最后把自己也数进去。
+
+    手建三节点树时，先造左右两个叶子，再把它们交给根。左右子树各负责自己下面的节点，一共访问 n 个节点，时间 O(n)，同时尚未返回的调用最多有树高 h 层。**两个孩子都是 None 就返回 0** 会漏掉叶子本身。若一个节点能沿边走回祖先，这个递归还需要额外记录访问状态。
+- type: example
+  skill: algo.tree-basics
+  code: |
+    class TreeNode:
+        def __init__(self, val, left=None, right=None):
+            self.val = val
+            self.left = left
+            self.right = right
+
+
+    # ① 手建左右叶子，再接到根上
+    root = TreeNode(8, TreeNode(2), TreeNode(5))
+
+    # ② 空位置返回零，非空节点收齐两份计数
+    def count(node):
+        if node is None:
+            return 0
+        return 1 + count(node.left) + count(node.right)
+
+    # ③ 核对一片叶子与整棵树
+    print(count(root.left), count(root))
+
+    # 输出
+    # 1 3
+  md: |-
+    | 调用 | 左右返回 | 本层返回 |
+    |---|---|---|
+    | 空位置 | — | 0 |
+    | 叶子 2 | 0、0 | 1 |
+    | 根 8 | 1、1 | 3 |
+
+    把根的右孩子改成 None，预测两个输出再运行。
+- type: quiz
+  skill: algo.tree-basics
+  q: 叶子两边都是空，count(叶子) 应交回什么？
+  options:
+  - '0'
+  - '1'
+  - '2'
+  answer: 1
+  explain: 左右两边贡献零，叶子自己贡献一。
+- type: quiz
+  skill: algo.tree-basics
+  q: 关系中存在一条回到根的边，还能直接递归数节点吗？
+  options:
+  - 能，空分支会终止全部调用
+  - 需要先标记已经访问的节点
+  answer: 1
+  explain: 沿这条边会重复进入同一个节点。
+- type: read
+  skill: algo.tree-postorder
+  md: |-
+    当父节点的答案依赖左右两边都算完的结果，可以让一个调用先等孩子交卷，再合并。比如直径按边计，两条子树高度相加就是经过当前点的最长路线。调用向上交的高度只是一条能继续延伸的单臂，而已经算出的直径可以同时用两臂。
+
+    把“单臂高度、内部直径”写成一对返回值。空树给 (0,0)，父节点也要查看两个孩子内部的最佳答案。每点只合并一次，时间 O(n)，调用栈 O(h)。**直接把直径当高度返回** 会让祖先尝试沿一条已经分叉的路线继续走。
+- type: example
+  skill: algo.tree-postorder
+  code: |
+    class TreeNode:
+        def __init__(self, val, left=None, right=None):
+            self.val = val
+            self.left = left
+            self.right = right
+
+
+    # ① 给每棵子树定义同一份回执
+    def measure(node):
+        if node is None:
+            return 0, 0
+        # ② 先等两边分别交回高度、直径
+        lh, ld = measure(node.left)
+        rh, rd = measure(node.right)
+        # ③ 分开计算可延伸的高度和已经闭合的路径
+        return 1 + max(lh, rh), max(ld, rd, lh + rh)
+
+    root = TreeNode(8, TreeNode(2, TreeNode(1)), TreeNode(9))
+    print(measure(root))
+
+    # 输出
+    # (3, 3)
+  md: |-
+    | 节点 | 高度 | 直径（边） |
+    |---|---|---|
+    | 1 | 1 | 0 |
+    | 2 | 2 | 1 |
+    | 8 | 3 | 3 |
+
+    再给节点 9 添加一个左孩子，比一比高度和直径各怎样改变。
+- type: quiz
+  skill: algo.tree-postorder
+  q: 左高 2、右高 2，向父亲交回的高度是多少？
+  options:
+  - '3'
+  - '4'
+  - '5'
+  answer: 0
+  explain: 父节点只能接上一支，高度按节点数为 1+2。
+- type: quiz
+  skill: algo.tree-postorder
+  q: 只看穿过根的路线，能覆盖所有直径吗？
+  options:
+  - 能
+  - 不能，一侧子树内部也可能有更长路线
+  answer: 1
+  explain: 根接到一棵很深且分叉的子树时，最远两叶可同在那一侧。
+- type: read
+  skill: algo.tree-bfs
+  md: |-
+    当题目要按深度分组或观察每一层的最右节点，先来的节点先处理。用双端队列保存接下来要看的节点。开始一层时，队列恰好装着这一层的全部节点。先记下它有几项，只弹出这么多次，新来的孩子留到下一轮。
+
+    每个节点进出队列各一次，共 O(n) 时间；最宽一层有 w 个节点，队列用 O(w) 空间。**一直弹到队列空才结束这一层** 会把刚添的孩子也算进本层。如果只问一棵极宽树的高度，沿分支向下走并记录深度也能完成。
+- type: example
+  skill: algo.tree-bfs
+  code: |
+    from collections import deque
+
+    class TreeNode:
+        def __init__(self, val, left=None, right=None):
+            self.val = val
+            self.left = left
+            self.right = right
+
+
+    # ① 根独占第一层
+    q = deque([TreeNode(6, TreeNode(2, None, TreeNode(4)), TreeNode(9))])
+    while q:
+        # ② 冻结本层宽度
+        row = []
+        for _ in range(len(q)):
+            node = q.popleft()
+            row.append(node.val)
+            # ③ 左右孩子排到下一层
+            for child in (node.left, node.right):
+                if child:
+                    q.append(child)
+        print(row)
+
+    # 输出
+    # [6]
+    # [2, 9]
+    # [4]
+  md: |-
+    | 轮次 | 开始时的队列 | 收尾时的队列 |
+    |---|---|---|
+    | 1 | 6 | 2、9 |
+    | 2 | 2、9 | 4 |
+    | 3 | 4 | 空 |
+
+    把节点 4 挪到 9 的右边，再核对每层输出。
+- type: quiz
+  skill: algo.tree-bfs
+  q: 本层开始有 2 个节点，第一个带来两个孩子，本轮还应弹几个？
+  options:
+  - '1'
+  - '2'
+  - '3'
+  answer: 0
+  explain: 冻结的本层宽度为 2，已经弹了第一个。
+- type: quiz
+  skill: algo.tree-bfs
+  q: 把 popleft 换成 pop 能保证按层从左往右吗？
+  options:
+  - 能
+  - 不能，刚进来的孩子可能抢在本层节点前面
+  answer: 1
+  explain: 右端刚刚追加了下一层的孩子。

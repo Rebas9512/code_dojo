@@ -1,0 +1,43 @@
+id: algo-1-017-top-k-frequent-elements
+title: 最高频的 k 个编号
+track: algo
+stage: '1'
+order: 170
+format: write
+mode: function
+difficulty: 46
+skills:
+  requires:
+  - py.early-return
+  - py.nested-loop
+  - py.dict-iter
+  - py.list-comp
+  - algo.counter
+  - algo.bucket
+  introduces: null
+source: neetcode250
+leetcode: top-k-frequent-elements
+milestones:
+- blind75
+- top100
+entry: top_k_frequent
+signature: 'def top_k_frequent(nums: list[int], k: int) -> list[int]:'
+compare: unordered
+wrong_examples:
+- why: 先收集低频桶。
+  code: |
+    from collections import Counter
+
+
+    def top_k_frequent(nums: list[int], k: int) -> list[int]:
+        counts = Counter(nums)
+        buckets = [[] for _ in range(len(nums) + 1)]
+        for value, count in counts.items():
+            buckets[count].append(value)
+
+        answer = []
+        for count in range(1, len(nums) + 1):
+            for value in buckets[count]:
+                answer.append(value)
+                if len(answer) == k:
+                    return answer

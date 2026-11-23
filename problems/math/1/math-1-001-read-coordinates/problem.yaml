@@ -1,0 +1,19 @@
+id: math-1-001-read-coordinates
+title: 地图上哪格是高度
+track: math
+stage: '1'
+order: 10
+format: predict
+mode: predict
+difficulty: 15
+skills:
+  requires:
+    - py.list-basics
+  introduces: math.vector
+source: original
+wrong_examples:
+  - why: 把第一格当成高度。
+    code: |
+      p = [9, 2, 4]
+      print(p[0])
+      print(len(p))

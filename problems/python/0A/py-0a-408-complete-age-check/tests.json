@@ -1,0 +1,26 @@
+{
+  "examples": [
+    {
+      "stdin": "17\n",
+      "expected": "False\n"
+    },
+    {
+      "stdin": "18\n",
+      "expected": "True\n"
+    }
+  ],
+  "hidden": [
+    {
+      "stdin": "0\n",
+      "expected": "False\n"
+    },
+    {
+      "stdin": "19\n",
+      "expected": "True\n"
+    },
+    {
+      "stdin": "100\n",
+      "expected": "True\n"
+    }
+  ]
+}

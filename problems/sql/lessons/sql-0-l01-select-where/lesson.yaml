@@ -1,0 +1,247 @@
+id: sql-0-l01-select-where
+title: SELECT 和 WHERE
+track: sql
+skills: [sql.select-basic, sql.select-expr, sql.where, sql.and-or, sql.in-list, sql.between, sql.like]
+steps:
+  - type: read
+    skill: sql.select-basic
+    md: |
+      数据库把数据存在**表**里，像一张电子表格：每一**行**是一条记录（比如一本书），每一**列**是一种信息（书名、价格……）。书店练习库里有 books、users、orders 等几张表。
+
+      SQL 查询不修改数据，它的作用是**从表里取出一张新的结果表**。最基本的形式：
+
+      ```sql
+      SELECT title, price
+      FROM books;
+      ```
+      读法：从（FROM）books 表里，取出（SELECT）title 和 price 两列。数据库执行时**先看 FROM**（用哪张表），再看 SELECT（要哪些列）。
+
+      - 列名用逗号隔开，结果的列顺序就是你写的顺序；
+      - `SELECT *` 表示所有列；练习时尽量写清楚要哪几列；
+      - 关键字大小写都行，习惯上大写；末尾的分号可写可不写。
+
+      常见误解：
+      - **"SELECT 会改变表"**：它只是读，表本身不变。
+      - **"结果的行有固定顺序"**：没有 ORDER BY（排序子句）时，行的顺序没有保证。
+  - type: example
+    skill: sql.select-basic
+    db: bookstore
+    code: |
+      -- ① FROM：从 books 表开始
+      -- ② SELECT：只要书名和价格两列
+      SELECT title, price
+      FROM books;
+    md: "把列换成 `title, category, stock`；再试试 `SELECT * FROM books;` 看看一共有哪些列。"
+  - type: quiz
+    skill: sql.select-basic
+    q: "`SELECT title FROM books;` 的结果有几列？"
+    options: ["1 列", "书有几本就有几列", "books 表有几列就有几列"]
+    answer: 0
+    explain: "SELECT 后面写了几列，结果就有几列；行数才和书的本数有关。"
+  - type: read
+    skill: sql.select-expr
+    md: |
+      SELECT 里不光能写列名，还能写**表达式**：每一行单独算一次。
+
+      ```sql
+      SELECT title, price * stock AS stock_value
+      FROM books;
+      ```
+      - 算术：`+ - * /` 和取余 `%`；
+      - `AS 名字` 给结果列起名（叫**别名**），方便阅读。别名可以在之后的 ORDER BY 里使用。
+
+      为什么有用？很多问题问的不是原始数据，而是"算出来的值"：打折价、库存总值、两个日期差几天……
+
+      常见误解：
+      - **"整数相除得到小数"**：PostgreSQL 里两个**整数**相除是整除，`7 / 2` 是 3。想要小数，让其中一个是小数：`7 / 2.0`（price 这样的列本身就是小数类型）。
+      - **"算出来的列会存回表里"**：不会，只出现在这一次的结果里。
+  - type: example
+    skill: sql.select-expr
+    db: bookstore
+    code: |
+      -- ① 每一行都算一次：价格 × 库存、价格打八折
+      -- ② AS 给算出来的列起名字
+      SELECT title,
+             price * stock AS stock_value,
+             price * 0.8 AS sale_price
+      FROM books;
+    md: "试试 `SELECT 7 / 2, 7 / 2.0;`（不需要 FROM），看看两种除法的区别。"
+  - type: quiz
+    skill: sql.select-expr
+    q: "PostgreSQL 里 `SELECT 7 / 2;` 的结果是？"
+    options: ["3", "3.5", "4"]
+    answer: 0
+    explain: "两个整数相除是整除，结果是 3。写 7 / 2.0 才是 3.5。"
+  - type: read
+    skill: sql.where
+    md: |
+      大多数时候我们不要所有的行，只要**满足条件**的那些。用 WHERE：
+
+      ```sql
+      SELECT title, price
+      FROM books
+      WHERE category = 'scifi';
+      ```
+      执行顺序：**FROM**（拿到 books 的所有行）→ **WHERE**（逐行检查条件，只留下为真的行）→ **SELECT**（从留下的行里取列）。
+
+      比较运算：`=` 等于，`<>`（或 `!=`）不等于，`<`、`>`、`<=`、`>=`。
+      - 字符串和日期要用**单引号**：`'scifi'`、`'2025-03-01'`；数字不加引号；
+      - 字符串比较**区分大小写**：`'Scifi'` 和 `'scifi'` 不相等。
+
+      常见误解：
+      - **"双引号也是字符串"**：在 PostgreSQL 里双引号表示列名，`"scifi"` 会被当成一个叫 scifi 的列，然后报错。
+      - **"`==` 表示等于"**：SQL 里等于只用一个 `=`。
+      - **"WHERE 里能用 SELECT 起的别名"**：不能，WHERE 在 SELECT 之前执行，那时别名还不存在。
+  - type: example
+    skill: sql.where
+    db: bookstore
+    code: |
+      -- ① FROM：books 的全部 30 行
+      -- ② WHERE：逐行检查，只留下价格低于 30 的
+      -- ③ SELECT：从留下的行里取两列
+      SELECT title, price
+      FROM books
+      WHERE price < 30;
+    md: "把条件换成 `category = 'cooking'`；再试试写成双引号 `\"cooking\"`，读一读报错。"
+  - type: quiz
+    skill: sql.where
+    q: "书店库里，`WHERE category = 'Scifi'` 能查到科幻书吗？"
+    options: ["能，大小写不重要", "查不到，数据里写的是小写 'scifi'", "会报错"]
+    answer: 1
+    explain: "字符串比较区分大小写，'Scifi' 和 'scifi' 不相等，结果是 0 行（不会报错）。"
+  - type: read
+    skill: sql.and-or
+    md: |
+      多个条件用 `AND`（都要满足）、`OR`（满足一个就行）、`NOT`（取反）连起来：
+
+      ```sql
+      WHERE category = 'scifi' AND price < 40
+      ```
+      **优先级**：NOT 最先，然后 AND，最后 OR——就像乘法比加法先算。所以
+
+      ```sql
+      WHERE category = 'fantasy' OR category = 'scifi' AND price < 35
+      ```
+      会被理解成"fantasy，或者（scifi 并且便宜）"，贵的 fantasy 也混进来了。想要"（fantasy 或 scifi）并且便宜"，必须加括号：
+
+      ```sql
+      WHERE (category = 'fantasy' OR category = 'scifi') AND price < 35
+      ```
+
+      常见误解：
+      - **"同一列的两个值用 AND"**：`city = 'Shanghai' AND city = 'Beijing'` 永远查不到——一行的 city 不可能同时是两个值。"同一列取几个值之一"用 OR（或下面的 IN）。
+      - **"不加括号就是从左往右算"**：AND 会先结合。拿不准就加括号。
+  - type: example
+    skill: sql.and-or
+    db: bookstore
+    code: |
+      -- ① 第一个条件：分类是 fantasy 或 scifi（用括号包起来）
+      -- ② 第二个条件：价格低于 35
+      -- ③ 两个条件用 AND 连接
+      SELECT title, category, price
+      FROM books
+      WHERE (category = 'fantasy' OR category = 'scifi')
+        AND price < 35;
+    md: "去掉括号再运行，多出来的是哪几本书？"
+  - type: quiz
+    skill: sql.and-or
+    q: "`WHERE city = 'Shanghai' AND city = 'Beijing'` 返回几行？"
+    options: ["0 行", "两个城市的用户都返回", "会报错"]
+    answer: 0
+    explain: "一行的 city 只有一个值，不可能同时等于两个城市。要用 OR 或 IN。"
+  - type: read
+    skill: sql.in-list
+    md: |
+      `x IN (a, b, c)` 表示"x 等于其中之一"，等价于 `x = a OR x = b OR x = c`，但更短、更不容易写错，也不用操心和 AND 混用时的优先级。
+
+      ```sql
+      WHERE category IN ('history', 'cooking', 'kids')
+      WHERE status NOT IN ('cancelled')
+      ```
+      `NOT IN` 表示"不等于其中任何一个"。
+
+      常见误解：
+      - **"IN 里能用通配符"**：IN 是精确相等，`IN ('Li%')` 只匹配正好叫 Li% 的；模糊匹配用 LIKE。
+      - **"NOT IN 的列表里有 NULL 也没关系"**：列表里只要有一个 NULL，NOT IN 一行都查不到（NOT IN 接子查询时尤其常见）。
+  - type: example
+    skill: sql.in-list
+    db: bookstore
+    code: |
+      -- ① 列出想要的几个值
+      -- ② category 等于其中任意一个就保留
+      SELECT title, category
+      FROM books
+      WHERE category IN ('history', 'cooking', 'kids');
+    md: "改成 NOT IN，结果里剩下哪些分类？"
+  - type: quiz
+    skill: sql.in-list
+    q: "`WHERE category IN ('kids', 'cooking')` 等价于？"
+    options: ["category = 'kids' OR category = 'cooking'", "category = 'kids' AND category = 'cooking'", "category LIKE 'kids%'"]
+    answer: 0
+    explain: "IN 表示等于其中任意一个，就是用 OR 连起来的几个等式。"
+  - type: read
+    skill: sql.between
+    md: |
+      `x BETWEEN a AND b` 表示 `x >= a AND x <= b`，**两端都包含**。
+
+      ```sql
+      WHERE price BETWEEN 30 AND 45
+      WHERE order_date BETWEEN '2025-03-01' AND '2025-03-31'
+      ```
+      日期写成 `'YYYY-MM-DD'` 的字符串，和 DATE 类型的列比较时会自动当成日期。
+
+      为什么要小心边界？题目说"30 到 45 元"时，正好 30 元、正好 45 元的书都算；说"低于 30"时 30 元不算。写之前先想清楚端点——提交后的隐藏数据里往往正好有端点上的值。
+
+      常见误解：
+      - **"BETWEEN 不包含两端"**：包含。
+      - **"上下限写反也行"**：`BETWEEN 45 AND 30` 一行都查不到，小的要写在前面。
+      - 带时间的列（TIMESTAMP）用 `BETWEEN … AND '2025-03-31'` 只到 31 日零点，会漏掉当天其余时间；这种情况写 `< '2025-04-01'`。
+  - type: example
+    skill: sql.between
+    db: bookstore
+    code: |
+      -- ① 下限 30（包含）
+      -- ② 上限 45（包含）
+      SELECT title, price
+      FROM books
+      WHERE price BETWEEN 30 AND 45;
+    md: "把它改写成 `price >= 30 AND price <= 45`，结果一样吗？再试试 `BETWEEN 45 AND 30`。"
+  - type: quiz
+    skill: sql.between
+    q: "价格正好 45.00 的书，`WHERE price BETWEEN 30 AND 45` 会查到吗？"
+    options: ["会", "不会"]
+    answer: 0
+    explain: "BETWEEN 两端都包含。"
+  - type: read
+    skill: sql.like
+    md: |
+      想按**模式**匹配文字（以什么开头、包含什么），用 LIKE 和两个通配符：
+      - `%`：任意长度（也可以是 0 个）的任意字符；
+      - `_`：恰好一个任意字符。
+
+      ```sql
+      WHERE title LIKE 'The %'       -- 以 "The " 开头
+      WHERE title LIKE '%Moon%'      -- 包含 Moon
+      WHERE email LIKE '%@example.com'
+      ```
+      PostgreSQL 的 LIKE **区分大小写**；不区分大小写用 `ILIKE`。
+
+      常见误解：
+      - **"'The%' 就是以单词 The 开头"**：它也会匹配 *Theory of Tides*。要的是单词，就把后面的空格写进模式：`'The %'`。
+      - **"LIKE 不加 % 也是模糊的"**：`LIKE 'Moon'` 等于 `= 'Moon'`，只匹配完全一样的。
+  - type: example
+    skill: sql.like
+    db: bookstore
+    code: |
+      -- ① 模式："The" + 一个空格 + 任意字符
+      -- ② 区分大小写：只匹配大写 T 开头的
+      SELECT title
+      FROM books
+      WHERE title LIKE 'The %';
+    md: "去掉模式里的空格再运行，多出来的是哪本书？"
+  - type: quiz
+    skill: sql.like
+    q: "`'Theory of Tides' LIKE 'The%'` 成立吗？"
+    options: ["成立", "不成立"]
+    answer: 0
+    explain: "'The%' 只要求以 The 三个字母开头，后面任意。要求是单词 The，就写 'The %'。"

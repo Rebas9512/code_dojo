@@ -1,0 +1,29 @@
+columns:
+  - name: user_id
+    type: integer
+    nullable: false
+    primary_key: true
+  - name: name
+    type: text
+    nullable: false
+    primary_key: false
+  - name: email
+    type: text
+    nullable: false
+    primary_key: false
+  - name: phone
+    type: text
+    nullable: true
+    primary_key: false
+  - name: city
+    type: text
+    nullable: true
+    primary_key: false
+  - name: signup_date
+    type: date
+    nullable: false
+    primary_key: false
+  - name: referrer_id
+    type: integer
+    nullable: true
+    primary_key: false

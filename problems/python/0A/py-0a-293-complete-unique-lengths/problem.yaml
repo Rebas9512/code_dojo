@@ -1,0 +1,24 @@
+id: py-0a-293-complete-unique-lengths
+title: 补全词长的种数
+track: python
+stage: 0A
+order: 4130
+format: complete
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - py.dict-set-comp
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: length_kinds
+signature: 'def length_kinds(words: list[str]) -> int:'
+compare: exact
+wrong_examples:
+  - why: 收集词本身，数成不同单词的数量。
+    code: |
+      def length_kinds(words: list[str]) -> int:
+          lengths = {word for word in words}
+          return len(lengths)

@@ -1,0 +1,30 @@
+id: py-0a-346-fix-odometer
+title: 修好不走字的里程表
+track: python
+stage: 0A
+order: 4560
+format: fix
+mode: class
+difficulty: 21
+skills:
+  requires:
+    - py.class-methods
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: Meter
+compare: exact
+wrong_examples:
+  - why: 方法返回局部计算结果，却没有写回属性。
+    code: |
+      class Meter:
+          def __init__(self, start: int):
+              self.distance = start
+
+          def advance(self, k: int) -> int:
+              distance = self.distance + k
+              return distance
+
+          def read(self) -> int:
+              return self.distance

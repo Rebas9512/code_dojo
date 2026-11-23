@@ -1,0 +1,30 @@
+id: wrangle-5-007-top3-expensive
+title: 选三本放在高价展台
+track: wrangle
+stage: '5'
+order: 70
+format: write
+mode: function
+difficulty: 36
+skills:
+  requires:
+    - wrangle.projection
+    - wrangle.filter-sort
+    - wrangle.loc
+  introduces: null
+source: original
+entry: display_three
+signature: 'def display_three(books):'
+compare: frame
+leetcode: method-chaining
+sql_twin: sql-0-015-top3-expensive
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 第三名的同价候选选错书号。
+    code: |
+      def display_three(books):
+          ranked = books.sort_values(['price', 'book_id'], ascending=[False, False])
+          return ranked.iloc[:3][['book_id', 'title', 'price']]

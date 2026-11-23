@@ -1,0 +1,25 @@
+id: wrangle-3-009-lookup-label
+title: 按盘点单号查库存
+track: wrangle
+stage: '3'
+order: 90
+format: complete
+mode: function
+difficulty: 27
+skills:
+  requires:
+    - wrangle.loc
+    - py.type-convert
+  introduces: null
+source: original
+entry: lookup
+signature: 'def lookup(t, label):'
+compare: exact
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 误把单号用作从零开始的位置。
+    code: |
+      def lookup(t, label):
+          return int(t.iloc[label, 0])

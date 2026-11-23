@@ -1,0 +1,13 @@
+{
+  "examples": [
+    {"args":[944],"expected":"CMXLIV"},
+    {"args":[53],"expected":"LIII"}
+  ],
+  "hidden": [
+    {"args":[9],"expected":"IX"},
+    {"args":[400],"expected":"CD"},
+    {"args":[1],"expected":"I"},
+    {"args":[3999],"expected":"MMMCMXCIX"},
+    {"args":[3888],"expected":"MMMDCCCLXXXVIII"}
+  ]
+}

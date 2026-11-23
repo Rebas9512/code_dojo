@@ -1,0 +1,25 @@
+id: sql-0-151-spine-label
+title: 书脊上的三个字符
+track: sql
+stage: "0"
+order: 330
+format: write
+difficulty: 13
+skills: {requires: [sql.string-funcs], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/short-titles.sql
+ordered: false
+hints:
+  - SUBSTRING 的起点从 1 数。
+  - 先取出要印的字符，再用 UPPER 把英文字母转为大写。
+wrong_examples:
+  - why: 以为第一个字符的位置是 0，截出的标签会少一个字符。
+    sql: |
+      SELECT book_id, UPPER(SUBSTRING(title FROM 0 FOR 3)) AS label FROM books;
+  - why: 只截取了字符，忘记把小写字母转成大写。
+    sql: |
+      SELECT book_id, SUBSTRING(title FROM 1 FOR 3) AS label FROM books;

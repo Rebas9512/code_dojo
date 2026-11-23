@@ -1,0 +1,21 @@
+id: math-2-012-quadratic-slope
+title: 补上二次费用曲线的斜率
+track: math
+stage: '2'
+order: 120
+format: complete
+mode: function
+difficulty: 26
+skills:
+  requires:
+    - math.slope-rules
+  introduces: null
+source: original
+entry: cost_slope
+signature: 'def cost_slope(a: float, b: float, c: float, x: float) -> float:'
+compare: float
+wrong_examples:
+  - why: 把固定费用也加进斜率。
+    code: |
+      def cost_slope(a: float, b: float, c: float, x: float) -> float:
+          return 2 * a * x + b + c

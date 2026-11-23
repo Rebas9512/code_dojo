@@ -1,0 +1,89 @@
+id: data-0-l02-shapes
+title: 整理书店资料：列、形状和文件
+track: data
+skills:
+  - data.column-type-key
+  - data.shapes
+  - data.text-formats
+steps:
+  - type: read
+    skill: data.column-type-key
+    md: |-
+      有两本书都叫 Data at Dawn。读者报书名时，店员还得问是哪一版。图书主键 book_id 让店员能锁定一条记录：每本都有一个，编号各不相同。选主键要看长期的登记规则，不能只凭眼前两三行恰好不同。
+
+      每列也有约定。例如价格列按数值登记，单位统一为元，这样比较大小和求总价才有意义。如果抄价签时把“¥42”整段抄入，就混进了一段文字。可以把单位留给列的说明，格子只存数值。
+  - type: example
+    skill: data.column-type-key
+    data:
+      kind: table
+      title: 同名的两个版本
+      content: |
+        book_id,title,published_on
+        12,Data at Dawn,2019-03-03
+        27,Data at Dawn,2024-11-11
+    md: 切到 CSV，试着只改其中一行的书名，再看哪个字段仍能定位到这个版本。
+  - type: quiz
+    skill: data.column-type-key
+    q: 书店会收不同版本的同名书，借书单该保存什么？
+    options:
+      - 书名
+      - 图书编号
+    answer: 1
+    explain: 主键能唯一定位到版本；两行书名相同也要分别借还。
+  - type: quiz
+    skill: data.column-type-key
+    q: 价格列要算总金额，一格抄成了文字 ¥42，应怎样登记？
+    options:
+      - 把这格按统一单位存为数值 42
+      - 保留所有写法，直接求和
+    answer: 0
+    explain: 货币符号是给人看的标记。算价格时要先把同一列整理成一致的数值类型。
+  - type: read
+    skill: data.shapes
+    md: |-
+      单看 18.50，这是一个值。单看每本书的售价，排在一起是一列。把一本书的编号、书名、售价放在一起是一条记录。让每行都按相同的列名登记，就得到一张表。有时一条记录还要装下多条别的记录，例如一笔订单含两种书，每种书各有自己的册数，这叫嵌套。
+
+      同样两本书，按行放方便翻出一本的全部资料，按列放方便集中查看售价。在一列中指一个格子，只要说第几个；在表里还要再说是哪一列。选摆法时，可以先想清楚经常要拿哪些值。
+  - type: example
+    skill: data.shapes
+    data:
+      kind: table
+      title: 两本书的编号、书名和售价
+      content: |
+        book_id,title,price
+        6,Little Cloud,18.5
+        7,Noodles at Midnight,29.9
+    md: 先横读 Little Cloud 的资料，再竖读两本书的售价。切到 JSON，看看每一行的字段怎样放到一起。
+  - type: quiz
+    skill: data.shapes
+    q: 要把所有书的价格放在一起方便比较，能否换一种摆法而保留原资料？
+    options:
+      - 能，按相同的书序分别存各列
+      - 不能，每本书必须占一行
+    answer: 0
+    explain: 只要每一列的第几个位置都对应同一本书，按列存也能还原每条记录。
+  - type: read
+    skill: data.text-formats
+    md: |-
+      表可以写成文本文件。CSV 通常用第一行写列名，后面每条记录占一行，逗号分隔各格。书名 Algorithms, Gently 自带逗号，导出时要把整个书名放在一对双引号内。Python 的 csv.reader 在默认设置下读到的每个字段都是字符串，包括 18.50 和空字段；想算价格，还要把字符转换成数。
+
+      JSON 用花括号装带名字的字段，方括号装一串值。例如订单可以有一个 items 字段，里面放几条购书明细。JSON 原文能区分数字和文字。这里从 CSV 切出的 JSON 视图会保留字段文字，不能凭价格看起来像数就推断它已经转成数了。
+  - type: example
+    skill: data.text-formats
+    data:
+      kind: csv
+      title: 书店导出的原文
+      content: |
+        book_id,publisher,title
+        6,,Little Cloud
+        7,Northwind,Noodles at Midnight
+        18,Northwind,"Algorithms, Gently"
+    md: 先看第 18 号书书名两侧的引号，再切到表格。书名里的逗号仍在同一格。然后切到 JSON，找出对应的字段名。
+  - type: quiz
+    skill: data.text-formats
+    q: 同一金额写成 CSV 字段 18.50，用默认的 csv.reader 读到什么？
+    options:
+      - 文字 "18.50"
+      - 数值 18.5
+    answer: 0
+    explain: CSV 没有指定这一列的小数类型。默认读取器保留小数点和末尾的 0，之后可按用途转换。

@@ -1,0 +1,71 @@
+id: math-1-l01-vectors
+title: 向量与分量
+track: math
+skills:
+  - math.vector
+  - math.vector-arithmetic
+steps:
+  - type: read
+    skill: math.vector
+    md: |-
+      一袋里有 2 个苹果、5 个梨。约定苹果在前，梨在后，清单就能缩成两个数。这样的一串有顺序的数叫向量，每一格叫一个分量。用量、坐标、一首歌的音量和速度都可以这样记，只要先约定各格的含义。
+
+      向量的维数就是格数。用下标取一格，就能回答关于这个方向或这一种商品的问题。
+
+      ```python
+      basket = [2, 5]
+      pears = basket[1]
+      ```
+
+      **MM01 把分量顺序当成可互换**。换位置会换掉每个数的含义。两个清单即使总数相同，也可能表示完全不同的东西。
+  - type: example
+    skill: math.vector
+    code: |
+      # ① 约定先苹果再梨
+      basket = [2, 5]
+      # ② 读梨的个数，再数一共有几格
+      print(basket[1])  # 输出 5
+      print(len(basket))  # 输出 2
+    md: 把两个数调换，再观察哪一行输出发生变化。
+  - type: quiz
+    skill: math.vector
+    q: 按东、西、南顺序登记客流，[4, 0, 7] 的中间一格表示什么？
+    options:
+      - 西口无人
+      - 一共两个入口
+      - 南口无人
+    answer: 0
+    explain: 位置决定入口，零也占一格。（MM01 把分量顺序当成可互换）
+  - type: read
+    skill: math.vector-arithmetic
+    md: |-
+      早班卖出 2 杯茶、3 杯咖啡，晚班卖出 4 杯茶、1 杯咖啡。一天卖出 6 杯茶、4 杯咖啡。两个班都按同样的顺序登记，便可以把同一位置的数相加。若晚班记录的是退货量，就逐项相减。
+
+      数乘把同一个倍数作用在每一格。两种饮料都要备两倍时，分量个数仍然是两个。
+
+      ```python
+      orders = [2, 3]
+      double = [2 * n for n in orders]
+      ```
+
+      **MM02 用列表拼接或重复代替逐项运算**。Python 的列表加号会拼接两份记录，列表乘整数会重复记录。先取成数字，再做加减乘。
+  - type: example
+    skill: math.vector-arithmetic
+    code: |
+      # ① 对齐两班的饮料顺序
+      early = [2, 3]
+      late = [4, 1]
+      # ② 合计，再按两天备料
+      day = [early[i] + late[i] for i in range(len(early))]
+      print(day)  # 输出 [6, 4]
+      print([2 * n for n in day])  # 输出 [12, 8]
+    md: 把第二班的咖啡改成 0，看看哪一格仍然保留早班的销量。
+  - type: quiz
+    skill: math.vector-arithmetic
+    q: 把位移 [2, -1] 放大三倍，结果是什么？
+    options:
+      - '[2, -1, 2, -1, 2, -1]'
+      - '[6, -3]'
+      - '[5, 2]'
+    answer: 1
+    explain: 每个方向走三倍远，方向的个数保持两个。（MM02 用列表拼接或重复代替逐项运算）

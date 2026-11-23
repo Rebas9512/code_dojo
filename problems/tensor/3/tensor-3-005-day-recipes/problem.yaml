@@ -1,0 +1,24 @@
+id: tensor-3-005-day-recipes
+title: 各批使用自己的配方
+track: tensor
+stage: '3'
+order: 50
+format: complete
+mode: function
+difficulty: 29
+skills:
+  requires:
+    - tensor.batch-contract
+  introduces: null
+source: original
+entry: day_recipes
+signature: 'def day_recipes(a, b):'
+compare: checker
+wrong_examples:
+  - why: 跨天求和让每一天的记录消失。
+    code: |
+      import torch
+
+
+      def day_recipes(a, b):
+          return torch.einsum("bij,bjk->ik", a, b)

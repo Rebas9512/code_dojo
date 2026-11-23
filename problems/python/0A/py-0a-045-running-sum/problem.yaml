@@ -1,0 +1,20 @@
+id: py-0a-045-running-sum
+title: 累计和
+track: python
+stage: 0A
+order: 860
+format: write
+mode: function
+difficulty: 14
+skills:
+  requires: [py.list-append, py.accumulator]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: running_sum
+signature: "def running_sum(nums: list[int]) -> list[int]:"
+compare: exact
+hints:
+  - "一个累加器 total 记录到目前为止的和。"
+  - "每加一个数，就把当前的 total append 进结果。"

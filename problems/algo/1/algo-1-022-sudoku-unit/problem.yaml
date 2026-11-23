@@ -1,0 +1,35 @@
+id: algo-1-022-sudoku-unit
+title: 一行 / 一列 / 一宫里有没有重复
+track: algo
+stage: '1'
+order: 220
+format: write
+mode: function
+difficulty: 44
+skills:
+  requires:
+  - py.floordiv-mod
+  - py.early-return
+  - py.bool-ops
+  - py.break-continue
+  - py.matrix-traverse
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: has_conflict
+signature: 'def has_conflict(board: list[list[str]], r: int, c: int) -> bool:'
+compare: exact
+wrong_examples:
+- why: 只检查行列，漏掉同宫斜对角。
+  code: |
+    def has_conflict(board: list[list[str]], r: int, c: int) -> bool:
+        digit = board[r][c]
+        for row in range(9):
+            for col in range(9):
+                if (row, col) == (r, c):
+                    continue
+                same_box = row // 3 == r // 3 and col // 3 == c // 3
+                if (row == r or col == c) and board[row][col] == digit:
+                    return True
+        return False

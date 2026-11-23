@@ -1,0 +1,27 @@
+id: sql-3-006-primary-department-for-each-employee
+title: 每人归属哪个部门
+track: sql
+stage: '3'
+order: 60
+format: variant
+difficulty: 44
+skills:
+  requires:
+    - sql.and-or
+    - sql.having
+    - sql.subquery-in
+  introduces: null
+source: sql50
+leetcode: primary-department-for-each-employee
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/single.sql
+  - datasets/sample.sql + datasets/second-post.sql
+ordered: false
+hints:
+  - 哪些人即使没有 Y 也能确定归属？
+wrong_examples:
+  - why: 只保留明确标记的部门
+    sql: |
+      SELECT employee_id, dept FROM assignments WHERE main_flag = 'Y';

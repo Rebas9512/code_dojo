@@ -1,0 +1,26 @@
+id: tensor-2-008-route-picks
+title: 照每行的地址单取样
+track: tensor
+stage: '2'
+order: 80
+format: complete
+mode: function
+difficulty: 26
+skills:
+  requires:
+    - tensor.route
+  introduces: null
+source: original
+entry: picks
+signature: 'def picks(rows, positions):'
+compare: allclose
+wrong_examples:
+  - why: 把列号误作行号。
+    code: |
+      import torch
+
+
+      def picks(rows, positions):
+          x = torch.tensor(rows)
+          i = torch.tensor(positions)
+          return torch.gather(x, 0, i)

@@ -1,0 +1,33 @@
+id: wrangle-5-009-user-phone-counts
+title: 读者登记和电话登记各有多少
+track: wrangle
+stage: '5'
+order: 90
+format: complete
+mode: function
+difficulty: 37
+skills:
+  requires:
+    - wrangle.report-grain
+    - wrangle.missing
+    - wrangle.table
+  introduces: null
+source: original
+entry: phone_totals
+signature: 'def phone_totals(users):'
+compare: frame
+leetcode: count-salary-categories
+sql_twin: sql-1-001-user-phone-counts
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 把没有电话的读者也计入第二列。
+    code: |
+      import pandas as pd
+
+
+      def phone_totals(users):
+          return pd.DataFrame({'users_total': [len(users)], 'with_phone': [len(users)]})

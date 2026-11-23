@@ -1,0 +1,12 @@
+id: data
+name: 认识数据
+summary: 从书店的一张表开始，认识值、缺失、形状和 CSV、JSON 两种文字格式。
+order: 0
+language: none
+runtime: none
+status: active
+requires: []
+skill_prefix: data
+stages:
+  - id: "0"
+    name: 认识数据

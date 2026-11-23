@@ -1,0 +1,19 @@
+id: py-0a-286-predict-tied-length
+title: 同长度的词谁在前
+track: python
+stage: 0A
+order: 4060
+format: predict
+mode: predict
+difficulty: 18
+skills:
+  requires:
+    - py.sorted
+  introduces: py.sort-key
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM59：以为键相同时会自动用单词拼写打破平局。
+    code: |
+      print("['a', 'be', 'to']")

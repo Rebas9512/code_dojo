@@ -1,0 +1,25 @@
+id: sql-0-155-reading-pace
+title: 七天读完一本书
+track: sql
+stage: "0"
+order: 370
+format: write
+difficulty: 14
+skills: {requires: [sql.round-cast], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/page-counts.sql
+ordered: false
+hints:
+  - 页数和 7 都是整数。可以先把页数转成 numeric，再求商。
+  - 对算出来的商用 ROUND 保留两位小数。
+wrong_examples:
+  - why: 先做整数除法再转类型，商的小数部分已经丢了。
+    sql: |
+      SELECT book_id, ROUND((pages / 7)::numeric, 2) AS pages_per_day FROM books;
+  - why: 算出了小数，但没有把每天的平均页数舍入到两位。
+    sql: |
+      SELECT book_id, pages::numeric / 7 AS pages_per_day FROM books;

@@ -1,0 +1,12 @@
+{
+  "examples": [
+    {"args":["ab*c"],"expected":"ac"},
+    {"args":["mn**"],"expected":""}
+  ],
+  "hidden": [
+    {"args":[""],"expected":""},
+    {"args":["x"],"expected":"x"},
+    {"args":["ab*cd**e"],"expected":"ae"},
+    {"args":["abc**"],"expected":"a"}
+  ]
+}

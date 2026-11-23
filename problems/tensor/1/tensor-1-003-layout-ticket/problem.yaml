@@ -1,0 +1,25 @@
+id: tensor-1-003-layout-ticket
+title: 写一张形状标签
+track: tensor
+stage: '1'
+order: 30
+format: write
+mode: function
+difficulty: 18
+skills:
+  requires:
+    - tensor.create
+  introduces: null
+source: original
+entry: ticket
+signature: 'def ticket(rows):'
+compare: exact
+wrong_examples:
+  - why: 把外层和内层的长度交换了。
+    code: |
+      import torch
+
+
+      def ticket(rows):
+          x = torch.tensor(rows)
+          return [x.ndim, x.shape[1], x.shape[0]]

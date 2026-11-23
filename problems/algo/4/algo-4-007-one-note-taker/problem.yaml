@@ -1,0 +1,31 @@
+id: algo-4-007-one-note-taker
+title: 一个人能参加全部会议吗
+track: algo
+stage: '4'
+order: 70
+format: write
+mode: function
+difficulty: 61
+skills:
+  requires:
+  - algo.intervals
+  - py.early-return
+  - py.nested-list
+  introduces: null
+source: original
+leetcode: meeting-rooms
+milestones:
+- blind75
+replaces_premium: meeting-rooms
+entry: can_attend
+signature: 'def can_attend(meetings: list[list[int]]) -> bool:'
+compare: exact
+wrong_examples:
+- why: 把上一场离开的一刻也算成占用。
+  code: |
+    def can_attend(meetings: list[list[int]]) -> bool:
+        ordered = sorted(meetings)
+        for i in range(1, len(ordered)):
+            if ordered[i][0] <= ordered[i - 1][1]:
+                return False
+        return True

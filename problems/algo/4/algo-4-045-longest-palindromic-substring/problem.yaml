@@ -1,0 +1,41 @@
+id: algo-4-045-longest-palindromic-substring
+title: 最长的镜面对称片段
+track: algo
+stage: '4'
+order: 450
+format: write
+mode: function
+difficulty: 73
+unit: 4
+skills:
+  requires:
+  - algo.two-pointers
+  - py.bool-ops
+  - py.if-else
+  - py.nested-loop
+  - py.slice
+  - py.tuple
+  introduces: null
+source: neetcode250
+leetcode: longest-palindromic-substring
+milestones:
+- blind75
+- top100
+entry: longest_palindrome
+signature: 'def longest_palindrome(s: str) -> str:'
+compare: checker
+wrong_examples:
+- why: 只围绕单个字符展开，遗漏偶数长度。
+  code: |
+    def longest_palindrome(s: str) -> str:
+        best_left = best_right = 0
+        for center in range(len(s)):
+            for left, right in [(center, center)]:
+                while left >= 0 and right < len(s) and s[left] == s[right]:
+                    if right - left > best_right - best_left:
+                        best_left, best_right = left, right
+                    left -= 1
+                    right += 1
+        return s[best_left:best_right + 1]
+hints:
+- 每个回文都有一个中心。偶数长度的中心在两个字符之间，奇数长度的中心在字符上。

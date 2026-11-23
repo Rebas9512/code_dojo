@@ -1,0 +1,30 @@
+id: wrangle-5-003-stock-value
+title: 在库金额按书列出
+track: wrangle
+stage: '5'
+order: 30
+format: write
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - wrangle.projection
+    - wrangle.columns
+  introduces: null
+source: original
+entry: stock_value
+signature: 'def stock_value(books):'
+compare: frame
+leetcode: create-a-new-column
+sql_twin: sql-0-002-stock-value
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 将单价与数量相加。
+    code: |
+      def stock_value(books):
+          books['stock_value'] = books['price'] + books['stock']
+          return books[['title', 'stock_value']]

@@ -1,0 +1,43 @@
+id: algo-4-014-lemonade-change
+title: 依次给买饮料的人找零
+track: algo
+stage: '4'
+order: 140
+format: write
+mode: function
+difficulty: 63
+unit: 3
+skills:
+  requires:
+  - py.simulation
+  - py.bool-ops
+  - py.early-return
+  - py.elif
+  introduces: null
+source: neetcode250
+leetcode: lemonade-change
+milestones: []
+entry: make_change
+signature: 'def make_change(bills: list[int]) -> bool:'
+compare: exact
+wrong_examples:
+- why: 只有十元也尝试找出十五元。
+  code: |
+    def make_change(bills: list[int]) -> bool:
+        fives = tens = 0
+        for bill in bills:
+            if bill == 5:
+                fives += 1
+            elif bill == 10:
+                if fives == 0:
+                    return False
+                fives -= 1
+                tens += 1
+            elif tens:
+                tens -= 1
+                fives -= 1
+            elif fives >= 3:
+                fives -= 3
+            else:
+                return False
+        return True

@@ -1,0 +1,24 @@
+id: sql-0-156-complete-new-coupons
+title: 补全：以 NEW 开头的优惠码
+track: sql
+stage: "0"
+order: 380
+format: complete
+difficulty: 13
+skills: {requires: [sql.like], introduces: sql.regex}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/coupon-prefixes.sql
+ordered: false
+hints:
+  - 在正则里，^ 表示字符串的开头。模式是文字，两端加单引号。
+wrong_examples:
+  - why: 没有限定开头，RENEW10 也会匹配。
+    sql: |
+      SELECT order_id, coupon_code FROM orders WHERE coupon_code ~ 'NEW';
+  - why: 用了忽略大小写的匹配，new 开头也会入选。
+    sql: |
+      SELECT order_id, coupon_code FROM orders WHERE coupon_code ~* '^NEW';

@@ -1,0 +1,17 @@
+id: tensor-4-013-trainable-tag
+title: 初值与参数的身份
+track: tensor
+stage: '4'
+order: 130
+format: predict
+mode: predict
+difficulty: 38
+skills:
+  requires:
+    - py.class-basic
+  introduces: tensor.parameter
+source: original
+wrong_examples:
+  - why: 默认的 Parameter 会开启求导。
+    code: |
+      print('(2,)\nFalse False\nFalse')

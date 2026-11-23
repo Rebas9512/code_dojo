@@ -1,0 +1,1 @@
+INSERT INTO orders VALUES (801, 16, '2025-07-01', 'paid', NULL);

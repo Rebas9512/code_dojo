@@ -1,0 +1,58 @@
+id: algo-4-077-order-the-glyphs
+title: 外星字母表的顺序
+track: algo
+stage: '4'
+order: 770
+format: write
+mode: function
+difficulty: 85
+unit: 6
+skills:
+  requires:
+  - algo.topo-sort
+  - py.break-continue
+  - py.dict-set-comp
+  - py.early-return
+  - py.nested-loop
+  - py.slice
+  - py.split-join
+  - py.ternary
+  - py.while
+  - py.zip
+  introduces: null
+source: original
+leetcode: alien-dictionary
+milestones:
+- blind75
+replaces_premium: alien-dictionary
+entry: alien_order
+signature: 'def alien_order(words: list[str]) -> str:'
+compare: checker
+wrong_examples:
+- why: 把合法的短前缀在先与非法的长词在先弄反。
+  code: |
+    def alien_order(words: list[str]) -> str:
+        degree = {ch: 0 for word in words for ch in word}
+        after = {ch: set() for ch in degree}
+        for first, second in zip(words, words[1:]):
+            for a, b in zip(first, second):
+                if a != b:
+                    if b not in after[a]:
+                        after[a].add(b)
+                        degree[b] += 1
+                    break
+            else:
+                if len(first) < len(second):
+                    return ""
+        ready = [ch for ch in degree if degree[ch] == 0]
+        order = []
+        while ready:
+            ch = ready.pop()
+            order.append(ch)
+            for nxt in after[ch]:
+                degree[nxt] -= 1
+                if degree[nxt] == 0:
+                    ready.append(nxt)
+        return "".join(order) if len(order) == len(degree) else ""
+hints:
+- 只从相邻词第一处不同的字母提取关系。还要检查没有不同字母、前词却更长的情况，以及图中未连任何边的字母。

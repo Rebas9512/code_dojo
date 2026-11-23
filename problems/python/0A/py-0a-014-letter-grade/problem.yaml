@@ -1,0 +1,20 @@
+id: py-0a-014-letter-grade
+title: 分数转等级
+track: python
+stage: 0A
+order: 320
+format: write
+mode: function
+difficulty: 7
+skills:
+  requires: [py.early-return, py.elif]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: letter_grade
+signature: "def letter_grade(score: int) -> str:"
+compare: exact
+hints:
+  - "从高分往低分判断，每个条件只写下限：score >= 90、score >= 80……"
+  - "走到 elif score >= 80 时，已经知道 score < 90。"

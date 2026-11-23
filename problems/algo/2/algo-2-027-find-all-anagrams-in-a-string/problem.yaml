@@ -1,0 +1,41 @@
+id: algo-2-027-find-all-anagrams-in-a-string
+title: 记下所有重排词的起点
+track: algo
+stage: '2'
+order: 270
+format: variant
+mode: function
+difficulty: 56
+skills:
+  requires:
+  - algo.counter
+  - algo.window-fixed
+  - py.early-return
+  - py.slice
+  - py.ternary
+  introduces: null
+source: top-100-liked
+leetcode: find-all-anagrams-in-a-string
+milestones:
+- top100
+entry: anagram_starts
+signature: 'def anagram_starts(text: str, pat: str) -> list[int]:'
+compare: unordered
+wrong_examples:
+- why: 漏记第一个窗口。
+  code: |
+    from collections import Counter
+
+
+    def anagram_starts(text: str, pat: str) -> list[int]:
+        if len(pat) > len(text):
+            return []
+        need = Counter(pat)
+        window = Counter(text[:len(pat)])
+        starts = []
+        for right in range(len(pat), len(text)):
+            window[text[right - len(pat)]] -= 1
+            window[text[right]] += 1
+            if window == need:
+                starts.append(right - len(pat) + 1)
+        return starts

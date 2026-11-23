@@ -1,0 +1,30 @@
+id: wrangle-3-023-numeric-counts
+title: 把文字数量变成可计算的值
+track: wrangle
+stage: '3'
+order: 230
+format: write
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - wrangle.cast
+    - wrangle.csv
+    - wrangle.missing
+  introduces: null
+source: original
+entry: after_delivery
+signature: 'def after_delivery(text, extra):'
+compare: frame
+leetcode: change-data-type
+wrong_examples:
+  - why: 把未盘点当零，给缺失值也加了到货数。
+    code: |
+      from io import StringIO
+
+      import pandas as pd
+
+
+      def after_delivery(text, extra):
+          t = pd.read_csv(StringIO(text), dtype={'n': 'string'})
+          return t['n'].fillna('0').astype('Int64') + extra

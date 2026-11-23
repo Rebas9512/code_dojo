@@ -1,0 +1,41 @@
+id: algo-4-016-maximum-subarray
+title: 取收益最高的一段连续记录
+track: algo
+stage: '4'
+order: 160
+format: write
+mode: function
+difficulty: 66
+skills:
+  requires:
+  - algo.greedy
+  - py.slice
+  introduces: null
+source: neetcode250
+leetcode: maximum-subarray
+milestones:
+- blind75
+- top100
+entry: max_subarray
+signature: 'def max_subarray(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 用零当历史最优，漏掉全负输入。
+  code: |
+    def max_subarray(nums: list[int]) -> int:
+        ending = nums[0]
+        best = 0
+        for value in nums[1:]:
+            ending = max(value, ending + value)
+            best = max(best, ending)
+        return best
+- why: 枚举左右端点，即使复用段内和也要检查平方级数量的区间。
+  code: |
+    def max_subarray(nums: list[int]) -> int:
+        best = nums[0]
+        for left in range(len(nums)):
+            total = 0
+            for right in range(left, len(nums)):
+                total += nums[right]
+                best = max(total, best)
+        return best

@@ -1,0 +1,31 @@
+book_id,title,author_id,category,price,stock,publisher,published_on,pages
+1,The Silent Harbor,1,fiction,42.00,12,Harbor Press,2018-05-10,320
+2,Stars Over Gobi,4,scifi,39.00,5,Blue Kite,2021-09-01,410
+3,Python in Practice,6,programming,68.00,20,Northwind,2022-03-15,512
+4,A Short History of Tea,7,history,35.00,8,Harbor Press,2015-11-20,288
+5,The Last Lantern,2,fantasy,39.00,0,Blue Kite,2019-07-07,450
+6,Little Cloud,8,kids,18.50,30,,2020-04-01,48
+7,Noodles at Midnight,3,cooking,29.90,15,Northwind,2017-02-14,196
+8,Quantum Garden,4,scifi,45.00,7,Blue Kite,2023-01-20,380
+9,The Map Maker,1,fiction,35.00,10,Harbor Press,2012-08-30,298
+10,SQL for Curious Minds,6,programming,59.00,9,Northwind,2024-06-01,340
+11,Dragons of the North,2,fantasy,52.00,4,Blue Kite,2016-10-10,620
+12,Data at Dawn,8,programming,49.00,6,Northwind,2019-03-03,300
+13,Silk Road Letters,7,history,55.00,3,,2010-05-05,410
+14,Moon Rabbit,8,kids,15.00,25,Blue Kite,2021-12-12,40
+15,The Clockwork Sea,5,scifi,33.00,11,,,360
+16,Spice Atlas,3,cooking,42.00,9,Harbor Press,2022-08-18,240
+17,Winter Orchard,9,fiction,27.50,14,Northwind,2014-01-25,256
+18,"Algorithms, Gently",6,programming,75.00,5,Northwind,2023-09-09,600
+19,Empire of Salt,10,history,48.00,2,Harbor Press,2018-03-21,520
+20,The Glass Fox,2,fantasy,31.00,13,Blue Kite,2020-10-31,390
+21,Rainy Season,1,fiction,24.00,18,,2008-06-16,210
+22,Orbit of Ashes,5,scifi,39.00,6,Blue Kite,2024-02-29,430
+23,Count with Panda,8,kids,12.00,40,Blue Kite,2019-09-09,32
+24,Street Food Stories,3,cooking,35.00,0,Northwind,2021-05-05,220
+25,Untitled Poems,,fiction,20.00,3,,,96
+26,Rivers and Kings,7,history,61.00,4,Harbor Press,2020-01-01,480
+27,Data at Dawn,8,programming,55.00,10,Blue Kite,2024-11-11,330
+28,The Paper Moon,4,scifi,45.00,8,Northwind,2022-12-31,300
+29,Bread & Butter,3,cooking,22.00,12,Harbor Press,2016-04-04,180
+30,Theory of Tides,9,fiction,38.00,7,Blue Kite,2023-05-15,270

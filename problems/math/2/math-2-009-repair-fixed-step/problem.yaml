@@ -1,0 +1,22 @@
+id: math-2-009-repair-fixed-step
+title: 查出不随步长变化的读数
+track: math
+stage: '2'
+order: 90
+format: fix
+mode: function
+difficulty: 25
+skills:
+  requires:
+    - math.derivative
+  introduces: null
+source: original
+entry: cube_rate
+signature: 'def cube_rate(x: float, h: float) -> float:'
+compare: float
+wrong_examples:
+  - why: 硬编码大步长，差商没有靠近局部变化率。
+    code: |
+      def cube_rate(x: float, h: float) -> float:
+          step = 1.0
+          return ((x + step) ** 3 - x ** 3) / step

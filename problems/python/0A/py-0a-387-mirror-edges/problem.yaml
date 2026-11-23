@@ -1,0 +1,31 @@
+id: py-0a-387-mirror-edges
+title: 从两端向内检查回文
+track: python
+stage: 0A
+order: 5070
+format: variant
+mode: function
+difficulty: 24
+skills:
+  requires:
+    - py.recursion-seq
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: mirror
+signature: 'def mirror(text: str) -> bool:'
+compare: exact
+wrong_examples:
+  - why: 只检查一对边缘相等，就宣布整串对称。
+    code: |
+      def matches(text: str, lo: int, hi: int) -> bool:
+          if lo >= hi:
+              return True
+          if text[lo] != text[hi]:
+              return False
+          return True
+
+
+      def mirror(text: str) -> bool:
+          return matches(text, 0, len(text) - 1)

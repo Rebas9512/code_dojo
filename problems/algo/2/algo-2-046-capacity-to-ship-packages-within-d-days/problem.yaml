@@ -1,0 +1,46 @@
+id: algo-2-046-capacity-to-ship-packages-within-d-days
+title: 不打乱顺序的最小船运载重
+track: algo
+stage: '2'
+order: 460
+format: write
+mode: function
+difficulty: 61
+skills:
+  requires:
+  - algo.binary-search-answer
+  - py.list-builtins
+  - py.multi-assign
+  introduces: null
+source: neetcode250
+leetcode: capacity-to-ship-packages-within-d-days
+milestones: []
+entry: ship_capacity
+signature: 'def ship_capacity(weights: list[int], days: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 正好装满时也开启新的一天。
+  code: |
+    def groups_needed(values: list[int], limit: int) -> int:
+        groups = 1
+        load = 0
+        for weight in values:
+            if load + weight >= limit:
+                groups += 1
+                load = 0
+            load += weight
+        return groups
+
+
+    def ship_capacity(weights: list[int], days: int) -> int:
+        lo, hi = max(weights), sum(weights) + 1
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if groups_needed(weights, mid) <= days:
+                hi = mid
+            else:
+                lo = mid + 1
+        return lo
+hints:
+- 载重下限至少能装下最重包裹。
+- 固定载重后按顺序尽量装满当天，就能算出最少天数。

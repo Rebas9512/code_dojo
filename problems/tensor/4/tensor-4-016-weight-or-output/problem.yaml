@@ -1,0 +1,16 @@
+id: tensor-4-016-weight-or-output
+title: 参数形状和输出形状
+track: tensor
+stage: '4'
+order: 160
+format: predict
+mode: predict
+difficulty: 40
+skills:
+  requires: []
+  introduces: tensor.linear
+source: original
+wrong_examples:
+  - why: 混淆了权重轴与输入批次轴。
+    code: |
+      print('(3, 2) (2,)\n(2, 4)')

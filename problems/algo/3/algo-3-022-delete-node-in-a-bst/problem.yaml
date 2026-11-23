@@ -1,0 +1,49 @@
+id: algo-3-022-delete-node-in-a-bst
+title: 从搜索树移除一个键
+track: algo
+stage: '3'
+order: 220
+format: write
+mode: function
+difficulty: 55
+skills:
+  requires:
+  - algo.bst
+  - py.bool-ops
+  - py.elif
+  - py.recursion-multi
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: delete-node-in-a-bst
+milestones: []
+entry: erase
+signature: 'def erase(root: TreeNode | None, key: int) -> TreeNode | None:'
+compare: checker
+convert:
+  args:
+    '0': treenode
+  returns: treenode
+wrong_examples:
+- why: 替换成后继后忘记删掉后继的旧节点。
+  code: |
+    def erase(root: TreeNode | None, key: int) -> TreeNode | None:
+        if root is None:
+            return None
+        if key < root.val:
+            root.left = erase(root.left, key)
+        elif key > root.val:
+            root.right = erase(root.right, key)
+        elif not root.left:
+            return root.right
+        elif not root.right:
+            return root.left
+        else:
+            successor = root.right
+            while successor.left:
+                successor = successor.left
+            root.val = successor.val
+            pass
+        return root
+hints:
+- 目标有两个孩子时，可以找右子树中最小的值接替它。这个值的旧位置还要怎样处理？

@@ -1,0 +1,20 @@
+id: py-0a-251-predict-entry-order
+title: 改了分数，名单怎么念
+track: python
+stage: 0A
+order: 3110
+format: predict
+mode: predict
+difficulty: 17
+skills:
+  requires:
+    - py.dict-basics
+    - py.for-each
+  introduces: py.dict-iter
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM56：以为给已有键赋新值会把它排到最后。
+    code: |
+      print('林 7\n松 9')

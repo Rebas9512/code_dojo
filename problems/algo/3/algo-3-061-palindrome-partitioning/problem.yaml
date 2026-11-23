@@ -1,0 +1,40 @@
+id: algo-3-061-palindrome-partitioning
+title: 把整串切成回文块
+track: algo
+stage: '3'
+order: 610
+format: write
+mode: function
+difficulty: 65
+skills:
+  requires:
+  - algo.backtracking
+  - algo.nested-func
+  - py.multi-assign
+  - py.slice
+  introduces: null
+source: neetcode250
+leetcode: palindrome-partitioning
+milestones:
+- nc150
+- top100
+entry: palindrome_parts
+signature: 'def palindrome_parts(s: str) -> list[list[str]]:'
+compare: unordered
+wrong_examples:
+- why: 只保留长度为一的块。
+  code: |
+    def palindrome_parts(s: str) -> list[list[str]]:
+        result, parts = [], []
+        def split(start):
+            if start == len(s):
+                result.append(parts[:])
+                return
+            for end in range(start + 1, len(s) + 1):
+                word = s[start:end]
+                if len(word) == 1:
+                    parts.append(word)
+                    split(end)
+                    parts.pop()
+        split(0)
+        return result

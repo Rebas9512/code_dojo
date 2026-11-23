@@ -1,0 +1,12 @@
+{
+  "examples": [
+    {"args":[[["A","C"],["B","A"]],"ACAB"],"expected":true},
+    {"args":[[["A","B","A","A"]],"BAB"],"expected":false}
+  ],
+  "hidden": [
+    {"args":[[["P"]],"P"],"expected":true},
+    {"args":[[["P"]],"Q"],"expected":false},
+    {"args":[[["A","B","C"],["A","X","A"]],"ABA"],"expected":false},
+    {"args":[[["A","A","A","A","A","A"],["A","A","A","A","A","A"],["A","A","A","A","A","A"],["A","A","A","A","A","A"],["A","A","A","A","A","A"],["A","A","A","A","A","A"]],"AAAAAAAAAAAAAAZ"],"expected":false}
+  ]
+}

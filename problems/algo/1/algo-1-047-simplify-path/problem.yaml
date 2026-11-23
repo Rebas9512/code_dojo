@@ -1,0 +1,33 @@
+id: algo-1-047-simplify-path
+title: 整理绝对目录路径
+track: algo
+stage: '1'
+order: 470
+format: write
+mode: function
+difficulty: 53
+skills:
+  requires:
+  - py.elif
+  - py.bool-ops
+  - py.split-join
+  - py.stack-list
+  introduces: null
+source: neetcode250
+leetcode: simplify-path
+milestones: []
+entry: simplify_path
+signature: 'def simplify_path(path: str) -> str:'
+compare: exact
+wrong_examples:
+- why: 把三个点也当成上一级。
+  code: |
+    def simplify_path(path: str) -> str:
+        parts = []
+        for name in path.split('/'):
+            if name in ('..', '...'):
+                if parts:
+                    parts.pop()
+            elif name and name != '.':
+                parts.append(name)
+        return '/' + '/'.join(parts)

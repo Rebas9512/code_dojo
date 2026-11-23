@@ -1,0 +1,114 @@
+id: algo-4-l07-weighted-graphs
+title: 最便宜的路径和最便宜的一张网
+track: algo
+skills:
+- algo.dijkstra
+- algo.mst
+steps:
+- type: read
+  skill: algo.dijkstra
+  md: |
+    有的路长，有的路短。要从同一起点求最早到各站的时刻，边权都非负时，可以用最小堆每次先取累计耗时最少的候选。距离表保存每个站目前找到的最低耗时。沿出边试算，若发现更短的路线，就改表、把新记录压入堆，这个动作叫松弛。旧记录可能还在堆里，取出发现和表里不同就跳过。
+
+    每条边只在确定出发点时检查，普通图用堆约需 O((V+E) log V) 时间，V 是站数、E 是边数。第一次看到站点还可能走的是绕路。非负权保证最小有效记录出堆后，没有更晚出发的绕行能让它变短。负边会破坏这个理由。有中转次数上限时，要额外记住用了几段路。
+- type: example
+  skill: algo.dijkstra
+  code: |
+    import heapq
+
+    # ① 起点入堆，登记暂定到站时间
+    roads = [[(1, 8), (2, 2)], [], [(1, 1)]]
+    dist = [0, float("inf"), float("inf")]
+    heap = [(0, 0)]
+    while heap:
+        # ② 取当前最早到达的有效记录
+        time, stop = heapq.heappop(heap)
+        if time != dist[stop]:
+            continue
+        # ③ 把更短的绕行登记到表和堆
+        for neighbor, length in roads[stop]:
+            arrival = time + length
+            if arrival < dist[neighbor]:
+                dist[neighbor] = arrival
+                heapq.heappush(heap, (arrival, neighbor))
+    print(dist)
+
+    # 输出
+    # [0, 3, 2]
+  md: |
+    | 出堆 (时间,站) | 动作 | 站 1 的登记时间 |
+    |---|---|---|
+    | (0,0) | 发现两条直达路 | 8 |
+    | (2,2) | 经站 2 改短 | 3 |
+    | (3,1) | 确定站 1 | 3 |
+    | (8,1) | 旧记录跳过 | 3 |
+- type: quiz
+  skill: algo.dijkstra
+  q: 站 1 首次以 8 入堆，站 2 后来给出耗时 3 的路，该怎样做？
+  options:
+  - 已经发现站 1，忽略
+  - 更新为 3 并再入堆
+  answer: 1
+  explain: 第一次发现只提供一个上界，真正确定的是有效记录出堆的时刻。
+- type: quiz
+  skill: algo.dijkstra
+  q: 有一条后半段耗时 −5 的边，仍能靠非负权的理由确定弹出距离吗？
+  options:
+  - 能
+  - 不能
+  answer: 1
+  explain: 另一条路线的前半段可能较长，再加上负边却反而更短。
+- type: read
+  skill: algo.mst
+  md: |
+    要用最低总费把所有站连成一张网，费用付给选中的每条边一次。Prim 先连一个站，再在“一端已接通、一端未接通”的所有边中选最便宜的一条。若一棵最优树没选这条边，加进去会出现一个环。这个环还有另一条跨两边的边，用新边替换它不会更贵。每次据此纳入一个新站，n 个站最后选 n−1 条边。
+
+    用最小堆保管候选边，每加入一个站就放入它通往外面的边，已在网内的终点再弹出时跳过。普通连通图复杂度约 O(E log V)。这里堆键是接入一条边的费用。Kruskal 则把所有边从便宜到昂贵扫过，用并查集判断两端是否属于不同分组，适合手边直接有边表的题。
+- type: example
+  skill: algo.mst
+  code: |
+    import heapq
+
+    # ① 从零号点开始，它本身的接入费为零
+    roads = [[(4, 1), (6, 2)], [(4, 0), (1, 2)], [(6, 0), (1, 1)]]
+    joined = set()
+    heap = [(0, 0)]
+    total = 0
+    while heap:
+        # ② 选一条能纳入新站的最便宜线路
+        fee, station = heapq.heappop(heap)
+        if station in joined:
+            continue
+        joined.add(station)
+        total += fee
+        # ③ 只登记下一条线路本身的费用
+        for price, neighbor in roads[station]:
+            if neighbor not in joined:
+                heapq.heappush(heap, (price, neighbor))
+    print(total)
+
+    # 输出
+    # 5
+  md: |
+    | 网内站点 | 可用的跨界费用 | 本次选择 |
+    |---|---|---|
+    | {0} | 4、6 | 4，接入 1 |
+    | {0,1} | 1、6 | 1，接入 2 |
+
+    把直连 0 和 2 的费用 6 改成 2（两个方向都改），再跟踪总费。
+- type: quiz
+  skill: algo.mst
+  q: 接入 1 花了 4，从 1 到 2 的线价为 1。这条候选的堆键是多少？
+  options:
+  - '5'
+  - '1'
+  answer: 1
+  explain: 旧网已经付过费，本次接入只增加一条边的成本。
+- type: quiz
+  skill: algo.mst
+  q: 目标是让一个信号源到每个站的路程分别最短，应该优先比较什么？
+  options:
+  - 从信号源出发的累计距离
+  - 最后一条边的价格
+  answer: 0
+  explain: 逐点最短路比较完整路线的距离。整网选边才比较接入费。

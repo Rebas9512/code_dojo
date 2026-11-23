@@ -1,0 +1,29 @@
+id: data-0-002-shelf
+title: 找到第二本书的书架
+track: data
+stage: "0"
+order: 20
+format: inspect
+mode: inspect
+difficulty: 2
+skills: {requires: [data.column-key], introduces: null}
+data:
+  - kind: csv
+    title: 书架登记
+    content: |
+      book_id,shelf
+      B1,A1
+      B2,A6
+  - kind: json
+    title: 借阅单
+    content: |
+      {"books": [{"book_id": "B2"}]}
+  - kind: values
+    title: 馆内书架
+    content: '["A1", "A6"]'
+answer:
+  type: short
+  accept: ["A6"]
+  misconceptions:
+    "6": {id: DM04, name: 把编号当数量, line: 书架编号由字母和数字一起组成，只抄数字会丢失信息。}
+explain: 先在借阅单找出 `B2`，再沿登记表的同一行找到书架 `A6`。

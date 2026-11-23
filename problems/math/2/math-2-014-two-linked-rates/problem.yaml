@@ -1,0 +1,19 @@
+id: math-2-014-two-linked-rates
+title: 两段传动的总速度
+track: math
+stage: '2'
+order: 140
+format: predict
+mode: predict
+difficulty: 27
+skills:
+  requires:
+    - math.slope-rules
+  introduces: math.chain-rule
+source: original
+wrong_examples:
+  - why: 漏掉第一段的倍数。
+    code: |
+      x = 2
+      u = 2 * x + 1
+      print(2 * u)

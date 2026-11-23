@@ -1,0 +1,26 @@
+id: tensor-1-020-shares
+title: 算出各时刻占本行的份额
+track: tensor
+stage: '1'
+order: 200
+format: write
+mode: function
+difficulty: 27
+skills:
+  requires:
+    - tensor.reduce
+    - tensor.broadcast
+  introduces: null
+source: original
+entry: shares
+signature: 'def shares(rows):'
+compare: allclose
+wrong_examples:
+  - why: 除以了各列总数。
+    code: |
+      import torch
+
+
+      def shares(rows):
+          x = torch.tensor(rows)
+          return x / torch.sum(x, dim=0, keepdim=True)

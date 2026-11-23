@@ -1,0 +1,35 @@
+id: algo-4-050-unique-paths
+title: 棋子有几条路到对角
+track: algo
+stage: '4'
+order: 500
+format: write
+mode: function
+difficulty: 74
+skills:
+  requires:
+  - algo.dp-2d
+  introduces: null
+source: neetcode250
+leetcode: unique-paths
+milestones:
+- blind75
+- top100
+entry: unique_paths
+signature: 'def unique_paths(m: int, n: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 覆盖了从上方来的路线。
+  code: |
+    def unique_paths(m: int, n: int) -> int:
+        row = [1] * n
+        for r in range(1, m):
+            for c in range(1, n):
+                row[c] = row[c - 1]
+        return row[-1]
+- why: 把所有走法逐条展开，相同格子的路线数一次又一次重算。
+  code: |
+    def unique_paths(m: int, n: int) -> int:
+        if m == 1 or n == 1:
+            return 1
+        return unique_paths(m - 1, n) + unique_paths(m, n - 1)

@@ -1,0 +1,15 @@
+id: py-0a-407-fix-input-sum
+title: 改错：收银机显示了 12
+track: python
+stage: 0A
+order: 85
+format: fix
+mode: stdio
+difficulty: 4
+skills:
+  requires:
+    - py.stdio-input
+  introduces: null
+source: original
+leetcode: null
+milestones: []

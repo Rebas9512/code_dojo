@@ -1,0 +1,16 @@
+id: tensor-4-022-state-inventory
+title: 两张参数共有多少格
+track: tensor
+stage: '4'
+order: 220
+format: predict
+mode: predict
+difficulty: 43
+skills:
+  requires: []
+  introduces: tensor.state
+source: original
+wrong_examples:
+  - why: 把参数张量的个数和标量的个数互换。
+    code: |
+      print("8\n2\n['weight', 'bias']")

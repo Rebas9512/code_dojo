@@ -1,0 +1,32 @@
+id: py-0a-208-complete-absent
+title: 补全缺失读数的判断
+track: python
+stage: 0A
+order: 2080
+format: complete
+mode: function
+difficulty: 17
+skills:
+  requires:
+    - py.type-convert
+    - py.none
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: display
+signature: 'def display(n: int) -> str:'
+compare: exact
+wrong_examples:
+  - why: 把合法的 0 也当作缺失。
+    code: |
+      def read_level(n: int) -> int | None:
+          if n >= 0:
+              return n
+
+
+      def display(n: int) -> str:
+          level = read_level(n)
+          if not level:
+              return "?"
+          return str(level)

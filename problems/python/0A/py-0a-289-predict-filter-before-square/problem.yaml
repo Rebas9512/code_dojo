@@ -1,0 +1,18 @@
+id: py-0a-289-predict-filter-before-square
+title: 哪些数走进平方表
+track: python
+stage: 0A
+order: 4090
+format: predict
+mode: predict
+difficulty: 18
+skills:
+  requires: []
+  introduces: py.list-comp
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM60：以为先用平方替换 x，再检查 x 是否大于零。
+    code: |
+      print('[4, 9]\n[-2, 0, 3]')

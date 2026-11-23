@@ -1,0 +1,49 @@
+id: algo-4-070-network-delay-time
+title: 最后一个站何时收到信号
+track: algo
+stage: '4'
+order: 700
+format: write
+mode: function
+difficulty: 79
+skills:
+  requires:
+  - algo.dijkstra
+  - py.break-continue
+  - py.dict-get
+  - py.list-builtins
+  - py.list-comp
+  - py.nested-loop
+  - py.ternary
+  - py.type-convert
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: network-delay-time
+milestones:
+- nc150
+entry: network_delay
+signature: 'def network_delay(times: list[list[int]], n: int, start: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 只统计收到信号的站点，漏报不可达站。
+  code: |
+    import heapq
+
+
+    def network_delay(times: list[list[int]], n: int, start: int) -> int:
+        graph = [[] for _ in range(n + 1)]
+        for u, v, delay in times:
+            graph[u].append((v, delay))
+        dist = {start: 0}
+        heap = [(0, start)]
+        while heap:
+            arrival, node = heapq.heappop(heap)
+            if arrival != dist[node]:
+                continue
+            for dest, delay in graph[node]:
+                candidate = arrival + delay
+                if candidate < dist.get(dest, float("inf")):
+                    dist[dest] = candidate
+                    heapq.heappush(heap, (candidate, dest))
+        return max(dist.values()) if dist else -1

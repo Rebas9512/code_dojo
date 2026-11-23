@@ -1,0 +1,83 @@
+id: sql-3-l02-outer-row-and-cte
+title: 拿当前行去查，再给中间表命名
+track: sql
+skills:
+  - sql.correlated-subquery
+  - sql.exists
+  - sql.cte
+steps:
+  - type: read
+    skill: sql.correlated-subquery
+    md: |
+      拿一本小说去问“同类伙伴的平均价是多少”，再拿一本食谱去问，应该得到两次不同的统计。外层 b 代表手里那本书，内层 p 代表可能的伙伴。把 p.category 和 b.category 连起来，伙伴的范围就随当前书而变。
+
+      先把外层限定为一本书，再换另一本不同分类的书，观察同类均价这一格如何变化。两边都写成 p.category 会让条件永远在比较伙伴自身，分类限制就丢了。
+  - type: example
+    skill: sql.correlated-subquery
+    db: bookstore
+    code: |
+      -- ① 每本书保留自己的分类与标价
+      -- ② 按当前书的分类找比较基准
+      SELECT b.book_id, b.price,
+             (SELECT AVG(p.price) FROM books p WHERE p.category = b.category) AS peer_mean
+      FROM books b WHERE b.book_id IN (1, 3);
+    md: 删掉内层 WHERE，再比较两行的 peer_mean。
+  - type: quiz
+    skill: sql.correlated-subquery
+    q: 内层写 p.category=p.category 会跟哪一组求均价？
+    options:
+      - 当前书所在的类
+      - 全店有分类的书
+      - 没有任何书
+    answer: 1
+    explain: 这个条件没有读取外层 b。书店的分类非空，所以全部伙伴都通过。
+  - type: read
+    skill: sql.exists
+    md: |
+      拿着每位作者的编号去翻书目，只要发现一本署了他的编号的书，就知道他有书；至于找到的书名和书价可以先不看。EXISTS 检查的就是内部查询能否交出一行，因此常写 SELECT 1。
+
+      在前面加 NOT，条件就变成“一本都找不到”。作者不详的书号可以出现在右表里，它只能说明这一本匹配不上，对其他作者没有影响。把关联条件去掉，问题就变成书目中有没有任何一本书了。
+  - type: example
+    skill: sql.exists
+    db: bookstore
+    code: |
+      -- ① 从完整的作者名册出发
+      -- ② 检查能否找到署了当前作者编号的书
+      SELECT a.author_id, a.name FROM authors a WHERE NOT EXISTS (
+          SELECT 1 FROM books b WHERE b.author_id = a.author_id
+      );
+    md: 去掉 NOT，观察这次名册里出现谁。
+  - type: quiz
+    skill: sql.exists
+    q: EXISTS (SELECT NULL FROM books) 对非空书目得到什么？
+    options:
+      - 未知
+      - 真
+      - 假
+    answer: 1
+    explain: 只检查有没有行，SELECT 那一格里即使是 NULL 也算一行。
+  - type: read
+    skill: sql.cte
+    md: |
+      相关子查询中的同类均价也可以先整张列出来。先为每个分类算一行均价，把这张临时清单叫 means，再把原书目与相应分类配对。WITH 后的名字只在这一条语句里有效。
+
+      排查时可以临时把最后的 SELECT 换成 SELECT category, mean_price FROM means，看看是不是一类一行。确认中间表正确后再继续连接。第二个中间结果用逗号接上，它可以读取前面已经命名的表。
+  - type: example
+    skill: sql.cte
+    db: bookstore
+    code: |
+      -- ① 先得到一类一行的均价表
+      WITH means AS (SELECT category, AVG(price) AS mean_price FROM books GROUP BY category)
+      -- ② 配回书目，筛出高于本类均价的书
+      SELECT b.book_id, b.price FROM books b JOIN means m ON b.category = m.category
+      WHERE b.price > m.mean_price;
+    md: 只查询 means 再运行。哪一步把一类一行变回了一书一行？
+  - type: quiz
+    skill: sql.cte
+    q: means 中一个分类意外变成两行，按分类连回书目会怎样？
+    options:
+      - 该类的书被配两次
+      - 自动去重
+      - 只用第一条
+    answer: 0
+    explain: 连接会为每个匹配配一行。先查看中间表能找到重复源头。

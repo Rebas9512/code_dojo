@@ -1,0 +1,19 @@
+id: py-0a-127-complete-smallest-digit
+title: 补全：最小的那一位
+track: python
+stage: 0A
+order: 530
+format: complete
+mode: function
+difficulty: 9
+skills:
+  requires: [py.running-max, py.while, py.floordiv-mod, py.func-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: smallest_digit
+signature: "def smallest_digit(n: int) -> int:"
+compare: exact
+hints:
+  - "找最小：新数字比擂主小才换。"

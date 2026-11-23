@@ -1,0 +1,11 @@
+{
+  "examples": [
+    {"ops": ["Counter", "add", "get"], "args": [[3], [2], []], "expected": [null, null, 5]},
+    {"ops": ["Counter", "get"], "args": [[0], []], "expected": [null, 0]}
+  ],
+  "hidden": [
+    {"ops": ["Counter", "add", "get"], "args": [[-2], [-1], []], "expected": [null, null, -3]},
+    {"ops": ["Counter", "add", "add", "get"], "args": [[1], [2], [2], []], "expected": [null, null, null, 5]},
+    {"ops": ["Counter", "add", "get"], "args": [[0], [0], []], "expected": [null, null, 0]}
+  ]
+}

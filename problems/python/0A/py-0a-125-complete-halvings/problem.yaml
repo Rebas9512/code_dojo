@@ -1,0 +1,19 @@
+id: py-0a-125-complete-halvings
+title: 补全：除到 0 要几次
+track: python
+stage: 0A
+order: 490
+format: complete
+mode: function
+difficulty: 9
+skills:
+  requires: [py.while, py.floordiv-mod, py.func-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: count_halvings
+signature: "def count_halvings(n: int) -> int:"
+compare: exact
+hints:
+  - "什么时候还需要继续除？n 还没变成 0 的时候。"

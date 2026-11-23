@@ -1,0 +1,23 @@
+id: py-0a-296-complete-alarm
+title: 补全低温警报
+track: python
+stage: 0A
+order: 4160
+format: complete
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - py.genexp
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: alarm
+signature: 'def alarm(values: list[int], limit: int) -> bool:'
+compare: exact
+wrong_examples:
+  - why: 要求所有读数都低于界限才报警。
+    code: |
+      def alarm(values: list[int], limit: int) -> bool:
+          return all(x < limit for x in values)

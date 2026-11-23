@@ -1,0 +1,33 @@
+id: tensor-3-l02-relabel
+title: 转置与对角线
+track: tensor
+skills:
+  - tensor.relabel
+steps:
+  - type: read
+    skill: tensor.relabel
+    md: |-
+      有时只需换一种方式查看同一张表。把行、列的顺序调换就得到转置；如果两根轴都表示同一批端口，取「发件与收件编号相同」的格子就是主对角线。比如 [[3, 8], [7, 5]] 的自发自收量是 [3, 5]。
+
+      ij->ji 重排输出轴，格子的归属随轴一起变。ii->i 在输入内部重复字母，只取两个下标相同的格子；这要求这两轴等长。ii-> 还会将选出的对角线求和，得到标量。
+
+      **TM16 常见误解：以为同一输入的重复字母会选中整张表**。方表 [[3, 8], [7, 5]] 写 ii->i 只读 [3, 5]，改成 ii-> 才将它们合成 8。
+  - type: example
+    skill: tensor.relabel
+    code: |
+      import torch
+      # ① 只选同号的收发端口，再用 diagonal 核对
+      x = torch.tensor([[3, 8], [7, 5]])
+      d = torch.einsum("ii->i", x)
+      print(d.tolist())  # 输出 [3, 5]
+      print(torch.equal(d, x.diagonal()))  # 输出 True
+    md: 只把右上角改成 99，看哪一项发生改变。
+  - type: quiz
+    skill: tensor.relabel
+    q: '[[3, 8], [7, 5]] 使用 ii-> 后输出什么？'
+    options:
+      - '[3, 5]'
+      - '23'
+      - '8'
+    answer: 2
+    explain: 先选对角线上的 3 和 5，再把消失的 i 求和，结果为 8。（TM16）

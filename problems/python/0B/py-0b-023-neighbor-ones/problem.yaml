@@ -1,0 +1,37 @@
+id: py-0b-023-neighbor-ones
+title: 每个位置旁边有几个 1
+track: python
+stage: 0B
+order: 230
+format: write
+mode: function
+difficulty: 30
+skills:
+  requires: [py.matrix-traverse, py.nested-loop, py.list-append, py.early-return, py.bool-ops]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: neighbor_ones
+signature: 'def neighbor_ones(grid: list[list[int]]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+  - why: "PM74：少查零下界，负下标绕到了另一端。"
+    code: |
+      def neighbor_ones(grid: list[list[int]]) -> list[list[int]]:
+          if not grid:
+              return []
+          rows, cols = len(grid), len(grid[0])
+          directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+          result = []
+          for row in range(rows):
+              counts = []
+              for col in range(cols):
+                  count = 0
+                  for dr, dc in directions:
+                      r, c = row + dr, col + dc
+                      if r < rows and c < cols:
+                          count += grid[r][c]
+                  counts.append(count)
+              result.append(counts)
+          return result

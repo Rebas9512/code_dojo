@@ -1,0 +1,24 @@
+id: math-1-023-product-entry
+title: 填一格用料清单
+track: math
+stage: '1'
+order: 230
+format: complete
+mode: function
+difficulty: 30
+skills:
+  requires:
+    - math.matrix-product
+  introduces: null
+source: original
+entry: product_entry
+signature: 'def product_entry(a: list[list[int]], b: list[list[int]], r: int, c: int) -> int:'
+compare: exact
+wrong_examples:
+  - why: 沿右表的行取数。
+    code: |
+      def product_entry(a: list[list[int]], b: list[list[int]], r: int, c: int) -> int:
+          total = 0
+          for k in range(len(b)):
+              total += a[r][k] * b[c][k]
+          return total

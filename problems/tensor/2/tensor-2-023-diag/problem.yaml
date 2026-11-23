@@ -1,0 +1,45 @@
+id: tensor-2-023-diag
+title: 沿主对角线抄数
+track: tensor
+stage: '2'
+order: 230
+format: write
+mode: function
+difficulty: 33
+skills:
+  requires:
+    - tensor.coordinates
+    - tensor.mask
+  introduces: null
+source: original
+entry: diag
+signature: 'def diag(x):'
+compare: checker
+wrong_examples:
+  - why: 直接调用现成运算，跳过了坐标构造。
+    code: |
+      import torch
+
+
+      def diag(x):
+          return torch.diagonal(x)
+  - why: 固定列号得到首列，没能沿对角线同步移动。
+    code: |
+      import torch
+
+
+      def diag(x):
+          rows, cols = x.shape
+          i = torch.arange(rows)
+          i = i[i < cols]
+          return x[i, 0]
+constraints:
+  no_loops: true
+  forbid_calls:
+    - torch.diag
+    - torch.diagonal
+    - torch.Tensor.diag
+    - torch.Tensor.diagonal
+  forbid_imports:
+    - numpy
+    - pandas

@@ -1,0 +1,27 @@
+id: wrangle-3-020-known-prices
+title: 保留有标价的书
+track: wrangle
+stage: '3'
+order: 200
+format: write
+mode: function
+difficulty: 33
+skills:
+  requires:
+    - wrangle.missing
+    - wrangle.columns
+  introduces: null
+source: original
+entry: priced
+signature: 'def priced(t):'
+compare: frame
+leetcode: drop-missing-data
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 备注为空也被误删。
+    code: |
+      def priced(t):
+          t['cents'] = t['price'] * 100
+          return t.dropna()

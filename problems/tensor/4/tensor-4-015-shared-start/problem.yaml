@@ -1,0 +1,27 @@
+id: tensor-4-015-shared-start
+title: 每条通道有自己的旋钮
+track: tensor
+stage: '4'
+order: 150
+format: write
+mode: function
+difficulty: 39
+skills:
+  requires:
+    - tensor.parameter
+    - py.type-convert
+  introduces: null
+source: original
+entry: initial_offsets
+signature: 'def initial_offsets(width, start):'
+compare: checker
+wrong_examples:
+  - why: 关闭了旋钮的求导开关。
+    code: |
+      import torch
+      import torch.nn as nn
+
+
+      def initial_offsets(width, start):
+          values = torch.full((width,), float(start))
+          return nn.Parameter(values, requires_grad=False)

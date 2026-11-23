@@ -1,0 +1,26 @@
+id: sql-4-001-catalog-price-share
+title: 补全：每本书占总标价的份额
+track: sql
+stage: '4'
+order: 10
+format: complete
+difficulty: 53
+skills:
+  requires:
+    - sql.nullif
+  introduces: sql.window-agg
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/ties-and-null.sql
+  - db:bookstore + datasets/sample.sql + datasets/singletons.sql
+ordered: false
+hints:
+  - 全店总价只需要一个数，但结果还要为每本书留一行。
+wrong_examples:
+  - why: 每本书只除以自身的标价
+    sql: |
+      SELECT book_id, price / NULLIF(price, 0) AS share
+      FROM shelf;

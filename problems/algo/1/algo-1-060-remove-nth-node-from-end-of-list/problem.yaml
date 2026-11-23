@@ -1,0 +1,38 @@
+id: algo-1-060-remove-nth-node-from-end-of-list
+title: 删去从尾端数的第 n 个节点
+track: algo
+stage: '1'
+order: 600
+format: write
+mode: function
+difficulty: 62
+skills:
+  requires:
+  - py.two-index
+  - algo.ll-dummy
+  introduces: null
+source: neetcode250
+leetcode: remove-nth-node-from-end-of-list
+milestones:
+- blind75
+- top100
+entry: remove_nth
+signature: 'def remove_nth(head: ListNode, n: int) -> ListNode | None:'
+compare: exact
+convert:
+  args:
+    '0': listnode
+  returns: listnode
+wrong_examples:
+- why: 删除旧头后仍返回旧头。
+  code: |
+    def remove_nth(head: ListNode, n: int) -> ListNode | None:
+        dummy = ListNode(0, head)
+        front = back = dummy
+        for _ in range(n):
+            front = front.next
+        while front.next:
+            front = front.next
+            back = back.next
+        back.next = back.next.next
+        return head

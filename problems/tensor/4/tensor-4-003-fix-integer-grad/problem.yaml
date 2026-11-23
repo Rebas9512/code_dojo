@@ -1,0 +1,26 @@
+id: tensor-4-003-fix-integer-grad
+title: 让整数记录参与求导
+track: tensor
+stage: '4'
+order: 30
+format: fix
+mode: function
+difficulty: 33
+skills:
+  requires:
+    - tensor.backward
+  introduces: null
+source: original
+entry: cube_slopes
+signature: 'def cube_slopes(values):'
+compare: allclose
+wrong_examples:
+  - why: 由整数列表推断出的整数张量不能求导。
+    code: |
+      import torch
+
+
+      def cube_slopes(values):
+          x = torch.tensor(values, requires_grad=True)
+          torch.sum(x ** 3).backward()
+          return x.grad

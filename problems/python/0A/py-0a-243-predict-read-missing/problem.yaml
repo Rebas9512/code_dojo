@@ -1,0 +1,19 @@
+id: py-0a-243-predict-read-missing
+title: 查一张还没发的票
+track: python
+stage: 0A
+order: 3030
+format: predict
+mode: predict
+difficulty: 17
+skills:
+  requires:
+    - py.dict-basics
+  introduces: py.dict-get
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM55：以为 get 返回默认号时会顺便登记新名字。
+    code: |
+      print('9\n0\n2')

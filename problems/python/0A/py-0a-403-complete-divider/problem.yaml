@@ -1,0 +1,15 @@
+id: py-0a-403-complete-divider
+title: 补全收据分隔线
+track: python
+stage: 0A
+order: 50
+format: complete
+mode: stdio
+difficulty: 4
+skills:
+  requires:
+    - py.type-ops
+  introduces: null
+source: original
+leetcode: null
+milestones: []

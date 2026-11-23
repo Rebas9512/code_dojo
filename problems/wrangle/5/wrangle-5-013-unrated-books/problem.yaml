@@ -1,0 +1,32 @@
+id: wrangle-5-013-unrated-books
+title: 找出无人评分的书
+track: wrangle
+stage: '5'
+order: 130
+format: write
+mode: function
+difficulty: 39
+skills:
+  requires:
+    - wrangle.report-grain
+    - wrangle.loc
+    - py.in-membership
+  introduces: null
+source: original
+entry: unrated
+signature: 'def unrated(books, ratings):'
+compare: frame
+leetcode: customers-who-never-order
+sql_twin: sql-2-006-unrated-books
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+    '1': dataframe
+wrong_examples:
+  - why: 返回了有匹配的书。
+    code: |
+      def unrated(books, ratings):
+          rated = books['book_id'].isin(ratings['book_id'])
+          return books.loc[rated, ['book_id', 'title']]

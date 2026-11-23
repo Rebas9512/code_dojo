@@ -1,0 +1,28 @@
+id: py-0a-308-honor-roll
+title: 从两列成绩生成名次表
+track: python
+stage: 0A
+order: 4280
+format: combine
+mode: function
+difficulty: 23
+skills:
+  requires:
+    - py.enumerate
+    - py.list-comp
+    - py.tuple
+    - py.zip
+    - py.sort-key
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: ranking
+signature: 'def ranking(names: list[str], scores: list[int]) -> list[tuple[int, str, int]]:'
+compare: exact
+wrong_examples:
+  - why: 沿用 enumerate 的起点 0。
+    code: |
+      def ranking(names: list[str], scores: list[int]) -> list[tuple[int, str, int]]:
+          rows = sorted(zip(names, scores), key=lambda pair: (-pair[1], pair[0]))
+          return [(rank, name, score) for rank, (name, score) in enumerate(rows)]

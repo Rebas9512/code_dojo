@@ -1,0 +1,43 @@
+id: algo-5-071-construct-binary-tree-from-inorder-and-postorder-traversal
+title: 用中序和后序还原树
+track: algo
+stage: '5'
+order: 710
+format: write
+mode: function
+difficulty: 81
+week: 9
+skills:
+  requires:
+  - algo.tree-basics
+  - algo.hash-index-map
+  - algo.nested-func
+  - py.dict-set-comp
+  - py.recursion-multi
+  introduces: null
+source: top-interview-150
+leetcode: construct-binary-tree-from-inorder-and-postorder-traversal
+milestones: []
+entry: build_tree
+signature: 'def build_tree(inorder: list[int], postorder: list[int]) -> TreeNode:'
+compare: exact
+time_limit_ms: 800
+convert:
+  returns: treenode
+wrong_examples:
+- why: 把中序记录中根左侧的节点挂到了右边，重建成了镜像。
+  code: |
+    def build_tree(inorder: list[int], postorder: list[int]) -> TreeNode:
+        position = {value: i for i, value in enumerate(inorder)}
+
+        def build(start, stop, end):
+            if start >= stop:
+                return None
+            root = TreeNode(postorder[end])
+            mid = position[root.val]
+            right_size = stop - mid - 1
+            root.right = build(start, mid, end - right_size - 1)
+            root.left = build(mid + 1, stop, end - 1)
+            return root
+
+        return build(0, len(inorder), len(postorder) - 1)

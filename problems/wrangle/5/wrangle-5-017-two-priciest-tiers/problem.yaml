@@ -1,0 +1,33 @@
+id: wrangle-5-017-two-priciest-tiers
+title: 保留每类最贵的两个价位
+track: wrangle
+stage: '5'
+order: 170
+format: write
+mode: function
+difficulty: 41
+skills:
+  requires:
+    - wrangle.window
+    - wrangle.group
+    - wrangle.missing
+    - wrangle.loc
+  introduces: null
+source: original
+entry: top_tiers
+signature: 'def top_tiers(shelf):'
+compare: frame
+leetcode: department-top-three-salaries
+sql_twin: sql-4-005-two-priciest-tiers
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 最高价并列时，竞赛名次会跳过第二档。
+    code: |
+      def top_tiers(shelf):
+          known = shelf.dropna(subset=['price'])
+          place = known.groupby('category')['price'].rank(method='min', ascending=False)
+          return known.loc[place <= 2, ['book_id', 'category', 'price']]

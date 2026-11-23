@@ -1,0 +1,39 @@
+id: algo-1-023-valid-sudoku
+title: 检查已填的数独盘面
+track: algo
+stage: '1'
+order: 230
+format: write
+mode: function
+difficulty: 47
+skills:
+  requires:
+  - py.floordiv-mod
+  - py.early-return
+  - py.break-continue
+  - py.matrix-traverse
+  - algo.hash-seen
+  introduces: null
+source: neetcode250
+leetcode: valid-sudoku
+milestones:
+- nc150
+entry: is_valid_sudoku
+signature: 'def is_valid_sudoku(board: list[list[str]]) -> bool:'
+compare: exact
+wrong_examples:
+- why: 只用行块编号，错把三个宫当作同一宫。
+  code: |
+    def is_valid_sudoku(board: list[list[str]]) -> bool:
+        seen = set()
+        for r in range(9):
+            for c in range(9):
+                digit = board[r][c]
+                if digit == '.':
+                    continue
+                box = r // 3
+                for key in [('行', r, digit), ('列', c, digit), ('宫', box, digit)]:
+                    if key in seen:
+                        return False
+                    seen.add(key)
+        return True

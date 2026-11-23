@@ -1,0 +1,51 @@
+id: algo-3-066-word-break-ii
+title: 插入空格还原所有句子
+track: algo
+stage: '3'
+order: 660
+format: combine
+mode: function
+difficulty: 69
+skills:
+  requires:
+  - algo.backtracking
+  - algo.nested-func
+  - py.bool-ops
+  - py.multi-assign
+  - py.set-basics
+  - py.slice
+  - py.split-join
+  introduces: null
+source: neetcode250
+leetcode: word-break-ii
+milestones: []
+entry: sentences
+signature: 'def sentences(s: str, words: list[str]) -> list[str]:'
+compare: unordered
+wrong_examples:
+- why: 只允许长度一的词。
+  code: |
+    def sentences(s: str, words: list[str]) -> list[str]:
+        dictionary = set(words)
+        result, path, dead = [], [], set()
+        def split(start):
+            if start == len(s):
+                result.append(' '.join(path))
+                return True
+            if start in dead:
+                return False
+            found = False
+            for end in range(start + 1, len(s) + 1):
+                word = s[start:end]
+                if len(word) == 1 and word in dictionary:
+                    path.append(word)
+                    if split(end):
+                        found = True
+                    path.pop()
+            if not found:
+                dead.add(start)
+            return found
+        split(0)
+        return result
+hints:
+- 若同一后缀已经确认无法切完，之后从另一个前缀走到这里还需要重试吗？

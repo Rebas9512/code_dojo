@@ -1,0 +1,31 @@
+id: sql-4-017-nth-highest-salary
+title: 第 N 档工资
+track: sql
+stage: '4'
+order: 170
+format: variant
+difficulty: 61
+skills:
+  requires:
+    - sql.cte
+    - sql.rank
+    - sql.subquery-scalar
+  introduces: null
+source: leetcode-db
+leetcode: nth-highest-salary
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/missing.sql
+  - datasets/sample.sql + datasets/second.sql
+ordered: false
+hints:
+  - 第 n 档按不同工资数。外层没有匹配行时怎样保住一个输出格？
+wrong_examples:
+  - why: 并列后跳号
+    sql: |
+      WITH tiers AS (
+          SELECT salary, RANK() OVER (ORDER BY salary DESC) AS tier
+          FROM wages WHERE salary IS NOT NULL
+      )
+      SELECT MAX(salary) AS nth_salary FROM tiers WHERE tier = (SELECT n FROM settings);

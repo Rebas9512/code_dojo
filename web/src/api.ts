@@ -1,0 +1,379 @@
+import type { SqlTable, Difference } from './sql/compare'
+import type { SqlExercise } from './sql/engine'
+
+// 和后端 server/app/main.py 对应的类型与请求
+
+export type Track = string
+export type Language = 'python' | 'sql' | 'none'
+
+export interface PracticeLink {
+  id: string
+  title: string
+  parent?: string
+  source?: string
+  due?: string
+  step?: number
+  rewrite?: boolean
+  generate?: boolean
+}
+
+export function practicePath(item: PracticeLink) {
+  const params = new URLSearchParams()
+  if (item.source && item.due) {
+    params.set('review', item.source)
+    params.set('due', item.due)
+  }
+  if (item.parent) params.set('extra', item.id)
+  if (item.generate) params.set('variant', '1')
+  return '/p/' + encodeURIComponent(item.parent ?? item.id) + (params.size ? '?' + params : '')
+}
+
+export interface TodayPlan {
+  date: string
+  daily_limit: number
+  first_rate: number | null
+  first_count: number
+  reviews: PracticeLink[]
+  tracks: { id: string; name: string; next: PracticeLink | null }[]
+}
+
+export interface Week {
+  week: string
+  first_rate: number | null
+  syntax_errors: number
+  elapsed_ms: number | null
+  hints: number
+  ai_rate: number | null
+}
+
+export interface ReviewContext { review_source?: string; review_due?: string }
+
+export interface MapUnit {
+  id: string
+  name: string
+  total: number
+  solved: number
+  assisted: number
+  attempted: number
+  skills: { id: string; name: string; status: Status }[]
+  mastered: number
+  next: PracticeLink | null
+}
+
+export interface TrackStage {
+  id: string
+  name: string
+  total: number
+  solved: number
+  units: MapUnit[]
+}
+
+export interface TrackInfo {
+  id: Track
+  name: string
+  summary: string
+  order: number
+  language: Language
+  runtime: 'python' | 'pglite' | 'ds' | 'none'
+  status: 'active' | 'planned'
+  requires: Track[]
+  requires_done: boolean
+  stages: TrackStage[]
+  total: number
+  solved: number
+  assisted: number
+  attempted: number
+  skills: number
+  mastered: number
+  next: PracticeLink | null
+}
+export type Format = 'predict' | 'complete' | 'fix' | 'write' | 'variant' | 'combine' | 'inspect'
+export type Mode = 'function' | 'class' | 'stdio' | 'predict' | 'inspect' | 'dml' | null
+export type Status = 'solved' | 'assisted' | 'attempted' | null
+
+export interface SkillRef {
+  requires: string[]
+  introduces: string | null
+}
+
+export interface ProblemSummary {
+  id: string
+  title: string
+  track: Track
+  stage: string
+  order: number
+  format: Format
+  mode: Mode
+  difficulty: number
+  skills: SkillRef
+  milestones: string[]
+  leetcode: string | null
+  optional: boolean
+  status: Status
+}
+
+export interface TrackProblem extends ProblemSummary {
+  unit: string
+}
+
+export interface SkillCard {
+  id: string
+  name: string
+  card: string
+  new: boolean
+}
+
+export interface ItemRef {
+  kind: 'lesson' | 'problem'
+  id: string
+  title: string
+}
+
+export function itemPath(ref: { kind: 'lesson' | 'problem'; id: string }): string {
+  return ref.kind === 'lesson' ? `/l/${ref.id}` : `/p/${ref.id}`
+}
+
+export interface DataBlock {
+  kind: 'table' | 'csv' | 'json' | 'schema' | 'values'
+  title: string
+  content: string
+  columns?: { name: string; type: string; nullable: boolean; primary_key: boolean }[]
+}
+
+export type LessonStep =
+  | { type: 'read'; skill: string; md: string }
+  | { type: 'example'; skill: string; code: string; md?: string; stdin?: string; db?: string; patch?: string; setup?: string[] }
+  | { type: 'example'; skill: string; data: DataBlock; md?: string }
+  | { type: 'quiz'; skill: string; q: string; options: string[]; answer: number; explain?: string }
+
+/** 一道题的"课"里的一段：一个技能的教学内容（new = 本题新引入的技能） */
+export interface LessonSection {
+  skill: string
+  name: string
+  card: string
+  new: boolean
+  lesson: string | null
+  steps: LessonStep[]
+}
+
+/** 附加题（AI 照着原题出、验证过的相似题）。id 形如 x-12 */
+export interface ExtraSummary {
+  id: string
+  seq: number
+  title: string | null
+  status: 'generating' | 'ready' | 'failed'
+  error: string | null
+  request: string
+  practice_skill: string | null
+  created_at: string
+}
+
+export interface PlaygroundResult {
+  status: 'ok' | 'runtime_error' | 'timeout' | 'compile_error' | 'system_error'
+  stdout: string
+  error: string | null
+  time_ms: number
+}
+
+export interface ProblemDetail extends ProblemSummary {
+  language: Language
+  statement: string
+  starter: string
+  signature: string | null
+  entry: string | null
+  hints: string[]
+  examples: Record<string, unknown>[]
+  skill_cards: SkillCard[]
+  stuck: { skill: string; target_id: string; target: string; root: boolean; problem: PracticeLink | null } | null
+  continue_with: PracticeLink | null
+  prev: ItemRef | null
+  next: ItemRef | null
+  has_lesson: boolean
+  parent: string | null
+  extra_seq: number | null
+  data?: DataBlock[]
+  answer?: { type: 'choice'; options: string[] } | { type: 'short' }
+  program?: string
+  datasets?: string[]
+}
+
+export interface Skill {
+  id: string
+  name: string
+  stage: string
+  prereqs: { id: string; name: string; track: Track }[]
+  lesson: { id: string; title: string } | null
+  problems: Pick<ProblemSummary, 'id' | 'title' | 'format' | 'status'>[]
+  state: 'unlearned' | 'learning' | 'mastered' | 'review'
+  counted_solves: number
+  last_used: string | null
+  used_by: number
+  card: string
+  group: number | null
+}
+
+export type CaseStatus = 'passed' | 'wrong_answer' | 'runtime_error' | 'timeout' | 'skipped'
+export type Verdict = 'accepted' | 'compile_error' | 'constraint_error' | 'system_error' | CaseStatus
+
+export interface FullCaseResult {
+  affected_rows?: number
+  difference?: Difference
+  status: CaseStatus
+  input: Record<string, unknown>
+  expected: unknown
+  actual: unknown
+  error: string | null
+  stdout: string
+  time_ms: number
+  preview?: false
+  hidden?: boolean
+}
+
+export type CaseResult = FullCaseResult | (Omit<FullCaseResult, 'preview' | 'input' | 'difference'> & {
+  preview: true
+  input?: Record<string, unknown> | string
+  difference?: Difference | string
+})
+
+export interface JudgeResult {
+  verdict: Verdict
+  passed?: number
+  total?: number
+  error?: string
+  cases: CaseResult[]
+  explain?: string
+  misconception?: { id: string; name: string; line: string }
+  submission_id?: number
+}
+
+export interface ServerStatus {
+  judge_mode: 'local' | 'docker'
+  judge_backends: { python: 'local' | 'docker'; ds: 'local' | 'docker' }
+  ok: boolean
+  problems: number
+  load_errors: { path: string; message: string }[]
+  judge_image_present: boolean | null
+  ai: string
+  ai_model: string | null
+}
+
+export interface Session { enabled: boolean; authenticated: boolean }
+
+export interface SyncState {
+  enabled: boolean
+  last_sync: string | null
+  pending: number
+  error: string
+  syncing: boolean
+}
+
+async function request<T>(path: string, init?: RequestInit, legacyDev?: () => Promise<T>): Promise<T> {
+  const res = await fetch(path, {
+    ...init,
+    headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
+  })
+  if (!res.ok) {
+    // 仍在运行的旧版开发后端没有登录和诊断新路由。
+    if (import.meta.env.DEV && res.status === 404 && legacyDev) return legacyDev()
+    if (res.status === 401 && path !== '/api/auth/login') {
+      window.dispatchEvent(new Event('dojo-login-required'))
+    }
+    let detail = `${res.status}`
+    try {
+      const body = await res.json()
+      detail = body.detail ?? detail
+    } catch {
+      /* 非 JSON 错误体 */
+    }
+    throw new Error(detail)
+  }
+  return res.json() as Promise<T>
+}
+
+export const api = {
+  syncStatus: () => request<SyncState>('/api/sync', undefined, async () =>
+    ({ enabled: false, last_sync: null, pending: 0, error: '', syncing: false })),
+  syncNow: () => request<SyncState>('/api/sync', { method: 'POST', body: '{}' }),
+  session: () => request<Session>('/api/auth/session', undefined,
+    async () => ({ enabled: false, authenticated: true })),
+  login: (password: string) => request('/api/auth/login', {
+    method: 'POST', body: JSON.stringify({ password }),
+  }),
+  logout: () => request('/api/auth/logout', { method: 'POST', body: '{}' }),
+  today: () => request<TodayPlan>('/api/today'),
+  stats: () => request<{ weeks: Week[] }>('/api/stats'),
+  dailyLimit: (daily_limit: number) => request('/api/today/settings', {
+    method: 'PUT', body: JSON.stringify({ daily_limit }),
+  }),
+  hint: (id: string, number: number, review: ReviewContext) => request(`/api/problems/${id}/hints/${number}`, {
+    method: 'POST', body: JSON.stringify(review),
+  }),
+  solution: (id: string, review: ReviewContext) => request<{ solution: string }>(`/api/problems/${id}/solution`, {
+    method: 'POST', body: JSON.stringify(review),
+  }),
+  tracks: () => request<TrackInfo[]>('/api/tracks'),
+  status: () => request<ServerStatus>('/api/status', undefined, () => request<ServerStatus>('/api/health')),
+  judgeStatus: () => request<{ ds_state: 'docker' | 'unprepared' | 'preparing' | 'ready' }>('/api/judge/status'),
+  problems: (track: Track) => request<TrackProblem[]>(`/api/tracks/${track}/problems`),
+  skills: (track: Track) => request<Skill[]>(`/api/tracks/${track}/skills`),
+  problem: (id: string) => request<ProblemDetail>(`/api/problems/${encodeURIComponent(id)}`),
+  sqlCases: (id: string, scope: 'sample' | 'all') =>
+    request<SqlExercise & { ordered: boolean; tolerance: number; datasets: { setup: string[]; hidden: boolean; expected: SqlTable }[] }>(
+      `/api/problems/${encodeURIComponent(id)}/sql-cases?scope=${scope}`),
+  run: (id: string, body: JudgeRequest) =>
+    request<JudgeResult>(`/api/problems/${encodeURIComponent(id)}/run`, { method: 'POST', body: JSON.stringify(body) }),
+  submit: (id: string, body: JudgeRequest) =>
+    request<JudgeResult>(`/api/problems/${encodeURIComponent(id)}/submit`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  problemLesson: (id: string) =>
+    request<{ sections: LessonSection[] }>(`/api/problems/${encodeURIComponent(id)}/lesson`),
+  playground: (code: string, stdin = '', problemId?: string) =>
+    request<PlaygroundResult>('/api/playground/run', { method: 'POST', body: JSON.stringify({ code, stdin, problem_id: problemId }) }),
+  chat: (id: string) => request<ChatMessage[]>(`/api/problems/${encodeURIComponent(id)}/chat`),
+  extras: (id: string) => request<ExtraSummary[]>(`/api/problems/${encodeURIComponent(id)}/extras`),
+  createExtra: (id: string, req = '', practice_skill?: string, review: ReviewContext = {}) =>
+    request<ExtraSummary>(`/api/problems/${encodeURIComponent(id)}/extras`, {
+      method: 'POST',
+      body: JSON.stringify({ request: req, practice_skill, ...review }),
+    }),
+  deleteExtra: (id: string, seq: number) =>
+    request<{ ok: boolean }>(`/api/problems/${encodeURIComponent(id)}/extras/${seq}`, { method: 'DELETE' }),
+  chatSend: (id: string, body: ReviewContext & { message: string; code?: string; answer?: string | null; current?: string }) =>
+    request<{ user: ChatMessage; assistant: ChatMessage; new_extra: ExtraSummary | null; deleted_extras: number[] }>(
+      `/api/problems/${encodeURIComponent(id)}/chat`,
+      {
+        method: 'POST',
+        body: JSON.stringify(body),
+      },
+    ),
+  chatApplied: (id: string, messageId: number) =>
+    request<{ ok: boolean }>(`/api/problems/${encodeURIComponent(id)}/chat/${messageId}/applied`, { method: 'POST' }),
+  chatClear: (id: string) =>
+    request<{ ok: boolean }>(`/api/problems/${encodeURIComponent(id)}/chat`, { method: 'DELETE' }),
+}
+
+export interface TutorEdit {
+  old: string
+  new: string
+  why: string
+}
+
+export interface ChatMessage {
+  id: number
+  role: 'user' | 'assistant'
+  content: string
+  edits: TutorEdit[]
+  applied: boolean
+  created_at: string
+}
+
+export interface JudgeRequest extends ReviewContext {
+  sql_result?: JudgeResult
+  code?: string
+  answer?: string
+  elapsed_ms?: number
+  hints_used?: number
+  ai_lines?: number
+}

@@ -1,0 +1,20 @@
+id: math-1-013-store-shape
+title: 数门店和天数
+track: math
+stage: '1'
+order: 130
+format: predict
+mode: predict
+difficulty: 23
+skills:
+  requires:
+    - math.vector
+    - py.nested-list
+    - data.shapes
+  introduces: math.matrix-shape
+source: original
+wrong_examples:
+  - why: 把天数放在门店数前。
+    code: |
+      table = [[2, 3, 1], [8, 0, 6]]
+      print([len(table[0]), len(table)])

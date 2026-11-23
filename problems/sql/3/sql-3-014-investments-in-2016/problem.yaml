@@ -1,0 +1,30 @@
+id: sql-3-014-investments-in-2016
+title: 满足双重条件的保额
+track: sql
+stage: '3'
+order: 140
+format: combine
+difficulty: 48
+skills:
+  requires:
+    - sql.and-or
+    - sql.coalesce
+    - sql.correlated-subquery
+    - sql.self-join
+  introduces: null
+source: sql50
+leetcode: investments-in-2016
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/duplicate-site.sql
+  - datasets/sample.sql + datasets/distinct-values.sql
+ordered: false
+hints:
+  - 去年同额和同地点分别数，需要满足的数量条件相反。
+wrong_examples:
+  - why: 只拿纬度判断地点
+    sql: |
+      SELECT COALESCE(SUM(p.new_value), 0) AS total_value FROM policies p
+      WHERE (SELECT COUNT(*) FROM policies q WHERE q.old_value = p.old_value) > 1
+        AND (SELECT COUNT(*) FROM policies q WHERE q.lat = p.lat) = 1;

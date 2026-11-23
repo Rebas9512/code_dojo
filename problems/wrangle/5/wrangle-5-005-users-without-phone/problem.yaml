@@ -1,0 +1,30 @@
+id: wrangle-5-005-users-without-phone
+title: 哪些读者没有留下电话
+track: wrangle
+stage: '5'
+order: 50
+format: write
+mode: function
+difficulty: 35
+skills:
+  requires:
+    - wrangle.projection
+    - wrangle.missing
+    - wrangle.loc
+  introduces: null
+source: original
+entry: missing_phones
+signature: 'def missing_phones(users):'
+compare: frame
+leetcode: select-data
+sql_twin: sql-0-011-users-without-phone
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 用空文字查缺失的电话。
+    code: |
+      def missing_phones(users):
+          return users.loc[users['phone'] == '', ['user_id', 'name']]

@@ -1,0 +1,33 @@
+id: tensor-2-031-winner-flags
+title: 给每组优胜通道点一盏灯
+track: tensor
+stage: '2'
+order: 310
+format: combine
+mode: function
+difficulty: 37
+skills:
+  requires:
+    - tensor.coordinates
+    - tensor.where
+    - tensor.rank
+    - tensor.one-hot
+  introduces: null
+source: original
+entry: winner_flags
+signature: 'def winner_flags(main, spare):'
+compare: allclose
+wrong_examples:
+  - why: 把有效的零替换为备用分数，可能改变优胜通道。
+    code: |
+      import torch
+
+
+      def winner_flags(main, spare):
+          a = torch.tensor(main)
+          b = torch.tensor(spare)
+          scores = torch.where(a > 0, a, b)
+          winner = torch.argmax(scores, dim=1)
+          return (winner[:, None] == torch.arange(a.shape[1])) * 1
+constraints:
+  no_loops: true

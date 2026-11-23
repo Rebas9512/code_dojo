@@ -1,0 +1,33 @@
+id: algo-5-026-length-of-last-word
+title: 末尾那个词有几个字母
+track: algo
+stage: '5'
+order: 260
+format: write
+mode: function
+difficulty: 75
+week: 3
+skills:
+  requires:
+  - py.index-len
+  - py.bool-ops
+  - py.while
+  introduces: null
+source: top-interview-150
+leetcode: length-of-last-word
+milestones: []
+entry: last_length
+signature: 'def last_length(text: str) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 少算了词首的一个字母。
+  code: |
+    def last_length(text: str) -> int:
+        i = len(text) - 1
+        while text[i] == " ":
+            i -= 1
+        end = i
+        while i >= 0 and text[i] != " ":
+            i -= 1
+        return end - i - 1

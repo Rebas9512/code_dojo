@@ -1,0 +1,27 @@
+id: sql-0-204-find-customer-referee
+title: 列出 2 号读者推荐名单以外的人
+track: sql
+stage: "0"
+order: 440
+format: write
+difficulty: 17
+skills:
+  requires: [sql.and-or, sql.is-null]
+  introduces: null
+source: sql50
+leetcode: find-customer-referee
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/same-name.sql
+  - datasets/sample.sql + datasets/who-referred.sql
+ordered: false
+hints:
+  - 对照没有推荐人和推荐人编号为 5 的两行，想想比较运算遇到 NULL 会得到什么。
+wrong_examples:
+  - why: 只写编号不等于 2，漏掉了未填推荐人的顾客。
+    sql: |
+      SELECT name FROM customer WHERE referee_id <> 2;
+  - why: 对姓名去重，使同名的两位收件人少了一行。
+    sql: |
+      SELECT DISTINCT name FROM customer WHERE referee_id <> 2 OR referee_id IS NULL;

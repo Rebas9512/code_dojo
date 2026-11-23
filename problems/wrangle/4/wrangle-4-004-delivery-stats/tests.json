@@ -1,0 +1,179 @@
+{
+  "examples": [
+    {
+      "args": [
+        {
+          "columns": [
+            "rack",
+            "n"
+          ],
+          "data": [
+            [
+              "A",
+              "2"
+            ],
+            [
+              "B",
+              "4"
+            ],
+            [
+              "A",
+              "5"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "rack",
+          "batches",
+          "total"
+        ],
+        "data": [
+          [
+            "A",
+            2,
+            7
+          ],
+          [
+            "B",
+            1,
+            4
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "rack",
+            "n"
+          ],
+          "data": [
+            [
+              "B",
+              "0"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "rack",
+          "batches",
+          "total"
+        ],
+        "data": [
+          [
+            "B",
+            1,
+            0
+          ]
+        ]
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        {
+          "columns": [
+            "rack",
+            "n"
+          ],
+          "data": [
+            [
+              "C",
+              "8"
+            ],
+            [
+              "C",
+              "8"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "rack",
+          "batches",
+          "total"
+        ],
+        "data": [
+          [
+            "C",
+            2,
+            16
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "rack",
+            "n"
+          ],
+          "data": []
+        }
+      ],
+      "expected": {
+        "columns": [
+          "rack",
+          "batches",
+          "total"
+        ],
+        "data": []
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "rack",
+            "n"
+          ],
+          "data": [
+            [
+              "B",
+              "0"
+            ],
+            [
+              "A",
+              "2"
+            ],
+            [
+              "B",
+              "3"
+            ],
+            [
+              "A",
+              "7"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "rack",
+          "batches",
+          "total"
+        ],
+        "data": [
+          [
+            "A",
+            2,
+            9
+          ],
+          [
+            "B",
+            2,
+            3
+          ]
+        ]
+      }
+    }
+  ]
+}

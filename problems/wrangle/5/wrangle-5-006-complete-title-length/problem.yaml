@@ -1,0 +1,31 @@
+id: wrangle-5-006-complete-title-length
+title: 给书名字数做标签
+track: wrangle
+stage: '5'
+order: 60
+format: write
+mode: function
+difficulty: 36
+skills:
+  requires:
+    - wrangle.projection
+    - wrangle.apply
+    - wrangle.columns
+  introduces: null
+source: original
+entry: title_lengths
+signature: 'def title_lengths(books):'
+compare: frame
+leetcode: invalid-tweets
+sql_twin: sql-0-150-complete-title-length
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 把全店的图书数抄成了每个标题的长度。
+    code: |
+      def title_lengths(books):
+          books['chars'] = len(books)
+          return books[['book_id', 'chars']]

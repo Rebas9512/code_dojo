@@ -1,0 +1,34 @@
+id: sql-4-015-restaurant-growth
+title: 小馆的七日流水
+track: sql
+stage: '4'
+order: 150
+format: combine
+difficulty: 60
+skills:
+  requires:
+    - sql.between
+    - sql.cte
+    - sql.window-frame
+  introduces: null
+source: sql50
+leetcode: restaurant-growth
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/extra-ticket.sql
+  - datasets/sample.sql + datasets/next-day.sql
+ordered: true
+hints:
+  - 窗口里的七行需要各代表什么？
+wrong_examples:
+  - why: 直接在小票行上移动
+    sql: |
+      WITH daily AS (
+          SELECT day, amount FROM checks
+      ), totals AS (
+          SELECT day, ROW_NUMBER() OVER (ORDER BY day) AS n,
+                 SUM(amount) OVER (ORDER BY day ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS total
+          FROM daily
+      )
+      SELECT day, total, total / 7 AS average FROM totals WHERE n >= 7 ORDER BY day;

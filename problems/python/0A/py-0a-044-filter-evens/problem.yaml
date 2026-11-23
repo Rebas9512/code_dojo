@@ -1,0 +1,20 @@
+id: py-0a-044-filter-evens
+title: 挑出偶数
+track: python
+stage: 0A
+order: 850
+format: complete
+mode: function
+difficulty: 13
+skills:
+  requires: [py.list-basics, py.floordiv-mod, py.if-else, py.list-append]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: filter_evens
+signature: "def filter_evens(nums: list[int]) -> list[int]:"
+compare: exact
+hints:
+  - "空列表写作 []。"
+  - "append 直接修改列表，不需要再赋值。"

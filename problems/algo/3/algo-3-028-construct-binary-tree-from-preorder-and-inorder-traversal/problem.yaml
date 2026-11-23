@@ -1,0 +1,43 @@
+id: algo-3-028-construct-binary-tree-from-preorder-and-inorder-traversal
+title: 从两份访问记录重建树
+track: algo
+stage: '3'
+order: 280
+format: combine
+mode: function
+difficulty: 57
+skills:
+  requires:
+  - algo.hash-index-map
+  - algo.nested-func
+  - algo.tree-basics
+  - py.dict-set-comp
+  - py.recursion-multi
+  introduces: null
+source: neetcode250
+leetcode: construct-binary-tree-from-preorder-and-inorder-traversal
+milestones:
+- blind75
+- top100
+entry: restore
+signature: 'def restore(preorder: list[int], inorder: list[int]) -> TreeNode | None:'
+compare: exact
+convert:
+  args: {}
+  returns: treenode
+wrong_examples:
+- why: 只建左子树。
+  code: |
+    def restore(preorder: list[int], inorder: list[int]) -> TreeNode | None:
+        positions = {v: i for i, v in enumerate(inorder)}
+        def build(start, low, high):
+            if low >= high:
+                return None
+            value = preorder[start]
+            mid = positions[value]
+            left = build(start + 1, low, mid)
+            right = build(start + 1 + mid - low, mid + 1, high)
+            return TreeNode(value, left, None)
+        return build(0, 0, len(inorder))
+hints:
+- 前序开头给出根，用它在中序的位置划分两侧，再算右子树在前序中的起点。

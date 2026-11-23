@@ -1,0 +1,49 @@
+id: algo-5-021-basic-calculator-ii
+title: 没有括号的账单表达式
+track: algo
+stage: '5'
+order: 210
+format: write
+mode: function
+difficulty: 75
+week: 3
+skills:
+  requires:
+  - algo.stack-matching
+  - py.elif
+  - py.floordiv-mod
+  - py.list-builtins
+  - py.multi-assign
+  - py.str-methods
+  - py.ternary
+  - py.type-convert
+  introduces: null
+source: grind169
+leetcode: basic-calculator-ii
+milestones: []
+entry: calculate
+signature: 'def calculate(expr: str) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: Python 整除负数向下取整，会多减一。
+  code: |
+    def calculate(expr: str) -> int:
+        terms = []
+        number = 0
+        op = "+"
+        for ch in expr + "+":
+            if ch.isdigit():
+                number = number * 10 + int(ch)
+            elif ch != " ":
+                if op == "+":
+                    terms.append(number)
+                elif op == "-":
+                    terms.append(-number)
+                elif op == "*":
+                    terms[-1] *= number
+                else:
+                    sign = -1 if terms[-1] < 0 else 1
+                    terms[-1] = terms[-1] // number
+                number, op = 0, ch
+        return sum(terms)

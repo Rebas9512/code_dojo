@@ -1,0 +1,27 @@
+id: algo-4-034-n-th-tribonacci-number
+title: 算出三项递推的第 n 项
+track: algo
+stage: '4'
+order: 340
+format: variant
+mode: function
+difficulty: 68
+skills:
+  requires:
+  - algo.dp-1d
+  - py.multi-assign
+  introduces: null
+source: neetcode250
+leetcode: n-th-tribonacci-number
+milestones: []
+entry: tribonacci
+signature: 'def tribonacci(n: int) -> int:'
+compare: exact
+wrong_examples:
+- why: 沿用了两项相加的规则。
+  code: |
+    def tribonacci(n: int) -> int:
+        a, b, c = 0, 1, 1
+        for _ in range(n):
+            a, b, c = b, c, b + c
+        return a

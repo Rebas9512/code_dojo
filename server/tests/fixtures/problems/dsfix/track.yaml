@@ -1,0 +1,12 @@
+id: dsfix
+name: 数据科学判题夹具
+summary: 验证数值、表格、梯度和训练循环。
+order: 4
+language: python
+runtime: ds
+status: active
+requires: [python]
+skill_prefix: dsfix
+stages:
+  - id: "1"
+    name: 数据科学判法

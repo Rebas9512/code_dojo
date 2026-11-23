@@ -1,0 +1,24 @@
+id: tensor-2-018-top-scores
+title: 逐场交出前几名的分数
+track: tensor
+stage: '2'
+order: 180
+format: write
+mode: function
+difficulty: 31
+skills:
+  requires:
+    - tensor.rank
+  introduces: null
+source: original
+entry: scores
+signature: 'def scores(rows, k):'
+compare: allclose
+wrong_examples:
+  - why: 返回的是原列号。
+    code: |
+      import torch
+
+
+      def scores(rows, k):
+          return torch.topk(torch.tensor(rows), k, dim=1).indices

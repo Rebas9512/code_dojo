@@ -1,0 +1,16 @@
+id: py-0a-103-complete-order-total
+title: 补全：订单总价
+track: python
+stage: 0A
+order: 35
+format: complete
+mode: stdio
+difficulty: 2
+skills:
+  requires: [py.var-arith]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "总价 = 单价 × 数量 + 运费。"

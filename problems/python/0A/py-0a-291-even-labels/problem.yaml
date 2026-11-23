@@ -1,0 +1,24 @@
+id: py-0a-291-even-labels
+title: 一行挑出偶数
+track: python
+stage: 0A
+order: 4110
+format: write
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - py.floordiv-mod
+    - py.list-comp
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: even_labels
+signature: 'def even_labels(nums: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: 附加正数条件，漏掉了零和负偶数。
+    code: |
+      def even_labels(nums: list[int]) -> list[int]:
+          return [x for x in nums if x > 0 and x % 2 == 0]

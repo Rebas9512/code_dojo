@@ -1,0 +1,11 @@
+{
+  "examples": [
+    {"ops": ["Meter", "advance", "read"], "args": [[2], [3], []], "expected": [null, 5, 5]},
+    {"ops": ["Meter", "advance"], "args": [[0], [0]], "expected": [null, 0]}
+  ],
+  "hidden": [
+    {"ops": ["Meter", "read"], "args": [[1], []], "expected": [null, 1]},
+    {"ops": ["Meter", "advance", "advance"], "args": [[0], [1], [1]], "expected": [null, 1, 2]},
+    {"ops": ["Meter", "advance", "read"], "args": [[5], [5], []], "expected": [null, 10, 10]}
+  ]
+}

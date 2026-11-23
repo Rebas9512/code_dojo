@@ -1,0 +1,24 @@
+id: py-0a-241-complete-room
+title: 补全书架位置
+track: python
+stage: 0A
+order: 3010
+format: complete
+mode: function
+difficulty: 18
+skills:
+  requires:
+    - py.dict-basics
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: shelve
+signature: 'def shelve(locations: dict[str, int], title: str, shelf: int) -> dict[str, int]:'
+compare: exact
+wrong_examples:
+  - why: 把变量名当作固定文字键。
+    code: |
+      def shelve(locations: dict[str, int], title: str, shelf: int) -> dict[str, int]:
+          locations["title"] = shelf
+          return locations

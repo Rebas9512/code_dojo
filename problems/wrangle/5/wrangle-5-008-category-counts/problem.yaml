@@ -1,0 +1,18 @@
+id: wrangle-5-008-category-counts
+title: 每类有几种书
+track: wrangle
+stage: '5'
+order: 80
+format: predict
+mode: predict
+difficulty: 37
+skills:
+  requires: []
+  introduces: wrangle.report-grain
+source: original
+wrong_examples:
+  - why: 误把分类名出现过就记作一次。
+    code: |
+      print("['kids', 'scifi']\n[1, 1]")
+sql_twin: sql-1-003-books-per-category
+leetcode: classes-with-at-least-5-students

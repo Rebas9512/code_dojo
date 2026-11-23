@@ -1,0 +1,25 @@
+id: sql-0-009-march-orders
+title: 三月份的订单
+track: sql
+stage: "0"
+order: 150
+format: variant
+difficulty: 8
+skills: {requires: [sql.between], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/month-edges.sql
+ordered: false
+hints:
+  - "3 月 1 日到 3 月 31 日，两端都要包含。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "用了 > 和 <，漏掉 1 日和 31 日"
+    sql: |
+      SELECT order_id, user_id, order_date FROM orders WHERE order_date > '2025-03-01' AND order_date < '2025-03-31';
+  - why: "结束日期写成了 4 月 1 日，BETWEEN 会把 4 月 1 日也包含进来"
+    sql: |
+      SELECT order_id, user_id, order_date FROM orders WHERE order_date BETWEEN '2025-03-01' AND '2025-04-01';

@@ -1,0 +1,26 @@
+id: py-0b-003-candy-leaders
+title: 加上糖果后能并列第一吗
+track: python
+stage: 0B
+order: 30
+format: write
+mode: function
+difficulty: 23
+skills:
+  requires: [py.linear-search, py.list-builtins, py.list-append]
+  introduces: null
+source: leetcode75
+leetcode: kids-with-the-greatest-number-of-candies
+milestones: []
+entry: candy_leaders
+signature: 'def candy_leaders(candies: list[int], extra: int) -> list[bool]:'
+compare: exact
+wrong_examples:
+  - why: "只接受超过最多糖果的孩子，漏掉并列。"
+    code: |
+      def candy_leaders(candies: list[int], extra: int) -> list[bool]:
+          highest = max(candies)
+          leaders = []
+          for count in candies:
+              leaders.append(count + extra > highest)
+          return leaders

@@ -1,0 +1,28 @@
+id: wrangle-4-010-unpack-months
+title: 只展开两个月的账目
+track: wrangle
+stage: '4'
+order: 100
+format: write
+mode: function
+difficulty: 33
+skills:
+  requires:
+    - wrangle.melt
+    - wrangle.group
+  introduces: null
+source: original
+entry: month_log
+signature: 'def month_log(t):'
+compare: frame
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 将备注也当成月份。
+    code: |
+      def month_log(t):
+          long = t.melt(id_vars='shop', var_name='month', value_name='qty')
+          return long.groupby(['shop','month'], as_index=False).agg(qty=('qty','sum'))

@@ -1,0 +1,24 @@
+id: math-3-009-wait-summary
+title: 交出等待时间摘要
+track: math
+stage: '3'
+order: 90
+format: write
+mode: function
+difficulty: 30
+skills:
+  requires:
+    - py.genexp
+    - math.spread
+  introduces: null
+source: original
+entry: wait_summary
+signature: 'def wait_summary(values: list[float]) -> list[float]:'
+compare: float
+wrong_examples:
+  - why: 第三栏又返回一遍方差。
+    code: |
+      def wait_summary(values: list[float]) -> list[float]:
+          mean = sum(values)/len(values)
+          variance = sum((v-mean)**2 for v in values)/len(values)
+          return [mean, variance, variance]

@@ -1,0 +1,38 @@
+id: algo-5-027-remove-duplicates-from-sorted-array-ii
+title: 每个读数最多保留两份
+track: algo
+stage: '5'
+order: 270
+format: write
+mode: function
+difficulty: 75
+week: 3
+skills:
+  requires:
+  - algo.read-write-pointer
+  - py.bool-ops
+  - py.helper-func
+  - py.slice
+  introduces: null
+source: top-interview-150
+leetcode: remove-duplicates-from-sorted-array-ii
+milestones: []
+entry: run_case
+signature: 'def run_case(nums: list[int]) -> list:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 写满两项后只和末项比较，后续值第二份也被拒绝。
+  code: |
+    def compact(nums: list[int]) -> int:
+        size = 0
+        for value in nums:
+            if size < 2 or value != nums[size - 1]:
+                nums[size] = value
+                size += 1
+        return size
+
+
+    def run_case(nums: list[int]) -> list:
+        k = compact(nums)
+        return [k, nums[:k]]

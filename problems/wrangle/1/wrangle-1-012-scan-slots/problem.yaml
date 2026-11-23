@@ -1,0 +1,25 @@
+id: wrangle-1-012-scan-slots
+title: 按扫描顺序查货位
+track: wrangle
+stage: '1'
+order: 120
+format: complete
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - wrangle.fancy
+  introduces: null
+source: original
+entry: scan
+signature: 'def scan(values, positions):'
+compare: allclose
+wrong_examples:
+  - why: 把扫描清单按位置重新排序。
+    code: |
+      import numpy as np
+
+
+      def scan(values, positions):
+          a = np.array(values)
+          return a[sorted(positions)]

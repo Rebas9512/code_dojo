@@ -1,0 +1,36 @@
+id: algo-5-009-squares-of-a-sorted-array
+title: 平方以后仍按升序排
+track: algo
+stage: '5'
+order: 90
+format: write
+mode: function
+difficulty: 73
+week: 1
+skills:
+  requires:
+  - algo.two-pointers
+  - py.if-else
+  - py.list-concat-repeat
+  introduces: null
+source: grind169
+leetcode: squares-of-a-sorted-array
+milestones: []
+entry: squares
+signature: 'def squares(nums: list[int]) -> list[int]:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 比较原值忽略负数平方后的大小。
+  code: |
+    def squares(nums: list[int]) -> list[int]:
+        left, right = 0, len(nums) - 1
+        out = [0] * len(nums)
+        for i in range(right, -1, -1):
+            if nums[left] > nums[right]:
+                out[i] = nums[left] ** 2
+                left += 1
+            else:
+                out[i] = nums[right] ** 2
+                right -= 1
+        return out

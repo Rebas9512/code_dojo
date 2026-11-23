@@ -1,0 +1,19 @@
+id: py-0a-200-predict-local-price
+title: 调价后，外面的价签是多少
+track: python
+stage: 0A
+order: 2000
+format: predict
+mode: predict
+difficulty: 16
+skills:
+  requires:
+    - py.func-return
+  introduces: py.helper-func
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM41：以为辅助函数给同名参数赋值会改掉外面的价格。
+    code: |
+      print('7\n6')

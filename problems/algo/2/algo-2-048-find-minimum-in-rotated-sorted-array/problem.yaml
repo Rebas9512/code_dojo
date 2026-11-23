@@ -1,0 +1,36 @@
+id: algo-2-048-find-minimum-in-rotated-sorted-array
+title: 旋转后的最小编号
+track: algo
+stage: '2'
+order: 480
+format: write
+mode: function
+difficulty: 62
+skills:
+  requires:
+  - algo.binary-search
+  - py.if-else
+  - py.multi-assign
+  introduces: null
+source: neetcode250
+leetcode: find-minimum-in-rotated-sorted-array
+milestones:
+- blind75
+- top100
+entry: rotated_min
+signature: 'def rotated_min(nums: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 把末端自己也划到旋转前的高值段。
+  code: |
+    def rotated_min(nums: list[int]) -> int:
+        lo, hi = 0, len(nums)
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if nums[mid] >= nums[-1]:
+                lo = mid + 1
+            else:
+                hi = mid
+        return nums[lo]
+hints:
+- 用末项作参照，判断哪些位置已经进入旋转后的低值段。

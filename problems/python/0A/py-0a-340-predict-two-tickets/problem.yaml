@@ -1,0 +1,18 @@
+id: py-0a-340-predict-two-tickets
+title: 两张票上的座位号
+track: python
+stage: 0A
+order: 4500
+format: predict
+mode: predict
+difficulty: 19
+skills:
+  requires: []
+  introduces: py.class-basic
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM69：以为同一个类创建的对象共用一份实例属性。
+    code: |
+      print('9\n9')

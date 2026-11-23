@@ -1,0 +1,29 @@
+id: algo-3-034-predict-heap-pops
+title: 预测：heappush / heappop 的顺序；用负数做最大堆
+track: algo
+stage: '3'
+order: 340
+format: complete
+mode: function
+difficulty: 56
+skills:
+  requires:
+  - py.list-comp
+  introduces: algo.heapq
+source: original
+leetcode: null
+milestones: []
+entry: pop_largest
+signature: 'def pop_largest(values: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 忘记把弹出的数变回原来的符号。
+  code: |
+    import heapq
+
+
+    def pop_largest(values: list[int]) -> list[int]:
+        heap = []
+        for value in values:
+            heapq.heappush(heap, -value)
+        return [heapq.heappop(heap) for _ in range(len(heap))]

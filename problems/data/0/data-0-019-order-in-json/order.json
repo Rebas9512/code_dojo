@@ -1,0 +1,13 @@
+{
+  "order_id": 102,
+  "items": [
+    {
+      "book_id": 6,
+      "quantity": 2
+    },
+    {
+      "book_id": 14,
+      "quantity": 1
+    }
+  ]
+}

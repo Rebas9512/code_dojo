@@ -1,0 +1,57 @@
+id: algo-3-l04-backtracking
+title: 选择一项，回来时撤销
+track: algo
+skills:
+- algo.backtracking
+steps:
+- type: read
+  skill: algo.backtracking
+  md: |-
+    题目要列出所有选择、组合、座次或切分时，可以把解的前半段当作一条正在搭建的路径。每一层只决定一件事。把选择放进路径后向下探索，到末端记录一个完整答案；回来时撤销刚放的东西，下一位候选才能从相同的起点出发。
+
+    若每位有两种选择，长度为 n 就有 2ⁿ 个终点，完整输出本身要 O(n·2ⁿ) 个字符，正在探索的路径只用 O(n) 空间。**直接保存 path 就会保存当时的内容** 会让许多结果指向同一列表。要保存副本或当时拼出的字符串。只求一个可行解时可以提前停止，枚举全部则不能。
+- type: example
+  skill: algo.backtracking
+  code: |
+    # ① 准备当前路径和答案
+    path, answers = [], []
+    def fill():
+        if len(path) == 2:
+            # ② 在叶子保存快照
+            answers.append(path[:])
+            return
+        for mark in 'AB':
+            # ③ 放入一个选择，探索后撤销
+            path.append(mark)
+            fill()
+            path.pop()
+
+    fill()
+    print(answers)
+
+    # 输出
+    # [['A', 'A'], ['A', 'B'], ['B', 'A'], ['B', 'B']]
+  md: |-
+    | 刚完成的操作 | 路径 | 记录数量 |
+    |---|---|---|
+    | 选 A、再选 A | AA | 1 |
+    | 退回一层 | A | 1 |
+    | 再选 B | AB | 2 |
+
+    把 path[:] 换成 path，运行后观察四个位置里还剩什么。
+- type: quiz
+  skill: algo.backtracking
+  q: 记录完成后还会 pop；怎样保住这次的数字路径？
+  options:
+  - append(path)
+  - append(path[:])
+  answer: 1
+  explain: 切片复制当时的一层列表，后续弹出不会清掉快照。
+- type: quiz
+  skill: algo.backtracking
+  q: 输入 [2,2] 的子集允许 [2,2]，应该在哪儿跳过重复？
+  options:
+  - 所有层都禁用第二个 2
+  - 同一层选择起点时跳过等值候选
+  answer: 1
+  explain: 选了第一枚之后，下一层可以继续选第二枚。

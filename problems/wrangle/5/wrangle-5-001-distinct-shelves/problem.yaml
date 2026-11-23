@@ -1,0 +1,18 @@
+id: wrangle-5-001-distinct-shelves
+title: 书店经营哪些类别
+track: wrangle
+stage: '5'
+order: 10
+format: predict
+mode: predict
+difficulty: 33
+skills:
+  requires: []
+  introduces: wrangle.projection
+source: original
+wrong_examples:
+  - why: 选出类别列后没有去除重复值。
+    code: |
+      print("['scifi', 'kids', 'scifi', 'history']")
+sql_twin: sql-0-016-distinct-categories
+leetcode: drop-duplicate-rows

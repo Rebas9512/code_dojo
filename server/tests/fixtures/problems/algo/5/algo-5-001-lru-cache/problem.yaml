@@ -1,0 +1,12 @@
+id: algo-5-001-lru-cache
+title: LRU 缓存
+track: algo
+stage: "5"
+order: 10
+format: write
+mode: class
+difficulty: 55
+skills: {requires: [py.function-return], introduces: null}
+source: neetcode250
+leetcode: lru-cache
+entry: LRUCache

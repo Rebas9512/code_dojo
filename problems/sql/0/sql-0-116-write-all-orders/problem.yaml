@@ -1,0 +1,23 @@
+id: sql-0-116-write-all-orders
+title: 查看全部订单
+track: sql
+stage: '0'
+order: 5
+format: write
+difficulty: 1
+skills:
+  requires:
+    - sql.select-star
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/extra.sql
+ordered: false
+wrong_examples:
+  - why: 漏掉没有优惠码的订单
+    sql: SELECT * FROM orders WHERE coupon_code IS NOT NULL;
+  - why: 只取样例中已有的条数
+    sql: SELECT * FROM orders LIMIT 33;

@@ -1,0 +1,21 @@
+id: py-0a-040-caesar-shift
+title: 凯撒加密
+track: python
+stage: 0A
+order: 780
+format: combine
+mode: function
+difficulty: 14
+skills:
+  requires: [py.ord-chr, py.for-each, py.floordiv-mod, py.if-else]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: caesar_shift
+signature: "def caesar_shift(s: str, k: int) -> str:"
+compare: exact
+hints:
+  - "判断小写字母：\"a\" <= ch <= \"z\"。"
+  - "取余 % 26 处理绕回。"
+  - "不是小写字母的字符原样拼上去。"

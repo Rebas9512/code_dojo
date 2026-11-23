@@ -1,0 +1,29 @@
+id: tensor-4-011-fix-saved-value
+title: 修好提前改动旋钮的代码
+track: tensor
+stage: '4'
+order: 110
+format: fix
+mode: function
+difficulty: 37
+skills:
+  requires:
+    - tensor.boundary
+  introduces: null
+source: original
+entry: step_reading
+signature: 'def step_reading(value):'
+compare: allclose
+wrong_examples:
+  - why: 提前原地更新破坏了反向保存的输入。
+    code: |
+      import torch
+
+
+      def step_reading(value):
+          x = torch.tensor(value, dtype=torch.float32, requires_grad=True)
+          loss = x * x
+          with torch.no_grad():
+              x.add_(1)
+          loss.backward()
+          return [x.item(), x.grad.item()]

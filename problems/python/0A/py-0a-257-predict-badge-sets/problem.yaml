@@ -1,0 +1,19 @@
+id: py-0a-257-predict-badge-sets
+title: 两份签到名单有几个人
+track: python
+stage: 0A
+order: 3170
+format: predict
+mode: predict
+difficulty: 17
+skills:
+  requires:
+    - py.list-basics
+  introduces: py.set-basics
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM58：把签到次数当成人数，把同一个人的多次记录分别计算。
+    code: |
+      print('3\n2\n5\n1')

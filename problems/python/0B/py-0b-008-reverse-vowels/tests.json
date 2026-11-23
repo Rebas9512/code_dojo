@@ -1,0 +1,12 @@
+{
+  "examples": [
+    {"args":["A-bU!e"],"expected":"e-bU!A"},
+    {"args":["red boat"],"expected":"rad boet"}
+  ],
+  "hidden": [
+    {"args":[""],"expected":""},
+    {"args":["rhythm"],"expected":"rhythm"},
+    {"args":["u"],"expected":"u"},
+    {"args":["Ae"],"expected":"eA"}
+  ]
+}

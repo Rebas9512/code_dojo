@@ -1,0 +1,57 @@
+id: algo-3-045-design-twitter
+title: 关注动态的最近十条
+track: algo
+stage: '3'
+order: 450
+format: combine
+mode: class
+difficulty: 61
+skills:
+  requires:
+  - algo.class-design
+  - algo.heap-topk
+  - py.dict-get
+  - py.list-comp
+  - py.nested-loop
+  - py.set-basics
+  - py.slice
+  - py.sorted
+  introduces: null
+source: neetcode250
+leetcode: design-twitter
+milestones:
+- nc150
+entry: Twitter
+compare: exact
+wrong_examples:
+- why: 漏掉读者自己的动态。
+  code: |
+    import heapq
+
+
+    class Twitter:
+        def __init__(self):
+            self.posts = {}
+            self.following = {}
+            self.clock = 0
+
+        def postTweet(self, userId: int, tweetId: int) -> None:
+            self.clock += 1
+            self.posts.setdefault(userId, []).append((self.clock, tweetId))
+
+        def follow(self, followerId: int, followeeId: int) -> None:
+            self.following.setdefault(followerId, set()).add(followeeId)
+
+        def unfollow(self, followerId: int, followeeId: int) -> None:
+            self.following.get(followerId, set()).discard(followeeId)
+
+        def getNewsFeed(self, userId: int) -> list[int]:
+            latest = []
+            for author in self.following.get(userId, set()):
+                for post in self.posts.get(author, [])[-10:]:
+                    heapq.heappush(latest, post)
+                    if len(latest) > 10:
+                        heapq.heappop(latest)
+            return [post for time, post in sorted(latest, reverse=True)]
+hints:
+- 每个作者的第十一条旧动态还有机会进入总榜前十吗？

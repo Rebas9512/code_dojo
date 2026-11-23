@@ -1,0 +1,33 @@
+id: algo-1-042-next-greater-scan
+title: 暴力：每个元素向右找第一个更大的数
+track: algo
+stage: '1'
+order: 420
+unit: 2
+format: write
+mode: function
+difficulty: 49
+skills:
+  requires:
+  - py.break-continue
+  - py.nested-loop
+  - py.list-concat-repeat
+  - py.linear-search
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: next_greater
+signature: 'def next_greater(nums: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+- why: 相等也当作更大。
+  code: |
+    def next_greater(nums: list[int]) -> list[int]:
+        answer = [-1] * len(nums)
+        for i in range(len(nums)):
+            for j in range(i + 1, len(nums)):
+                if nums[j] >= nums[i]:
+                    answer[i] = nums[j]
+                    break
+        return answer

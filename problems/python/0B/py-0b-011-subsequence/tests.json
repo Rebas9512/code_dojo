@@ -1,0 +1,13 @@
+{
+  "examples": [
+    {"args":["ct","cat"],"expected":true},
+    {"args":["ac","ca"],"expected":false}
+  ],
+  "hidden": [
+    {"args":["",""],"expected":true},
+    {"args":["a",""],"expected":false},
+    {"args":["aa","a"],"expected":false},
+    {"args":["","x"],"expected":true},
+    {"args":["aba","aabba"],"expected":true}
+  ]
+}

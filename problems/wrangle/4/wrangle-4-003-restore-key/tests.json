@@ -1,0 +1,168 @@
+{
+  "examples": [
+    {
+      "args": [
+        {
+          "columns": [
+            "rack",
+            "n"
+          ],
+          "data": [
+            [
+              "A",
+              2
+            ],
+            [
+              "B",
+              4
+            ],
+            [
+              "A",
+              5
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "rack",
+          "peak"
+        ],
+        "data": [
+          [
+            "A",
+            5
+          ],
+          [
+            "B",
+            4
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "rack",
+            "n"
+          ],
+          "data": [
+            [
+              "B",
+              0
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "rack",
+          "peak"
+        ],
+        "data": [
+          [
+            "B",
+            0
+          ]
+        ]
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        {
+          "columns": [
+            "rack",
+            "n"
+          ],
+          "data": [
+            [
+              "C",
+              8
+            ],
+            [
+              "C",
+              8
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "rack",
+          "peak"
+        ],
+        "data": [
+          [
+            "C",
+            8
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "rack",
+            "n"
+          ],
+          "data": []
+        }
+      ],
+      "expected": {
+        "columns": [
+          "rack",
+          "peak"
+        ],
+        "data": []
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "rack",
+            "n"
+          ],
+          "data": [
+            [
+              "B",
+              0
+            ],
+            [
+              "A",
+              2
+            ],
+            [
+              "B",
+              3
+            ],
+            [
+              "A",
+              7
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "rack",
+          "peak"
+        ],
+        "data": [
+          [
+            "A",
+            7
+          ],
+          [
+            "B",
+            3
+          ]
+        ]
+      }
+    }
+  ]
+}

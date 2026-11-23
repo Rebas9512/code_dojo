@@ -1,0 +1,20 @@
+id: math-1-010-rope-length
+title: 拉直的绳子有多长
+track: math
+stage: '1'
+order: 100
+format: predict
+mode: predict
+difficulty: 21
+skills:
+  requires:
+    - math.dot
+    - math.vector-arithmetic
+  introduces: math.distance
+source: original
+wrong_examples:
+  - why: 量的是两条边的路程。
+    code: |
+      dx = -6
+      dy = 8
+      print(abs(dx) + abs(dy))

@@ -1,0 +1,22 @@
+id: math-2-003-meter-readings
+title: 生成电表试算单
+track: math
+stage: '2'
+order: 30
+format: write
+mode: function
+difficulty: 22
+skills:
+  requires:
+    - py.list-comp
+    - math.function-table
+  introduces: null
+source: original
+entry: meter_table
+signature: 'def meter_table(units: list[int], base: int, rate: int) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+  - why: 遗漏每次都要收的固定费。
+    code: |
+      def meter_table(units: list[int], base: int, rate: int) -> list[list[int]]:
+          return [[x, rate * x] for x in units]

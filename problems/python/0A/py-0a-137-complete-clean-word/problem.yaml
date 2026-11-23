@@ -1,0 +1,19 @@
+id: py-0a-137-complete-clean-word
+title: 补全：整理一个词
+track: python
+stage: 0A
+order: 730
+format: complete
+mode: function
+difficulty: 12
+skills:
+  requires: [py.str-methods]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: clean_word
+signature: "def clean_word(s: str) -> str:"
+compare: exact
+hints:
+  - "s.strip() 的结果也是字符串，可以接着 .lower()。"

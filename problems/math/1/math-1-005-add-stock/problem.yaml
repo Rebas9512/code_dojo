@@ -1,0 +1,22 @@
+id: math-1-005-add-stock
+title: 把到货计入库存
+track: math
+stage: '1'
+order: 50
+format: complete
+mode: function
+difficulty: 18
+skills:
+  requires:
+    - py.list-comp
+    - math.vector-arithmetic
+  introduces: null
+source: original
+entry: add_stock
+signature: 'def add_stock(stock: list[int], delivery: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: 把到货误作出货。
+    code: |
+      def add_stock(stock: list[int], delivery: list[int]) -> list[int]:
+          return [stock[i] - delivery[i] for i in range(len(stock))]

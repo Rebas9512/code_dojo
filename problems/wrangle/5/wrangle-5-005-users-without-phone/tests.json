@@ -1,0 +1,416 @@
+{
+  "examples": [
+    {
+      "args": [
+        {
+          "columns": [
+            "user_id",
+            "name",
+            "phone"
+          ],
+          "data": [
+            [
+              1,
+              "Li Wei",
+              "13800000001"
+            ],
+            [
+              2,
+              "Zhang Min",
+              null
+            ],
+            [
+              3,
+              "Alice Brown",
+              "15500000003"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "user_id",
+          "name"
+        ],
+        "data": [
+          [
+            2,
+            "Zhang Min"
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "user_id",
+            "name",
+            "phone"
+          ],
+          "data": [
+            [
+              5,
+              "Bob Smith",
+              null
+            ],
+            [
+              6,
+              "Chen Jie",
+              "18600000006"
+            ],
+            [
+              7,
+              "Liu Yang",
+              "13700000007"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "user_id",
+          "name"
+        ],
+        "data": [
+          [
+            5,
+            "Bob Smith"
+          ]
+        ]
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        {
+          "columns": [
+            "user_id",
+            "name",
+            "phone"
+          ],
+          "data": []
+        }
+      ],
+      "expected": {
+        "columns": [
+          "user_id",
+          "name"
+        ],
+        "data": []
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "user_id",
+            "name",
+            "phone"
+          ],
+          "data": [
+            [
+              1,
+              "Li Wei",
+              "13800000001"
+            ],
+            [
+              2,
+              "Zhang Min",
+              null
+            ],
+            [
+              3,
+              "Alice Brown",
+              "15500000003"
+            ],
+            [
+              4,
+              "Wang Fang",
+              "13900000004"
+            ],
+            [
+              5,
+              "Bob Smith",
+              null
+            ],
+            [
+              6,
+              "Chen Jie",
+              "18600000006"
+            ],
+            [
+              7,
+              "Liu Yang",
+              "13700000007"
+            ],
+            [
+              8,
+              "Li Wei",
+              null
+            ],
+            [
+              9,
+              "Sun Li",
+              "13600000009"
+            ],
+            [
+              10,
+              "Emma Davis",
+              "15000000010"
+            ],
+            [
+              11,
+              "Zhao Lei",
+              null
+            ],
+            [
+              12,
+              "Huang Ying",
+              "18800000012"
+            ],
+            [
+              13,
+              "Xu Ming",
+              "13300000013"
+            ],
+            [
+              14,
+              "Noah Wilson",
+              null
+            ],
+            [
+              15,
+              "Gao Yan",
+              "13200000015"
+            ],
+            [
+              16,
+              "Ma Chao",
+              "15900000016"
+            ],
+            [
+              17,
+              "Olivia Chen",
+              null
+            ],
+            [
+              18,
+              "He Jun",
+              "13100000018"
+            ],
+            [
+              19,
+              "Lin Xi",
+              "17700000019"
+            ],
+            [
+              20,
+              "Kevin Zhou",
+              null
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "user_id",
+          "name"
+        ],
+        "data": [
+          [
+            2,
+            "Zhang Min"
+          ],
+          [
+            5,
+            "Bob Smith"
+          ],
+          [
+            8,
+            "Li Wei"
+          ],
+          [
+            11,
+            "Zhao Lei"
+          ],
+          [
+            14,
+            "Noah Wilson"
+          ],
+          [
+            17,
+            "Olivia Chen"
+          ],
+          [
+            20,
+            "Kevin Zhou"
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "user_id",
+            "name",
+            "phone"
+          ],
+          "data": [
+            [
+              1,
+              "Li Wei",
+              null
+            ],
+            [
+              2,
+              "Zhang Min",
+              "13500000002"
+            ],
+            [
+              3,
+              "Alice Brown",
+              null
+            ],
+            [
+              4,
+              "Wang Fang",
+              "13900000004"
+            ],
+            [
+              5,
+              "Bob Smith",
+              null
+            ],
+            [
+              6,
+              "Chen Jie",
+              "18600000006"
+            ],
+            [
+              7,
+              "Liu Yang",
+              "13700000007"
+            ],
+            [
+              8,
+              "Li Wei",
+              null
+            ],
+            [
+              9,
+              "Sun Li",
+              "13600000009"
+            ],
+            [
+              10,
+              "Emma Davis",
+              "15000000010"
+            ],
+            [
+              11,
+              "Zhao Lei",
+              null
+            ],
+            [
+              12,
+              "Huang Ying",
+              "18800000012"
+            ],
+            [
+              13,
+              "Xu Ming",
+              "13300000013"
+            ],
+            [
+              14,
+              "Noah Wilson",
+              null
+            ],
+            [
+              15,
+              "Gao Yan",
+              "13200000015"
+            ],
+            [
+              16,
+              "Ma Chao",
+              "15900000016"
+            ],
+            [
+              17,
+              "Olivia Chen",
+              null
+            ],
+            [
+              18,
+              "He Jun",
+              "13100000018"
+            ],
+            [
+              19,
+              "Lin Xi",
+              "17700000019"
+            ],
+            [
+              20,
+              "Kevin Zhou",
+              null
+            ],
+            [
+              21,
+              "Tang Yu",
+              null
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "user_id",
+          "name"
+        ],
+        "data": [
+          [
+            1,
+            "Li Wei"
+          ],
+          [
+            3,
+            "Alice Brown"
+          ],
+          [
+            5,
+            "Bob Smith"
+          ],
+          [
+            8,
+            "Li Wei"
+          ],
+          [
+            11,
+            "Zhao Lei"
+          ],
+          [
+            14,
+            "Noah Wilson"
+          ],
+          [
+            17,
+            "Olivia Chen"
+          ],
+          [
+            20,
+            "Kevin Zhou"
+          ],
+          [
+            21,
+            "Tang Yu"
+          ]
+        ]
+      }
+    }
+  ]
+}

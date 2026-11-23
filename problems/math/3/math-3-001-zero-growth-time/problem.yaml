@@ -1,0 +1,20 @@
+id: math-3-001-zero-growth-time
+title: 零时刻的数量
+track: math
+stage: '3'
+order: 10
+format: predict
+mode: predict
+difficulty: 23
+skills:
+  requires:
+    - math.function-table
+  introduces: math.exp
+source: original
+wrong_examples:
+  - why: 把 exp(0) 当成 0。
+    code: |
+      from math import exp
+
+      print(4 * 0)
+      print(4 * 2**2)

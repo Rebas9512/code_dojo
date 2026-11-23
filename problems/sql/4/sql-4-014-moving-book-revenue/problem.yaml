@@ -1,0 +1,31 @@
+id: sql-4-014-moving-book-revenue
+title: 补全：最近七个日历日的售书均额
+track: sql
+stage: '4'
+order: 140
+format: complete
+difficulty: 60
+skills:
+  requires:
+    - sql.between
+    - sql.cte
+  introduces: sql.window-frame
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/same-day.sql
+  - db:bookstore + datasets/sample.sql + datasets/across-month.sql
+ordered: true
+hints:
+  - 七天包含今天，左边还要几行？
+wrong_examples:
+  - why: 将当天也算在七个之前以外，多取一天
+    sql: |
+      WITH measured AS (
+          SELECT day, ROW_NUMBER() OVER (ORDER BY day) AS n,
+                 AVG(amount) OVER (ORDER BY day ROWS BETWEEN 7 PRECEDING AND CURRENT ROW) AS mean_amount
+          FROM shop_calendar
+      )
+      SELECT day, mean_amount FROM measured WHERE n >= 7 ORDER BY day;

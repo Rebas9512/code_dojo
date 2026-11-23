@@ -1,0 +1,11 @@
+{
+  "examples": [
+    {"stdin": "", "expected": "你好，Python\n我在 code-dojo 练习\n2026\n"},
+    {"stdin": "", "expected": "你好，Python\n我在 code-dojo 练习\n2026\n"}
+  ],
+  "hidden": [
+    {"stdin": "", "expected": "你好，Python\n我在 code-dojo 练习\n2026\n"},
+    {"stdin": "", "expected": "你好，Python\n我在 code-dojo 练习\n2026\n"},
+    {"stdin": "", "expected": "你好，Python\n我在 code-dojo 练习\n2026\n"}
+  ]
+}

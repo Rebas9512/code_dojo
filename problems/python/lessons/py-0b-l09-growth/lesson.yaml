@@ -1,0 +1,94 @@
+id: py-0b-l09-growth
+title: 输入翻倍，工作量怎样变
+track: python
+skills: [py.big-o]
+steps:
+  - type: read
+    skill: py.big-o
+    md: |
+      先猜一猜：同一列数字，一次求总和，另一次比较所有不同位置的数对。如果列表加长一倍，前者多走几步，后者又多走几步？第一种程序对每个数做一次加法；第二种程序让每个位置依次和它后面的每个位置比较。
+
+      **不变式**：处理完前 i 个起点后，这些起点负责的数对都恰好比较过一次。n 项有 n(n−1)/2 对，输入翻倍时，加法次数翻倍，比较次数接近四倍。用 O(n)、O(n²) 分别表示这两种增长速度。秒数会随机器负载波动，操作次数更容易复核。
+
+      | 操作 | 一次要做多少工作 |
+      |---|---|
+      | x in 列表 | 最坏查完 n 项，O(n) |
+      | 列表.pop(0) | 移动其余项，O(n) |
+      | 列表切片 | 复制 k 项，O(k)，整段为 O(n) |
+      | 队列.popleft() | 从端点移走一项，O(1) |
+      | x in 整数集合 | 平均 O(1) |
+
+      只看代码行数容易漏算一行内部的查找（PM76）。
+  - type: example
+    skill: py.big-o
+    code: |
+      import time
+
+      # ① 用同一批数字比较两种工作量
+      for n in [1000, 2000, 4000]:
+          nums = list(range(n))
+          start = time.perf_counter()
+          total = 0
+          for x in nums:
+              total += x
+          middle = time.perf_counter()
+          # ② 每对不同位置只比较一次
+          equal_pairs = 0
+          for i in range(n):
+              for j in range(i + 1, n):
+                  if nums[i] == nums[j]:
+                      equal_pairs += 1
+          end = time.perf_counter()
+          print(n, "单遍秒数", middle - start, "两两比较秒数", end - middle)
+    md: |
+      | n | 加法次数 | 比较次数 |
+      |---:|---:|---:|
+      | 1000 | 1000 | 499500 |
+      | 2000 | 2000 | 1999000 |
+      | 4000 | 4000 | 7998000 |
+
+      先猜哪一列秒数涨得更快，再运行。再跑一次，对照两次的秒数和表中的次数。
+  - type: example
+    skill: py.big-o
+    code: |
+      import time
+
+      # ① 让两个版本判断同一批编号里有没有重复
+      def repeat_in_list(nums):
+          seen = []
+          for x in nums:
+              if x in seen:
+                  return True
+              seen.append(x)
+          return False
+
+
+      def repeat_in_set(nums):
+          seen = set()
+          for x in nums:
+              if x in seen:
+                  return True
+              seen.add(x)
+          return False
+
+
+      # ② 无重复时，两种写法都得检查到末尾
+      for n in [1000, 2000, 4000]:
+          nums = list(range(n))
+          start = time.perf_counter()
+          slow = repeat_in_list(nums)
+          middle = time.perf_counter()
+          fast = repeat_in_set(nums)
+          end = time.perf_counter()
+          print(n, slow, fast, "列表秒数", middle - start, "集合秒数", end - middle)
+    md: |
+      对照同一行里的两个真假值和两段耗时。在生成 nums 后加一行 `nums[1] = nums[0]`，再运行。两种程序这次各读了几项就返回？
+  - type: quiz
+    skill: py.big-o
+    q: "一个 for 循环逐项执行 x in seen，seen 是越来越长的列表。没有重复时，整体工作量怎样增长？"
+    options:
+      - "O(1)，查询写在一行内"
+      - "O(n)，只有一层 for"
+      - "O(n²)，每次查询可能又扫一段列表"
+    answer: 2
+    explain: "当已有 0、1、…、n−1 项时，查询逐项比较，总工作量接近 n²/2。"

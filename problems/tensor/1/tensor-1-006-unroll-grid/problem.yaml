@@ -1,0 +1,25 @@
+id: tensor-1-006-unroll-grid
+title: 把表卷成一条
+track: tensor
+stage: '1'
+order: 60
+format: write
+mode: function
+difficulty: 20
+skills:
+  requires:
+    - tensor.reshape
+    - tensor.create
+  introduces: null
+source: original
+entry: unroll
+signature: 'def unroll(rows):'
+compare: allclose
+wrong_examples:
+  - why: 卷好后多留了一层外包装。
+    code: |
+      import torch
+
+
+      def unroll(rows):
+          return torch.tensor(rows).reshape(1, -1)

@@ -1,0 +1,29 @@
+id: sql-2-007-ordered-titles
+title: 补全：列出订单里的每一种书
+track: sql
+stage: '2'
+order: 70
+format: complete
+difficulty: 28
+skills:
+  requires:
+    - sql.inner-join
+    - sql.left-join
+  introduces: sql.multi-join
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/same-title.sql
+  - db:bookstore + datasets/matching-numbers.sql
+ordered: false
+hints:
+  - 先问哪一笔订单，再问这一项是哪一本书，两个问题各有一对键。
+wrong_examples:
+  - why: 第二步拿订单编号去找图书
+    sql: |
+      SELECT o.order_id, o.order_date, b.title, i.quantity
+      FROM orders o
+      JOIN order_items i ON i.order_id = o.order_id
+      JOIN books b ON b.book_id = i.order_id;

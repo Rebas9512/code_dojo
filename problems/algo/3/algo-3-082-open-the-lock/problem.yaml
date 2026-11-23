@@ -1,0 +1,50 @@
+id: algo-3-082-open-the-lock
+title: 四个转盘最少拧几下
+track: algo
+stage: '3'
+order: 820
+format: write
+mode: function
+difficulty: 70
+skills:
+  requires:
+  - algo.graph-bfs
+  - py.early-return
+  - py.enumerate
+  - py.floordiv-mod
+  - py.nested-loop
+  - py.set-basics
+  - py.slice
+  - py.tuple
+  - py.type-convert
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: open-the-lock
+milestones: []
+entry: open_lock
+signature: 'def open_lock(deadends: list[str], target: str) -> int:'
+compare: exact
+wrong_examples:
+- why: 只让转盘向上拨。
+  code: |
+    from collections import deque
+
+
+    def open_lock(deadends: list[str], target: str) -> int:
+        seen = set(deadends)
+        if '0000' in seen:
+            return -1
+        queue = deque([('0000', 0)])
+        seen.add('0000')
+        while queue:
+            code, turns = queue.popleft()
+            if code == target:
+                return turns
+            for i, digit in enumerate(code):
+                for step in (1,):
+                    new = code[:i] + str((int(digit) + step) % 10) + code[i+1:]
+                    if new not in seen:
+                        seen.add(new)
+                        queue.append((new, turns + 1))
+        return -1

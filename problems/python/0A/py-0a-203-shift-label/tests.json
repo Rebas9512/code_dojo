@@ -1,0 +1,11 @@
+{
+  "examples": [
+    {"args": ["az", 1], "expected": "ba"},
+    {"args": ["abc", -1], "expected": "zab"}
+  ],
+  "hidden": [
+    {"args": ["", 4], "expected": ""},
+    {"args": ["z", 26], "expected": "z"},
+    {"args": ["aaa", -2], "expected": "yyy"}
+  ]
+}

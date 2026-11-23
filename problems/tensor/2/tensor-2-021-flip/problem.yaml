@@ -1,0 +1,44 @@
+id: tensor-2-021-flip
+title: 从右往左读刻度
+track: tensor
+stage: '2'
+order: 210
+format: write
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - tensor.coordinates
+  introduces: null
+source: original
+entry: flip
+signature: 'def flip(x):'
+compare: checker
+wrong_examples:
+  - why: 直接调用现成运算，跳过了坐标构造。
+    code: |
+      import torch
+
+
+      def flip(x):
+          return torch.flip(x, (0,))
+  - why: 遗漏最后位置的偏移，首格仍读旧首格。
+    code: |
+      import torch
+
+
+      def flip(x):
+          i = torch.arange(len(x))
+          return x[-i]
+constraints:
+  no_loops: true
+  forbid_calls:
+    - torch.flip
+    - torch.fliplr
+    - torch.Tensor.flip
+    - torch.Tensor.fliplr
+  forbid_imports:
+    - numpy
+    - pandas
+hints:
+  - 最左端读旧末格，最右端读旧首格。

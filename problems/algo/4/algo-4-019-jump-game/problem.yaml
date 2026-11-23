@@ -1,0 +1,32 @@
+id: algo-4-019-jump-game
+title: 能跳到最后一个位置吗
+track: algo
+stage: '4'
+order: 190
+format: write
+mode: function
+difficulty: 66
+skills:
+  requires:
+  - algo.greedy
+  - py.early-return
+  - py.enumerate
+  introduces: null
+source: neetcode250
+leetcode: jump-game
+milestones:
+- blind75
+- top100
+entry: can_jump
+signature: 'def can_jump(nums: list[int]) -> bool:'
+compare: exact
+wrong_examples:
+- why: 在较短的跳板上覆盖之前的最远位置。
+  code: |
+    def can_jump(nums: list[int]) -> bool:
+        reach = 0
+        for i, jump in enumerate(nums):
+            if i > reach:
+                return False
+            reach = i + jump
+        return True

@@ -1,0 +1,31 @@
+id: sql-0-157-plain-mailboxes
+title: 筛出纯字母用户名的书店邮箱
+track: sql
+stage: "0"
+order: 390
+format: write
+difficulty: 15
+skills: {requires: [sql.regex], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/mailbox-boundaries.sql
+ordered: false
+hints:
+  - 先写出一个小写字母，再允许其后出现零个或多个小写字母。
+  - 用 ^ 和 $ 限定两端，域名里的点可以写成 [.] 来匹配字面上的点号。
+wrong_examples:
+  - why: 模式没有限定开头，会只看 @ 前最后的一段字母。
+    sql: |
+      SELECT user_id, email FROM users WHERE email ~ '[a-z][a-z]*@example[.]com$';
+  - why: 模式没有限定结尾，域名后还跟其他文字也会入选。
+    sql: |
+      SELECT user_id, email FROM users WHERE email ~ '^[a-z][a-z]*@example[.]com';
+  - why: 把域名里的点写成通配符，exampleXcom 也会匹配。
+    sql: |
+      SELECT user_id, email FROM users WHERE email ~ '^[a-z][a-z]*@example.com$';
+  - why: 只用 * 表示重复，连一个字母都没有的用户名也匹配。
+    sql: |
+      SELECT user_id, email FROM users WHERE email ~ '^[a-z]*@example[.]com$';

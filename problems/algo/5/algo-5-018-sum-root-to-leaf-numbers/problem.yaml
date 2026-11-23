@@ -1,0 +1,39 @@
+id: algo-5-018-sum-root-to-leaf-numbers
+title: 把沿路的数字拼成编号
+track: algo
+stage: '5'
+order: 180
+format: write
+mode: function
+difficulty: 74
+week: 2
+skills:
+  requires:
+  - algo.tree-basics
+  - algo.nested-func
+  - py.bool-ops
+  - py.recursion-multi
+  introduces: null
+source: top-interview-150
+leetcode: sum-root-to-leaf-numbers
+milestones: []
+entry: sum_numbers
+signature: 'def sum_numbers(root: TreeNode) -> int:'
+compare: exact
+time_limit_ms: 800
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 沿路累加数字，没有给前缀升位。
+  code: |
+    def sum_numbers(root: TreeNode) -> int:
+        def visit(node, prefix):
+            if node is None:
+                return 0
+            current = prefix + node.val
+            if not node.left and not node.right:
+                return current
+            return visit(node.left, current) + visit(node.right, current)
+
+        return visit(root, 0)

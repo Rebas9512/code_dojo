@@ -1,0 +1,38 @@
+id: algo-3-004-binary-tree-postorder-traversal
+title: 孩子处理完才记下根
+track: algo
+stage: '3'
+order: 40
+format: write
+mode: function
+difficulty: 49
+skills:
+  requires:
+  - algo.tree-basics
+  - py.list-append
+  - py.recursion-multi
+  introduces: null
+source: neetcode250
+leetcode: binary-tree-postorder-traversal
+milestones: []
+entry: traverse
+signature: 'def traverse(root: TreeNode | None) -> list[int]:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 把左孩子的遍历误写成右孩子，跳过左子树。
+  code: |
+    def visit(node, values):
+        if node is None:
+            return
+        pass
+        visit(node.right, values)
+        values.append(node.val)
+
+
+    def traverse(root: TreeNode | None) -> list[int]:
+        values = []
+        visit(root, values)
+        return values

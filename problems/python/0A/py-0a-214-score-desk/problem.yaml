@@ -1,0 +1,44 @@
+id: py-0a-214-score-desk
+title: 用三个小函数生成成绩简报
+track: python
+stage: 0A
+order: 2140
+format: combine
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - py.accumulator
+    - py.default-args
+    - py.list-builtins
+    - py.none
+    - py.helper-func
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: summary
+signature: 'def summary(scores: list[int], cutoff: int = 60) -> list[int | None]:'
+compare: exact
+wrong_examples:
+  - why: 门槛上的学生没有被计入。
+    code: |
+      def total(scores: list[int]) -> int:
+          return sum(scores)
+
+
+      def passed(scores: list[int], cutoff: int) -> int:
+          count = 0
+          for score in scores:
+              if score > cutoff:
+                  count += 1
+          return count
+
+
+      def highest(scores: list[int]) -> int | None:
+          if scores:
+              return max(scores)
+
+
+      def summary(scores: list[int], cutoff: int = 60) -> list[int | None]:
+          return [total(scores), passed(scores, cutoff), highest(scores)]

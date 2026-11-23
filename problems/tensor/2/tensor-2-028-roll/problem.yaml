@@ -1,0 +1,40 @@
+id: tensor-2-028-roll
+title: 把信号循环平移
+track: tensor
+stage: '2'
+order: 280
+format: write
+mode: function
+difficulty: 36
+skills:
+  requires:
+    - tensor.coordinates
+  introduces: null
+source: original
+entry: roll
+signature: 'def roll(x, shift):'
+compare: checker
+wrong_examples:
+  - why: 直接调用现成运算，跳过了坐标构造。
+    code: |
+      import torch
+
+
+      def roll(x, shift):
+          return torch.roll(x, shift)
+  - why: 用目的地的移动方向查来源，会把信号移向另一侧。
+    code: |
+      import torch
+
+
+      def roll(x, shift):
+          i = torch.arange(len(x))
+          return x[(i + shift) % len(x)]
+constraints:
+  no_loops: true
+  forbid_calls:
+    - torch.roll
+    - torch.Tensor.roll
+  forbid_imports:
+    - numpy
+    - pandas

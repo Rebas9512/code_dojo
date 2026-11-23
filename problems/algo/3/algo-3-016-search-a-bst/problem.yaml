@@ -1,0 +1,34 @@
+id: algo-3-016-search-a-bst
+title: 在 BST 里查找一个值（LeetCode 75 `search-in-a-binary-search-tree`）
+track: algo
+stage: '3'
+order: 160
+format: fix
+mode: function
+difficulty: 52
+skills:
+  requires:
+  - algo.tree-basics
+  - py.bool-ops
+  - py.while
+  introduces: algo.bst
+source: original
+leetcode: null
+milestones: []
+entry: search
+signature: 'def search(root: TreeNode | None, key: int) -> TreeNode | None:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+  returns: treenode
+wrong_examples:
+- why: 小值向右找。
+  code: |
+    def search(root: TreeNode | None, key: int) -> TreeNode | None:
+        while root and root.val != key:
+            if key < root.val:
+                root = root.right
+            else:
+                root = root.right
+        return root

@@ -1,0 +1,19 @@
+id: py-0a-240-predict-price-keys
+title: 价目表里能找到什么
+track: python
+stage: 0A
+order: 3000
+format: predict
+mode: predict
+difficulty: 17
+skills:
+  requires:
+    - py.in-membership
+  introduces: py.dict-basics
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM43：把 in 理解成搜索字典里的值。
+    code: |
+      print('False\nTrue\n2')

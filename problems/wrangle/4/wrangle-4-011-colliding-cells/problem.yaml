@@ -1,0 +1,16 @@
+id: wrangle-4-011-colliding-cells
+title: 两笔登记进了同一格
+track: wrangle
+stage: '4'
+order: 110
+format: predict
+mode: predict
+difficulty: 33
+skills:
+  requires: []
+  introduces: wrangle.pivot
+source: original
+wrong_examples:
+  - why: 用默认均值替代总量。
+    code: |
+      print('4\n0')

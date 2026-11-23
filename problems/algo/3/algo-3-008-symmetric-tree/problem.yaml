@@ -1,0 +1,35 @@
+id: algo-3-008-symmetric-tree
+title: 根两侧的镜像
+track: algo
+stage: '3'
+order: 80
+format: write
+mode: function
+difficulty: 50
+skills:
+  requires:
+  - algo.tree-basics
+  - py.bool-ops
+  - py.recursion-multi
+  introduces: null
+source: top-100-liked
+leetcode: symmetric-tree
+milestones:
+- top100
+entry: symmetric
+signature: 'def symmetric(root: TreeNode | None) -> bool:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 把镜像位置当成同侧位置。
+  code: |
+    def mirrored(a, b):
+        if not a or not b:
+            return a is b
+        return a.val == b.val and mirrored(a.left, b.left) and mirrored(a.right, b.left)
+
+
+    def symmetric(root: TreeNode | None) -> bool:
+        return root is None or mirrored(root.left, root.right)

@@ -1,0 +1,28 @@
+id: sql-3-005-employees-whose-manager-left-the-company
+title: 工资单上找不到主管
+track: sql
+stage: '3'
+order: 50
+format: write
+difficulty: 43
+skills:
+  requires:
+    - sql.and-or
+    - sql.subquery-in
+  introduces: null
+source: sql50
+leetcode: employees-whose-manager-left-the-company
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/missing.sql
+  - datasets/sample.sql + datasets/returns.sql
+ordered: false
+hints:
+  - 主管要出现在名册的哪一列才算仍在职？
+wrong_examples:
+  - why: 拿主管编号列表核对，列表还含有 NULL
+    sql: |
+      SELECT id FROM staff
+      WHERE salary < 30000 AND manager_id IS NOT NULL
+        AND manager_id NOT IN (SELECT manager_id FROM staff);

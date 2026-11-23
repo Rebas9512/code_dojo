@@ -1,0 +1,206 @@
+{
+  "examples": [
+    {
+      "args": [
+        {
+          "columns": [
+            "shop",
+            "am",
+            "pm"
+          ],
+          "data": [
+            [
+              "A",
+              2,
+              3
+            ],
+            [
+              "B",
+              0,
+              4
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "shop",
+          "am",
+          "pm"
+        ],
+        "data": [
+          [
+            "A",
+            2,
+            3
+          ],
+          [
+            "B",
+            0,
+            4
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "shop",
+            "am",
+            "pm"
+          ],
+          "data": [
+            [
+              "C",
+              1,
+              1
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "shop",
+          "am",
+          "pm"
+        ],
+        "data": [
+          [
+            "C",
+            1,
+            1
+          ]
+        ]
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        {
+          "columns": [
+            "shop",
+            "am",
+            "pm"
+          ],
+          "data": [
+            [
+              "A",
+              1,
+              2
+            ],
+            [
+              "A",
+              3,
+              1
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "shop",
+          "am",
+          "pm"
+        ],
+        "data": [
+          [
+            "A",
+            3,
+            2
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "shop",
+            "am",
+            "pm"
+          ],
+          "data": [
+            [
+              "A",
+              0,
+              0
+            ],
+            [
+              "A",
+              0,
+              0
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "shop",
+          "am",
+          "pm"
+        ],
+        "data": [
+          [
+            "A",
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "shop",
+            "am",
+            "pm"
+          ],
+          "data": [
+            [
+              "D",
+              9,
+              3
+            ],
+            [
+              "C",
+              2,
+              1
+            ],
+            [
+              "B",
+              0,
+              2
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "shop",
+          "am",
+          "pm"
+        ],
+        "data": [
+          [
+            "B",
+            0,
+            2
+          ],
+          [
+            "C",
+            2,
+            1
+          ],
+          [
+            "D",
+            9,
+            3
+          ]
+        ]
+      }
+    }
+  ]
+}

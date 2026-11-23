@@ -1,0 +1,39 @@
+id: algo-4-011-rooms-for-the-agenda
+title: 最少需要几间会议室
+track: algo
+stage: '4'
+order: 110
+format: combine
+mode: function
+difficulty: 64
+skills:
+  requires:
+  - algo.intervals
+  - algo.heapq
+  - py.bool-ops
+  - py.nested-loop
+  - py.while
+  introduces: null
+source: original
+leetcode: meeting-rooms-ii
+milestones:
+- blind75
+replaces_premium: meeting-rooms-ii
+entry: rooms_needed
+signature: 'def rooms_needed(meetings: list[list[int]]) -> int:'
+compare: exact
+wrong_examples:
+- why: 结束时没有及时腾出房间。
+  code: |
+    import heapq
+
+
+    def rooms_needed(meetings: list[list[int]]) -> int:
+        busy = []
+        most = 0
+        for start, end in sorted(meetings):
+            while busy and busy[0] < start:
+                heapq.heappop(busy)
+            heapq.heappush(busy, end)
+            most = max(most, len(busy))
+        return most

@@ -1,0 +1,63 @@
+id: sql-4-l02-ranks-and-neighbors
+title: 筛选榜单，读取前后记录
+track: sql
+skills:
+  - sql.top-n-per-group
+  - sql.lag-lead
+steps:
+  - type: read
+    skill: sql.top-n-per-group
+    md: |
+      先把每个货架的价签排好，再拿荧光笔圈出符合要求的行。这是两个动作：窗口的结果列要等输入行确定后才会出现，而同层 WHERE 正在决定输入。把窗口放进 CTE，外层就可以像读取普通列一样筛名次。
+
+      读清“前二”的单位。要两张价签，就需规定同价谁优先；要两个价格档，就得留下同档的全部价签。若未知价不参加榜单，应在计算名次之前先过滤掉。只有一件商品的货架也有榜首。
+  - type: example
+    skill: sql.top-n-per-group
+    db: bookstore
+    patch: |
+      CREATE TABLE tags(id int PRIMARY KEY, aisle text, price int);
+      INSERT INTO tags VALUES (1, '东', 30), (2, '东', 30), (3, '东', 10), (4, '西', 20);
+    code: |
+      -- ① 给每个货架按价分档
+      WITH ranked AS (
+          SELECT id, aisle, price, DENSE_RANK() OVER (PARTITION BY aisle ORDER BY price DESC) AS tier
+          FROM tags
+      )
+      -- ② 从已经有档次这一列的结果里筛
+      SELECT id, aisle, price FROM ranked WHERE tier = 1 ORDER BY id;
+    md: 把条件换成 tier<=2，东架会得到几张签？
+  - type: quiz
+    skill: sql.top-n-per-group
+    q: 要按刚算出的窗口名次筛行，应把条件写在哪里？
+    options:
+      - 同层 WHERE
+      - 下一层 WHERE
+      - 窗口 ORDER BY 之前
+    answer: 1
+    explain: 内层先产生名次，外层读取时它已经是一列。
+  - type: read
+    skill: sql.lag-lead
+    md: |
+      把一位读者的订单按日期铺开，想在每张旁边写上一次的日期。LAG 会往自己的分区向前移动一行，LEAD 则向后。两单在同一天时，再按订单号排，才能确定哪一单在前。相邻记录可能相隔多天，找昨天要另查日期是否相差一。
+
+      没有上一单的首行默认得到 NULL。写第三个参数相当于规定“翻出边界时填什么”。若上一行真实存在，只是那格本来就没有值，默认参数不会替它补上。只有一条订单的分区尤其适合检查首尾。
+  - type: example
+    skill: sql.lag-lead
+    db: bookstore
+    code: |
+      -- ① 每位读者各排一队
+      -- ② 同时查看上一单和下一单
+      SELECT user_id, order_id, order_date,
+             LAG(order_date) OVER (PARTITION BY user_id ORDER BY order_date, order_id) AS prev_day,
+             LEAD(order_date) OVER (PARTITION BY user_id ORDER BY order_date, order_id) AS next_day
+      FROM orders WHERE user_id IN (1, 2) ORDER BY user_id, order_date, order_id;
+    md: 去掉两个 PARTITION BY，观察第二位读者的第一单会看到谁。
+  - type: quiz
+    skill: sql.lag-lead
+    q: 同一分区中上一行确实存在但 x 为 NULL，LAG(x,1,0) 返回？
+    options:
+      - '0'
+      - 'NULL'
+      - 本行的 x
+    answer: 1
+    explain: 第三个参数只在没有对应偏移行时使用。

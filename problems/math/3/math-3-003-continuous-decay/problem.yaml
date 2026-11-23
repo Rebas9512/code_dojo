@@ -1,0 +1,26 @@
+id: math-3-003-continuous-decay
+title: 按时刻估算剩余量
+track: math
+stage: '3'
+order: 30
+format: write
+mode: function
+difficulty: 26
+skills:
+  requires:
+    - py.list-comp
+    - math.function-table
+    - math.exp
+  introduces: null
+source: original
+entry: remaining_mass
+signature: 'def remaining_mass(mass: float, k: float, times: list[float]) -> list[float]:'
+compare: float
+wrong_examples:
+  - why: 衰减的指数符号写反，数量随时间增长。
+    code: |
+      from math import exp
+
+
+      def remaining_mass(mass: float, k: float, times: list[float]) -> list[float]:
+          return [mass * exp(k * t) for t in times]

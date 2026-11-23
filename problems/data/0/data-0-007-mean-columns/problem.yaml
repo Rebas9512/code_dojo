@@ -1,0 +1,25 @@
+id: data-0-007-mean-columns
+title: 哪些列可以求平均
+track: data
+stage: '0'
+order: 70
+format: inspect
+mode: inspect
+difficulty: 3
+skills:
+  requires:
+    - data.value-kinds
+  introduces: data.quantity-vs-label
+data:
+  - kind: table
+    title: 图书价格与页数
+    file: books.csv
+answer:
+  type: short
+  accept:
+    - price pages
+  misconceptions:
+    book_id pages: DM04
+    book_id price: DM04
+    book_id price pages: DM04
+explain: price 量金额，pages 量页数，这两列能给出有单位的平均数。book_id 只帮助店员找到书。

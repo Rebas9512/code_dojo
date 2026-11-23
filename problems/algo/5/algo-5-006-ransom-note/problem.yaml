@@ -1,0 +1,34 @@
+id: algo-5-006-ransom-note
+title: 字盒够不够拼出目标
+track: algo
+stage: '5'
+order: 60
+format: write
+mode: function
+difficulty: 73
+week: 1
+skills:
+  requires:
+  - algo.counter
+  - py.early-return
+  introduces: null
+source: grind169
+leetcode: ransom-note
+milestones: []
+entry: can_spell
+signature: 'def can_spell(note: str, source: str) -> bool:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 使用字母后没有扣减库存。
+  code: |
+    from collections import Counter
+
+
+    def can_spell(note: str, source: str) -> bool:
+        stock = Counter(source)
+        for ch in note:
+            if stock[ch] == 0:
+                return False
+            stock[ch] = stock[ch]
+        return True

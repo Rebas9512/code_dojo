@@ -1,0 +1,16 @@
+id: wrangle-3-005-quoted-field
+title: 引号里的逗号占几列
+track: wrangle
+stage: '3'
+order: 50
+format: predict
+mode: predict
+difficulty: 25
+skills:
+  requires: []
+  introduces: wrangle.csv
+source: original
+wrong_examples:
+  - why: 把引号里的逗号也算作分隔符。
+    code: |
+      print('(2, 3)')

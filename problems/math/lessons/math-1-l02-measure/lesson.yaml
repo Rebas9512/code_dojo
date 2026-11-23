@@ -1,0 +1,72 @@
+id: math-1-l02-measure
+title: 点积与距离
+track: math
+skills:
+  - math.dot
+  - math.distance
+steps:
+  - type: read
+    skill: math.dot
+    md: |-
+      苹果每个 3 元、梨每个 5 元，买 2 个苹果和 4 个梨。苹果花 6 元，梨花 20 元，收银台最后只报一个数 26。把两列数字的对应项相乘，再把这些小计相加，这个操作叫点积。
+
+      一列是数量，另一列是每份的价格或权重。点积也可以把几个科目的成绩按比重合成一个总分。
+
+      ```python
+      items = [2 * 3, 4 * 5]
+      total = sum(items)
+      ```
+
+      **MM03 只算分项乘积，漏掉求和**。得到一列小计时还差最后一步。检查结果的形状，点积返回一个数。
+  - type: example
+    skill: math.dot
+    code: |
+      # ① 对齐数量和价格
+      counts = [2, 4]
+      prices = [3, 5]
+      # ② 攒下各项小计，结清整单
+      parts = [counts[i] * prices[i] for i in range(len(counts))]
+      print(parts)  # 输出 [6, 20]
+      print(sum(parts))  # 输出 26
+    md: 把梨的个数改为 0，看看总价少了多少。
+  - type: quiz
+    skill: math.dot
+    q: 成绩 [80, 60]，权重 [0.25, 0.75]，总分是多少？
+    options:
+      - '[20, 45]'
+      - '70'
+      - '65'
+    answer: 2
+    explain: 两项贡献是 20 和 45，总分是它们的和。（MM03 只算分项乘积，漏掉求和）
+  - type: read
+    skill: math.distance
+    md: |-
+      从原点向东走 3 米，再向北走 4 米，沿街共走 7 米。拉一条直线连起点和终点，绳子只长 5 米。要比较两个位置靠得有多近，常用这条直线的长度。用坐标相减就能把任意起点移回原点。
+
+      每个方向的差先平方，再求和，最后开平方。平方根是一个非负数，它乘自己等于原来的数。Python 中非负数的 0.5 次方就是平方根。
+
+      ```python
+      squared = 3**2 + 4**2
+      length = squared**0.5
+      ```
+
+      **MM04 把直线距离算成各轴路程之和**。加绝对值适合沿街道拐弯走。量直线时方向可以为负，平方后的贡献都是非负的。
+  - type: example
+    skill: math.distance
+    code: |
+      # ① 记录每个方向的位移
+      delta = [-3, 4]
+      # ② 平方合计，开方回到米
+      squared = sum(x * x for x in delta)
+      print(squared)  # 输出 25
+      print(squared ** 0.5)  # 输出 5.0
+    md: 把 −3 改成 3，看看长度和方向谁会改变。
+  - type: quiz
+    skill: math.distance
+    q: 点 [1, 1] 到点 [4, 5] 的直线距离是多少？
+    options:
+      - '5'
+      - '7'
+      - '25'
+    answer: 0
+    explain: 位移为 [3, 4]，平方和 25 的平方根是 5。（MM04 把直线距离算成各轴路程之和）

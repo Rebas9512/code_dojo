@@ -1,0 +1,27 @@
+id: sql-1-001-user-phone-counts
+title: 补全：有多少读者留下了电话
+track: sql
+stage: '1'
+order: 10
+format: complete
+difficulty: 15
+skills:
+  requires:
+    - sql.select-expr
+    - sql.is-null
+  introduces: sql.count
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/nobody-left-a-number.sql
+  - db:bookstore + datasets/every-number-known.sql
+ordered: false
+hints:
+  - 先分别想想：一张没有电话的登记表，对哪一个数字有贡献？
+wrong_examples:
+  - why: 两个数都在数用户行
+    sql: |
+      SELECT COUNT(*) AS users_total, COUNT(*) AS with_phone
+      FROM users;

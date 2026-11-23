@@ -1,0 +1,25 @@
+id: tensor-3-009-batch-diagonals
+title: 按批读出自发自收的数量
+track: tensor
+stage: '3'
+order: 90
+format: write
+mode: function
+difficulty: 31
+skills:
+  requires:
+    - tensor.relabel
+    - tensor.batch-contract
+  introduces: null
+source: original
+entry: batch_diag
+signature: 'def batch_diag(a):'
+compare: checker
+wrong_examples:
+  - why: 把整行求和会算进其他端口。
+    code: |
+      import torch
+
+
+      def batch_diag(a):
+          return torch.einsum("bij->bi", a)

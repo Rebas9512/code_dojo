@@ -1,0 +1,32 @@
+id: sql-3-004-programming-buyers
+title: 补全：买过编程书的读者
+track: sql
+stage: '3'
+order: 40
+format: complete
+difficulty: 43
+skills:
+  requires:
+    - sql.and-or
+    - sql.multi-join
+  introduces: sql.subquery-in
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/cancelled-only.sql
+  - db:bookstore + datasets/new-buyer.sql
+ordered: false
+hints:
+  - 内层交出一列买家编号，外层用这列编号查姓名。
+wrong_examples:
+  - why: 取消的订单也算购买
+    sql: |
+      SELECT user_id, name FROM users
+      WHERE user_id IN (
+          SELECT o.user_id FROM orders o
+          JOIN order_items i ON i.order_id = o.order_id
+          JOIN books b ON b.book_id = i.book_id
+          WHERE b.category = 'programming'
+      );

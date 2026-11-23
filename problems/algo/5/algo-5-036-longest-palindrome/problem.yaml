@@ -1,0 +1,33 @@
+id: algo-5-036-longest-palindrome
+title: 重排字母能拼出的最长回文
+track: algo
+stage: '5'
+order: 360
+format: fix
+mode: function
+difficulty: 77
+week: 5
+skills:
+  requires:
+  - algo.counter
+  - algo.greedy
+  - py.dict-iter
+  - py.floordiv-mod
+  - py.genexp
+  introduces: null
+source: grind169
+leetcode: longest-palindrome
+milestones: []
+entry: pal_length
+signature: 'def pal_length(text: str) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 丢掉可以摆在中心的一个未配对字母。
+  code: |
+    from collections import Counter
+
+
+    def pal_length(text: str) -> int:
+        pairs = sum(count // 2 * 2 for count in Counter(text).values())
+        return pairs

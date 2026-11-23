@@ -1,0 +1,19 @@
+id: py-0a-119-complete-in-range
+title: 补全：在区间里吗
+track: python
+stage: 0A
+order: 340
+format: complete
+mode: function
+difficulty: 7
+skills:
+  requires: [py.bool-ops, py.compare-bool, py.func-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: in_range
+signature: "def in_range(x: int, low: int, high: int) -> bool:"
+compare: exact
+hints:
+  - "两个条件：不小于 low，不大于 high。"

@@ -1,0 +1,40 @@
+id: algo-5-065-count-complete-tree-nodes
+title: 清点最后一层还没排满的树
+track: algo
+stage: '5'
+order: 650
+format: write
+mode: function
+difficulty: 80
+week: 8
+skills:
+  requires:
+  - algo.tree-basics
+  - algo.binary-search
+  - py.recursion-multi
+  introduces: null
+source: top-interview-150
+leetcode: count-complete-tree-nodes
+milestones: []
+entry: count_nodes
+signature: 'def count_nodes(root: TreeNode | None) -> int:'
+compare: exact
+time_limit_ms: 800
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 把满树下一层的起始编号也数进来。
+  code: |
+    def count_nodes(root: TreeNode | None) -> int:
+        left = right = root
+        lh = rh = 0
+        while left:
+            lh += 1
+            left = left.left
+        while right:
+            rh += 1
+            right = right.right
+        if lh == rh:
+            return 2**lh
+        return 1 + count_nodes(root.left) + count_nodes(root.right)

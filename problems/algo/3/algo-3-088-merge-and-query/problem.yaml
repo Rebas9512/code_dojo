@@ -1,0 +1,55 @@
+id: algo-3-088-merge-and-query
+title: 并查集模板：合并 + 判断是否连通
+track: algo
+stage: '3'
+order: 880
+format: complete
+mode: function
+difficulty: 70
+skills:
+  requires:
+  - algo.class-design
+  - py.list-append
+  - py.list-concat-repeat
+  - py.multi-assign
+  - py.while
+  introduces: algo.union-find
+source: original
+leetcode: null
+milestones: []
+entry: connectivity
+signature: 'def connectivity(n: int, operations: list[list]) -> list[bool]:'
+compare: exact
+wrong_examples:
+- why: 把原编号相等当成同组。
+  code: |
+    class Groups:
+        def __init__(self, n):
+            self.parent = list(range(n))
+            self.size = [1] * n
+
+        def root(self, node):
+            while node != self.parent[node]:
+                self.parent[node] = self.parent[self.parent[node]]
+                node = self.parent[node]
+            return node
+
+        def merge_sets(self, a, b):
+            a, b = self.root(a), self.root(b)
+            if a == b:
+                return False
+            if self.size[a] < self.size[b]:
+                a, b = b, a
+            self.parent[b] = a
+            self.size[a] += self.size[b]
+            return True
+
+    def connectivity(n: int, operations: list[list]) -> list[bool]:
+        groups = Groups(n)
+        answers = []
+        for kind, a, b in operations:
+            if kind == 'join':
+                groups.merge_sets(a, b)
+            else:
+                answers.append(a == b)
+        return answers

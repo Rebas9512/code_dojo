@@ -1,0 +1,28 @@
+id: py-0a-285-runner-up
+title: 第二高的不同读数
+track: python
+stage: 0A
+order: 4050
+format: write
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - py.none
+    - py.set-basics
+    - py.sorted
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: runner_up
+signature: 'def runner_up(values: list[int]) -> int | None:'
+compare: exact
+wrong_examples:
+  - why: 直接排序取倒数第二项，可能仍是最高值。
+    code: |
+      def runner_up(values: list[int]) -> int | None:
+          levels = sorted(values)
+          if len(levels) >= 2:
+              return levels[-2]
+          return None

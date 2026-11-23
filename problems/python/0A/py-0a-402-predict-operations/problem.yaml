@@ -1,0 +1,15 @@
+id: py-0a-402-predict-operations
+title: 加号遇见哪种值
+track: python
+stage: 0A
+order: 45
+format: predict
+mode: predict
+difficulty: 4
+skills:
+  requires:
+    - py.var-arith
+  introduces: py.type-ops
+source: original
+leetcode: null
+milestones: []

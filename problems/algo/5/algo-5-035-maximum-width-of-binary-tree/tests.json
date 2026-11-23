@@ -1,0 +1,12 @@
+{
+  "examples": [
+    {"args":[[4,1,6,3,null,null,9]],"expected":4},
+    {"args":[[4,null,8]],"expected":1}
+  ],
+  "hidden": [
+    {"args":[[1]],"expected":1},
+    {"args":[[1,2,3,null,4,5]],"expected":2},
+    {"args":[[0,0,0,0,null,null,0]],"expected":4},
+    {"args":[[0,0,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0,0,null,null,0]],"expected":134217728}
+  ]
+}

@@ -1,0 +1,79 @@
+id: algo-4-080-greatest-common-divisor-traversal
+title: 沿公因数连线能否互通
+track: algo
+stage: '4'
+order: 800
+format: combine
+mode: function
+difficulty: 86
+unit: 6
+skills:
+  requires:
+  - algo.union-find
+  - algo.nested-func
+  - py.dict-basics
+  - py.enumerate
+  - py.floordiv-mod
+  - py.genexp
+  - py.list-builtins
+  - py.nested-loop
+  - py.type-convert
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: greatest-common-divisor-traversal
+milestones: []
+entry: gcd_connected
+signature: 'def gcd_connected(nums: list[int]) -> bool:'
+compare: exact
+wrong_examples:
+- why: 错误地要求唯一的节点也必须有一个素因子。
+  code: |
+    def gcd_connected(nums: list[int]) -> bool:
+        if len(nums) == 1:
+            return nums[0] > 1
+        if 1 in nums:
+            return False
+        limit = max(nums)
+        factor = list(range(limit + 1))
+        for prime in range(2, int(limit ** 0.5) + 1):
+            if factor[prime] == prime:
+                for multiple in range(prime * prime, limit + 1, prime):
+                    if factor[multiple] == multiple:
+                        factor[multiple] = prime
+        parent = list(range(len(nums)))
+
+        def root(i):
+            while i != parent[i]:
+                parent[i] = parent[parent[i]]
+                i = parent[i]
+            return i
+
+        owner = {}
+        for i, value in enumerate(nums):
+            while value > 1:
+                prime = factor[value]
+                if prime in owner:
+                    parent[root(i)] = root(owner[prime])
+                else:
+                    owner[prime] = i
+                while value % prime == 0:
+                    value //= prime
+        return all(root(i) == root(0) for i in range(len(nums)))
+- why: 为每一对下标计算最大公因数，反复检查共享相同质因子的点。
+  code: |
+    from math import gcd
+
+
+    def gcd_connected(nums: list[int]) -> bool:
+        visited = {0}
+        stack = [0]
+        while stack:
+            i = stack.pop()
+            for j in range(len(nums)):
+                if j not in visited and gcd(nums[i], nums[j]) > 1:
+                    visited.add(j)
+                    stack.append(j)
+        return len(visited) == len(nums)
+hints:
+- 按质因子把点连接起来。一个质因子已有代表下标时，新出现的下标只需和这个代表合并。可预先给每个数记一个最小质因子。

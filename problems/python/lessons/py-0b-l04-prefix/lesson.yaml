@@ -1,0 +1,38 @@
+id: py-0b-l04-prefix
+title: 把累计数记在格子之间
+track: python
+skills: [py.prefix-sum]
+steps:
+  - type: read
+    skill: py.prefix-sum
+    md: |
+      把一排格子想成一段段路。走第一步前也立一块路牌，记下累计值 0；每经过一个格子，就在它后面立一块新路牌。三个格子因此有四块路牌。格子上的数可以是负数，路牌读数也可能下降。
+
+      **不变式**：pre[i] 恰好是前 i 个格子之和。要算从下标 left 到 right 的总和，读右端之后的路牌，再减去左端之前的路牌。直接拿 pre[right] 相减会漏掉右端格子（PM72）。表只需建一次，之后每个问题读两块路牌即可。
+  - type: example
+    skill: py.prefix-sum
+    code: |
+      # ① 每经过一格，添一块累计值路牌
+      nums = [4, -2, 3]
+      pre = [0]
+      for x in nums:
+          pre.append(pre[-1] + x)
+      # ② 两端路牌相减，取下标 1 到 2 的总和
+      left, right = 1, 2
+      print(pre)
+      print(pre[right + 1] - pre[left])
+    md: |
+      | 已经过几格 | 0 | 1 | 2 | 3 |
+      |---|---:|---:|---:|---:|
+      | 路牌读数 | 0 | 4 | 2 | 5 |
+
+      把查询改成 left = right = 1，看看两个路牌下标差多少。
+  - type: quiz
+    skill: py.prefix-sum
+    q: "只查 nums[0]，应该读哪两块路牌？"
+    options:
+      - "pre[0] 与 pre[0]"
+      - "pre[2] 与 pre[1]"
+      - "pre[1] 与 pre[0]"
+    answer: 2
+    explain: "零号格位于第 0 和第 1 块路牌之间。"

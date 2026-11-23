@@ -1,0 +1,31 @@
+id: math-1-025-supply-plan
+title: 把订单表换成食材表
+track: math
+stage: '1'
+order: 250
+format: write
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - py.genexp
+    - py.list-builtins
+    - math.dot
+    - math.matrix-vector
+    - math.matrix-product
+  introduces: null
+source: original
+entry: supply_plan
+signature: 'def supply_plan(a: list[list[int]], b: list[list[int]]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+  - why: 把第一种套餐配方套到每种套餐上。
+    code: |
+      def supply_plan(a: list[list[int]], b: list[list[int]]) -> list[list[int]]:
+          result = []
+          for row in a:
+              line = []
+              for c in range(len(b[0])):
+                  line.append(sum(row[k] * b[0][c] for k in range(len(row))))
+              result.append(line)
+          return result

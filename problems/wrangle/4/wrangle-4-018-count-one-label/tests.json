@@ -1,0 +1,100 @@
+{
+  "examples": [
+    {
+      "args": [
+        {
+          "columns": [
+            "status"
+          ],
+          "data": [
+            [
+              "A"
+            ],
+            [
+              "B"
+            ],
+            [
+              "A"
+            ],
+            [
+              null
+            ]
+          ]
+        },
+        "A"
+      ],
+      "expected": 2
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "status"
+          ],
+          "data": [
+            [
+              "B"
+            ]
+          ]
+        },
+        "A"
+      ],
+      "expected": 0
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        {
+          "columns": [
+            "status"
+          ],
+          "data": [
+            [
+              null
+            ],
+            [
+              null
+            ]
+          ]
+        },
+        "X"
+      ],
+      "expected": 0
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "status"
+          ],
+          "data": []
+        },
+        "B"
+      ],
+      "expected": 0
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "status"
+          ],
+          "data": [
+            [
+              "未登记"
+            ],
+            [
+              null
+            ],
+            [
+              "B"
+            ]
+          ]
+        },
+        "B"
+      ],
+      "expected": 1
+    }
+  ]
+}

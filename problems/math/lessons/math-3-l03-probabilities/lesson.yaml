@@ -1,0 +1,79 @@
+id: math-3-l03-probabilities
+title: 从打分到损失
+track: math
+skills:
+  - math.softmax
+  - math.cross-entropy
+steps:
+  - type: read
+    skill: math.softmax
+    md: |-
+      候选 A 和 B 的分数都是 8 时，希望它们各占一半；若 A 多得一分，就让它分得更多。softmax 先把各分数变成正权重，再除以权重总和。这样每个候选都有非负概率，合起来是 1。
+
+      分数 [1001, 1000] 的差与 [0, −1] 一样。每个分数先减最大值，再取 exp，相当于给所有权重除以同一倍数，比值不变，也避免 exp(1001) 溢出。
+
+      ```python
+      from math import exp
+      scores = [1001, 1000]
+      w = [exp(s-max(scores)) for s in scores]
+      p = [v/sum(w) for v in w]
+      ```
+
+      **MM23 直接对很大的原始分数取指数**。先平移再取指数。最大的一项变成 exp(0)=1，因此分母至少是 1。
+  - type: example
+    skill: math.softmax
+    code: |
+      # ① 把最大的分数挪到零
+      from math import exp
+      scores = [1001, 1000]
+      peak = max(scores)
+      w = [exp(s-peak) for s in scores]
+      # ② 把权重分成总量为一的份额
+      total = sum(w)
+      print([round(v/total, 3) for v in w])  # 输出 [0.731, 0.269]
+    md: 把两项分数都增加 500，看看概率是否改变。
+  - type: quiz
+    skill: math.softmax
+    q: 原始分数 [-1001, -1000]，安全的指数输入应是哪一组？
+    options:
+      - '[-1, 0]'
+      - '[-2001, -2000]'
+      - '[1001, 1000]'
+    answer: 0
+    explain: 减去最大值 −1000 后得到 [−1, 0]。（MM23 直接对很大的原始分数取指数）
+  - type: read
+    skill: math.cross-entropy
+    md: |-
+      识别猫和狗时，照片的真实标签是猫，模型给猫 0.8、给狗 0.2。想给这次预测记个代价，正确类别的概率越大，代价就应越小。用自然对数算 −log(0.8) 约为 0.223。如果模型只给猫 0.2，代价约为 1.609。
+
+      交叉熵按真实分布 q 对每项代价 −log(p) 加权求和。只有一个正确标签时，它的权重是 1，其余是 0，所以只需取出真实类别的预测概率。
+
+      ```python
+      from math import log
+      predicted = [0.8, 0.2]
+      label = 0
+      loss = -log(predicted[label])
+      ```
+
+      **MM24 挑预测最大的概率计算损失**。类别下标按输入约定读取。总挑自己最有信心的类别会让自信的错判也得到低损失。
+  - type: example
+    skill: math.cross-entropy
+    code: |
+      # ① 同一张猫照片有两组不同预测
+      from math import log
+      label = 0
+      # ② 每次只读真实标签，再记负对数
+      for predicted in [[0.8, 0.2], [0.2, 0.8]]:
+          print(round(-log(predicted[label]), 3))
+      # 输出 0.223
+      # 输出 1.609
+    md: 把真实标签改为 1，同样两组预测的损失如何变化？
+  - type: quiz
+    skill: math.cross-entropy
+    q: 模型报 [0.9, 0.1]，真实标签下标为 1，单例损失是什么？
+    options:
+      - −log(0.9)
+      - −log(0.1)
+      - log(0.1)
+    answer: 1
+    explain: 标签为 1，应读取第二格的 0.1，并在自然对数前加负号。（MM24 挑预测最大的概率计算损失）

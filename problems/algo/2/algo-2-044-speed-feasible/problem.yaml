@@ -1,0 +1,24 @@
+id: algo-2-044-speed-feasible
+title: 这档速度能否按时吃完
+track: algo
+stage: '2'
+order: 440
+format: complete
+mode: function
+difficulty: 59
+skills:
+  requires:
+  - py.genexp
+  - py.list-builtins
+  introduces: algo.binary-search-answer
+source: original
+leetcode: null
+milestones: []
+entry: feasible
+signature: 'def feasible(piles: list[int], speed: int, h: int) -> bool:'
+compare: exact
+wrong_examples:
+- why: 先合并香蕉再算小时，跨堆用了剩余时间。
+  code: |
+    def feasible(piles: list[int], speed: int, h: int) -> bool:
+        return (sum(piles) + speed - 1) // speed <= h

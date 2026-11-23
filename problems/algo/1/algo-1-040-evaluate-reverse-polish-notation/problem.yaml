@@ -1,0 +1,45 @@
+id: algo-1-040-evaluate-reverse-polish-notation
+title: 计算后缀表达式
+track: algo
+stage: '1'
+order: 400
+unit: 2
+format: write
+mode: function
+difficulty: 54
+skills:
+  requires:
+  - py.type-convert
+  - py.elif
+  - py.break-continue
+  - py.tuple
+  - py.stack-list
+  introduces: null
+source: neetcode250
+leetcode: evaluate-reverse-polish-notation
+milestones:
+- nc150
+entry: eval_rpn
+signature: 'def eval_rpn(tokens: list[str]) -> int:'
+compare: exact
+wrong_examples:
+- why: 用向下取整处理了负数除法。
+  code: |
+    def eval_rpn(tokens: list[str]) -> int:
+        stack = []
+        for token in tokens:
+            if token not in ('+', '-', '*', '/'):
+                stack.append(int(token))
+                continue
+            right = stack.pop()
+            left = stack.pop()
+            if token == '+':
+                value = left + right
+            elif token == '-':
+                value = left - right
+            elif token == '*':
+                value = left * right
+            else:
+                value = left // right
+            stack.append(value)
+        return stack.pop()

@@ -1,0 +1,1 @@
+INSERT INTO votes VALUES (2, 1, 1, '2020-03-01');

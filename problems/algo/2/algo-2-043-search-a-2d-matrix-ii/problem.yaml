@@ -1,0 +1,39 @@
+id: algo-2-043-search-a-2d-matrix-ii
+title: 在行列都递增的表里找数
+track: algo
+stage: '2'
+order: 430
+format: write
+mode: function
+difficulty: 60
+skills:
+  requires:
+  - py.bool-ops
+  - py.early-return
+  - py.multi-assign
+  - py.nested-list
+  - py.two-index
+  introduces: null
+source: top-100-liked
+leetcode: search-a-2d-matrix-ii
+milestones:
+- top100
+entry: search_rows_cols
+signature: 'def search_rows_cols(matrix: list[list[int]], target: int) -> bool:'
+compare: exact
+wrong_examples:
+- why: 少查最左列。
+  code: |
+    def search_rows_cols(matrix: list[list[int]], target: int) -> bool:
+        row, col = 0, len(matrix[0]) - 1
+        while row < len(matrix) and col > 0:
+            value = matrix[row][col]
+            if value == target:
+                return True
+            if value < target:
+                row += 1
+            else:
+                col -= 1
+        return False
+hints:
+- 右上角是本行最大值、也是本列最小值。比较一次能排除整行或整列。

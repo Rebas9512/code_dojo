@@ -1,0 +1,26 @@
+id: sql-3-001-above-catalog-average
+title: 补全：高过全店均价的书
+track: sql
+stage: '3'
+order: 10
+format: complete
+difficulty: 41
+skills:
+  requires: []
+  introduces: sql.subquery-scalar
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/one-expensive.sql
+  - db:bookstore + datasets/equal-mean.sql
+ordered: false
+hints:
+  - 先单独运行括号里的查询，结果有几格？
+wrong_examples:
+  - why: 把门槛换成最低价
+    sql: |
+      SELECT book_id, price
+      FROM books
+      WHERE price > (SELECT MIN(price) FROM books);

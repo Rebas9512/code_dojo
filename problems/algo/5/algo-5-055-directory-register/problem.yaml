@@ -1,0 +1,46 @@
+id: algo-5-055-directory-register
+title: 档案目录第 1 级：建目录和列名字
+track: algo
+stage: '5'
+order: 550
+format: write
+mode: class
+difficulty: 79
+week: 7
+skills:
+  requires:
+  - algo.oop-design
+  - algo.trie
+  - py.dict-get
+  - py.sorted
+  - py.split-join
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: Archive
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 列举按创建顺序输出，遗漏了字典序要求。
+  code: |
+    class Archive:
+        def __init__(self):
+            self.root = {}
+
+        def _directory(self, path):
+            node = self.root
+            for name in path.split("/"):
+                if name:
+                    node = node[name]
+            return node
+
+        def mkdir(self, path: str) -> None:
+            node = self.root
+            for name in path.split("/"):
+                if name:
+                    node = node.setdefault(name, {})
+
+        def ls(self, path: str) -> list[str]:
+            node = self._directory(path)
+            return list(node)

@@ -1,0 +1,56 @@
+id: sql-5-008-trial-to-renewal
+title: 从试读到续订的七日转化
+track: sql
+stage: '5'
+order: 80
+format: combine
+difficulty: 69
+skills:
+  requires:
+    - sql.between
+    - sql.funnel
+    - sql.join-aggregate
+    - sql.multi-join
+    - sql.retention
+    - sql.self-join
+    - sql.sum-avg
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/expiry.sql
+  - datasets/sample.sql + datasets/same-day.sql
+ordered: false
+hints:
+  - 先固定每人的第一次试读，然后只在付款窗口内挑最早一笔。
+wrong_examples:
+  - why: 放过了第八天的付款
+    sql: |
+      WITH trials AS (
+          SELECT reader, MIN(day) AS start_day FROM reading_log WHERE action = 'trial' GROUP BY reader
+      ), paid AS (
+          SELECT t.reader, MIN(e.day) AS paid_day FROM trials t JOIN reading_log e ON e.reader = t.reader
+          WHERE e.action = 'pay' AND e.day BETWEEN t.start_day + 1 AND t.start_day + 8 GROUP BY t.reader
+      ), renewed AS (
+          SELECT DISTINCT p.reader FROM paid p JOIN reading_log e ON e.reader = p.reader
+          WHERE e.action = 'renew' AND e.day > p.paid_day
+      )
+      SELECT t.start_day, COUNT(*) AS trials, COUNT(p.reader) AS paid, COUNT(r.reader) AS renewed
+      FROM trials t LEFT JOIN paid p ON p.reader = t.reader LEFT JOIN renewed r ON r.reader = t.reader
+      GROUP BY t.start_day;
+  - why: 同日续订也算后续动作
+    sql: |
+      WITH trials AS (
+          SELECT reader, MIN(day) AS start_day FROM reading_log WHERE action = 'trial' GROUP BY reader
+      ), paid AS (
+          SELECT t.reader, MIN(e.day) AS paid_day FROM trials t JOIN reading_log e ON e.reader = t.reader
+          WHERE e.action = 'pay' AND e.day BETWEEN t.start_day + 1 AND t.start_day + 7 GROUP BY t.reader
+      ), renewed AS (
+          SELECT DISTINCT p.reader FROM paid p JOIN reading_log e ON e.reader = p.reader
+          WHERE e.action = 'renew' AND e.day >= p.paid_day
+      )
+      SELECT t.start_day, COUNT(*) AS trials, COUNT(p.reader) AS paid, COUNT(r.reader) AS renewed
+      FROM trials t LEFT JOIN paid p ON p.reader = t.reader LEFT JOIN renewed r ON r.reader = t.reader
+      GROUP BY t.start_day;

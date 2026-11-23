@@ -1,0 +1,30 @@
+id: algo-1-003-contains-duplicate
+title: 票号是否重复
+track: algo
+stage: '1'
+order: 30
+format: write
+mode: function
+difficulty: 33
+skills:
+  requires:
+  - py.early-return
+  - algo.hash-seen
+  introduces: null
+source: neetcode250
+leetcode: contains-duplicate
+milestones:
+- blind75
+entry: contains_duplicate
+signature: 'def contains_duplicate(nums: list[int]) -> bool:'
+compare: exact
+wrong_examples:
+- why: 用列表逐次查找，长的不重复序列要扫描成对元素。
+  code: |
+    def contains_duplicate(nums: list[int]) -> bool:
+        seen = []
+        for value in nums:
+            if value in seen:
+                return True
+            seen.append(value)
+        return False

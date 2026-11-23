@@ -1,0 +1,113 @@
+id: math-2-l03-gradients
+title: 梯度与下降
+track: math
+skills:
+  - math.gradient
+  - math.descent
+  - math.descent-plane
+steps:
+  - type: read
+    skill: math.gradient
+    md: |-
+      一块长 3 米、宽 2 米的地毯面积是 6 平方米。只把长增加 0.1 米，面积增加 0.2；只把宽增加 0.1 米，面积增加 0.3。两种改动的影响不同，一个斜率已经说不全。
+
+      多输入函数沿某一个输入的导数叫偏导数。测 x 时固定 y，测 y 时固定 x。按输入顺序把这些偏导数组成向量，就是梯度。
+
+      ```python
+      x, y, h = 3, 2, 0.1
+      dx = ((x+h)*y - x*y)/h
+      dy = (x*(y+h) - x*y)/h
+      ```
+
+      **MM15 测一根轴时把两根轴一起动**。若两轴同时动，读数混有两个方向的变化。每次都回到同一出发点再量另一个方向。
+  - type: example
+    skill: math.gradient
+    code: |
+      # ① 固定地毯的起始长宽和面积
+      x, y, h = 3, 2, 0.5
+      base = x*y
+      # ② 分开拉长、拉宽，按 x、y 排列
+      dx = ((x+h)*y - base)/h
+      dy = (x*(y+h) - base)/h
+      print([dx, dy])  # 输出 [2.0, 3.0]
+    md: 交换初始长宽，看梯度的两格怎样变化。
+  - type: quiz
+    skill: math.gradient
+    q: 测温函数有横纵两个输入。估算纵向偏导数时该怎么动？
+    options:
+      - 只增大纵坐标
+      - 两个坐标都增大
+      - 只增大横坐标
+    answer: 0
+    explain: 横坐标固定时，差商只量到纵方向的影响。（MM15 测一根轴时把两根轴一起动）
+  - type: read
+    skill: math.descent
+    md: |-
+      多订少订都会增加费用，距离合适订量越远，损失越大。设合适量是 3，当前订 5，损失是 (5−3)²=4，斜率为 4。若每次按斜率的四分之一反向走，就从 5 走到 4，损失变为 1。
+
+      重复「求当前位置的斜率，再反向走一步」叫梯度下降。步长 rate 控制每次走多远，更新为 x − rate × slope。
+
+      ```python
+      x = 5
+      slope = 2*(x-3)
+      x = x - 0.25*slope
+      ```
+
+      **MM16 沿斜率正方向更新或认为步长越大越好**。步长太大会越过最低点，甚至越离越远。看更新后的位置和损失，把不同步长放到同一起点试算。
+  - type: example
+    skill: math.descent
+    code: |
+      # ① 从同一订量出发
+      start = 5
+      # ② 对比迈小步和大步之后的损失
+      for rate in [0.25, 1.5]:
+          x = start - rate * 2*(start-3)
+          print([x, (x-3)**2])
+      # 输出 [4.0, 1.0]
+      # 输出 [-1.0, 16.0]
+    md: 把大步长改成 1，再看损失相对出发时的 4 有无下降。
+  - type: quiz
+    skill: math.descent
+    q: 当前位置的斜率为负，步长为正，更新后 x 往哪边走？
+    options:
+      - 往小走
+      - 往大走
+      - 保持原位
+    answer: 1
+    explain: 从 x 减去一个负数，位置会增大。（MM16 沿斜率正方向更新或认为步长越大越好）
+  - type: read
+    skill: math.descent-plane
+    md: |-
+      调两只旋钮 x、y，希望它们的和靠近 0，可以把损失写成 (x+y)²。若从 (2,1) 出发，和为 3，两根轴上的斜率都是 6。步长取 0.1，两边各减 0.6，就到了 (1.4,0.4)，损失从 9 降到 3.24。
+
+      在同一旧位置求出两个偏导数 gx 和 gy，再分别更新为 x−rate×gx、y−rate×gy。一整个梯度对应一次移动。
+
+      ```python
+      x, y = 2, 1
+      slope = 2*(x+y)
+      x, y = x - 0.1*slope, y - 0.1*slope
+      ```
+
+      **MM17 用更新后的横坐标算同一步的纵向斜率**。两方向会相互影响，半途重算将混入另一处的斜率。先保存整份梯度，改位置时只读这份数。
+  - type: example
+    skill: math.descent-plane
+    code: |
+      # ① 在同一个旧点量完整梯度
+      x, y = 2, 1
+      gx = 2*(x+y)
+      gy = 2*(x+y)
+      # ② 同步更新，量出新损失
+      x = x - 0.1*gx
+      y = y - 0.1*gy
+      print([round(x, 2), round(y, 2)])  # 输出 [1.4, 0.4]
+      print(round((x+y)**2, 2))  # 输出 3.24
+    md: 把步长改为 0.25，看看这一步之后两个数的和。
+  - type: quiz
+    skill: math.descent-plane
+    q: 已算出旧点的 gx，更新两格前还应该保存什么？
+    options:
+      - 新点的 gx
+      - 新点的 gy
+      - 旧点的 gy
+    answer: 2
+    explain: 同一步的两个方向必须取自同一位置。（MM17 用更新后的横坐标算同一步的纵向斜率）

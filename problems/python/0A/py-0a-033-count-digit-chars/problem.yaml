@@ -1,0 +1,19 @@
+id: py-0a-033-count-digit-chars
+title: 有几个数字字符
+track: python
+stage: 0A
+order: 660
+format: complete
+mode: function
+difficulty: 11
+skills:
+  requires: [py.index-len, py.accumulator, py.if-else, py.for-each]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: count_digit_chars
+signature: "def count_digit_chars(s: str) -> int:"
+compare: exact
+hints:
+  - "循环变量的名字要和下一行用到的名字一致。"

@@ -1,0 +1,18 @@
+id: py-0a-207-predict-missing-return
+title: 显示在屏幕上，交回给谁
+track: python
+stage: 0A
+order: 2070
+format: predict
+mode: predict
+difficulty: 16
+skills:
+  requires: []
+  introduces: py.none
+source: original
+leetcode: null
+milestones: []
+wrong_examples:
+  - why: PM01：以为打印出来的 5 也是函数的返回值。
+    code: |
+      print('5\nFalse')

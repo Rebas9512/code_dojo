@@ -1,0 +1,13 @@
+{
+  "examples": [
+    {"args": ["the sky is blue"], "expected": "blue is sky the"},
+    {"args": ["  hello   world "], "expected": "world hello"}
+  ],
+  "hidden": [
+    {"args": ["a"], "expected": "a"},
+    {"args": ["a  b"], "expected": "b a"},
+    {"args": [""], "expected": ""},
+    {"args": ["   "], "expected": ""},
+    {"args": ["one two three"], "expected": "three two one"}
+  ]
+}

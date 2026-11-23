@@ -1,0 +1,33 @@
+id: algo-1-013-design-hashmap
+title: 按编号存放余额
+track: algo
+stage: '1'
+order: 130
+format: write
+mode: class
+difficulty: 41
+skills:
+  requires:
+  - py.list-concat-repeat
+  - algo.class-design
+  introduces: null
+source: neetcode250
+leetcode: design-hashmap
+milestones: []
+entry: MyHashMap
+compare: exact
+wrong_examples:
+- why: 把余额 0 当作查无记录。
+  code: |
+    class MyHashMap:
+        def __init__(self):
+            self.values = [-1] * 1000001
+
+        def put(self, key: int, value: int) -> None:
+            self.values[key] = value
+
+        def get(self, key: int) -> int:
+            return self.values[key] or -1
+
+        def remove(self, key: int) -> None:
+            self.values[key] = -1

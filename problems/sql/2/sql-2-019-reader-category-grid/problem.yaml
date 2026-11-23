@@ -1,0 +1,41 @@
+id: sql-2-019-reader-category-grid
+title: 每位读者在各分类下过几单
+track: sql
+stage: '2'
+order: 190
+format: complete
+difficulty: 36
+skills:
+  requires:
+    - sql.multi-join
+    - sql.left-join
+    - sql.join-conditions
+    - sql.join-aggregate
+    - sql.count-distinct
+    - sql.and-or
+  introduces: sql.cross-join
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore + datasets/sample.sql
+  - db:bookstore + datasets/sample.sql + datasets/empty-orders.sql
+  - db:bookstore + datasets/sample.sql + datasets/same-category.sql
+ordered: false
+hints:
+  - 先搭齐全部格子，再把购买记录配到对应的用户和分类。
+wrong_examples:
+  - why: 一单同类多种书被计作多单
+    sql: |
+      SELECT u.user_id, c.category, COUNT(p.order_id) AS order_count
+      FROM users u
+      CROSS JOIN categories c
+      LEFT JOIN purchases p ON p.user_id = u.user_id AND p.category = c.category
+      GROUP BY u.user_id, c.category;
+  - why: 只剩有消费的组合
+    sql: |
+      SELECT u.user_id, c.category, COUNT(DISTINCT p.order_id) AS order_count
+      FROM users u
+      CROSS JOIN categories c
+      JOIN purchases p ON p.user_id = u.user_id AND p.category = c.category
+      GROUP BY u.user_id, c.category;

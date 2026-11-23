@@ -1,0 +1,25 @@
+id: algo-1-024-sequence-starts
+title: 找连续序列的起点
+track: algo
+stage: '1'
+order: 240
+format: fix
+mode: function
+difficulty: 45
+skills:
+  requires:
+  - py.list-comp
+  - algo.hash-seen
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: sequence_starts
+signature: 'def sequence_starts(nums: list[int]) -> list[int]:'
+compare: unordered
+wrong_examples:
+- why: 判断后继得到的是终点。
+  code: |
+    def sequence_starts(nums: list[int]) -> list[int]:
+        values = set(nums)
+        return [x for x in values if x + 1 not in values]

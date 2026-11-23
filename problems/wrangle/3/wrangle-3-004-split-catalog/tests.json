@@ -1,0 +1,92 @@
+{
+  "examples": [
+    {
+      "args": [
+        [
+          "甲",
+          "乙"
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "expected": {
+        "name": "stock",
+        "data": [
+          2,
+          4
+        ]
+      }
+    },
+    {
+      "args": [
+        [
+          "丙"
+        ],
+        [
+          0
+        ]
+      ],
+      "expected": {
+        "name": "stock",
+        "data": [
+          0
+        ]
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        [],
+        []
+      ],
+      "expected": {
+        "name": "stock",
+        "data": []
+      }
+    },
+    {
+      "args": [
+        [
+          "甲",
+          "甲"
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "expected": {
+        "name": "stock",
+        "data": [
+          2,
+          2
+        ]
+      }
+    },
+    {
+      "args": [
+        [
+          "乙",
+          "甲",
+          "丁"
+        ],
+        [
+          0,
+          7,
+          1
+        ]
+      ],
+      "expected": {
+        "name": "stock",
+        "data": [
+          0,
+          7,
+          1
+        ]
+      }
+    }
+  ]
+}

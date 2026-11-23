@@ -1,0 +1,30 @@
+id: sql-3-015-exchange-seats
+title: 相邻座位交换读者
+track: sql
+stage: '3'
+order: 150
+format: variant
+difficulty: 48
+skills:
+  requires:
+    - sql.case
+    - sql.order-by
+    - sql.subquery-scalar
+  introduces: null
+source: sql50
+leetcode: exchange-seats
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/single.sql
+  - datasets/sample.sql + datasets/even.sql
+ordered: true
+hints:
+  - 只需计算每个人的新座号。最后一位是奇数时怎么办？
+wrong_examples:
+  - why: 把落单读者也移到下一位
+    sql: |
+      SELECT CASE WHEN seat % 2 = 0 THEN seat - 1
+                  WHEN seat < (SELECT MAX(seat) FROM seats) THEN seat + 1
+                  ELSE seat + 1 END AS new_seat, reader
+      FROM seats ORDER BY new_seat;

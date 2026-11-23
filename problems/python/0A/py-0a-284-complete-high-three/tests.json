@@ -1,0 +1,11 @@
+{
+  "examples": [
+    {"args": [[2, 7, 3, 9]], "expected": [9, 7, 3]},
+    {"args": [[5, 5]], "expected": [5, 5]}
+  ],
+  "hidden": [
+    {"args": [[]], "expected": []},
+    {"args": [[-2]], "expected": [-2]},
+    {"args": [[-5, -1, -1, 0]], "expected": [0, -1, -1]}
+  ]
+}

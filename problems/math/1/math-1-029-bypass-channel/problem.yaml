@@ -1,0 +1,28 @@
+id: math-1-029-bypass-channel
+title: 给信号变换加上直通
+track: math
+stage: '1'
+order: 290
+format: combine
+mode: function
+difficulty: 35
+skills:
+  requires:
+    - py.list-comp
+    - py.ternary
+    - math.vector-arithmetic
+    - math.matrix-shape
+    - math.identity
+  introduces: null
+source: original
+entry: add_bypass
+signature: 'def add_bypass(a: list[list[int]]) -> list[list[int]]:'
+compare: exact
+wrong_examples:
+  - why: 所有交叉通道都被误加一份。
+    code: |
+      def add_bypass(a: list[list[int]]) -> list[list[int]]:
+          out = []
+          for r in range(len(a)):
+              out.append([a[r][c] + (1) for c in range(len(a))])
+          return out

@@ -1,0 +1,16 @@
+id: tensor-4-009-which-path
+title: 哪条计算路径还在
+track: tensor
+stage: '4'
+order: 90
+format: predict
+mode: predict
+difficulty: 36
+skills:
+  requires: []
+  introduces: tensor.boundary
+source: original
+wrong_examples:
+  - why: 切断一个因子并不会切断另一个因子。
+    code: |
+      print('True False False\n8.0')

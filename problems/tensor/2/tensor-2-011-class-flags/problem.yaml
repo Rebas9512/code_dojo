@@ -1,0 +1,26 @@
+id: tensor-2-011-class-flags
+title: 点亮类别列
+track: tensor
+stage: '2'
+order: 110
+format: complete
+mode: function
+difficulty: 27
+skills:
+  requires:
+    - tensor.one-hot
+    - tensor.reshape
+  introduces: null
+source: original
+entry: flags
+signature: 'def flags(labels, classes):'
+compare: allclose
+wrong_examples:
+  - why: 把未命中的类别点亮了。
+    code: |
+      import torch
+
+
+      def flags(labels, classes):
+          rows = torch.tensor(labels).unsqueeze(1)
+          return rows != torch.arange(classes)

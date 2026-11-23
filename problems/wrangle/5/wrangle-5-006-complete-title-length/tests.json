@@ -1,0 +1,632 @@
+{
+  "examples": [
+    {
+      "args": [
+        {
+          "columns": [
+            "book_id",
+            "title"
+          ],
+          "data": [
+            [
+              1,
+              "The Silent Harbor"
+            ],
+            [
+              2,
+              "Stars Over Gobi"
+            ],
+            [
+              3,
+              "Python in Practice"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "book_id",
+          "chars"
+        ],
+        "data": [
+          [
+            1,
+            17
+          ],
+          [
+            2,
+            15
+          ],
+          [
+            3,
+            18
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "book_id",
+            "title"
+          ],
+          "data": [
+            [
+              5,
+              "The Last Lantern"
+            ],
+            [
+              6,
+              "Little Cloud"
+            ],
+            [
+              7,
+              "Noodles at Midnight"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "book_id",
+          "chars"
+        ],
+        "data": [
+          [
+            5,
+            16
+          ],
+          [
+            6,
+            12
+          ],
+          [
+            7,
+            19
+          ]
+        ]
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        {
+          "columns": [
+            "book_id",
+            "title"
+          ],
+          "data": []
+        }
+      ],
+      "expected": {
+        "columns": [
+          "book_id",
+          "chars"
+        ],
+        "data": []
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "book_id",
+            "title"
+          ],
+          "data": [
+            [
+              1,
+              "The Silent Harbor"
+            ],
+            [
+              2,
+              "Stars Over Gobi"
+            ],
+            [
+              3,
+              "Python in Practice"
+            ],
+            [
+              4,
+              "A Short History of Tea"
+            ],
+            [
+              5,
+              "The Last Lantern"
+            ],
+            [
+              6,
+              "Little Cloud"
+            ],
+            [
+              7,
+              "Noodles at Midnight"
+            ],
+            [
+              8,
+              "Quantum Garden"
+            ],
+            [
+              9,
+              "The Map Maker"
+            ],
+            [
+              10,
+              "SQL for Curious Minds"
+            ],
+            [
+              11,
+              "Dragons of the North"
+            ],
+            [
+              12,
+              "Data at Dawn"
+            ],
+            [
+              13,
+              "Silk Road Letters"
+            ],
+            [
+              14,
+              "Moon Rabbit"
+            ],
+            [
+              15,
+              "The Clockwork Sea"
+            ],
+            [
+              16,
+              "Spice Atlas"
+            ],
+            [
+              17,
+              "Winter Orchard"
+            ],
+            [
+              18,
+              "Algorithms, Gently"
+            ],
+            [
+              19,
+              "Empire of Salt"
+            ],
+            [
+              20,
+              "The Glass Fox"
+            ],
+            [
+              21,
+              "Rainy Season"
+            ],
+            [
+              22,
+              "Orbit of Ashes"
+            ],
+            [
+              23,
+              "Count with Panda"
+            ],
+            [
+              24,
+              "Street Food Stories"
+            ],
+            [
+              25,
+              "Untitled Poems"
+            ],
+            [
+              26,
+              "Rivers and Kings"
+            ],
+            [
+              27,
+              "Data at Dawn"
+            ],
+            [
+              28,
+              "The Paper Moon"
+            ],
+            [
+              29,
+              "Bread & Butter"
+            ],
+            [
+              30,
+              "Theory of Tides"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "book_id",
+          "chars"
+        ],
+        "data": [
+          [
+            1,
+            17
+          ],
+          [
+            2,
+            15
+          ],
+          [
+            3,
+            18
+          ],
+          [
+            4,
+            22
+          ],
+          [
+            5,
+            16
+          ],
+          [
+            6,
+            12
+          ],
+          [
+            7,
+            19
+          ],
+          [
+            8,
+            14
+          ],
+          [
+            9,
+            13
+          ],
+          [
+            10,
+            21
+          ],
+          [
+            11,
+            20
+          ],
+          [
+            12,
+            12
+          ],
+          [
+            13,
+            17
+          ],
+          [
+            14,
+            11
+          ],
+          [
+            15,
+            17
+          ],
+          [
+            16,
+            11
+          ],
+          [
+            17,
+            14
+          ],
+          [
+            18,
+            18
+          ],
+          [
+            19,
+            14
+          ],
+          [
+            20,
+            13
+          ],
+          [
+            21,
+            12
+          ],
+          [
+            22,
+            14
+          ],
+          [
+            23,
+            16
+          ],
+          [
+            24,
+            19
+          ],
+          [
+            25,
+            14
+          ],
+          [
+            26,
+            16
+          ],
+          [
+            27,
+            12
+          ],
+          [
+            28,
+            14
+          ],
+          [
+            29,
+            14
+          ],
+          [
+            30,
+            15
+          ]
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "columns": [
+            "book_id",
+            "title"
+          ],
+          "data": [
+            [
+              1,
+              "月 光"
+            ],
+            [
+              2,
+              "山"
+            ],
+            [
+              3,
+              "Python in Practice"
+            ],
+            [
+              4,
+              "A Short History of Tea"
+            ],
+            [
+              5,
+              "The Last Lantern"
+            ],
+            [
+              6,
+              "Little Cloud"
+            ],
+            [
+              7,
+              "Noodles at Midnight"
+            ],
+            [
+              8,
+              "Quantum Garden"
+            ],
+            [
+              9,
+              "The Map Maker"
+            ],
+            [
+              10,
+              "SQL for Curious Minds"
+            ],
+            [
+              11,
+              "Dragons of the North"
+            ],
+            [
+              12,
+              "Data at Dawn"
+            ],
+            [
+              13,
+              "Silk Road Letters"
+            ],
+            [
+              14,
+              "Moon Rabbit"
+            ],
+            [
+              15,
+              "The Clockwork Sea"
+            ],
+            [
+              16,
+              "Spice Atlas"
+            ],
+            [
+              17,
+              "Winter Orchard"
+            ],
+            [
+              18,
+              "Algorithms, Gently"
+            ],
+            [
+              19,
+              "Empire of Salt"
+            ],
+            [
+              20,
+              "The Glass Fox"
+            ],
+            [
+              21,
+              "Rainy Season"
+            ],
+            [
+              22,
+              "Orbit of Ashes"
+            ],
+            [
+              23,
+              "Count with Panda"
+            ],
+            [
+              24,
+              "Street Food Stories"
+            ],
+            [
+              25,
+              "Untitled Poems"
+            ],
+            [
+              26,
+              "Rivers and Kings"
+            ],
+            [
+              27,
+              "Data at Dawn"
+            ],
+            [
+              28,
+              "The Paper Moon"
+            ],
+            [
+              29,
+              "Bread & Butter"
+            ],
+            [
+              30,
+              "Theory of Tides"
+            ]
+          ]
+        }
+      ],
+      "expected": {
+        "columns": [
+          "book_id",
+          "chars"
+        ],
+        "data": [
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            18
+          ],
+          [
+            4,
+            22
+          ],
+          [
+            5,
+            16
+          ],
+          [
+            6,
+            12
+          ],
+          [
+            7,
+            19
+          ],
+          [
+            8,
+            14
+          ],
+          [
+            9,
+            13
+          ],
+          [
+            10,
+            21
+          ],
+          [
+            11,
+            20
+          ],
+          [
+            12,
+            12
+          ],
+          [
+            13,
+            17
+          ],
+          [
+            14,
+            11
+          ],
+          [
+            15,
+            17
+          ],
+          [
+            16,
+            11
+          ],
+          [
+            17,
+            14
+          ],
+          [
+            18,
+            18
+          ],
+          [
+            19,
+            14
+          ],
+          [
+            20,
+            13
+          ],
+          [
+            21,
+            12
+          ],
+          [
+            22,
+            14
+          ],
+          [
+            23,
+            16
+          ],
+          [
+            24,
+            19
+          ],
+          [
+            25,
+            14
+          ],
+          [
+            26,
+            16
+          ],
+          [
+            27,
+            12
+          ],
+          [
+            28,
+            14
+          ],
+          [
+            29,
+            14
+          ],
+          [
+            30,
+            15
+          ]
+        ]
+      }
+    }
+  ]
+}

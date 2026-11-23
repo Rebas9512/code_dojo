@@ -1,0 +1,1 @@
+INSERT INTO signups VALUES (3, 1);

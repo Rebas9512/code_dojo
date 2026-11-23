@@ -1,0 +1,13 @@
+{
+  "examples": [
+    {"args": ["42abc7"], "expected": "42"},
+    {"args": ["abc"], "expected": ""}
+  ],
+  "hidden": [
+    {"args": ["2026"], "expected": "2026"},
+    {"args": [""], "expected": ""},
+    {"args": ["7 8"], "expected": "7"},
+    {"args": ["0x1F"], "expected": "0"},
+    {"args": ["12.5"], "expected": "12"}
+  ]
+}

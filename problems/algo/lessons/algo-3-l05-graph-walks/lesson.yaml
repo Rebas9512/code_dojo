@@ -1,0 +1,154 @@
+id: algo-3-l05-graph-walks
+title: 从一个格子走到一张图
+track: algo
+skills:
+- algo.grid-dfs
+- algo.graph-adj-list
+- algo.graph-bfs
+steps:
+- type: read
+  skill: algo.grid-dfs
+  md: |-
+    方格互相贴边就算连通时，可以把每格当作点，上下左右是四条候选边。要数从种子能到多少格，就准备一份待处理清单。发现一个合法的新格子，马上涂色再加入清单；每取出一格，检查它的四邻，直到清单清空。
+
+    清单用栈就是迭代 DFS，换成双端队列从左端取就是 BFS，两者能找到同一片区域。每格最多进清单一次，整张 R×C 图耗时、最坏额外空间都是 O(RC)。**只在递归返回时才标记** 会让相邻两格来回调用。狭长通道可能与整图一样深，显式栈把这些待办项放在列表里。
+- type: example
+  skill: algo.grid-dfs
+  code: |
+    # ① 标记种子并入栈
+    grid = [[1, 1, 0], [0, 1, 1]]
+    stack, area = [(0, 0)], 0
+    grid[0][0] = 0
+    while stack:
+        # ② 取出一个已经认领的格子
+        r, c = stack.pop()
+        area += 1
+        for dr, dc in ((0,1), (1,0), (0,-1), (-1,0)):
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < 2 and 0 <= nc < 3 and grid[nr][nc] == 1:
+                # ③ 先涂色再入栈
+                grid[nr][nc] = 0
+                stack.append((nr, nc))
+    print(area)
+
+    # 输出
+    # 4
+  md: |-
+    | 弹出的格 | 新增格 | 累计面积 |
+    |---|---|---|
+    | (0,0) | (0,1) | 1 |
+    | (0,1) | (1,1) | 2 |
+    | (1,1) | (1,2) | 3 |
+
+    把 (0,1) 改成水，重新预测起点的面积。
+- type: quiz
+  skill: algo.grid-dfs
+  q: 相邻两格都为 1，什么时候涂色才能避免回头重复认领？
+  options:
+  - 发现时
+  - 整片区域搜索完后
+  answer: 0
+  explain: 发现即标记，邻居再看回来就知道它已在清单里。
+- type: quiz
+  skill: algo.grid-dfs
+  q: 要数一个可能极长的通道，哪种做法可以避开深递归？
+  options:
+  - 对每格再递归一次
+  - 用列表作栈或 deque 作队列
+  answer: 1
+  explain: 待处理格子由容器保存，循环不会堆叠 Python 函数调用。
+- type: read
+  skill: algo.graph-adj-list
+  md: |-
+    题目给的是一串连接关系，而搜索时总想知道“从这里下一步能去哪儿”，可以先建邻接表：每个编号各有一份邻居列表。无向边 a—b 要同时登记在 a 和 b 名下。有向边只登记箭头方向。没有出现在边列表里的编号也应有空表，数连通分量时它独自算一块。
+
+    建表用 O(V+E) 空间，之后遍历时每个点访问一次，每条无向边查看两次，总时间 O(V+E)。**登记在一头就能从两边走** 会使搜索结果随起点改变。点的值相同也未必是同一对象，在复制节点的题里，记录原节点和副本之间的对应关系。
+- type: example
+  skill: algo.graph-adj-list
+  code: |
+    # ① 每人有一份独立的名单
+    links = [[] for _ in range(4)]
+    # ② 把双向关系写进两份名单
+    for a, b in [(1, 0), (1, 2)]:
+        links[a].append(b)
+        links[b].append(a)
+    # ③ 查一个有连接的人和一个孤立的人
+    print(links[0], links[1], links[3])
+
+    # 输出
+    # [1] [0, 2] []
+  md: |-
+    | 登记完的边 | 0 的名单 | 1 的名单 |
+    |---|---|---|
+    | 无 | 空 | 空 |
+    | 1—0 | 1 | 0 |
+    | 1—2 | 1 | 0、2 |
+
+    删去反方向的 append，看从 0 出发还能不能找回 1。
+- type: quiz
+  skill: algo.graph-adj-list
+  q: 四个点只有 0—1、1—2 两条边，一共有几块？
+  options:
+  - '1'
+  - '2'
+  - '3'
+  answer: 1
+  explain: 0、1、2 是一块，孤立点 3 自成一块。
+- type: quiz
+  skill: algo.graph-adj-list
+  q: 关注关系是单向的，给 a 添加 b 后也应给 b 添加 a 吗？
+  options:
+  - 应当
+  - 仅存在反向关注时才登记
+  answer: 1
+  explain: 有向关系的反方向需要自己的证据。
+- type: read
+  skill: algo.graph-bfs
+  md: |-
+    迷宫里每一步代价相同，问最少几步时，先探索所有走一步可到的地方，再探索要两步的地方。队列头总是尚未扩展的最短距离。把起点的距离记为零，发现新邻居的那一刻就将距离写成当前距离加一，并让它入队。
+
+    如果有多个出口，同时把所有出口当成距离零的起点，就能一次算出到最近出口的步数。每点只入队一次，邻接表耗时 O(V+E)，距离表和队列用 O(V) 空间。**第一次发现一定最便宜** 只对各条边等价时成立。哪怕直达只需一条边，票价也可能比两次便宜的转车贵。
+- type: example
+  skill: algo.graph-bfs
+  code: |
+    from collections import deque
+
+    # ① 两端同时出发，已发现的地方记录距离
+    distance = [0, -1, -1, -1, 0]
+    queue = deque([0, 4])
+    while queue:
+        # ② 先扩展距离较小的站
+        stop = queue.popleft()
+        for near in (stop - 1, stop + 1):
+            if 0 <= near < len(distance) and distance[near] == -1:
+                # ③ 入队前写好距离
+                distance[near] = distance[stop] + 1
+                queue.append(near)
+    print(distance)
+
+    # 输出
+    # [0, 1, 2, 1, 0]
+  md: |-
+    | 出队站 | 新发现 | 队列 |
+    |---|---|---|
+    | 0 | 1（一步） | 4、1 |
+    | 4 | 3（一步） | 1、3 |
+    | 1 | 2（两步） | 3、2 |
+
+    只从 0 出发，把站 4 的距离初始化为 −1 并从起始队列删掉，再运行。
+- type: quiz
+  skill: algo.graph-bfs
+  q: 两个邻居都能走到同一新格时，它应在哪一刻标记？
+  options:
+  - 第一次入队时
+  - 两次出队之后
+  answer: 0
+  explain: 第一次入队已有最短距离，晚标会让它被重复安排。
+- type: quiz
+  skill: algo.graph-bfs
+  q: 每条路的耗时不同，最少条边就一定耗时最少吗？
+  options:
+  - 一定
+  - 不一定
+  answer: 1
+  explain: 耗时 9 的直达路比两条各耗时 1 的路更慢。

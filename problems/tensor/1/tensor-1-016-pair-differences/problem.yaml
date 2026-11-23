@@ -1,0 +1,27 @@
+id: tensor-1-016-pair-differences
+title: 每对刻度的间隔
+track: tensor
+stage: '1'
+order: 160
+format: write
+mode: function
+difficulty: 25
+skills:
+  requires:
+    - tensor.broadcast
+    - tensor.singleton
+  introduces: null
+source: original
+entry: gaps
+signature: 'def gaps(starts, ends):'
+compare: allclose
+wrong_examples:
+  - why: 颠倒了间隔的方向。
+    code: |
+      import torch
+
+
+      def gaps(starts, ends):
+          a = torch.tensor(starts).unsqueeze(1)
+          b = torch.tensor(ends)
+          return a - b

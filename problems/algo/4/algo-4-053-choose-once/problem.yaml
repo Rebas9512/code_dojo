@@ -1,0 +1,27 @@
+id: algo-4-053-choose-once
+title: 能否从若干数里挑一些凑出和 s
+track: algo
+stage: '4'
+order: 530
+format: complete
+mode: function
+difficulty: 69
+skills:
+  requires:
+  - py.bool-ops
+  introduces: algo.dp-knapsack
+source: original
+leetcode: null
+milestones: []
+entry: can_pack
+signature: 'def can_pack(nums: list[int], target: int) -> bool:'
+compare: exact
+wrong_examples:
+- why: 正向更新容量会多次使用手里的同一项。
+  code: |
+    def can_pack(nums: list[int], target: int) -> bool:
+        possible = [True] + [False] * target
+        for value in nums:
+            for total in range(value, target + 1):
+                possible[total] = possible[total] or possible[total - value]
+        return possible[target]

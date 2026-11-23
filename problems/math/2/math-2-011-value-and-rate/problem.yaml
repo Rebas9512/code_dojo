@@ -1,0 +1,19 @@
+id: math-2-011-value-and-rate
+title: 同一点读两种数
+track: math
+stage: '2'
+order: 110
+format: predict
+mode: predict
+difficulty: 25
+skills:
+  requires:
+    - math.derivative
+  introduces: math.slope-rules
+source: original
+wrong_examples:
+  - why: 把位置又报了一遍。
+    code: |
+      t = 3
+      print(t ** 2)
+      print(t ** 2)

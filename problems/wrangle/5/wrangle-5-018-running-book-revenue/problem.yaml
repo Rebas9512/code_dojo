@@ -1,0 +1,36 @@
+id: wrangle-5-018-running-book-revenue
+title: 按营业日累计售书额
+track: wrangle
+stage: '5'
+order: 180
+format: write
+mode: function
+difficulty: 42
+skills:
+  requires:
+    - wrangle.window
+    - wrangle.cumsum
+    - wrangle.filter-sort
+    - wrangle.columns
+    - wrangle.dates
+  introduces: null
+source: original
+entry: revenue
+signature: 'def revenue(daily_sales):'
+compare: frame
+leetcode: last-person-to-fit-in-the-bus
+sql_twin: sql-4-012-running-book-revenue
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+wrong_examples:
+  - why: 累计列只抄了当日的金额。
+    code: |
+      import pandas as pd
+
+
+      def revenue(daily_sales):
+          out = daily_sales.sort_values('day')
+          out['total'] = out['amount']
+          return out[['day', 'amount', 'total']]

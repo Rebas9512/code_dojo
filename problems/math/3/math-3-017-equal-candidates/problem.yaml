@@ -1,0 +1,24 @@
+id: math-3-017-equal-candidates
+title: 同分候选如何分配
+track: math
+stage: '3'
+order: 170
+format: predict
+mode: predict
+difficulty: 33
+skills:
+  requires:
+    - py.list-comp
+    - math.exp
+    - math.vector
+    - py.list-builtins
+  introduces: math.softmax
+source: original
+wrong_examples:
+  - why: 没有把正权重换成和为 1 的比例。
+    code: |
+      from math import exp
+
+      scores = [1200, 1200]
+      w = [exp(s-max(scores)) for s in scores]
+      print([v for v in w])

@@ -1,0 +1,20 @@
+id: py-0a-055-column-sums
+title: 每列之和
+track: python
+stage: 0A
+order: 1070
+format: write
+mode: function
+difficulty: 17
+skills:
+  requires: [py.nested-list, py.list-concat-repeat]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: column_sums
+signature: "def column_sums(grid: list[list[int]]) -> list[int]:"
+compare: exact
+hints:
+  - "结果列表的长度是列数 len(grid[0])，先建一个全 0 的列表。"
+  - "两层循环：外层行、内层列，把 grid[i][j] 加到 sums[j]。"

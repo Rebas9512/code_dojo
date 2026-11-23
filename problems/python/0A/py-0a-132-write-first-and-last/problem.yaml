@@ -1,0 +1,19 @@
+id: py-0a-132-write-first-and-last
+title: 首尾两个字符
+track: python
+stage: 0A
+order: 640
+format: write
+mode: function
+difficulty: 11
+skills:
+  requires: [py.index-len, py.func-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: first_and_last
+signature: "def first_and_last(s: str) -> str:"
+compare: exact
+hints:
+  - "最后一个字符可以用负下标。"

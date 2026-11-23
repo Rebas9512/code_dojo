@@ -1,0 +1,16 @@
+id: py-0a-409-write-cheaper-price
+title: 第一家更便宜吗
+track: python
+stage: 0A
+order: 100
+format: write
+mode: stdio
+difficulty: 4
+skills:
+  requires:
+    - py.stdio-input
+    - py.compare-bool
+  introduces: null
+source: original
+leetcode: null
+milestones: []

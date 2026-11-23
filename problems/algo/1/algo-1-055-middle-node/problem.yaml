@@ -1,0 +1,31 @@
+id: algo-1-055-middle-node
+title: 找链表中间节点（快慢指针）
+track: algo
+stage: '1'
+order: 550
+format: complete
+mode: function
+difficulty: 53
+skills:
+  requires:
+  - py.bool-ops
+  introduces: algo.fast-slow
+source: original
+leetcode: null
+milestones: []
+entry: middle_node
+signature: 'def middle_node(head: ListNode | None) -> ListNode | None:'
+compare: exact
+convert:
+  args:
+    '0': listnode
+  returns: listnode
+wrong_examples:
+- why: 偶数长度时过早停在靠前的中间点。
+  code: |
+    def middle_node(head: ListNode | None) -> ListNode | None:
+        slow = fast = head
+        while fast and fast.next and fast.next.next:
+            slow = slow.next
+            fast = fast.next.next
+        return slow

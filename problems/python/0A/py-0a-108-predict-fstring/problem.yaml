@@ -1,0 +1,17 @@
+id: py-0a-108-predict-fstring
+title: 花括号里的值
+track: python
+stage: 0A
+order: 150
+format: predict
+mode: predict
+difficulty: 4
+skills:
+  requires: [py.var-arith]
+  introduces: py.fstring
+source: original
+leetcode: null
+milestones: []
+hints:
+  - "第二个 print 的字符串前面没有 f。"
+  - "7 / 2 的结果带小数。"

@@ -1,0 +1,46 @@
+id: algo-5-012-path-sum-ii
+title: 列出达到目标的叶端路线
+track: algo
+stage: '5'
+order: 120
+format: fix
+mode: function
+difficulty: 74
+week: 2
+skills:
+  requires:
+  - algo.backtracking
+  - algo.tree-basics
+  - algo.nested-func
+  - py.bool-ops
+  introduces: null
+source: grind169
+leetcode: path-sum-ii
+milestones: []
+entry: paths
+signature: 'def paths(root: TreeNode | None, target: int) -> list[list[int]]:'
+compare: unordered
+time_limit_ms: 800
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 记录的是还会被回退清空的同一个列表。
+  code: |
+    def paths(root: TreeNode | None, target: int) -> list[list[int]]:
+        result = []
+        path = []
+
+        def visit(node, left):
+            if node is None:
+                return
+            path.append(node.val)
+            left -= node.val
+            if node.left is None and node.right is None and left == 0:
+                result.append(path)
+            visit(node.left, left)
+            visit(node.right, left)
+            path.pop()
+
+        visit(root, target)
+        return result

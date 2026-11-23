@@ -1,0 +1,65 @@
+id: algo-3-033-serialize-and-deserialize-binary-tree
+title: 把树写成字符串再读回来
+track: algo
+stage: '3'
+order: 330
+format: combine
+mode: function
+difficulty: 61
+skills:
+  requires:
+  - algo.class-design
+  - algo.nested-func
+  - algo.tree-basics
+  - py.list-pop
+  - py.recursion-multi
+  - py.split-join
+  - py.type-convert
+  - py.while
+  introduces: null
+source: neetcode250
+leetcode: serialize-and-deserialize-binary-tree
+milestones:
+- blind75
+entry: run_case
+signature: 'def run_case(root: TreeNode | None) -> TreeNode | None:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+  returns: treenode
+wrong_examples:
+- why: 反向写入孩子导致整棵树被镜像。
+  code: |
+    class Codec:
+        def serialize(self, root: TreeNode | None) -> str:
+            parts = []
+            stack = [root]
+            while stack:
+                node = stack.pop()
+                if node is None:
+                    parts.append('#')
+                else:
+                    parts.append(str(node.val))
+                    stack.extend([node.left, node.right])
+            return ','.join(parts)
+
+        def deserialize(self, text: str) -> TreeNode | None:
+            parts = text.split(',')
+            index = 0
+            def read():
+                nonlocal index
+                token = parts[index]
+                index += 1
+                if token == '#':
+                    return None
+                return TreeNode(int(token), read(), read())
+            return read()
+
+
+    def run_case(root: TreeNode | None) -> TreeNode | None:
+        text = Codec().serialize(root)
+        assert isinstance(text, str), '编码结果应为字符串'
+        return Codec().deserialize(text)
+hints:
+- 只有值的访问顺序会丢掉空孩子的位置。设计一种标记，在读取时也恰好消费一次。

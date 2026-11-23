@@ -1,0 +1,28 @@
+id: tensor-4-004-offset-energy
+title: 求相对目标位置的梯度
+track: tensor
+stage: '4'
+order: 40
+format: write
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - tensor.backward
+    - tensor.reduce
+  introduces: null
+source: original
+entry: energy_grad
+signature: 'def energy_grad(x):'
+compare: checker
+wrong_examples:
+  - why: 沿相反方向平移了目标位置。
+    code: |
+      import torch
+
+
+      def energy_grad(x):
+          x.requires_grad_(True)
+          loss = torch.sum((x + 1) ** 2)
+          loss.backward()
+          return x.grad

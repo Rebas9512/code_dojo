@@ -1,0 +1,117 @@
+id: data-0-l01-values
+title: 读书店登记：从一张表到一个空格
+track: data
+skills:
+  - data.table-intro
+  - data.value-kinds
+  - data.quantity-vs-label
+  - data.missing
+steps:
+  - type: read
+    skill: data.table-intro
+    md: |-
+      书店盘点时，店员给每个版本的书留一行，逐项写下编号、书名和库存。把这些行排齐，就得到一张表。最上面写着每项资料的名字，这一行叫表头。想知道《The Last Lantern》还剩几本，可以先从书名那一列找到它，再沿同一行读到 stock（库存）。
+
+      换个问题：想知道有几种书卖光了，可以沿 stock 这一列往下数 0。想知道昨天卖出几本，则还需要成交记录。决定能回答什么问题的，是表里实际登记了哪些资料。
+  - type: example
+    skill: data.table-intro
+    data:
+      kind: table
+      title: 书架登记
+      content: |
+        book_id,title,stock
+        5,The Last Lantern,0
+        12,Data at Dawn,6
+        24,Street Food Stories,0
+        27,Data at Dawn,10
+    md: 切到 CSV，把 5 号书的 stock 从 0 改成 2。切回表格，沿着这一行找到改动的格子。
+  - type: quiz
+    skill: data.table-intro
+    q: 两行书名都是 Data at Dawn，盘点登记有几条关于它的记录？
+    options:
+      - 一条
+      - 两条
+    answer: 1
+    explain: 每个版本单独占一行，编号 12 和 27 对应两条记录。
+  - type: read
+    skill: data.value-kinds
+    md: |-
+      一本书的资料里可以出现好几种值。库存 15 是整数，售价 29.90 是小数，书名是文字。如果问“这本书还有库存吗”，回答可以只用真或假。还有一种情况是某项资料没有填，称为缺失。
+
+      外观相似的值也要看写法。在能标明类型的原文中，7 用来表示一个数，双引号里的 "7" 是一个字符。真假值用来回答是非问题；把“是”写在便签上，便签上存的是文字。判断一格的种类时，先看这种表示法怎样标明文字。
+  - type: example
+    skill: data.value-kinds
+    data:
+      kind: table
+      title: 同一编号的三种写法（保存各自的原文）
+      content: |
+        整数写法,文字写法,小数写法
+        7,"""7""",7.0
+    md: 沿着这一行读三种写法，找出有引号的一格和写有小数点的一格。切到 CSV 看这些字符怎样保存。
+  - type: quiz
+    skill: data.value-kinds
+    q: '`"7"` 里面有几个字符？这个值属于哪一类？'
+    options:
+      - 一个，文字
+      - 一个，整数
+    answer: 0
+    explain: 双引号标明文字的边界，边界里面只有字符 7。
+  - type: quiz
+    skill: data.value-kinds
+    q: 哪一种是 JSON 里的真假值？
+    options:
+      - '"true"'
+      - 'true'
+      - '"是"'
+    answer: 1
+    explain: 引号里的两个答案都是文字。没有引号的 true 表示真。
+  - type: read
+    skill: data.quantity-vs-label
+    md: |-
+      看见一串数字，先给它提个问题：多一个单位，现实中多了什么？库存从 5 到 6，架上多了一册书；页数从 288 到 289，书多了一页。这些数可以相加，也能算平均值。
+
+      书的编号从 5 到 6，只是换了一本书。手机号的每个位置也都要原样保留，算平均值不能帮你联系读者。有些 ISBN 开头是 0，把它当整数抄就会丢掉这个 0。给数字起列名时，把它标识的对象或所量的单位写清楚。
+  - type: example
+    skill: data.quantity-vs-label
+    data:
+      kind: table
+      title: 图书价格与页数
+      content: |
+        book_id,price,pages
+        5,39,450
+        6,18.5,48
+        7,29.9,196
+    md: 看同一行的 book_id、price、pages。试着给后两列的平均数各补一个单位。
+  - type: quiz
+    skill: data.quantity-vs-label
+    q: 哪一个平均数有实际的计量单位？
+    options:
+      - 平均图书编号
+      - 平均页数
+    answer: 1
+    explain: 页数的单位是页。编号给书起名字，它们的平均数没有这种含义。
+  - type: read
+    skill: data.missing
+    md: |-
+      登记里有几种看起来像“什么都没有”的写法。库存填 0，表示店员数过，剩零本。出版社格留空，只能说明这里没有出版社信息。把空格补成 0，会凭空多出一条观测。
+
+      这份导出约定，CSV 里连续两个逗号之间的空字段表示缺失；双引号包住的空文字 `""` 表示一个长度为零的文字值；`N/A` 本身是三个字符。有的系统会约定用 N/A 标记缺失，要先看约定。计算平均数时也要说明是只用有记录的值，还是按某条业务规则补值。
+  - type: example
+    skill: data.missing
+    data:
+      kind: table
+      title: 库存与出版社
+      content: |
+        book_id,title,stock,publisher
+        5,The Last Lantern,0,Blue Kite
+        6,Little Cloud,30,
+        13,Silk Road Letters,3,
+    md: 切到 CSV，把 Little Cloud 的最后一个字段从空白改成 `""`，回到表格辨认空和空文字。再换成 N/A 看看。
+  - type: quiz
+    skill: data.missing
+    q: 只给两个已盘点的书架填了 0 和 6，第三个留空。已盘点书架的平均库存是多少？
+    options:
+      - '2'
+      - '3'
+    answer: 1
+    explain: 已盘点的两个架子共 6 本，6 除以 2 是 3。把第三个架子算进分母，就把未知库存当成了 0。

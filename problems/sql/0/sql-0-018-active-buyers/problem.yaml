@@ -1,0 +1,32 @@
+id: sql-0-018-active-buyers
+title: 上半年下过单的用户
+track: sql
+stage: "0"
+order: 310
+format: combine
+difficulty: 14
+skills: {requires: [sql.distinct, sql.order-by, sql.between, sql.and-or], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/half-year-edges.sql
+ordered: true
+hints:
+  - "三个要求：日期范围、排除取消、去重排序。"
+  - "DISTINCT 写在 SELECT 后面，ORDER BY 写在最后。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "没去重"
+    sql: |
+      SELECT user_id FROM orders WHERE status <> 'cancelled' AND order_date BETWEEN '2025-01-01' AND '2025-06-30' ORDER BY user_id;
+  - why: "没排除已取消的订单"
+    sql: |
+      SELECT DISTINCT user_id FROM orders WHERE order_date BETWEEN '2025-01-01' AND '2025-06-30' ORDER BY user_id;
+  - why: "结束日期用了 <，漏掉 6 月 30 日"
+    sql: |
+      SELECT DISTINCT user_id FROM orders WHERE status <> 'cancelled' AND order_date >= '2025-01-01' AND order_date < '2025-06-30' ORDER BY user_id;
+  - why: "只算了已送达的订单，漏掉 paid / shipped"
+    sql: |
+      SELECT DISTINCT user_id FROM orders WHERE status = 'delivered' AND order_date BETWEEN '2025-01-01' AND '2025-06-30' ORDER BY user_id;

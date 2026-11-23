@@ -1,0 +1,54 @@
+id: algo-5-077-bus-routes
+title: 赶到目的站要上几辆车
+track: algo
+stage: '5'
+order: 770
+format: write
+mode: function
+difficulty: 82
+week: 10
+skills:
+  requires:
+  - algo.graph-bfs
+  - algo.defaultdict
+  - py.break-continue
+  - py.early-return
+  - py.enumerate
+  - py.nested-loop
+  - py.set-basics
+  - py.tuple
+  - py.while
+  introduces: null
+source: grind169
+leetcode: bus-routes
+milestones: []
+entry: buses
+signature: 'def buses(routes: list[list[int]], source: int, target: int) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 最后登上的那辆车没有计数。
+  code: |
+    from collections import defaultdict, deque
+
+
+    def buses(routes: list[list[int]], source: int, target: int) -> int:
+        if source == target:
+            return 0
+        lines = defaultdict(list)
+        for i, stops in enumerate(routes):
+            for stop in stops:
+                lines[stop].append(i)
+        queue = deque([(source, 0)])
+        used = set()
+        while queue:
+            stop, count = queue.popleft()
+            for line in lines.pop(stop, []):
+                if line in used:
+                    continue
+                used.add(line)
+                for other in routes[line]:
+                    if other == target:
+                        return count
+                    queue.append((other, count + 1))
+        return -1

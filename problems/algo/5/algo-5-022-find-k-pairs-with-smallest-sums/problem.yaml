@@ -1,0 +1,40 @@
+id: algo-5-022-find-k-pairs-with-smallest-sums
+title: 两排价格最低的 k 个搭配
+track: algo
+stage: '5'
+order: 220
+format: write
+mode: function
+difficulty: 75
+week: 3
+skills:
+  requires:
+  - algo.heapq
+  - py.if-else
+  - py.list-comp
+  - py.minmax-abs
+  - py.while
+  introduces: null
+source: top-interview-150
+leetcode: find-k-pairs-with-smallest-sums
+milestones: []
+entry: cheap_pairs
+signature: 'def cheap_pairs(a: list[int], b: list[int], k: int) -> list[list[int]]:'
+compare: checker
+time_limit_ms: 800
+wrong_examples:
+- why: 取到后续列时仍抄第一列的价格。
+  code: |
+    import heapq
+
+
+    def cheap_pairs(a: list[int], b: list[int], k: int) -> list[list[int]]:
+        heap = [(a[i] + b[0], i, 0) for i in range(min(k, len(a)))]
+        heapq.heapify(heap)
+        out = []
+        while len(out) < k:
+            total, i, j = heapq.heappop(heap)
+            out.append([a[i], b[0]])
+            if j + 1 < len(b):
+                heapq.heappush(heap, (a[i] + b[j + 1], i, j + 1))
+        return out

@@ -1,0 +1,19 @@
+id: py-0a-121-complete-distance
+title: 补全：两点的距离
+track: python
+stage: 0A
+order: 370
+format: complete
+mode: function
+difficulty: 6
+skills:
+  requires: [py.minmax-abs]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: distance
+signature: "def distance(a: int, b: int) -> int:"
+compare: exact
+hints:
+  - "先相减，再取绝对值。"

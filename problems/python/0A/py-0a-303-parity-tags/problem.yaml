@@ -1,0 +1,25 @@
+id: py-0a-303-parity-tags
+title: 给每个数贴奇偶标签
+track: python
+stage: 0A
+order: 4230
+format: write
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - py.floordiv-mod
+    - py.list-comp
+    - py.ternary
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: parity_tags
+signature: 'def parity_tags(nums: list[int]) -> list[str]:'
+compare: exact
+wrong_examples:
+  - why: 把条件为真和为假的标签调换了。
+    code: |
+      def parity_tags(nums: list[int]) -> list[str]:
+          return ["奇" if n % 2 == 0 else "偶" for n in nums]

@@ -1,0 +1,44 @@
+id: algo-3-047-ipo
+title: 资金够时挑哪项工程
+track: algo
+stage: '3'
+order: 470
+format: combine
+mode: function
+difficulty: 64
+skills:
+  requires:
+  - algo.heapq
+  - py.bool-ops
+  - py.break-continue
+  - py.nested-list
+  - py.sorted
+  - py.while
+  - py.zip
+  introduces: null
+source: neetcode250
+leetcode: ipo
+milestones: []
+entry: grow_capital
+signature: 'def grow_capital(k: int, w: int, profits: list[int], capital: list[int]) -> int:'
+compare: exact
+wrong_examples:
+- why: 门槛相等时也拒绝。
+  code: |
+    import heapq
+
+
+    def grow_capital(k: int, w: int, profits: list[int], capital: list[int]) -> int:
+        projects = sorted(zip(capital, profits))
+        ready = []
+        index = 0
+        for _ in range(k):
+            while index < len(projects) and projects[index][0] < w:
+                heapq.heappush(ready, -projects[index][1])
+                index += 1
+            if not ready:
+                break
+            w -= heapq.heappop(ready)
+        return w
+hints:
+- 按门槛排序，每轮把已经有资格做的项目加入堆，再挑其中利润最大的。

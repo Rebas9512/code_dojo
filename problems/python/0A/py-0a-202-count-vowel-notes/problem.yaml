@@ -1,0 +1,34 @@
+id: py-0a-202-count-vowel-notes
+title: 用小函数数元音
+track: python
+stage: 0A
+order: 2020
+format: write
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - py.accumulator
+    - py.for-each
+    - py.in-membership
+    - py.helper-func
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: vowel_count
+signature: 'def vowel_count(text: str) -> int:'
+compare: exact
+wrong_examples:
+  - why: 只查小写，遗漏大写元音。
+    code: |
+      def is_vowel(ch: str) -> bool:
+          return ch in "aeiou"
+
+
+      def vowel_count(text: str) -> int:
+          count = 0
+          for ch in text:
+              if is_vowel(ch):
+                  count += 1
+          return count

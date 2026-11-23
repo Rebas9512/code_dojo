@@ -1,0 +1,19 @@
+id: py-0a-013-sign
+title: 正负号
+track: python
+stage: 0A
+order: 280
+format: write
+mode: function
+difficulty: 6
+skills:
+  requires: [py.early-return]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: sign
+signature: "def sign(n: int) -> int:"
+compare: exact
+hints:
+  - "先处理 n > 0，再处理 n < 0；两个都不是时就是 0。"

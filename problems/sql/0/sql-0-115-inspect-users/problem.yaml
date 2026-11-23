@@ -1,0 +1,27 @@
+id: sql-0-115-inspect-users
+title: 读查询结果的行、列和编号
+track: sql
+stage: '0'
+order: 3
+format: inspect
+mode: inspect
+difficulty: 1
+skills:
+  requires:
+    - sql.select-star
+    - data.column-type-key
+  introduces: null
+data:
+  - kind: table
+    title: 用户表的完整查询结果
+    file: users.csv
+  - kind: schema
+    title: 用户登记规则
+    file: users-schema.yaml
+answer:
+  type: short
+  accept:
+    - 20 7 user_id
+  misconceptions:
+    20 7 name: DM05
+explain: 表头以下有 20 条用户记录，每行 7 格。user_id 的主键标记为“是”；两位 Li Wei 分属不同编号。

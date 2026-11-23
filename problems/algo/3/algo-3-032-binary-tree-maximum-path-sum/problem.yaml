@@ -1,0 +1,43 @@
+id: algo-3-032-binary-tree-maximum-path-sum
+title: 一条不回头的路能攒多少分
+track: algo
+stage: '3'
+order: 320
+format: combine
+mode: function
+difficulty: 61
+skills:
+  requires:
+  - algo.nested-func
+  - algo.tree-postorder
+  - py.minmax-abs
+  - py.recursion-multi
+  introduces: null
+source: neetcode250
+leetcode: binary-tree-maximum-path-sum
+milestones:
+- blind75
+- top100
+entry: max_path_sum
+signature: 'def max_path_sum(root: TreeNode) -> int:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 把空路线的零分当作有效答案。
+  code: |
+    def max_path_sum(root: TreeNode) -> int:
+        best = 0
+        def gain(node):
+            nonlocal best
+            if node is None:
+                return 0
+            left = max(0, gain(node.left))
+            right = max(0, gain(node.right))
+            best = max(best, node.val + left + right)
+            return node.val + max(left, right)
+        gain(root)
+        return best
+hints:
+- 分开记录能向上接的单支和能在当前点拐弯的路径。全是负数时仍要取一个真实节点。

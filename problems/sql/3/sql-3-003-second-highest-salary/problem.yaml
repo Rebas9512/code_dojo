@@ -1,0 +1,25 @@
+id: sql-3-003-second-highest-salary
+title: 第二档薪资
+track: sql
+stage: '3'
+order: 30
+format: write
+difficulty: 42
+skills:
+  requires:
+    - sql.subquery-scalar
+  introduces: null
+source: sql50
+leetcode: second-highest-salary
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/only-level.sql
+  - datasets/sample.sql + datasets/no-workers.sql
+ordered: false
+hints:
+  - 剔除所有最高工资后，再找最大值。
+wrong_examples:
+  - why: 按人跳过第一行，仍可能是最高档
+    sql: |
+      SELECT (SELECT salary FROM payroll ORDER BY salary DESC LIMIT 1 OFFSET 1) AS second_salary;

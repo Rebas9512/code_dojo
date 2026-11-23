@@ -1,0 +1,35 @@
+id: algo-2-008-move-zeroes
+title: 把零移到队尾
+track: algo
+stage: '2'
+order: 80
+format: write
+mode: function
+difficulty: 50
+skills:
+  requires:
+  - algo.read-write-pointer
+  - py.helper-func
+  - py.multi-assign
+  introduces: null
+source: top-100-liked
+leetcode: move-zeroes
+milestones:
+- top100
+entry: run_case
+signature: 'def run_case(nums: list[int]) -> list:'
+compare: exact
+wrong_examples:
+- why: 只拷贝，原位置留下重复值。
+  code: |
+    def move_zeroes(nums: list[int]) -> None:
+        write = 0
+        for read in range(len(nums)):
+            if nums[read] != 0:
+                nums[write] = nums[read]
+                write += 1
+
+
+    def run_case(nums: list[int]) -> list:
+        move_zeroes(nums)
+        return nums

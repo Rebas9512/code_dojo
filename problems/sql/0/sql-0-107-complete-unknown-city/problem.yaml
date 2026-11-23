@@ -1,0 +1,25 @@
+id: sql-0-107-complete-unknown-city
+title: 补全：城市没填的用户
+track: sql
+stage: "0"
+order: 180
+format: complete
+difficulty: 8
+skills: {requires: [sql.where], introduces: sql.is-null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/cities-null.sql
+ordered: false
+hints:
+  - "判断空值只能用 IS NULL。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "用 = NULL 判断空值，永远查不到"
+    sql: |
+      SELECT user_id, name FROM users WHERE city = NULL;
+  - why: "条件反了"
+    sql: |
+      SELECT user_id, name FROM users WHERE city IS NOT NULL;

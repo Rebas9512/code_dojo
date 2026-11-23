@@ -1,0 +1,19 @@
+id: py-0a-130-complete-even-products
+title: 补全：乘积是偶数的数对
+track: python
+stage: 0A
+order: 590
+format: complete
+mode: function
+difficulty: 11
+skills:
+  requires: [py.nested-loop, py.accumulator, py.if-else, py.floordiv-mod]
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+entry: count_even_products
+signature: "def count_even_products(n: int) -> int:"
+compare: exact
+hints:
+  - "b 要比 a 大：从 a + 1 开始。"

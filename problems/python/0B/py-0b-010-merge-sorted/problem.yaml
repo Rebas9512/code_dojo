@@ -1,0 +1,32 @@
+id: py-0b-010-merge-sorted
+title: 合并两列有序号码
+track: python
+stage: 0B
+order: 100
+format: write
+mode: function
+difficulty: 26
+skills:
+  requires: [py.slice, py.bool-ops, py.if-else]
+  introduces: py.two-index
+source: original
+leetcode: null
+milestones: []
+entry: merge_sorted
+signature: 'def merge_sorted(a: list[int], b: list[int]) -> list[int]:'
+compare: exact
+wrong_examples:
+  - why: "左列先用完时漏掉右列的尾巴。"
+    code: |
+      def merge_sorted(a: list[int], b: list[int]) -> list[int]:
+          result = []
+          i = j = 0
+          while i < len(a) and j < len(b):
+              if a[i] <= b[j]:
+                  result.append(a[i])
+                  i += 1
+              else:
+                  result.append(b[j])
+                  j += 1
+          result.extend(a[i:])
+          return result

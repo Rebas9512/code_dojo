@@ -1,0 +1,25 @@
+id: sql-0-111-complete-price-range
+title: 补全：40 到 60 元的书
+track: sql
+stage: "0"
+order: 130
+format: complete
+difficulty: 7
+skills: {requires: [sql.where], introduces: sql.between}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/range-edges.sql
+ordered: false
+hints:
+  - "BETWEEN a AND b 两端都包含。"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "两端都没包含"
+    sql: |
+      SELECT title, price FROM books WHERE price > 40 AND price < 60;
+  - why: "上端没包含"
+    sql: |
+      SELECT title, price FROM books WHERE price >= 40 AND price < 60;

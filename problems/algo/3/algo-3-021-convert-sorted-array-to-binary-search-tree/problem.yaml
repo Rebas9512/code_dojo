@@ -1,0 +1,38 @@
+id: algo-3-021-convert-sorted-array-to-binary-search-tree
+title: 用递增清单搭一棵矮树
+track: algo
+stage: '3'
+order: 210
+format: write
+mode: function
+difficulty: 53
+skills:
+  requires:
+  - algo.bst
+  - py.floordiv-mod
+  - py.recursion-multi
+  introduces: null
+source: top-100-liked
+leetcode: convert-sorted-array-to-binary-search-tree
+milestones:
+- top100
+entry: sorted_tree
+signature: 'def sorted_tree(values: list[int]) -> TreeNode | None:'
+compare: checker
+convert:
+  args: {}
+  returns: treenode
+wrong_examples:
+- why: 总选最左端，树会变成一条长链。
+  code: |
+    def build(values, start, stop):
+        if start >= stop:
+            return None
+        middle = start
+        return TreeNode(values[middle], build(values, start, middle), build(values, middle + 1, stop))
+
+
+    def sorted_tree(values: list[int]) -> TreeNode | None:
+        return build(values, 0, len(values))
+hints:
+- 取中间值作根后，两段数组长度相差多少？用左右下标表示子问题能避免复制切片。

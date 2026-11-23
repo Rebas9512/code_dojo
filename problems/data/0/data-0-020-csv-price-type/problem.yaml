@@ -1,0 +1,28 @@
+id: data-0-020-csv-price-type
+title: 读到的价格是什么
+track: data
+stage: '0'
+order: 200
+format: inspect
+mode: inspect
+difficulty: 7
+skills:
+  requires:
+    - data.text-formats
+  introduces: null
+data:
+  - kind: csv
+    title: 原样导出的价格
+    file: prices.csv
+answer:
+  type: short
+  accept:
+    - 文字
+    - 字符串
+    - 文本
+    - str
+  misconceptions:
+    小数: DM06
+    数字: DM06
+    float: DM06
+explain: 读取结果保留字符 18.50。默认读取器拆分字段，知道这一列表示价格的是使用这份文件的人。

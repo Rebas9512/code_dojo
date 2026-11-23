@@ -1,0 +1,14 @@
+{
+  "examples": [
+    {"args": ["abc", 1], "expected": "bcd"},
+    {"args": ["xyz", 3], "expected": "abc"}
+  ],
+  "hidden": [
+    {"args": ["hello world", 13], "expected": "uryyb jbeyq"},
+    {"args": ["", 5], "expected": ""},
+    {"args": ["a-b", 25], "expected": "z-a"},
+    {"args": ["abc", 26], "expected": "abc"},
+    {"args": ["Hi!", 1], "expected": "Hj!"},
+    {"args": ["zz", 1000], "expected": "ll"}
+  ]
+}

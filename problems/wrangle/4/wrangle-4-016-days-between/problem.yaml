@@ -1,0 +1,34 @@
+id: wrangle-4-016-days-between
+title: 合并借还登记并计算日期差
+track: wrangle
+stage: '4'
+order: 160
+format: write
+mode: function
+difficulty: 36
+skills:
+  requires:
+    - wrangle.dates
+    - wrangle.merge
+    - wrangle.columns
+  introduces: null
+source: original
+entry: elapsed
+signature: 'def elapsed(loans, returns):'
+compare: frame
+ignore_row_order: true
+ignore_index: true
+convert:
+  args:
+    '0': dataframe
+    '1': dataframe
+wrong_examples:
+  - why: 借出减归还，方向相反。
+    code: |
+      import pandas as pd
+
+
+      def elapsed(loans, returns):
+          paired = loans.merge(returns, on='id')
+          paired['days'] = (pd.to_datetime(paired['start']) - pd.to_datetime(paired['end'])).dt.days
+          return paired[['id', 'days']]

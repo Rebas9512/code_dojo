@@ -1,0 +1,42 @@
+id: algo-2-003-valid-palindrome-ii
+title: 允许划掉一个字母
+track: algo
+stage: '2'
+order: 30
+format: write
+mode: function
+difficulty: 48
+skills:
+  requires:
+  - py.bool-ops
+  - py.helper-func
+  - py.multi-assign
+  - py.two-index
+  introduces: null
+source: neetcode250
+leetcode: valid-palindrome-ii
+milestones: []
+entry: almost_palindrome
+signature: 'def almost_palindrome(text: str) -> bool:'
+compare: exact
+wrong_examples:
+- why: 只尝试删去左端。
+  code: |
+    def mirrored(text: str, left: int, right: int) -> bool:
+        while left < right:
+            if text[left] != text[right]:
+                return False
+            left += 1
+            right -= 1
+        return True
+
+
+    def almost_palindrome(text: str) -> bool:
+        left, right = 0, len(text) - 1
+        while left < right and text[left] == text[right]:
+            left += 1
+            right -= 1
+        return mirrored(text, left + 1, right)
+hints:
+- 左右两端第一次不同时，删除中间别的位置能消除这次冲突吗？
+- 分别检查去掉左端、去掉右端后的区间。只准删除一次，后面的检查应严格匹配。

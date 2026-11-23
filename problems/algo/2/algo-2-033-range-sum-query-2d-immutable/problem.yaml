@@ -1,0 +1,54 @@
+id: algo-2-033-range-sum-query-2d-immutable
+title: 随时查询一块矩形的总和
+track: algo
+stage: '2'
+order: 330
+format: write
+mode: class
+difficulty: 58
+skills:
+  requires:
+  - algo.class-design
+  - py.list-comp
+  - py.list-concat-repeat
+  - py.multi-assign
+  - py.nested-list
+  - py.prefix-sum
+  introduces: null
+source: neetcode250
+leetcode: range-sum-query-2d-immutable
+milestones: []
+entry: NumMatrix
+compare: exact
+wrong_examples:
+- why: 减去两块重叠区域后没有把交集补回。
+  code: |
+    class NumMatrix:
+        def __init__(self, matrix: list[list[int]]):
+            rows, cols = len(matrix), len(matrix[0])
+            self.prefix = [[0] * (cols + 1) for _ in range(rows + 1)]
+            for r in range(rows):
+                row_sum = 0
+                for c in range(cols):
+                    row_sum += matrix[r][c]
+                    self.prefix[r + 1][c + 1] = self.prefix[r][c + 1] + row_sum
+
+        def sumRegion(self, row1: int, col1: int, row2: int, col2: int) -> int:
+            p = self.prefix
+            return (p[row2 + 1][col2 + 1] - p[row1][col2 + 1]
+                    - p[row2 + 1][col1] )
+- why: 每个查询都重新逐格扫矩形。
+  code: |
+    class NumMatrix:
+        def __init__(self, matrix: list[list[int]]):
+            self.matrix = matrix
+
+        def sumRegion(self, row1: int, col1: int, row2: int, col2: int) -> int:
+            total = 0
+            for r in range(row1, row2 + 1):
+                for c in range(col1, col2 + 1):
+                    total += self.matrix[r][c]
+            return total
+hints:
+- 在顶边和左边各补一行、一列零。让 p[r][c] 表示前 r 行、前 c 列的总和。
+- 先取右下角的大矩形，减上方和左方。左上角重叠处被减两次，还要加回一次。

@@ -1,0 +1,20 @@
+id: py-0a-050-reverse-words
+title: 单词倒序
+track: python
+stage: 0A
+order: 980
+format: write
+mode: function
+difficulty: 15
+skills:
+  requires: [py.slice, py.list-basics, py.split-join]
+  introduces: null
+source: leetcode75
+leetcode: reverse-words-in-a-string
+milestones: []
+entry: reverse_words
+signature: "def reverse_words(s: str) -> str:"
+compare: exact
+hints:
+  - "先 split 成单词列表。"
+  - "列表也能用 [::-1] 反转。"

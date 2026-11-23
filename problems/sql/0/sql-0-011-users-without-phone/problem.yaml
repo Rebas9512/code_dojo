@@ -1,0 +1,26 @@
+id: sql-0-011-users-without-phone
+title: 没留手机号的用户
+track: sql
+stage: "0"
+order: 190
+format: write
+difficulty: 8
+skills: {requires: [sql.where, sql.is-null], introduces: null}
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - db:bookstore
+  - db:bookstore + datasets/phones-changed.sql
+ordered: false
+hints:
+  - "NULL 不能用 = 比较。"
+  - "WHERE phone IS NULL"
+# 典型错误写法（提议的可选字段）：校验时每条都必须在至少一个隐藏数据集上和参考解结果不同
+wrong_examples:
+  - why: "用 = NULL 判断空值，永远查不到"
+    sql: |
+      SELECT user_id, name FROM users WHERE phone = NULL;
+  - why: "条件反了"
+    sql: |
+      SELECT user_id, name FROM users WHERE phone IS NOT NULL;

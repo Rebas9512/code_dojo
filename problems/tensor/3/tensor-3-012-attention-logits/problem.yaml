@@ -1,0 +1,26 @@
+id: tensor-3-012-attention-logits
+title: 给每批查询和候选键打分
+track: tensor
+stage: '3'
+order: 120
+format: write
+mode: function
+difficulty: 33
+skills:
+  requires:
+    - tensor.pair-scores
+  introduces: null
+source: original
+entry: logits
+signature: 'def logits(q, k):'
+compare: checker
+wrong_examples:
+  - why: 把键轴放在查询轴前面。
+    code: |
+      import torch
+
+
+      def logits(q, k):
+          return torch.einsum("bqd,bkd->bkq", q, k)
+hints:
+  - 让特征字母在输出中消失，批次字母保留。

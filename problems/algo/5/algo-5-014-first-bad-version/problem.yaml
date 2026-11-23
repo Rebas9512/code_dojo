@@ -1,0 +1,41 @@
+id: algo-5-014-first-bad-version
+title: 最早从哪个版本开始失效
+track: algo
+stage: '5'
+order: 140
+format: write
+mode: function
+difficulty: 74
+week: 2
+skills:
+  requires:
+  - algo.binary-search
+  - algo.nested-func
+  - py.multi-assign
+  introduces: null
+source: grind169
+leetcode: first-bad-version
+milestones: []
+entry: run_case
+signature: 'def run_case(n: int, first: int) -> int:'
+compare: exact
+time_limit_ms: 800
+wrong_examples:
+- why: 失效的中点仍可能恰是第一版，不能跳过。
+  code: |
+    def first_bad(n: int, is_bad) -> int:
+        lo, hi = 1, n
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if is_bad(mid):
+                hi = mid - 1
+            else:
+                lo = mid + 1
+        return lo
+
+
+    def run_case(n: int, first: int) -> int:
+        def is_bad(version):
+            return version >= first
+
+        return first_bad(n, is_bad)

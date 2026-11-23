@@ -1,0 +1,63 @@
+id: algo-3-027-flatten-binary-tree-to-linked-list
+title: 把原树展开成右向链
+track: algo
+stage: '3'
+order: 270
+format: combine
+mode: function
+difficulty: 56
+skills:
+  requires:
+  - algo.tree-basics
+  - py.bool-ops
+  - py.list-pop
+  - py.nested-loop
+  - py.ternary
+  - py.while
+  introduces: null
+source: top-100-liked
+leetcode: flatten-binary-tree-to-linked-list
+milestones:
+- top100
+entry: run_case
+signature: 'def run_case(root: TreeNode | None) -> list[int]:'
+compare: exact
+convert:
+  args:
+    '0': treenode
+wrong_examples:
+- why: 只接左链，丢掉原先的右子树。
+  code: |
+    def flatten(root: TreeNode | None) -> None:
+        node = root
+        while node:
+            if node.left:
+                last = node.left
+                while last.right:
+                    last = last.right
+                pass
+                node.right = node.left
+                node.left = None
+            node = node.right
+
+
+    def run_case(root: TreeNode | None) -> list[int]:
+        pending = [root] if root else []
+        nodes = []
+        while pending:
+            node = pending.pop()
+            nodes.append(node)
+            if node.right:
+                pending.append(node.right)
+            if node.left:
+                pending.append(node.left)
+        flatten(root)
+        values = []
+        for original in nodes:
+            if root is not original or root.left:
+                return None
+            values.append(root.val)
+            root = root.right
+        return values if root is None else None
+hints:
+- 挪动左子树前，给原右子树找一个能接回去的位置。先根遍历里谁紧挨在右子树前面？
