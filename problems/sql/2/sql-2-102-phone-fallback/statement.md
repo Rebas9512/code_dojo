@@ -1,8 +1,8 @@
 ## 题目
 
-按名册输出 badge 与 dial。没有分机的员工显示 unrouted，已分配的号码原样输出。
+编辑器里是一条 MySQL 查询，在 PostgreSQL 上运行会报错。把它改写成 PostgreSQL 查询，让名册上的每位员工仍然得到原来的分机信息。
 
-原稿用的是 MySQL。编辑器里保留了原句的注释，下面的 PostgreSQL 译稿有一处意思译错了。
+输出工号 `badge` 与分机号 `dial`。已分配的号码原样输出，没有号码时显示英文 `unrouted`。
 
 ## 样例输入
 

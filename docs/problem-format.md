@@ -1,4 +1,6 @@
-# 题目格式规范 v1.9
+# 题目格式规范 v1.10
+
+> v1.10 支持 SQL 改错查询用 `starter_dialect: mysql` 指定需要迁移的 MySQL 原稿。
 
 > v1.9 支持 SQL 多语句脚本、逐项查询和探针、课内多语句示例，以及看数据作答题的典型误答。
 
@@ -41,7 +43,7 @@ problems/
         ├── problem.yaml
         ├── statement.md
         ├── solution.sql
-        ├── starter.sql                   可选
+        ├── starter.sql                   编辑器初始查询或脚本（complete / fix 题型必填）
         └── datasets/*.sql                可选：题目自带的数据集或补丁
 ```
 
@@ -302,6 +304,7 @@ hints: []
 ```
 
 - SQL 使用 PostgreSQL 18（PGlite）。省略 `mode` 时，学生和参考解各写一条只读的 `SELECT` 或 `WITH ... SELECT`。
+- 改错查询（`format: fix`，省略 `mode`）必须提供 `starter.sql`。通常它要在全部数据集上能运行，并在可见样例上给出错误结果。MySQL 迁移题在 `problem.yaml` 写 `starter_dialect: mysql`，`starter.sql` 放完整的 MySQL 查询，PGlite 在可见样例上执行它时必须报错。两类题的 PostgreSQL 参考解都要通过全部数据集，每条 `wrong_examples` 都要能执行并被隐藏数据识别。
 - 期望结果不手写：校验时在每个数据集上运行 `solution.sql` 得到。所以参考解必须真正正确，隐藏数据集要能区分常见错误写法（NULL、并列、重复、空分组）。
 - 桌面更新包在构建时从上述题目文件生成期望表，按内容哈希随包分发。出题者只需维护参考解和数据集。
 - 结果比对：列数相同；值逐个比较（数字容差 1e-6，NULL 等于 NULL，日期转 ISO 字符串）；`ordered: false` 时忽略行序；不比列名。
@@ -338,7 +341,8 @@ checks:
 ## 谁检查什么
 
 - `scripts/curriculum/check_curve.py`（内容侧）：技能图无环；按学习顺序，每题 `requires` 都已在本线引入或来自前置线；每题最多引入 1 个新技能；参考解实际用到的语法（AST / SQL 解析）不超出标注。
-- `scripts/verify_bank.py`（平台侧）：校验 inspect 数据与答案，使用 Docker 跑每道 Python 题的参考解；SQL 题由 Node PGlite 实跑各数据集上的参考解、典型错误写法和改错题的初始代码。
+- `scripts/curriculum/verify_sql.py` 检查 SQL 参考解、典型错误写法、改错题原稿和课示例。默认输出中可看到每份 MySQL 原稿在样例上触发的 PostgreSQL 报错。
+- `scripts/verify_bank.py`（平台侧）：校验 inspect 数据与答案，使用本地解释器或 Docker 跑每道 Python 题的参考解，使用 Node PGlite 验证 SQL 题。
 
 ---
 

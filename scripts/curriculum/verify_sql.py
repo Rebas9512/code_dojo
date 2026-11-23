@@ -6,7 +6,7 @@
   - 查询题和修改题的 wrong_examples 每一条都能运行，
     并且至少在一个**隐藏**数据集上和参考解结果不同——保证隐藏数据真能抓住这个错误。
   - 脚本题逐项比较查询与探针，保证参考脚本全过，每段错误脚本至少在一个数据集上判错。
-  - fix 题：starter.sql 在样例数据集（datasets 第一项）上就和参考解不同（学习者点"运行"能看到 bug）。
+  - 改错查询的 starter.sql 应能运行且样例结果与参考解不同。标记 starter_dialect: mysql 的原稿必须在样例上触发 PostgreSQL 错误。
   - 打印每个数据集上参考解的结果（默认最多 12 行），方便人工核对期望答案。
   - 课（problems/<学习线>/lessons/*/lesson.yaml）里的每个 example：在它写的 db（+ patch）上能运行。
 结果比较规则和 docs/problem-format.md 一致：列数相同；数字容差 1e-6；NULL 等于 NULL；
@@ -282,17 +282,19 @@ def main() -> int:
     args = ap.parse_args()
     tracks = active_tracks("sql")
     problems = load_problems(tracks, args.only)
-    queries = [(d, m) for d, m in problems if m.get("mode") not in ("dml", "script")]
-    jobs = build_jobs(queries)
+    queries, jobs = [], []
     failed = 0
     for directory, meta in problems:
-        if meta.get("mode") in ("dml", "script"):
+        if meta.get("mode") in ("dml", "script") or meta.get("starter_dialect") == "mysql":
             try:
                 datasets = [dataset_scripts(directory, spec) for spec in meta["datasets"]]
                 jobs.append({"key": directory.name, "validation": validation_job(directory, meta, datasets)})
             except (ValueError, OSError) as exc:
                 print(f"✗ {directory.name}：{exc}")
                 failed += 1
+        else:
+            queries.append((directory, meta))
+    jobs.extend(build_jobs(queries))
     results = run_jobs(jobs) if jobs else {}
     failed += verify(queries, results, args.quiet, args.rows)
     for job in jobs:
@@ -303,6 +305,8 @@ def main() -> int:
                 failed += 1
             elif not args.quiet:
                 print(f"✓ {job['key']}  （{len(result['tables'])} 个数据集）")
+                if "starterError" in result:
+                    print(f"    ✓ MySQL 原稿在样例上触发 PostgreSQL 报错：{result['starterError']}")
                 for i, table in enumerate(result["tables"], 1):
                     print(f"    数据集 {i}")
                     if "checks" in table:

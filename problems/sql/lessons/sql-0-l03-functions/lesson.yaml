@@ -45,7 +45,7 @@ steps:
       - 今天：`CURRENT_DATE`。
 
       常见误解：
-      - **"MySQL 的写法也能用"**：`DATE_ADD`、`DATEDIFF`、`DATE_FORMAT` 在 PostgreSQL 里不存在，分别换成 `+ INTERVAL`、日期相减、`TO_CHAR`。
+      - **"MySQL 的写法也能用"**：日期列加一天时，MySQL 的 `DATE_ADD(d, INTERVAL 1 DAY)` 在这里写作 `d + 1`。两个日期相差几天用减法，按年月显示用 `TO_CHAR(d, 'YYYY-MM')`。
       - **"按月份筛选写 EXTRACT(MONTH …) = 3 就够了"**：它会把每一年的 3 月都算进来，记得同时限定年份，或者直接用日期范围。
   - type: example
     skill: sql.date-funcs

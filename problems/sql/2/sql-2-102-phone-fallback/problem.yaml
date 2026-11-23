@@ -4,6 +4,7 @@ track: sql
 stage: '2'
 order: 51
 format: fix
+starter_dialect: mysql
 difficulty: 28
 skills:
   requires:
@@ -19,7 +20,9 @@ datasets:
   - datasets/sample.sql + datasets/edge.sql
 ordered: false
 hints:
-  - 把真实分机和默认文字分别当成第一个参数，比较哪一个能保留已分配号码。
+  - 先运行原稿。报错里的 ifnull 就是 SELECT 中用来处理缺失分机的函数。
+  - PostgreSQL 用 COALESCE 从左到右取第一个非空值。先看真实分机，缺失时才用默认文字。
+  - "把 IFNULL(e.dial, 'unrouted') 换成 COALESCE(e.dial, 'unrouted')。11 号应保留 X8，12 号应显示 unrouted。"
 wrong_examples:
   - why: 默认值排在真实号码前
     sql: |-

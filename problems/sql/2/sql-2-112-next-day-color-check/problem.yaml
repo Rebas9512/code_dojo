@@ -4,6 +4,7 @@ track: sql
 stage: '2'
 order: 137
 format: fix
+starter_dialect: mysql
 difficulty: 35
 skills:
   requires:
@@ -19,7 +20,9 @@ datasets:
   - datasets/sample.sql + datasets/edge.sql
 ordered: false
 hints:
-  - 旧记录的日期加一天要等于新记录的日期，机器编号也要相同。
+  - 先运行原稿。报错指向数字 1，它位于 DATE_ADD 的 INTERVAL 1 DAY 里。这里要从哪一天往后推？
+  - PostgreSQL 的 date 列可以直接用加号加整数，整数表示往后推几天。
+  - 把 DATE_ADD(p.day, INTERVAL 1 DAY) 换成 p.day + 1。保留 n.day = p.day + 1，同一台机器的 1 月 31 日就能配上 2 月 1 日。
 wrong_examples:
   - why: 把加一天写成减一天
     sql: |-

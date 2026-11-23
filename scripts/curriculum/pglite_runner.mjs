@@ -1,7 +1,7 @@
 // 复用内存数据库，每份数据和答案在独立事务里执行并回滚。
 import { PGlite } from '@electric-sql/pglite'
 import { inDataset, lessonTable, parsers, queryTable } from '../../web/src/sql/engine.ts'
-import { validate } from '../../web/src/sql/validate.ts'
+import { validateSql } from '../../server/app/validate_sql.mjs'
 
 const chunks = []
 for await (const chunk of process.stdin) chunks.push(chunk)
@@ -10,7 +10,7 @@ const db = await PGlite.create({ parsers })
 const out = []
 for (const job of jobs) {
   if (job.validation) {
-    out.push({ key: job.key, ...await validate(db, job.validation) })
+    out.push({ key: job.key, ...await validateSql(db, job.validation) })
     continue
   }
   const lesson = 'example' in job.queries

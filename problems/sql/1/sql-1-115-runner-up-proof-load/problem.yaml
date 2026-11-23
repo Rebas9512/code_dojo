@@ -4,6 +4,7 @@ track: sql
 stage: '1'
 order: 62
 format: fix
+starter_dialect: mysql
 difficulty: 22
 skills:
   requires:
@@ -20,7 +21,9 @@ datasets:
   - datasets/sample.sql + datasets/edge.sql
 ordered: false
 hints:
-  - 先画掉已跳过的两行，再数要取几行；分别把两个数放进对应子句。
+  - 先运行原稿。报错提到 LIMIT 和逗号。读一遍 LIMIT 2, 1，哪个数表示跳过几行？
+  - PostgreSQL 用 LIMIT 指定取几行，用 OFFSET 指定先跳过几行。
+  - 把 LIMIT 2, 1 换成 LIMIT 1 OFFSET 2。排序后跳过 P 和 Q，接下来只取 R。
 wrong_examples:
   - why: 把跳过行数与返回行数写反
     sql: |-

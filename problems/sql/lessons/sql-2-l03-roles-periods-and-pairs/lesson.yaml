@@ -94,6 +94,14 @@ steps:
     skill: sql.join-conditions
     md: |
       隔日复检时，先把两份记录的角色写在纸上：p 是前一天，n 是新一天。MySQL 原稿 n.day = DATE_ADD(p.day, INTERVAL 1 DAY) 描述的是新日期等于旧日期加一天。PostgreSQL 的 date 可以直接加整数，写作 n.day = p.day + 1。还要让两条记录来自同一台机器。试着用 1 月 31 日、2 月 1 日、2 月 3 日画三格，只有前两格能配成一对。
+
+      | 原稿的意思 | MySQL | PostgreSQL |
+      |---|---|---|
+      | 读取架号列 | `` `rack` `` | `"rack"` |
+      | 跳过两行，取一行 | `LIMIT 2, 1` | `LIMIT 1 OFFSET 2` |
+      | 排序、去重后用斜杠拼接 | `GROUP_CONCAT(DISTINCT label ORDER BY label SEPARATOR '/')` | `STRING_AGG(DISTINCT label, '/' ORDER BY label)` |
+      | 分机为空时显示默认值 | `IFNULL(dial, 'unrouted')` | `COALESCE(dial, 'unrouted')` |
+      | 日期列加一天 | `DATE_ADD(p.day, INTERVAL 1 DAY)` | `p.day + 1` |
   - type: quiz
     skill: sql.join-conditions
     q: 同一台印机在 2 月 28 日与 3 月 2 日各测一次。2025 年这两条记录能配成隔日复检吗？

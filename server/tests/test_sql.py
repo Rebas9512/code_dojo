@@ -64,6 +64,27 @@ def test_sql_cases_and_cache(site, monkeypatch):
     assert client.get(URL).json()["starter"] == "SELECT 1"
 
 
+@pytest.mark.parametrize(("dialect", "starter", "error"), [
+    ("mysql", "SELECT IFNULL(n, 0) FROM books", None),
+    ("mysql", "SELECT 1", "预期 PostgreSQL 报错"),
+    ("mysql", SOLUTION, "预期 PostgreSQL 报错"),
+    ("mysql", "", "只允许一条 SELECT"),
+    (None, "SELECT IFNULL(n, 0) FROM books", "ifnull"),
+    (None, "SELECT 1", None),
+])
+def test_fixed_query_starter(site, dialect, starter, error):
+    _, p, _ = site
+    meta = p.meta.model_dump() | {"starter_dialect": dialect, "wrong_examples": [{"sql": "SELECT 1"}]}
+    (p.path / "starter.sql").write_text(starter, encoding="utf-8")
+    datasets = [sql_judge.dataset(p, spec) for spec in p.meta.datasets]
+    if error:
+        with pytest.raises(ValueError, match=error):
+            sql_judge.verify_sql_files(p.path, meta, datasets)
+    else:
+        tables = sql_judge.verify_sql_files(p.path, meta, datasets)
+        assert [t["rows"] for t in tables] == [[[5], [8]], [[5], [8], [13]]]
+
+
 def test_dml_expected_cache_and_record(site, monkeypatch):
     client, p, directory = site
     path = p.path / "problem.yaml"

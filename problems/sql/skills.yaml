@@ -243,8 +243,8 @@ skills:
       d + 1   d - INTERVAL '30 days'  d2 - d1（两个 DATE 相减得天数）
       CURRENT_DATE
       ```
-      常见坑：MySQL 的 `DATE_ADD`、`DATEDIFF`、`DATE_FORMAT` 在 PostgreSQL 里不存在，
-      分别改用 `+ INTERVAL`、日期相减、`TO_CHAR`。
+      读 MySQL 原稿时，`DATE_ADD(d, INTERVAL 1 DAY)` 对 date 列可写成 `d + 1`。
+      `DATEDIFF(d2, d1)` 用两个日期相减，`DATE_FORMAT` 用 `TO_CHAR` 配合 PostgreSQL 格式串。
 
   - id: sql.round-cast
     name: ROUND 与类型转换

@@ -4,6 +4,7 @@ track: sql
 stage: '1'
 order: 145
 format: fix
+starter_dialect: mysql
 difficulty: 30
 skills:
   requires:
@@ -19,7 +20,9 @@ datasets:
   - datasets/sample.sql + datasets/edge.sql
 ordered: false
 hints:
-  - 写出分隔符后，检查去重和排序是否都在聚合函数的括号里。
+  - 先运行原稿。报错指向 SEPARATOR，看看它后面的斜杠在清单里起什么作用。
+  - PostgreSQL 用 STRING_AGG 拼接同组的文字，分隔符放在第二个参数，组内排序写在分隔符之后。
+  - "把整个拼接表达式换成 STRING_AGG(DISTINCT label, '/' ORDER BY label)。E 箱的两个 Arc 只保留一个。"
 wrong_examples:
   - why: 翻译时漏掉组内去重
     sql: |-

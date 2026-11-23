@@ -4,6 +4,7 @@ track: sql
 stage: '1'
 order: 36
 format: fix
+starter_dialect: mysql
 difficulty: 20
 skills:
   requires:
@@ -19,7 +20,9 @@ datasets:
   - datasets/sample.sql + datasets/edge.sql
 ordered: false
 hints:
-  - 双引号可围住列名；试着对照一行结果里的架号与它所属的组。
+  - 先运行原稿。报错指向逗号，回看逗号前的 rack，它两边用的是什么引号？
+  - MySQL 用反引号括住列名。PostgreSQL 用双引号括住列名，像 rack 这样的全小写名称也可以直接写。
+  - '把第一列改成 "rack"，保留后面的 SUM(sheets) AS total。A 架的第一列应显示 A。'
 wrong_examples:
   - why: 把标识符误译成文字
     sql: SELECT 'rack', SUM(sheets) AS total FROM sheet_lots GROUP BY rack;

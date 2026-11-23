@@ -86,6 +86,7 @@ class ProblemMeta(BaseModel):
     convert: dict[str, Any] | None = None
 
     # SQL
+    starter_dialect: Literal["mysql"] | None = None
     datasets: list[str] = Field(default_factory=list)
     ordered: bool = False
     check_query: str | None = None
@@ -104,6 +105,8 @@ class ProblemMeta(BaseModel):
         return normalize_stage(v)
 
     def check_language(self, language: str) -> None:
+        if self.starter_dialect and (language != "sql" or self.format != "fix" or self.mode is not None):
+            raise ValueError("starter_dialect 只用于 SQL 改错查询")
         if self.mode == "script":
             if language != "sql" or not self.checks:
                 raise ValueError("script 模式需要 SQL 题和非空的 checks")

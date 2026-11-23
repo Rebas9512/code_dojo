@@ -59,6 +59,10 @@ def validation_job(directory: Path, meta: dict, datasets: list[list[str]]) -> di
     if not datasets:
         raise ValueError("SQL 题必须至少有一个数据集")
     starter = {"starter": (directory / "starter.sql").read_text(encoding="utf-8")} if meta["format"] == "fix" else {}
+    if meta.get("starter_dialect") == "mysql":
+        if not wrong:
+            raise ValueError("没有 wrong_examples（至少写一条典型错误写法）")
+        starter["starter_dialect"] = "mysql"
     return {
         "datasets": datasets, "solution": (directory / "solution.sql").read_text(encoding="utf-8"),
         "ordered": meta.get("ordered", False), "wrong": wrong, "mode": meta.get("mode"),

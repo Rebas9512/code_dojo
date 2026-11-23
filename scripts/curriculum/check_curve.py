@@ -1078,6 +1078,11 @@ def load_problems(track: Track, rep: Report) -> list[dict]:
             rep.err(f"{pid}：id 应为 {prefix}<三位序号>-<slug>")
         if meta.get("format") not in FORMATS:
             rep.err(f"{pid}：format {meta.get('format')!r} 不合法")
+        if meta.get("starter_dialect") is not None and (
+            meta["starter_dialect"] != "mysql" or track.language != "sql"
+            or meta.get("format") != "fix" or meta.get("mode") is not None
+        ):
+            rep.err(f"{pid}：starter_dialect 只用于 SQL 改错查询，取值为 mysql")
         d = yml.parent
         if meta.get("format") == "inspect":
             try:
