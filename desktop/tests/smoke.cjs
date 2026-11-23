@@ -124,7 +124,7 @@ async function main() {
     await page.getByRole('tab').first().waitFor()
     assert.equal(await page.title(), 'code-dojo')
     const version = await page.evaluate(() => window.dojoDesktop.version())
-    assert.equal(version.launcher, '1.1.0')
+    assert.equal(version.launcher, require('../package.json').version)
     assert.equal(await page.evaluate(() => typeof window.dojoStartup), 'undefined')
     await shot('map')
     const main = await app.evaluate(({ app, BrowserWindow }) => {

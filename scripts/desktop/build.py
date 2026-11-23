@@ -93,7 +93,8 @@ def appimage(bundle: Path, output: Path) -> None:
     # Ubuntu 24.04 起默认禁止普通程序建用户命名空间，AppImage 里的 chrome-sandbox 又不可能是 root 所有，
     # Chromium 沙箱起不来会直接退出。和 Obsidian、LM Studio 的 AppImage 一样带 --no-sandbox 启动。
     apprun = bundle / "AppRun"
-    apprun.write_text('#!/bin/sh\nexec "$(dirname "$(readlink -f "$0")")/code-dojo" --no-sandbox "$@"\n', encoding="utf-8")
+    # 只用 shell 内建：APPDIR 由 AppImage 运行时设置（含 --appimage-extract-and-run），PATH 可能是空的。
+    apprun.write_text('#!/bin/sh\nexec "${APPDIR:-${0%/*}}/code-dojo" --no-sandbox "$@"\n', encoding="utf-8")
     apprun.chmod(0o755)
     shutil.copy(Path(__file__).with_name("code-dojo.png"), bundle)
     shutil.copy(Path(__file__).with_name("code-dojo.desktop"), bundle)
