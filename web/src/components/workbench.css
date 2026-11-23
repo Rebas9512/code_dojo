@@ -114,7 +114,8 @@
 .trace button { color: inherit; font: inherit; padding: 0; text-align: left; text-decoration: underline; text-underline-offset: 3px; }
 .wb-status {
   grid-area: status; min-width: 0; display: flex; position: relative; z-index: 5;
-  background: var(--action); color: #fff; font: 11px/22px var(--font-code);
+  /* 灰色系状态栏（用户 2026-11-23 要求不用蓝色）：和 VS Code Dark/Light Modern 的默认状态栏一致 */
+  background: var(--panel); color: var(--muted); border-top: 1px solid var(--line); font: 11px/21px var(--font-code);
 }
 .status-items { display: flex; align-items: center; overflow-x: auto; white-space: nowrap; flex: 1; scrollbar-width: none; }
 .status-items > * { flex-shrink: 0; }
@@ -123,8 +124,18 @@
   font: inherit; color: inherit; text-decoration: none; border-radius: 0;
 }
 .status-items .codicon { font-size: 13px; }
-.status-items button:hover:not(:disabled), .status-items a:hover, .status-items [aria-pressed=true], .desktop-slot summary:hover { background: rgb(0 0 0 / .18); }
-.status-items button:focus-visible, .status-items a:focus-visible { outline: 1px solid white; outline-offset: -2px; }
+.status-items button:hover:not(:disabled), .status-items a:hover, .desktop-slot summary:hover { background: var(--hover); color: var(--text); }
+.status-items [aria-pressed=true] { color: var(--text); }
+.status-items button:focus-visible, .status-items a:focus-visible { outline: 1px solid var(--accent); outline-offset: -2px; }
+/* 题目标题旁的上一题 / 下一题 */
+.title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.title-row h1 { min-width: 0; }
+.title-nav { display: flex; gap: 2px; flex-shrink: 0; margin-top: 4px; }
+.title-nav button { display: inline-flex; align-items: center; gap: 2px; height: 26px; padding: 0 8px; border: 1px solid transparent;
+  border-radius: 4px; background: transparent; color: var(--muted); font: 12px var(--font-ui); cursor: pointer; }
+.title-nav button:hover:not(:disabled) { background: var(--hover); color: var(--text); }
+.title-nav button:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
+.title-nav button:disabled { opacity: .4; cursor: default; }
 .status-items .sync-status .tone-fail { color: inherit; text-decoration: underline; }
 .desktop-slot details > div { top: auto !important; bottom: 100%; color: var(--text); }
 .drawer-shade { display: none; }

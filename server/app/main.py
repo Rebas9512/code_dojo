@@ -208,7 +208,7 @@ def judge_status() -> dict[str, Any]:
 
 @app.get("/api/status")
 def status() -> dict[str, Any]:
-    bank.refresh()
+    bank.ensure_fresh()
     return {
         "ok": True,
         "problems": len(bank.problems),
@@ -222,7 +222,7 @@ def status() -> dict[str, Any]:
 
 
 def require_track(track: str) -> Track:
-    bank.refresh()
+    bank.ensure_fresh()
     if track not in bank.tracks:
         raise HTTPException(404, f"没有这条学习线：{track}")
     return bank.tracks[track]

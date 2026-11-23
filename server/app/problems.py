@@ -6,7 +6,9 @@
 from __future__ import annotations
 
 import json
+import os
 import threading
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
@@ -347,11 +349,18 @@ def shared_db(track_dir: Path, name: str) -> list[str]:
 
 
 class ProblemBank:
-    """线程安全、按修改时间自动重载的题库。"""
+    """线程安全、按修改时间自动重载的题库。
+
+    查"题库有没有改"要 stat 上万个文件（NTFS / fuseblk 盘上约 0.8 秒），不能放在每个请求里。
+    请求路径只调 ensure_fresh()：已加载就直接返回；改动由后台线程按间隔发现并重载。
+    CODE_DOJO_BANK_WATCH：秒数（默认 3）= 后台检查间隔；off = 只加载一次（桌面应用，题库随更新包整体替换）；
+    sync = 每次请求都检查（旧行为，测试用）。显式调用 refresh() 永远会检查。
+    """
 
     def __init__(self, root: Path):
         self.root = root
         self._lock = threading.Lock()
+        self._watching = False
         self._stamp: float | None = None
         self.tracks: dict[str, Track] = {}
         self.skill_index: dict[str, Skill] = {}
@@ -438,18 +447,49 @@ class ProblemBank:
                 problems, lessons, skill_lesson, skills, errors, stamp,
             )
 
+    def ensure_fresh(self) -> None:
+        """请求路径用的廉价版 refresh：不在请求里扫文件。"""
+        mode = os.environ.get("CODE_DOJO_BANK_WATCH", "3").strip().lower()
+        if mode == "sync":
+            self.refresh()
+            return
+        if self._stamp is None:
+            self.refresh()
+        if mode != "off" and not self._watching:
+            try:
+                interval = max(0.5, float(mode))
+            except ValueError:
+                interval = 3.0
+            self._start_watch(interval)
+
+    def _start_watch(self, interval: float) -> None:
+        with self._lock:
+            if self._watching:
+                return
+            self._watching = True
+
+        def loop() -> None:
+            while True:
+                time.sleep(interval)
+                try:
+                    self.refresh()
+                except Exception:  # noqa: BLE001 - 后台线程不能死；坏文件会进 errors
+                    pass
+
+        threading.Thread(target=loop, name="problem-bank-watch", daemon=True).start()
+
     def ordered(self, track: str | None = None) -> list[Problem]:
-        self.refresh()
+        self.ensure_fresh()
         items = (p for p in self.problems.values() if track is None or p.meta.track == track)
         return sorted(items, key=lambda p: (p.track.order, p.track.id, p.sort_key))
 
     def get(self, problem_id: str) -> Problem | None:
-        self.refresh()
+        self.ensure_fresh()
         return self.problems.get(problem_id)
 
     def lesson_sections(self, problem: Problem, *, with_setup: bool = False) -> list[dict[str, Any]]:
         """一道题的"课"：新引入的技能放最前（new=True），然后是用到的技能；没有教学内容的技能只给知识卡。"""
-        self.refresh()
+        self.ensure_fresh()
         m = problem.meta
         order = ([m.skills.introduces] if m.skills.introduces else []) + [
             sk for sk in reversed(m.skills.requires) if sk != m.skills.introduces

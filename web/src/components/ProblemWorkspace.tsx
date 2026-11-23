@@ -324,6 +324,9 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   }
 
   const runStatus = track.runtime === 'ds' && <DsPreparation />
+  const nextPath = isReview ? (next && practicePath(next)) : parent.next && itemPath(parent.next)
+  const prevPath = nav.prev && itemPath(nav.prev)
+  const nextTitle = (isReview ? next : parent.next)?.title ?? ''
   let leftBody: ReactNode
   if (left === 'lesson') {
     leftBody = <Suspense fallback={null}><LessonView problemId={id} theme={theme} runStatus={runStatus}
@@ -335,7 +338,15 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   } else if (p) {
     leftBody = (
       <>
-        <h1>{p.title}</h1>
+        <div className="title-row">
+          <h1>{p.title}</h1>
+          <nav className="title-nav" aria-label="切换题目">
+            <button title={'上一题 · ' + (nav.prev?.title ?? '') + '（Alt+←）'} disabled={!prevPath}
+              onClick={() => prevPath && navigate(prevPath)}><Icon name="chevron-left" />上一题</button>
+            <button title={'下一题 · ' + nextTitle + '（Alt+→）'} disabled={!nextPath}
+              onClick={() => nextPath && navigate(nextPath)}>下一题<Icon name="chevron-right" /></button>
+          </nav>
+        </div>
         <p className="meta faint">
           {p.extra_seq ? `附加题 ${p.extra_seq} · AI 出题 · ` : ''}
           {FORMAT_NAME[p.format]} · 难度 {p.difficulty}
@@ -394,8 +405,6 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
 
   const filename = isInspect ? 'answer' : isPredict ? 'answer.txt' : isSql ? 'query.sql' : 'solution.py'
   const crumbs = [track.name, nav.stage, unit, p?.title].filter(Boolean).join('  ›  ')
-  const nextPath = isReview ? (next && practicePath(next)) : parent.next && itemPath(parent.next)
-  const prevPath = nav.prev && itemPath(nav.prev)
   const togglePanel = () => setPanel(!layout.panel)
   const showIssues = () => { setPanelTab('问题'); setPanel(true) }
   const commands: PickerItem[] = [

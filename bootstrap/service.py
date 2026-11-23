@@ -42,6 +42,7 @@ def serve() -> None:
     # venv 的 ensurepip 子进程也从只读安装包导入标准库。
     os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
     os.environ.setdefault("CODE_DOJO_JUDGE_TMP", str(data / "judge-tmp"))
+    os.environ.setdefault("CODE_DOJO_BANK_WATCH", "off")  # 题库随更新包整体替换，运行中不会改，不用后台扫文件
     os.environ.setdefault("CODE_DOJO_AI_WORKDIR", str(data / "desktop/ai"))
     tmp = data / "desktop/tmp"
     tmp.mkdir(exist_ok=True)

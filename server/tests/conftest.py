@@ -12,6 +12,7 @@ os.environ["CODE_DOJO_PROBLEMS"] = str(FIXTURES)
 os.environ["CODE_DOJO_DATA"] = tempfile.mkdtemp(prefix="code-dojo-test-data-")
 os.environ["CODE_DOJO_AI_PROVIDER"] = "off"  # 测试里不调真 AI，用 FakeProvider 替换
 os.environ["CODE_DOJO_AUTH"] = "off"
+os.environ.setdefault("CODE_DOJO_BANK_WATCH", "sync")  # 测试里改了文件马上要看到，保持每次请求都检查
 os.environ.pop("CODE_DOJO_WEB_DIST", None)
 os.environ.pop("CODE_DOJO_SYNC_REPO", None)
 
