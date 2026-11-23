@@ -1,0 +1,22 @@
+id: ml-4-001-holdout-rows
+title: 哪些行会留下作测试
+track: ml
+stage: '4'
+order: 10
+format: predict
+mode: predict
+difficulty: 34
+skills:
+  requires:
+    - wrangle.array
+    - math.frequency
+    - py.slice
+  introduces: ml.split
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 把测试的两个行号反过来当成训练集。
+    code: |
+      print('[2, 0]\n[0, 2]')

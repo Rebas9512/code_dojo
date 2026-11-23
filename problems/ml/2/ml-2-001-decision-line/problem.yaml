@@ -1,0 +1,23 @@
+id: ml-2-001-decision-line
+title: 边界上的点算哪一类
+track: ml
+stage: '2'
+order: 10
+format: predict
+mode: predict
+difficulty: 26
+skills:
+  requires:
+    - ml.affine
+    - ml.descent
+    - math.cross-entropy
+    - wrangle.cast
+  introduces: ml.logistic
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 用严格大于漏掉边界上的点。
+    code: |
+      print('[-1, 0, 1]\n[0, 0, 1]')

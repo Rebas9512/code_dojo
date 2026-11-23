@@ -1,0 +1,30 @@
+id: ml-5-017-torch-forward
+title: 把同一前向写成张量运算
+track: ml
+stage: '5'
+order: 170
+format: complete
+mode: function
+difficulty: 54
+skills:
+  requires:
+    - ml.torch-parity
+    - py.list-comp
+  introduces: null
+source: original
+wrong_examples:
+  - why: 把偏置移到了激活函数外面。
+    code: |
+      import torch
+
+
+      def forward(X, W1, b1, W2, b2):
+          X, W1, b1, W2, b2 = [torch.tensor(a, dtype=torch.float64) for a in (X, W1, b1, W2, b2)]
+          h = torch.tanh(X @ W1) + b1
+          return h @ W2 + b2
+entry: forward
+signature: 'def forward(X, W1, b1, W2, b2):'
+compare: allclose
+constraints:
+  forbid_imports:
+    - numpy

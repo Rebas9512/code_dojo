@@ -1,0 +1,28 @@
+id: ml-1-005-squared-errors
+title: 留下每条记录的平方误差
+track: ml
+stage: '1'
+order: 50
+format: complete
+mode: function
+difficulty: 26
+skills:
+  requires:
+    - ml.mse
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 保留了带符号的残差。
+    code: |
+      import numpy as np
+
+
+      def errors(pred, y):
+          residual = np.asarray(pred, dtype=float) - y
+          return residual
+entry: errors
+signature: 'def errors(pred, y):'
+compare: allclose

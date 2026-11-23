@@ -1,0 +1,71 @@
+id: ml-5-007-scalar-backward
+title: 为自己的节点实现 backward
+track: ml
+stage: '5'
+order: 70
+format: write
+mode: function
+difficulty: 44
+skills:
+  requires:
+    - ml.reverse
+    - ml.value
+    - py.default-args
+    - py.list-append
+    - py.recursion-multi
+    - py.set-basics
+    - py.sorted
+    - py.type-convert
+  introduces: null
+source: original
+wrong_examples:
+  - why: 按正向顺序走，先传播了尚未收齐的梯度。
+    code: |
+      from math import tanh
+
+
+      class Value:
+          def __init__(self, data, parents=()):
+              self.data = float(data)
+              self.grad = 0.0
+              self.parents = parents
+
+          def __add__(self, other):
+              return Value(self.data + other.data, ((self, 1.0), (other, 1.0)))
+
+          def __mul__(self, other):
+              return Value(self.data * other.data, ((self, other.data), (other, self.data)))
+
+          def tanh(self):
+              result = tanh(self.data)
+              return Value(result, ((self, 1 - result ** 2),))
+
+          def backward(self):
+              order = []
+              postorder(self, set(), order)
+              for node in order:
+                  node.grad = 0.0
+              self.grad = 1.0
+              for node in order:
+                  for parent, slope in node.parents:
+                      parent.grad += node.grad * slope
+
+
+      def postorder(node, seen, order):
+          if node in seen:
+              return
+          seen.add(node)
+          for parent, slope in node.parents:
+              postorder(parent, seen, order)
+          order.append(node)
+
+
+      def make_value(x):
+          return Value(x)
+entry: make_value
+signature: 'def make_value(x):'
+compare: checker
+constraints:
+  forbid_imports:
+    - numpy
+    - torch

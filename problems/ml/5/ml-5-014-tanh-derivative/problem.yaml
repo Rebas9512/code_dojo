@@ -1,0 +1,29 @@
+id: ml-5-014-tanh-derivative
+title: 找出隐藏层错误的斜率
+track: ml
+stage: '5'
+order: 140
+format: fix
+mode: function
+difficulty: 51
+skills:
+  requires:
+    - ml.mlp-backward
+  introduces: null
+source: original
+wrong_examples:
+  - why: 只减去 h，漏了平方。
+    code: |
+      import numpy as np
+
+
+      def hidden_grad(Z, W2, G):
+          h = np.tanh(Z)
+          upstream = np.asarray(G) @ np.asarray(W2).T
+          return upstream * (1 - h)
+entry: hidden_grad
+signature: 'def hidden_grad(Z, W2, G):'
+compare: checker
+constraints:
+  forbid_imports:
+    - torch

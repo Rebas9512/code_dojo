@@ -1,0 +1,31 @@
+id: ml-3-002-assign-clusters
+title: 只做分配的一步
+track: ml
+stage: '3'
+order: 20
+format: complete
+mode: function
+difficulty: 31
+skills:
+  requires:
+    - ml.lloyd
+    - wrangle.axis
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 选到了最远的中心。
+    code: |
+      import numpy as np
+
+
+      def assign(points, centers):
+          points = np.asarray(points, dtype=float)
+          centers = np.asarray(centers, dtype=float)
+          distances = np.sum((points[:, None, :] - centers) ** 2, axis=2)
+          return np.argmax(distances, axis=1)
+entry: assign
+signature: 'def assign(points, centers):'
+compare: allclose

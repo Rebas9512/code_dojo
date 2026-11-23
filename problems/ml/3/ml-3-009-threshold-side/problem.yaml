@@ -1,0 +1,22 @@
+id: ml-3-009-threshold-side
+title: 刚好等于阈值往哪边
+track: ml
+stage: '3'
+order: 90
+format: predict
+mode: predict
+difficulty: 38
+skills:
+  requires:
+    - ml.impurity
+    - wrangle.array
+    - wrangle.cast
+  introduces: ml.stump
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 漏掉了等于阈值的记录。
+    code: |
+      print('[0, 1, 0, 1]')

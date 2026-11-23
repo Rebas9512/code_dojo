@@ -1,0 +1,29 @@
+id: ml-4-016-pair-credit
+title: 手算一组正负配对
+track: ml
+stage: '4'
+order: 160
+format: complete
+mode: function
+difficulty: 49
+skills:
+  requires:
+    - ml.auc
+    - wrangle.axis
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 把所有平手都记成胜。
+    code: |
+      import numpy as np
+
+
+      def pair_auc(pos, neg):
+          diff = np.asarray(pos)[:, None] - np.asarray(neg)
+          return np.mean((diff > 0) + 1.0 * (diff == 0))
+entry: pair_auc
+signature: 'def pair_auc(pos, neg):'
+compare: allclose

@@ -1,0 +1,19 @@
+id: ml-5-009-hidden-shapes
+title: 隐藏层和输出层各几格
+track: ml
+stage: '5'
+order: 90
+format: predict
+mode: predict
+difficulty: 46
+skills:
+  requires:
+    - ml.affine
+    - ml.value
+    - tensor.linear
+  introduces: ml.mlp-forward
+source: original
+wrong_examples:
+  - why: 把权重形状当成激活值形状。
+    code: |
+      print('(2, 4)\n(4, 1)')

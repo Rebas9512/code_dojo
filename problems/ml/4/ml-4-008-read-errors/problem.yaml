@@ -1,0 +1,21 @@
+id: ml-4-008-read-errors
+title: 报错方向能从哪格读出
+track: ml
+stage: '4'
+order: 80
+format: predict
+mode: predict
+difficulty: 41
+skills:
+  requires:
+    - ml.logistic
+    - py.type-convert
+  introduces: ml.confusion
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 交换了矩阵的真实轴和预测轴。
+    code: |
+      print('1\n3')

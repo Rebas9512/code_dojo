@@ -1,0 +1,45 @@
+id: ml-4-018-rank-auc
+title: 按排序累计曲线下面积
+track: ml
+stage: '4'
+order: 180
+format: write
+mode: function
+difficulty: 51
+skills:
+  requires:
+    - ml.auc
+    - py.bool-ops
+    - py.slice
+    - py.while
+    - wrangle.axis
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 漏算同分正负例的半分。
+    code: |
+      import numpy as np
+
+
+      def auc(scores, labels):
+          order = np.argsort(scores, kind="stable")
+          scores, labels = np.asarray(scores)[order], np.asarray(labels)[order]
+          wins = 0.0
+          earlier_negative = 0
+          i = 0
+          while i < len(scores):
+              j = i + 1
+              while j < len(scores) and scores[j] == scores[i]:
+                  j += 1
+              positive = int(np.sum(labels[i:j]))
+              negative = j - i - positive
+              wins += positive * (earlier_negative + 0.0 * negative)
+              earlier_negative += negative
+              i = j
+          return wins / (np.sum(labels) * earlier_negative)
+entry: auc
+signature: 'def auc(scores, labels):'
+compare: allclose

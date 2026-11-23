@@ -1,0 +1,59 @@
+id: ml-1-l03-stability
+title: 特征尺度与训练轨迹
+track: ml
+skills:
+  - ml.standardize
+  - ml.trajectory
+steps:
+  - type: read
+    skill: ml.standardize
+    md: |-
+      距离与梯度都受计量单位影响。为了让不同单位的列能放在一起比较，可以给每列建立自己的刻度：减去该列均值，再除以总体标准差（平方差的平均值开方）。
+
+      一列读数为 2、6 时，中心是 4，标准差是 2，两个读数就变成 −1、1。若整列一直是 7，中心化后全为零，约定除数用 1。统计方向始终沿样本轴，每列单独计算。
+  - type: example
+    skill: ml.standardize
+    code: |
+      import numpy as np
+      # ① 先平移，再换单位
+      x = np.array([2., 6.])
+      # ② 用标准差作为一个单位
+      print(((x - np.mean(x)) / np.std(x)).tolist())  # 输出 [-1.0, 1.0]
+    md: 两个读数同时加 10，比较标准化后的结果。
+  - type: quiz
+    skill: ml.standardize
+    q: 常数列减去自己的均值后，每项是多少？
+    options:
+      - '1'
+      - '0'
+      - 无法求均值
+    answer: 1
+    explain: 每项都等于均值，两者之差为零。
+  - type: read
+    skill: ml.trajectory
+    md: |-
+      每次更新之前记下损失，就得到按时间排列的训练轨迹。光看最后一个数，容易错过方向写反、漏了首步或跨过最低点等问题。
+
+      模型只学一个数 w，目标为 1，损失是 (w−1)²。从 w=0 出发，学习率 0.25 时，更新后距离目标减半，损失剩四分之一；学习率 1.5 时距离翻倍且符号反转，损失从 1 变 4，再变 16。即使方向正确，走得太远也会发散。
+  - type: example
+    skill: ml.trajectory
+    code: |
+      import numpy as np
+      # ① 更新前各记一次，观察大步长
+      w = np.array(0.)
+      loss = []
+      for _ in range(3):
+          loss.append(float((w - 1) ** 2))
+          w -= 1.5 * 2 * (w - 1)
+      # ② 对照每次更新前的损失
+      print(loss)  # 输出 [1.0, 4.0, 16.0]
+    md: 把 1.5 改为 0.25，找出第一处不同。
+  - type: quiz
+    skill: ml.trajectory
+    q: 两条轨迹第一项相同，最直接的原因是什么？
+    options:
+      - 最后会到同一个位置
+      - 已经更新了一次
+      - 从同一初值和目标开始记
+    answer: 2
+    explain: 学习率第一次起作用是在记录初始损失之后。

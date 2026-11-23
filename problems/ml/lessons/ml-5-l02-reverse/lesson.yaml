@@ -1,0 +1,36 @@
+id: ml-5-l02-reverse
+title: 沿图反传与梯度检查
+track: ml
+skills:
+  - ml.reverse
+steps:
+  - type: read
+    skill: ml.reverse
+    md: |-
+      最终结果对自己的导数是 1。反向传播从这里出发，把每个节点收到的梯度乘上边的局部导数，再加到输入的 grad。若一个中间量参与多条路径，要等所有路径的贡献收齐，才能把它的梯度向前传。
+
+      以 x=2、h=x*x、y=h+h 为例，y 的两条边让 h.grad=2；h 的两条乘法边再给 x 各加 2×2，得到 8。深度优先先访问父节点、最后登记自己，可得到拓扑顺序。反过来走此顺序就满足等待条件；节点只登记一次，边仍逐条累加。
+
+      核对梯度时，可以在 x 两侧各挪开同样小的一步 ε，用 [y(x+ε)−y(x−ε)]/(2ε) 估算斜率。例如 y=2x²，x=2，取 2.01 与 1.99，算出的斜率恰好是 8。
+  - type: example
+    skill: ml.reverse
+    code: |
+      # ① 节点依次为 x、h=x*x、y=h+h；边记录父节点编号和局部导数
+      x = 2.0
+      parents = [[], [(0, x), (0, x)], [(1, 1.0), (1, 1.0)]]
+      grad = [0.0, 0.0, 1.0]
+      for node in [2, 1, 0]:
+          for parent, slope in parents[node]:
+              grad[parent] += grad[node] * slope
+      # ② 合并两条路径的贡献
+      print([grad[1], grad[0]])  # 输出 [2.0, 8.0]
+    md: 把 x 改成 −1，看重复边如何影响符号。
+  - type: quiz
+    skill: ml.reverse
+    q: 共享节点从两条路径收到 3 和 −1，向它的父节点传播时用几？
+    options:
+      - −1
+      - '2'
+      - '3'
+    answer: 1
+    explain: 先把所有下游贡献加总，3−1=2。

@@ -1,0 +1,30 @@
+id: ml-4-l03-ranking
+title: 阈值、ROC 与并列分数
+track: ml
+skills:
+  - ml.auc
+steps:
+  - type: read
+    skill: ml.auc
+    md: |-
+      当分数达到阈值就报正时，阈值从高到低移动会逐渐召回更多正例，也可能带来误报。ROC 的横坐标为负例中误报的比例，纵坐标为正例中召回的比例。从 (0,0) 起步，相同分数必须同时加入。
+
+      曲线下方面积 AUC 也可以用排序来理解：任取一对正负样本，正例得分高计 1 分，平手计半分。正分 [2,1]、负分 [1] 得 (1+0.5)/2=0.75。升序扫过同分组时，每个正例胜过之前所有负例，并与本组负例平手。
+  - type: example
+    skill: ml.auc
+    code: |
+      import numpy as np
+      # ① 每行是一对正负样本，平手值半分
+      diff = np.array([2., 1.]) - 1
+      # ② 汇总胜出和平手的贡献
+      print(float(np.mean((diff > 0) + 0.5 * (diff == 0))))  # 输出 0.75
+    md: 让两个正例都得 1 分，AUC 应变成多少？
+  - type: quiz
+    skill: ml.auc
+    q: 一正一负得分相等时，排序 AUC 给这一对几分？
+    options:
+      - '0'
+      - '0.5'
+      - '1'
+    answer: 1
+    explain: 没有可区分的次序，正反各有一半机会。

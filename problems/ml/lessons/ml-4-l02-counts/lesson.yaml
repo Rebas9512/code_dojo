@@ -1,0 +1,55 @@
+id: ml-4-l02-counts
+title: 从混淆矩阵读指标
+track: ml
+skills:
+  - ml.confusion
+  - ml.metrics
+steps:
+  - type: read
+    skill: ml.confusion
+    md: |-
+      看总共猜对几条，还分不清哪些类别经常混在一起。混淆矩阵为每一种真实标签和预测标签的配对留一个计数格。本组约定行是真实类，列是预测类。二分类中左上、右上、左下、右下依次是真负 TN、假正 FP、假负 FN、真正 TP。
+
+      若三个真实标签为 [0,0,1]，都预测为 1，那么格 (0,1) 增加两次，格 (1,1) 增加一次。矩阵对角线是猜对的条数，所有格子的和是样本数。
+  - type: example
+    skill: ml.confusion
+    code: |
+      import numpy as np
+      # ① 一行跟踪一种真实类别
+      table = np.array([[0, 2], [0, 1]])
+      # ② 按行汇总真实类别
+      print(np.sum(table, axis=1).tolist())  # 输出 [2, 1]
+    md: 把一个误报改成真负，观察哪一行的合计不变。
+  - type: quiz
+    skill: ml.confusion
+    q: 真实是 1 却预测为 0，应写入哪个格子？
+    options:
+      - 第 0 行第 1 列
+      - 第 1 行第 0 列
+      - 第 1 行第 1 列
+    answer: 1
+    explain: 行先读真实，列再读预测。
+  - type: read
+    skill: ml.metrics
+    md: |-
+      准确率问所有判断里猜对了多少。精确率问报为正类的记录里有多少是真的；召回率问所有真正的正类里找回多少。两者关心的分母不同。F1 是精确率与召回率的调和平均，直接用计数也能算：2TP/(2TP+FP+FN)。
+
+      若 TP=2、FP=2、FN=1、TN=5，准确率是 7/10，精确率是 2/4，召回率是 2/3。没有报正或没有真阳性样本时，分母可能为零，这组约定对应指标记作 0。
+  - type: example
+    skill: ml.metrics
+    code: |
+      import numpy as np
+      # ① 同样的真正例，分别放入两个分母
+      tp, fp, fn = 2, 2, 1
+      # ② 分别计算精确率与召回率
+      print(np.round([tp / (tp + fp), tp / (tp + fn)], 2).tolist())  # 输出 [0.5, 0.67]
+    md: 增加一个漏报，比较哪一个分数变化。
+  - type: quiz
+    skill: ml.metrics
+    q: 只预测负类，恰有 90 个负类、10 个正类。正类召回率是多少？
+    options:
+      - '0.9'
+      - '1'
+      - '0'
+    answer: 2
+    explain: 10 个正类一个也没有找回。

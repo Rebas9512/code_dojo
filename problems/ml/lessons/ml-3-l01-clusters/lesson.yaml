@@ -1,0 +1,31 @@
+id: ml-3-l01-clusters
+title: 轮流分组与移动中心
+track: ml
+skills:
+  - ml.lloyd
+steps:
+  - type: read
+    skill: ml.lloyd
+    md: |-
+      没有标签时，可以让位置相近的点形成一组。k-means 先放 k 个中心，把每个点分配给最近的中心，然后把每个中心移到自己收到的点的均值。一次分配加一次移动，才是一轮。
+
+      点 0、2、8 配给初始中心 0、6，标签就是 [0,0,1]；第一轮新中心为 1、8。先分完所有点，再同时移动中心。这里等距选下标小的中心，空簇沿用旧位置，这样每一步都有确定结果。
+  - type: example
+    skill: ml.lloyd
+    code: |
+      import numpy as np
+      # ① 两个中心各接收一组点
+      points = np.array([0., 2., 8.])
+      labels = np.array([0, 0, 1])
+      # ② 分别计算每组的新中心
+      print([float(np.mean(points[labels == i])) for i in range(2)])  # 输出 [1.0, 8.0]
+    md: 把第三个点移到 10，观察哪个中心改变。
+  - type: quiz
+    skill: ml.lloyd
+    q: 若没有任何点分给中心 2，本组规则怎样更新它？
+    options:
+      - 移到原点
+      - 删除中心
+      - 沿用原位置
+    answer: 2
+    explain: 约定保留旧坐标，中心编号和数量都保持稳定。

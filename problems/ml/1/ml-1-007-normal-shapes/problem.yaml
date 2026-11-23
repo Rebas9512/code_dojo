@@ -1,0 +1,21 @@
+id: ml-1-007-normal-shapes
+title: 多少条方程对应多少个参数
+track: ml
+stage: '1'
+order: 70
+format: predict
+mode: predict
+difficulty: 28
+skills:
+  requires:
+    - ml.mse
+    - math.matrix-product
+  introduces: ml.normal
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 把样本数当成待解参数数。
+    code: |
+      print('(3, 3)\n(3,)')

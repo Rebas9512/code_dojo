@@ -1,0 +1,22 @@
+id: ml-4-011-precision-denominator
+title: 四次警报，几次报对
+track: ml
+stage: '4'
+order: 110
+format: predict
+mode: predict
+difficulty: 44
+skills:
+  requires:
+    - ml.confusion
+    - py.type-convert
+    - wrangle.axis
+  introduces: ml.metrics
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 用真实正类作分母，算成了召回率。
+    code: |
+      print('1.0')

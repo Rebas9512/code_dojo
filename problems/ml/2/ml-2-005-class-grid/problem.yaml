@@ -1,0 +1,21 @@
+id: ml-2-005-class-grid
+title: 一批记录要打多少个分
+track: ml
+stage: '2'
+order: 50
+format: predict
+mode: predict
+difficulty: 30
+skills:
+  requires:
+    - ml.logistic
+    - math.softmax
+  introduces: ml.multiclass
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 颠倒了样本轴和类别轴。
+    code: |
+      print('(3, 4)')

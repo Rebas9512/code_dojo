@@ -1,0 +1,32 @@
+id: ml-5-l04-framework
+title: 用 PyTorch 对拍
+track: ml
+skills:
+  - ml.torch-parity
+steps:
+  - type: read
+    skill: ml.torch-parity
+    md: |-
+      同一组参数交给手写网络和 PyTorch，可以交叉核对前向与反向。用双精度、同一批输入、同一个标量目标，才能逐项比较。张量设置 requires_grad=True 后参与运算，调用标量的 backward()，就能从每个输入的 grad 取出累计梯度。
+
+      若 y=x·w，x=2、w=3，给输出上游梯度 4 就等于对 4y 求导，得到 dx=12、dw=8。两层网络同理：将输出逐项乘 G 后求和。不保留原始权重轴顺序、遗漏非单位的 G，都会让两个实现给出不同梯度。
+  - type: example
+    skill: ml.torch-parity
+    code: |
+      import torch
+      # ① 匹配手算的目标 4*x*w
+      x = torch.tensor(2., dtype=torch.float64, requires_grad=True)
+      w = torch.tensor(3., dtype=torch.float64, requires_grad=True)
+      (4 * x * w).backward()
+      # ② 读取两个叶子张量的梯度
+      print([x.grad.item(), w.grad.item()])  # 输出 [12.0, 8.0]
+    md: 把 4 改成 1，验证梯度是否也除以 4。
+  - type: quiz
+    skill: ml.torch-parity
+    q: 要与给定 G 的手写反向逐项对齐，应对哪个标量调用 backward？
+    options:
+      - Y.sum()
+      - (Y*G).sum()
+      - G.sum()
+    answer: 1
+    explain: 乘上 G 后，各个输出收到的梯度才与题目一致。

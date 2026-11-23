@@ -1,0 +1,31 @@
+id: ml-1-019-first-rise
+title: 定位损失第一次反弹
+track: ml
+stage: '1'
+order: 190
+format: variant
+mode: function
+difficulty: 40
+skills:
+  requires:
+    - ml.trajectory
+    - py.ternary
+    - py.type-convert
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 把平台期的持平误报成反弹。
+    code: |
+      import numpy as np
+
+
+      def first_rise(losses):
+          changes = np.diff(losses)
+          increases = np.flatnonzero(changes >= 0)
+          return int(increases[0] + 1) if len(increases) else -1
+entry: first_rise
+signature: 'def first_rise(losses):'
+compare: allclose

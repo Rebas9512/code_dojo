@@ -1,0 +1,22 @@
+id: ml-4-004-future-point
+title: 新样本该用谁的中心
+track: ml
+stage: '4'
+order: 40
+format: predict
+mode: predict
+difficulty: 37
+skills:
+  requires:
+    - ml.standardize
+    - ml.split
+    - wrangle.axis
+  introduces: ml.leakage
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 用测试集自己的均值和标准差。
+    code: |
+      print('[-1.0, 1.0]')

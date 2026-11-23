@@ -1,0 +1,35 @@
+id: ml-5-019-torch-parity
+title: 用 PyTorch 对拍两层 MLP 的五份梯度
+track: ml
+stage: '5'
+order: 190
+format: write
+mode: function
+difficulty: 56
+skills:
+  requires:
+    - ml.torch-parity
+    - ml.mlp-forward
+    - ml.mlp-backward
+    - py.list-comp
+  introduces: null
+source: original
+wrong_examples:
+  - why: 把非均匀的上游梯度当成全 1。
+    code: |
+      import torch
+
+
+      def network(X, W1, b1, W2, b2, G):
+          params = [torch.tensor(a, dtype=torch.float64, requires_grad=True) for a in (X, W1, b1, W2, b2)]
+          X, W1, b1, W2, b2 = params
+          Y = torch.tanh(X @ W1 + b1) @ W2 + b2
+          upstream = torch.tensor(G, dtype=torch.float64)
+          torch.sum(Y).backward()
+          return (Y.detach(), X.grad, W1.grad, b1.grad, W2.grad, b2.grad)
+entry: network
+signature: 'def network(X, W1, b1, W2, b2, G):'
+compare: checker
+constraints:
+  forbid_imports:
+    - numpy

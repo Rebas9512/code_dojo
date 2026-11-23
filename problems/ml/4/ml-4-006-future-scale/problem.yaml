@@ -1,0 +1,31 @@
+id: ml-4-006-future-scale
+title: 追查泄漏进来的尺度
+track: ml
+stage: '4'
+order: 60
+format: fix
+mode: function
+difficulty: 39
+skills:
+  requires:
+    - ml.leakage
+    - wrangle.axis
+    - wrangle.where
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 中心来自训练集，尺度却偷看测试集。
+    code: |
+      import numpy as np
+
+
+      def transform(train, test):
+          center = np.mean(train, axis=0)
+          scale = np.std(test, axis=0)
+          return (np.asarray(test) - center) / np.where(scale == 0, 1, scale)
+entry: transform
+signature: 'def transform(train, test):'
+compare: allclose

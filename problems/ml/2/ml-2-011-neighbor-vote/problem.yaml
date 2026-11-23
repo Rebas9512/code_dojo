@@ -1,0 +1,32 @@
+id: ml-2-011-neighbor-vote
+title: 让最近的样本一起投票
+track: ml
+stage: '2'
+order: 110
+format: write
+mode: function
+difficulty: 36
+skills:
+  requires:
+    - ml.knn
+    - py.slice
+    - wrangle.axis
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 只听最近的一票。
+    code: |
+      import numpy as np
+
+
+      def vote(X, labels, q, k):
+          dist = np.sum((np.asarray(X) - q) ** 2, axis=1)
+          rows = np.argsort(dist, kind="stable")[:k]
+          votes = np.bincount(np.asarray(labels)[rows])
+          return int(np.asarray(labels)[rows[0]])
+entry: vote
+signature: 'def vote(X, labels, q, k):'
+compare: allclose

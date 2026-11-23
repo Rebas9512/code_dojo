@@ -1,0 +1,19 @@
+id: ml-5-004-shared-gradient
+title: 同一节点收到几次贡献
+track: ml
+stage: '5'
+order: 40
+format: predict
+mode: predict
+difficulty: 41
+skills:
+  requires:
+    - ml.value
+    - tensor.accumulate
+    - py.recursion
+  introduces: ml.reverse
+source: original
+wrong_examples:
+  - why: 漏了一条重用路径。
+    code: |
+      print('6.0')

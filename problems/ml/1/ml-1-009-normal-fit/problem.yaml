@@ -1,0 +1,34 @@
+id: ml-1-009-normal-fit
+title: 求拟合参数和截距
+track: ml
+stage: '1'
+order: 90
+format: write
+mode: function
+difficulty: 30
+skills:
+  requires:
+    - ml.normal
+    - ml.affine
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+  forbid_calls:
+    - numpy.linalg.inv
+    - numpy.linalg.pinv
+    - numpy.linalg.lstsq
+wrong_examples:
+  - why: 把截距放在权重前面。
+    code: |
+      import numpy as np
+      import numpy.linalg as la
+
+
+      def fit(X, y):
+          A = np.column_stack((X, np.ones(len(X))))
+          return la.solve(A.T @ A, A.T @ y)[::-1]
+entry: fit
+signature: 'def fit(X, y):'
+compare: allclose

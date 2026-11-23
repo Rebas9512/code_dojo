@@ -1,0 +1,55 @@
+id: ml-4-l01-holdout
+title: 留出测试集与防止泄漏
+track: ml
+skills:
+  - ml.split
+  - ml.leakage
+steps:
+  - type: read
+    skill: ml.split
+    md: |-
+      训练集是拿来学习参数的已知记录，测试集用来估计模型遇到新记录时的表现。同一条记录不能同时出现在两边。先给行号洗牌，再切成两段，可避免按原表顺序取样的偏向。
+
+      若行号洗牌后是 [2,0,3,1]，留两条作测试，就用 2、0 号评估，用 3、1 号训练。特征与标签共用这一串行号。随机数生成器从相同种子开始，就能复现同一次划分。
+  - type: example
+    skill: ml.split
+    code: |
+      import numpy as np
+      # ① 每次从种子 0 开始打乱同一串行号
+      ids = np.random.default_rng(0).permutation(4)
+      # ② 读取打乱后的行号
+      print(ids.tolist())  # 输出 [2, 0, 1, 3]
+    md: 把种子换成 3，连续两次运行比较行号。
+  - type: quiz
+    skill: ml.split
+    q: 洗牌后行号为 [3,0,2,1]，留第一条作测试，应取哪个标签？
+    options:
+      - 第 0 行标签
+      - 第 3 行标签
+      - 重新洗牌后取一条
+    answer: 1
+    explain: 行号 3 同时选择了它的特征和标签。
+  - type: read
+    skill: ml.leakage
+    md: |-
+      测试集模拟还没有到来的观测。如果先用全体数据定下中心和尺度，未来数据就影响了模型准备过程，这种情况叫数据泄漏。划分以后，在训练行上求每列的均值、标准差；训练行和测试行都使用这同一套数。
+
+      训练列 [0,2] 的均值为 1、标准差为 1。新来的数 5 应换算为 4。只拿新点自己去中心化会得到 0，把它和训练数据混算又会得到另一种刻度。两种做法都会改变评估的含义。
+  - type: example
+    skill: ml.leakage
+    code: |
+      import numpy as np
+      # ① 新来的点沿用训练时记下的刻度
+      train = np.array([0., 2.])
+      # ② 用训练刻度换算新值
+      print(float((5 - np.mean(train)) / np.std(train)))  # 输出 4.0
+    md: 把 5 改成 100，训练均值会变吗？
+  - type: quiz
+    skill: ml.leakage
+    q: 训练列恒为 7，新点为 10，约定零标准差用 1。换算后是几？
+    options:
+      - '0'
+      - '3'
+      - '10'
+    answer: 1
+    explain: 仍用训练均值 7，(10−7)/1=3。

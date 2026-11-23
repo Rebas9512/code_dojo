@@ -1,0 +1,27 @@
+id: ml-5-013-readout-grad
+title: 计算读出权重梯度
+track: ml
+stage: '5'
+order: 130
+format: complete
+mode: function
+difficulty: 50
+skills:
+  requires:
+    - ml.mlp-backward
+  introduces: null
+source: original
+wrong_examples:
+  - why: 多除以样本数。
+    code: |
+      import numpy as np
+
+
+      def readout_grad(h, G):
+          return (np.asarray(h).T @ G) / len(h)
+entry: readout_grad
+signature: 'def readout_grad(h, G):'
+compare: checker
+constraints:
+  forbid_imports:
+    - torch

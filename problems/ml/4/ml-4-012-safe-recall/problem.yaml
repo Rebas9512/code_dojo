@@ -1,0 +1,32 @@
+id: ml-4-012-safe-recall
+title: 算召回率并处理空分母
+track: ml
+stage: '4'
+order: 120
+format: complete
+mode: function
+difficulty: 45
+skills:
+  requires:
+    - ml.metrics
+    - py.ternary
+    - py.type-convert
+    - wrangle.axis
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 取了预测正类的分母。
+    code: |
+      import numpy as np
+
+
+      def recall(cm):
+          table = np.asarray(cm)
+          actual_positive = np.sum(table[:, 1])
+          return float(table[1, 1] / actual_positive) if actual_positive else 0.0
+entry: recall
+signature: 'def recall(cm):'
+compare: allclose

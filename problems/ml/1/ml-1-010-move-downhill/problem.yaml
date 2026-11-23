@@ -1,0 +1,22 @@
+id: ml-1-010-move-downhill
+title: 第一次更新往哪边走
+track: ml
+stage: '1'
+order: 100
+format: predict
+mode: predict
+difficulty: 31
+skills:
+  requires:
+    - ml.mse
+    - math.descent-plane
+    - wrangle.axis
+  introduces: ml.descent
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 沿梯度上升方向移动。
+    code: |
+      print('-2.0')

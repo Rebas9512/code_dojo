@@ -1,0 +1,52 @@
+id: ml-3-015-predict-tree
+title: 用建好的树回答新观测
+track: ml
+stage: '3'
+order: 150
+format: variant
+mode: function
+difficulty: 44
+skills:
+  requires:
+    - ml.tree
+    - ml.stump
+    - py.list-append
+    - py.nested-loop
+    - py.recursion-multi
+    - py.ternary
+    - py.tuple
+    - py.type-convert
+    - py.while
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 等于分裂阈值时走错了分枝。
+    code: |
+      import numpy as np
+
+
+      def decode(nodes, i):
+          flag, value = nodes[i]
+          if flag == 0:
+              return [int(value)], i + 1
+          left, j = decode(nodes, i + 1)
+          right, end = decode(nodes, j)
+          return [value, left, right], end
+
+
+      def tree_predictions(nodes, queries):
+          root, end = decode(nodes, 0)
+          result = []
+          for x in np.asarray(queries):
+              node = root
+              while len(node) == 3:
+                  cut, left, right = node
+                  node = left if x < cut else right
+              result.append(node[0])
+          return result
+entry: tree_predictions
+signature: 'def tree_predictions(nodes, queries):'
+compare: allclose

@@ -1,0 +1,29 @@
+id: ml-1-011-batch-step
+title: 走一次全批梯度下降
+track: ml
+stage: '1'
+order: 110
+format: complete
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - ml.descent
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 梯度符号反了。
+    code: |
+      import numpy as np
+
+
+      def step(X, y, w, rate):
+          X = np.asarray(X, dtype=float)
+          gradient = 2 * X.T @ (X @ w - y) / len(X)
+          return w + rate * gradient
+entry: step
+signature: 'def step(X, y, w, rate):'
+compare: allclose

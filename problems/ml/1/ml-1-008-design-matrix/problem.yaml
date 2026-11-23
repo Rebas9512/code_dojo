@@ -1,0 +1,28 @@
+id: ml-1-008-design-matrix
+title: 给设计矩阵添一列
+track: ml
+stage: '1'
+order: 80
+format: complete
+mode: function
+difficulty: 29
+skills:
+  requires:
+    - ml.normal
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 零列无法表示偏置。
+    code: |
+      import numpy as np
+
+
+      def design(X):
+          rows = np.asarray(X, dtype=float)
+          return np.column_stack((rows, np.zeros(len(rows))))
+entry: design
+signature: 'def design(X):'
+compare: allclose

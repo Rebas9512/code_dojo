@@ -1,0 +1,21 @@
+id: ml-4-015-tied-ranks
+title: 一胜一平一负怎样计分
+track: ml
+stage: '4'
+order: 150
+format: predict
+mode: predict
+difficulty: 48
+skills:
+  requires:
+    - ml.metrics
+    - wrangle.rank-index
+  introduces: ml.auc
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 平手也被算成输。
+    code: |
+      print('[1.0, 0.0, 0.0]')

@@ -1,0 +1,28 @@
+id: ml-5-010-hidden-activation
+title: 补全第一层隐藏特征
+track: ml
+stage: '5'
+order: 100
+format: complete
+mode: function
+difficulty: 47
+skills:
+  requires:
+    - ml.mlp-forward
+  introduces: null
+source: original
+wrong_examples:
+  - why: 跳过非线性，隐藏层成了普通线性层。
+    code: |
+      import numpy as np
+
+
+      def hidden(X, W1, b1):
+          z = np.asarray(X, dtype=float) @ W1 + b1
+          return z
+entry: hidden
+signature: 'def hidden(X, W1, b1):'
+compare: allclose
+constraints:
+  forbid_imports:
+    - torch

@@ -1,0 +1,35 @@
+id: ml-3-003-empty-cluster
+title: 修好没有成员的中心
+track: ml
+stage: '3'
+order: 30
+format: fix
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - ml.lloyd
+    - py.if-else
+    - wrangle.axis
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 对空数组取均值会产生 NaN。
+    code: |
+      import numpy as np
+
+
+      def relocate(points, labels, centers):
+          points = np.asarray(points, dtype=float)
+          labels = np.asarray(labels)
+          result = np.array(centers, dtype=float)
+          for i in range(len(result)):
+              members = points[labels == i]
+              result[i] = np.mean(members, axis=0)
+          return result
+entry: relocate
+signature: 'def relocate(points, labels, centers):'
+compare: allclose

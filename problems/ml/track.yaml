@@ -4,7 +4,7 @@ summary: 从回归和分类到反向传播，亲手实现并评估模型。
 order: 7
 language: python
 runtime: ds
-status: planned
+status: active
 requires:
   - tensor
   - math
@@ -29,5 +29,15 @@ stages:
       3: 把决策桩接成树
   - id: '4'
     name: 模型评估
+    units:
+      1: 留出测试集与防止泄漏
+      2: 从混淆矩阵读指标
+      3: 阈值、ROC 与并列分数
+      4: 轮流留出验证折
   - id: '5'
     name: 自动求导和 MLP
+    units:
+      1: 给标量留下运算图
+      2: 沿图反传与梯度检查
+      3: 手写两层网络
+      4: 用 PyTorch 对拍

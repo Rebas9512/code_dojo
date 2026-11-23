@@ -1,0 +1,29 @@
+id: ml-1-006-mean-loss
+title: 给一组预测打损失分
+track: ml
+stage: '1'
+order: 60
+format: write
+mode: function
+difficulty: 27
+skills:
+  requires:
+    - ml.mse
+    - wrangle.axis
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 平方放在平均之后，方向相反的误差会抵消。
+    code: |
+      import numpy as np
+
+
+      def mse(pred, y):
+          diff = np.asarray(pred, dtype=float) - y
+          return np.mean(diff) ** 2
+entry: mse
+signature: 'def mse(pred, y):'
+compare: allclose

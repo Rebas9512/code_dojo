@@ -1,0 +1,23 @@
+id: ml-3-006-pure-node
+title: 这个节点还混杂吗
+track: ml
+stage: '3'
+order: 60
+format: predict
+mode: predict
+difficulty: 35
+skills:
+  requires:
+    - math.log
+    - math.expectation
+    - py.type-convert
+    - wrangle.axis
+  introduces: ml.impurity
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 把同类相遇的概率当成不纯度。
+    code: |
+      print('1.0')

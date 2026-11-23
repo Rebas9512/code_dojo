@@ -1,0 +1,56 @@
+id: ml-3-l02-cuts
+title: 衡量并选择一次分裂
+track: ml
+skills:
+  - ml.impurity
+  - ml.stump
+steps:
+  - type: read
+    skill: ml.impurity
+    md: |-
+      一组标签越混杂，猜其中一条越难。基尼不纯度 G=1−Σp²；二分类各半时 G=0.5，只有一种标签时 G=0。另一把尺叫熵 H=−Σp·log₂p，只累加非零比例。各半时熵为 1 比特，纯组为 0 比特。
+
+      分裂的价值要看子组的大小。4 条各半的记录，若分成两个纯组，加权子熵为零，信息增益为 1。若有三条落在同一组，那组的熵占四分之三。比较基尼下降时也用同样的样本权重。
+  - type: example
+    skill: ml.impurity
+    code: |
+      import numpy as np
+      # ① 两类各占一半，分别算两把尺
+      p = np.array([0.5, 0.5])
+      # ② 比较基尼与熵
+      print([float(1 - np.sum(p ** 2)), float(-np.sum(p * np.log2(p)))])  # 输出 [0.5, 1.0]
+    md: 把比例改为 [0.25, 0.75]，比较两把尺的变化方向。
+  - type: quiz
+    skill: ml.impurity
+    q: 4 条记录分成 1 条和 3 条时，右组熵乘以多少？
+    options:
+      - 1/2
+      - 3/4
+      - 1/4
+    answer: 1
+    explain: 让每条记录具有同一权重，右组占三条。
+  - type: read
+    skill: ml.stump
+    md: |-
+      一层决策树称作决策桩。只问一个问题：特征值是否不超过阈值？两个答案分别通向一片叶子，叶子投票给本组的多数类。可在排序后相邻的不同取值中间试切，选加权子基尼最小的一刀。
+
+      温度 [1,2,5,8] 对应标签 [0,0,1,1]。切在 3.5，两边正好各自纯净。切在 1.5 时右边仍混有两类。同样好的阈值按本组约定选较小值。
+  - type: example
+    skill: ml.stump
+    code: |
+      import numpy as np
+      # ① 比较一个候选切口两侧的标签
+      x = np.array([1, 2, 5, 8])
+      y = np.array([0, 0, 1, 1])
+      # ② 查看两片叶子的标签
+      print([y[x <= 3.5].tolist(), y[x > 3.5].tolist()])  # 输出 [[0, 0], [1, 1]]
+    md: 把阈值改成 1.5，看哪片叶子开始混杂。
+  - type: quiz
+    skill: ml.stump
+    q: 排序后相邻取值是 2 和 6，这里的候选阈值取几？
+    options:
+      - '2'
+      - '4'
+      - '6'
+    answer: 1
+    explain: 选择两个不同观测值的中点。

@@ -1,0 +1,19 @@
+id: ml-5-016-torch-upstream
+title: 给两个输出不同的权重
+track: ml
+stage: '5'
+order: 160
+format: predict
+mode: predict
+difficulty: 53
+skills:
+  requires:
+    - ml.mlp-backward
+    - tensor.backward
+    - tensor.boundary
+  introduces: ml.torch-parity
+source: original
+wrong_examples:
+  - why: 忘记将各项梯度乘以各自的上游权重。
+    code: |
+      print('[2.0, 4.0]')

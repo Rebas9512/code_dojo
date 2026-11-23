@@ -1,0 +1,29 @@
+id: ml-3-010-candidate-cuts
+title: 列出所有可选切口
+track: ml
+stage: '3'
+order: 100
+format: complete
+mode: function
+difficulty: 39
+skills:
+  requires:
+    - ml.stump
+    - py.slice
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 相加后忘记取平均。
+    code: |
+      import numpy as np
+
+
+      def candidates(x):
+          values = np.unique(x)
+          return (values[1:] + values[:-1]) * 1.0
+entry: candidates
+signature: 'def candidates(x):'
+compare: allclose

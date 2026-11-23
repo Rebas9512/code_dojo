@@ -1,0 +1,31 @@
+id: ml-1-015-scale-features
+title: 给传感器换一把共同的尺
+track: ml
+stage: '1'
+order: 150
+format: write
+mode: function
+difficulty: 36
+skills:
+  requires:
+    - ml.standardize
+    - wrangle.axis
+    - wrangle.where
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 常数列除以零。
+    code: |
+      import numpy as np
+
+
+      def standardize(X):
+          X = np.asarray(X, dtype=float)
+          scale = np.std(X, axis=0)
+          return (X - np.mean(X, axis=0)) / scale
+entry: standardize
+signature: 'def standardize(X):'
+compare: allclose

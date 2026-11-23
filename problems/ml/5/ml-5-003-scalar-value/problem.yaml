@@ -1,0 +1,49 @@
+id: ml-5-003-scalar-value
+title: 写一个会记住输入的 Value
+track: ml
+stage: '5'
+order: 30
+format: write
+mode: function
+difficulty: 40
+skills:
+  requires:
+    - ml.value
+    - py.default-args
+    - py.recursion
+    - py.tuple
+    - py.type-convert
+  introduces: null
+source: original
+wrong_examples:
+  - why: 用 tanh 的输入代替输出计算斜率。
+    code: |
+      from math import tanh
+
+
+      class Value:
+          def __init__(self, data, parents=()):
+              self.data = float(data)
+              self.grad = 0.0
+              self.parents = parents
+
+          def __add__(self, other):
+              return Value(self.data + other.data, ((self, 1.0), (other, 1.0)))
+
+          def __mul__(self, other):
+              return Value(self.data * other.data, ((self, other.data), (other, self.data)))
+
+          def tanh(self):
+              result = tanh(self.data)
+              return Value(result, ((self, 1 - self.data ** 2),))
+
+
+      def make_value(x):
+          return Value(x)
+entry: make_value
+signature: 'def make_value(x):'
+compare: checker
+constraints:
+  forbid_imports:
+    - numpy
+    - torch

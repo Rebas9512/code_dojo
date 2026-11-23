@@ -1,0 +1,34 @@
+id: ml-4-007-fit-after-split
+title: 划分后再拟合整条变换
+track: ml
+stage: '4'
+order: 70
+format: write
+mode: function
+difficulty: 40
+skills:
+  requires:
+    - ml.leakage
+    - ml.split
+    - ml.standardize
+    - wrangle.axis
+    - wrangle.where
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 在划分之前拟合全表。
+    code: |
+      import numpy as np
+
+
+      def prepare(X, train_ids, test_ids):
+          X = np.asarray(X, dtype=float)
+          train = X
+          scale = np.std(train, axis=0)
+          return (X[test_ids] - np.mean(train, axis=0)) / np.where(scale == 0, 1, scale)
+entry: prepare
+signature: 'def prepare(X, train_ids, test_ids):'
+compare: allclose

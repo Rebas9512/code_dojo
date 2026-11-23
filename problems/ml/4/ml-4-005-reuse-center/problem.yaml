@@ -1,0 +1,29 @@
+id: ml-4-005-reuse-center
+title: 用训练均值给测试列去中心
+track: ml
+stage: '4'
+order: 50
+format: complete
+mode: function
+difficulty: 38
+skills:
+  requires:
+    - ml.leakage
+    - wrangle.axis
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 对测试集重新求中心。
+    code: |
+      import numpy as np
+
+
+      def apply_center(train, test):
+          center = np.mean(test, axis=0)
+          return np.asarray(test, dtype=float) - center
+entry: apply_center
+signature: 'def apply_center(train, test):'
+compare: allclose

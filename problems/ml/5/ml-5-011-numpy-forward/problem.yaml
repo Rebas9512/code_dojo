@@ -1,0 +1,28 @@
+id: ml-5-011-numpy-forward
+title: 连接两层得到整批预测
+track: ml
+stage: '5'
+order: 110
+format: write
+mode: function
+difficulty: 48
+skills:
+  requires:
+    - ml.mlp-forward
+  introduces: null
+source: original
+wrong_examples:
+  - why: 忘了第二层的偏置。
+    code: |
+      import numpy as np
+
+
+      def forward(X, W1, b1, W2, b2):
+          h = np.tanh(np.asarray(X, dtype=float) @ W1 + b1)
+          return h @ W2
+entry: forward
+signature: 'def forward(X, W1, b1, W2, b2):'
+compare: allclose
+constraints:
+  forbid_imports:
+    - torch

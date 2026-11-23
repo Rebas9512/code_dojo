@@ -1,0 +1,30 @@
+id: ml-4-l04-folds
+title: 轮流留出验证折
+track: ml
+skills:
+  - ml.crossval
+steps:
+  - type: read
+    skill: ml.crossval
+    md: |-
+      只留一次验证集，分数会受到恰好选中哪些样本的影响。k 折把记录分成 k 个互不重叠的块，轮流留一个块做验证，其余块重新训练模型。每条记录恰好验证一次。
+
+      五条记录分三折，约定多出来的记录先分给前几折，折大小依次为 2、2、1。若用训练目标的均值做最简单的预测器，每一折都要重算均值，再在当前验证行测误差。这里输入已经排好，保持顺序即可。
+  - type: example
+    skill: ml.crossval
+    code: |
+      import numpy as np
+      # ① 每块都是一次完整的验证集
+      blocks = np.array_split(np.arange(5), 3)
+      # ② 查看每折哪些行参与验证
+      print([block.tolist() for block in blocks])  # 输出 [[0, 1], [2, 3], [4]]
+    md: 改成六条记录，哪些折的大小改变？
+  - type: quiz
+    skill: ml.crossval
+    q: 第 2 折做验证时，基准预测值来自哪里？
+    options:
+      - 全体的均值
+      - 第 2 折的均值
+      - 其余折的均值
+    answer: 2
+    explain: 验证行模拟未见数据，重新拟合时应留在训练集之外。

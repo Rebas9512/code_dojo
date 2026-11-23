@@ -1,0 +1,21 @@
+id: ml-1-016-overshoot
+title: 跨过最低点以后
+track: ml
+stage: '1'
+order: 160
+format: predict
+mode: predict
+difficulty: 37
+skills:
+  requires:
+    - ml.descent
+    - py.type-convert
+  introduces: ml.trajectory
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 先更新再读取，漏掉了起点。
+    code: |
+      print('16.0\n64.0')

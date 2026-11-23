@@ -1,0 +1,19 @@
+id: ml-5-012-shared-bias
+title: 两条样本给偏置多少梯度
+track: ml
+stage: '5'
+order: 120
+format: predict
+mode: predict
+difficulty: 49
+skills:
+  requires:
+    - ml.mlp-forward
+    - ml.reverse
+    - math.matrix-product
+  introduces: ml.mlp-backward
+source: original
+wrong_examples:
+  - why: 对批次求平均导致多除了一次。
+    code: |
+      print('[0.0, 3.0]')

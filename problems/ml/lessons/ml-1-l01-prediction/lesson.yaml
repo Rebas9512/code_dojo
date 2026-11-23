@@ -1,0 +1,55 @@
+id: ml-1-l01-prediction
+title: 从特征到误差
+track: ml
+skills:
+  - ml.affine
+  - ml.mse
+steps:
+  - type: read
+    skill: ml.affine
+    md: |-
+      一行特征记录一个样本，例如一趟送货的公里数和箱数。权重表示每多一公里或一箱增加多少费用，偏置表示即使两项都为零也要收的起步费。两项分别乘权重，再相加，就是数学线里的点积。
+
+      若特征为 [2, 3]，权重为 [4, 1]，起步费为 5，总价是 2×4 + 3×1 + 5 = 16。把多趟记录叠成矩阵，每行得到一个数，所有行共用同一个偏置。
+  - type: example
+    skill: ml.affine
+    code: |
+      import numpy as np
+      # ① 每行是一趟，最后加上起步费
+      trips = np.array([[2, 3], [0, 0]])
+      # ② 把每行的加权费用加上起步费
+      print((trips @ [4, 1] + 5).tolist())  # 输出 [16, 5]
+    md: 把起步费改为 0，两行各减少多少？
+  - type: quiz
+    skill: ml.affine
+    q: 特征全为零时，预测值是多少？
+    options:
+      - 权重之和
+      - 偏置
+      - 总是零
+    answer: 1
+    explain: 所有乘积为零，只剩起步费。
+  - type: read
+    skill: ml.mse
+    md: |-
+      为了比较两张报价表，可以先看每条预测与实测相差多少。直接把差相加会让高估与低估抵消。均方误差（MSE）先逐项平方，再取样本平均，误差越大，付出的代价越高。
+
+      若预测为 [3, 3]，实测为 [1, 5]，两个残差为 2 和 −2。平方后都是 4，平均仍是 4。把记录复制一份会让误差总和翻倍，均方误差保持相同。
+  - type: example
+    skill: ml.mse
+    code: |
+      import numpy as np
+      # ① 保留每条预测与实测的配对关系
+      r = np.array([3, 3]) - [1, 5]
+      # ② 取残差平方的平均值
+      print(float(np.mean(r ** 2)))  # 输出 4.0
+    md: 把最后一条实测改成 3，观察平均损失。
+  - type: quiz
+    skill: ml.mse
+    q: 三个残差为 0、0、3，均方误差是多少？
+    options:
+      - '1'
+      - '3'
+      - '9'
+    answer: 1
+    explain: 平方和为 9，三条记录平均分到 3。

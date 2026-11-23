@@ -1,0 +1,22 @@
+id: ml-3-012-two-decisions
+title: 沿两道问题走到叶子
+track: ml
+stage: '3'
+order: 120
+format: predict
+mode: predict
+difficulty: 41
+skills:
+  requires:
+    - ml.stump
+    - py.recursion
+    - wrangle.where
+  introduces: ml.tree
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 边界点走错了第二层分枝。
+    code: |
+      print('[0, 1, 0, 0]')

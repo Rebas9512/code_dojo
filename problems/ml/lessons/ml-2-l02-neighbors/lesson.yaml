@@ -1,0 +1,30 @@
+id: ml-2-l02-neighbors
+title: 让近邻投票
+track: ml
+skills:
+  - ml.knn
+steps:
+  - type: read
+    skill: ml.knn
+    md: |-
+      有些分类器直接用已知样本作参照。要判一个新点，先找距离最近的 k 个带标签点，再让它们各投一票。欧氏距离开方前后顺序相同，用各维差的平方和即可排序。
+
+      例如新点为 3，参照位置为 1、4、6，对应标签为 0、1、1。最近的是 4，第二近是 1。取两票时票数相同，本组约定选编号小的类；距离相同的参照点按原行号先后。
+  - type: example
+    skill: ml.knn
+    code: |
+      import numpy as np
+      # ① 找到离 3 最近的两个位置
+      d2 = (np.array([1, 4, 6]) - 3) ** 2
+      # ② 读出最近两行的编号
+      print(np.argsort(d2, kind="stable")[:2].tolist())  # 输出 [1, 0]
+    md: 把 6 改成 5，看同距离时谁排在前面。
+  - type: quiz
+    skill: ml.knn
+    q: 最近的是类 2，其后两个都是类 1。k=3 时选谁？
+    options:
+      - 类 2
+      - 类 1
+      - 由行号决定
+    answer: 1
+    explain: 近邻范围内每行一票，类 1 得两票。

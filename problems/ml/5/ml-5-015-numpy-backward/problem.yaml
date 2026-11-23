@@ -1,0 +1,31 @@
+id: ml-5-015-numpy-backward
+title: 手写五份梯度并用差分核对
+track: ml
+stage: '5'
+order: 150
+format: write
+mode: function
+difficulty: 52
+skills:
+  requires:
+    - ml.mlp-backward
+    - ml.mlp-forward
+  introduces: null
+source: original
+wrong_examples:
+  - why: 上游已给定，又多除一次批大小。
+    code: |
+      import numpy as np
+
+
+      def gradients(X, W1, b1, W2, b2, G):
+          X, W1, W2, G = np.asarray(X), np.asarray(W1), np.asarray(W2), np.asarray(G)
+          h = np.tanh(X @ W1 + b1)
+          dz = (G @ W2.T) * (1 - h ** 2)
+          return dz @ W1.T, X.T @ dz, np.sum(dz, axis=0), (h.T @ G) / len(X), np.sum(G, axis=0)
+entry: gradients
+signature: 'def gradients(X, W1, b1, W2, b2, G):'
+compare: checker
+constraints:
+  forbid_imports:
+    - torch

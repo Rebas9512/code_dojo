@@ -1,0 +1,36 @@
+id: ml-1-018-simulate-rate
+title: 用一段训练轨迹检验学习率
+track: ml
+stage: '1'
+order: 180
+format: write
+mode: function
+difficulty: 39
+skills:
+  requires:
+    - ml.trajectory
+    - ml.mse
+    - ml.descent
+    - py.list-append
+    - py.type-convert
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 偷偷缩小学习率，无法复现发散。
+    code: |
+      import numpy as np
+
+
+      def trace(w, target, rate, steps):
+          w = np.asarray(w, dtype=float)
+          losses = []
+          for _ in range(steps):
+              losses.append(float((w - target) ** 2))
+              w = w - min(rate, 0.5) * 2 * (w - target)
+          return losses
+entry: trace
+signature: 'def trace(w, target, rate, steps):'
+compare: checker

@@ -14,19 +14,19 @@
 | 3 | ✓ 11-review（M4）：掌握度、间隔复习、今日计划 | ✓ 10-py-0b：0B 算法入门（31 题） | ✓ 12-algo-s3（92 题） | |
 | 4 | ✓ 13-login（M5）：单用户登录 + 部署文档 | | ✓ 14-algo-s4（80 题） | |
 | 5 | ✓ 15-ds-judge（M6，和 13 并行，文件分开）；✓ 23-sql-dml（SQL 修改类判题）：数据科学判题镜像和判题方式 | | ✓ 16-algo-s5：面试混合（79 题） | |
-| 6 | | 进阶内容：✓ 17-math（80 题；不用等 15，runtime 是 python，Python 内容线空出来就先派）→ ✓ 18-wrangle（100 题）→ ✓ 19-tensor（90 题）→ 20-ml → 21-train → 22-llm（等 15；按前置一个接一个跑） | | |
+| 6 | | 进阶内容：✓ 17-math（80 题；不用等 15，runtime 是 python，Python 内容线空出来就先派）→ ✓ 18-wrangle（100 题）→ ✓ 19-tensor（90 题）→ ✓ 20-ml（87 题）→ 21-train → 22-llm（等 15；按前置一个接一个跑） | | |
 
 ## 本地模式（用户 2026-11-22 改的方向）
 
 每台机器本地跑，网页还是 localhost 加浏览器；代码和题库放 GitHub 私有仓库；Linux、macOS、Windows 三个系统都要支持。拆成两个平台任务同时跑：
 - ✓ 24-local-judge：本地判题（Linux 上 1073/1073 两种模式结果一致）（不靠 Docker），跨平台的 harness，三系统 CI；
-- 25-launcher-sync：`dojo` 一条命令启动，做题记录用事件日志 + 单独私有仓库同步。
+- ✓ 25-launcher-sync：`dojo` 一条命令启动，做题记录用事件日志 + 单独私有仓库同步。
 
 两者都要改 `config.py`，各自只加自己的配置项。
 
 之后（用户 2026-11-22 定）：26-desktop-app，把应用打包给三个系统用。安装包只带 Python 运行时和一个小启动器，界面、后端、题库都打进更新包，每次打开自动从 GitHub 更新；等 24、25 做完再派。
 
-代码仓库：GitHub 私有仓库 `Rebas9512/code_dojo`（用户 2026-11-22 定的名字），本地 remote 是 origin。还没提交，等 19、24、25 做完后由主控做第一次提交并推送。同步仓库已建好：`Rebas9512/code_dojo_sync`（私有，main 分支，初始只有 README）。
+代码仓库：GitHub 私有仓库 `Rebas9512/code_dojo`（用户 2026-11-22 定的名字），本地 remote 是 origin。2026-11-22 主控做了第一次提交并推送（0716585，1073 题；problems/ml 当时只提交了 track.yaml，因为 20 号任务还在写）。以后每批验收后由主控提交推送，codex 任务照旧不做 git 操作。同步仓库已建好：`Rebas9512/code_dojo_sync`（私有，main 分支，初始只有 README）。
 
 ## 文件归属（并行时的规矩）
 

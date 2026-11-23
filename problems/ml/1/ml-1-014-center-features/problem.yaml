@@ -1,0 +1,29 @@
+id: ml-1-014-center-features
+title: 把每一列的中心移到零
+track: ml
+stage: '1'
+order: 140
+format: complete
+mode: function
+difficulty: 35
+skills:
+  requires:
+    - ml.standardize
+    - wrangle.axis
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 混用各个特征的均值。
+    code: |
+      import numpy as np
+
+
+      def center(X):
+          X = np.asarray(X, dtype=float)
+          return X - np.mean(X)
+entry: center
+signature: 'def center(X):'
+compare: allclose

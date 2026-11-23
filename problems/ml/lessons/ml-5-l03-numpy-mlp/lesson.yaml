@@ -1,0 +1,56 @@
+id: ml-5-l03-numpy-mlp
+title: 手写两层网络
+track: ml
+skills:
+  - ml.mlp-forward
+  - ml.mlp-backward
+steps:
+  - type: read
+    skill: ml.mlp-forward
+    md: |-
+      多层感知机（MLP）把一次线性预测的结果当成下一层的输入。第一层在每个样本上算出若干隐藏特征。给隐藏特征逐项加上非线性 tanh，网络就能表达一条直线表示不了的变化。第二层把隐藏特征重新加权，给出最终预测。
+
+      一条输入为 [1,2]，第一层权重为 [[1],[0]]、偏置为 0，则隐藏层只有一格 tanh(1)≈0.762。若第二层权重为 2、偏置为 −1，输出约 0.523。批量输入始终保留行轴，偏置沿行共享。
+  - type: example
+    skill: ml.mlp-forward
+    code: |
+      import numpy as np
+      # ① 先过隐藏层，再读出结果
+      h = np.tanh(np.array([[1., 2.]]) @ [[1.], [0.]])
+      # ② 从隐藏值算出预测
+      print(np.round(h * 2 - 1, 3).tolist())  # 输出 [[0.523]]
+    md: 改动第二项输入，哪一个权重使输出仍相同？
+  - type: quiz
+    skill: ml.mlp-forward
+    q: X 是 (3,2)，W1 是 (2,4)，W2 是 (4,1)，输出形状是什么？
+    options:
+      - (3,1)
+      - (4,1)
+      - (3,)
+    answer: 0
+    explain: 每行样本有一个输出，矩阵乘矩阵保留输出列。
+  - type: read
+    skill: ml.mlp-backward
+    md: |-
+      反向传播把输出的变化传回每一层。用 G 表示每个输出收到的上游梯度。共享的偏置对每个样本都加了一次，因此偏置梯度沿样本轴求和。权重梯度累加“该输入值乘该输出的梯度”，可把整批写成输入矩阵的转置乘梯度矩阵。
+
+      两条样本的隐藏值为 0.25、0.75，输出梯度为 1、−1，则读出权重梯度是 0.25−0.75=−0.5，偏置梯度为 0。回到隐藏层先乘 W2ᵀ，再逐项乘上 1−h²，随后用同样的规则算第一层各输入和参数的梯度。
+  - type: example
+    skill: ml.mlp-backward
+    code: |
+      import numpy as np
+      # ① 两条样本共同更新一个读出权重
+      h = np.array([[0.25], [0.75]])
+      G = np.array([[1.], [-1.]])
+      # ② 按样本累加权重与偏置梯度
+      print([float((h.T @ G)[0, 0]), float(np.sum(G))])  # 输出 [-0.5, 0.0]
+    md: 把第二个上游梯度改成 1，观察原来抵消的偏置梯度。
+  - type: quiz
+    skill: ml.mlp-backward
+    q: 上游矩阵 G 已含损失的平均因子，算偏置梯度时怎样合并行？
+    options:
+      - 再除以样本数
+      - 只取第一行
+      - 直接求和
+    answer: 2
+    explain: 上游已经规定了每份贡献的大小，直接累加即可。

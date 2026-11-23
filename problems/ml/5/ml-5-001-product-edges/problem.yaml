@@ -1,0 +1,20 @@
+id: ml-5-001-product-edges
+title: 乘法节点的两条边
+track: ml
+stage: '5'
+order: 10
+format: predict
+mode: predict
+difficulty: 38
+skills:
+  requires:
+    - math.chain-rule
+    - py.class-methods
+    - py.list-comp
+    - py.tuple
+  introduces: ml.value
+source: original
+wrong_examples:
+  - why: 把每个乘数自己的值写到了自己的边上。
+    code: |
+      print('-6.0\n[2.0, -3.0]')

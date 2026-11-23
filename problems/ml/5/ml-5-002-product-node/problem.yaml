@@ -1,0 +1,26 @@
+id: ml-5-002-product-node
+title: 补全标量乘法节点的斜率
+track: ml
+stage: '5'
+order: 20
+format: complete
+mode: function
+difficulty: 39
+skills:
+  requires:
+    - ml.value
+  introduces: null
+source: original
+wrong_examples:
+  - why: 乘法边引用了自己的值。
+    code: |
+      def product_node(a, b):
+          value = a * b
+          return [value, a, b]
+entry: product_node
+signature: 'def product_node(a, b):'
+compare: allclose
+constraints:
+  forbid_imports:
+    - numpy
+    - torch

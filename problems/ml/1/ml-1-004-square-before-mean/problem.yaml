@@ -1,0 +1,23 @@
+id: ml-1-004-square-before-mean
+title: 误差能相互抵消吗
+track: ml
+stage: '1'
+order: 40
+format: predict
+mode: predict
+difficulty: 25
+skills:
+  requires:
+    - ml.affine
+    - math.expectation
+    - py.type-convert
+    - wrangle.axis
+  introduces: ml.mse
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 把平均残差的平方当成均方误差。
+    code: |
+      print('0.0\n0.0')

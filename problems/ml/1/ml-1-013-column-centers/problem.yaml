@@ -1,0 +1,22 @@
+id: ml-1-013-column-centers
+title: 两种单位各有一个中心
+track: ml
+stage: '1'
+order: 130
+format: predict
+mode: predict
+difficulty: 34
+skills:
+  requires:
+    - math.spread
+    - ml.affine
+    - wrangle.axis
+  introduces: ml.standardize
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 求成了每行的平均值。
+    code: |
+      print('[1.0, 6.0]')

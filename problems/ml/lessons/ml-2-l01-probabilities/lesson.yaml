@@ -1,0 +1,57 @@
+id: ml-2-l01-probabilities
+title: 从分数到类别
+track: ml
+skills:
+  - ml.logistic
+  - ml.multiclass
+steps:
+  - type: read
+    skill: ml.logistic
+    md: |-
+      分类时模型仍能给出一个线性分数 z，但正负分数没有概率的单位。sigmoid(z)=1/(1+exp(−z)) 把它压到 0 与 1 之间，得到预测为正类的概率 p。z=0 对应 p=0.5，因此把 p≥0.5 判为正类，相当于把 z≥0 的点划到正类一侧。
+
+      标签为 1 时交叉熵是 −log(p)，标签为 0 时是 −log(1−p)。例如给正确类别 0.5 的概率，损失约为 0.693。极端分数会让浮点概率舍入到端点，可直接从分数算 logaddexp(0,z)−y*z。平均损失对 z 的梯度来自 p−y。
+  - type: example
+    skill: ml.logistic
+    code: |
+      import numpy as np
+      # ① 三个点到边界的有符号分数
+      z = np.array([-1., 0., 1.])
+      p = np.exp(-np.logaddexp(0, -z))
+      # ② 按正类概率划分区域
+      print((p >= 0.5).astype(int).tolist())  # 输出 [0, 1, 1]
+    md: 将阈值改为 0.7，哪个点改变归类？
+  - type: quiz
+    skill: ml.logistic
+    q: 正类样本被预测为正类的概率由 0.5 升到 0.9，交叉熵如何变化？
+    options:
+      - 变小
+      - 变大
+      - 相同
+    answer: 0
+    explain: 正确类别越有把握，负对数代价越小。
+  - type: read
+    skill: ml.multiclass
+    md: |-
+      三个类别需要三个分数。把每个类别的权重排成一列，XW+b 就能为每条样本各算一行分数。对同一行做 softmax，得到三个非负概率，总和为 1。行与行代表不同样本，应独立归一化。
+
+      例如一行分数是 [8,8,8]，三个类别一样有把握，概率各为三分之一。减去本行最大值 8 后得到三个零，概率不变；这一步让 1000 这样的公共偏移也不会造成指数溢出。
+  - type: example
+    skill: ml.multiclass
+    code: |
+      import numpy as np
+      # ① 同时平移所有类别不会改变相对优势
+      z = np.array([[1000., 1000.]])
+      e = np.exp(z - np.max(z, axis=1, keepdims=True))
+      # ② 在每一行内分配概率
+      print((e / np.sum(e, axis=1, keepdims=True)).tolist())  # 输出 [[0.5, 0.5]]
+    md: 把第二个分数减 2，观察哪类概率变小。
+  - type: quiz
+    skill: ml.multiclass
+    q: 两条样本、三个类别时，哪一组数的和应为 1？
+    options:
+      - 每列
+      - 整个矩阵
+      - 每行
+    answer: 2
+    explain: 一行列举同一样本的所有互斥可能。

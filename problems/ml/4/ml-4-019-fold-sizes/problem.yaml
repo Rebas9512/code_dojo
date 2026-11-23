@@ -1,0 +1,22 @@
+id: ml-4-019-fold-sizes
+title: 余数该交给哪几折
+track: ml
+stage: '4'
+order: 190
+format: predict
+mode: predict
+difficulty: 52
+skills:
+  requires:
+    - ml.split
+    - ml.mse
+    - py.list-comp
+  introduces: ml.crossval
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 把所有余数留给最后一折。
+    code: |
+      print('[2, 2, 3]')

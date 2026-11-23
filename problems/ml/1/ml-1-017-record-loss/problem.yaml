@@ -1,0 +1,32 @@
+id: ml-1-017-record-loss
+title: 给更新记录补上损失列
+track: ml
+stage: '1'
+order: 170
+format: complete
+mode: function
+difficulty: 38
+skills:
+  requires:
+    - ml.trajectory
+    - py.list-append
+    - py.type-convert
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 把带符号的残差记成损失。
+    code: |
+      import numpy as np
+
+
+      def record(weights, target):
+          losses = []
+          for w in np.asarray(weights, dtype=float):
+              losses.append(float(w - target))
+          return losses
+entry: record
+signature: 'def record(weights, target):'
+compare: allclose

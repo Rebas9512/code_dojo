@@ -1,0 +1,40 @@
+id: ml-5-005-topological-order
+title: 先登记依赖，再登记结果
+track: ml
+stage: '5'
+order: 50
+format: complete
+mode: function
+difficulty: 42
+skills:
+  requires:
+    - ml.reverse
+    - py.list-append
+    - py.recursion-multi
+    - py.set-basics
+  introduces: null
+source: original
+wrong_examples:
+  - why: 按相反顺序展开父节点。
+    code: |
+      def visit(node, parents, seen, sequence):
+          if node in seen:
+              return
+          seen.add(node)
+          for parent in reversed(parents[node]):
+              visit(parent, parents, seen, sequence)
+          sequence.append(node)
+
+
+      def order(parents, root):
+          seen = set()
+          sequence = []
+          visit(root, parents, seen, sequence)
+          return sequence
+entry: order
+signature: 'def order(parents, root):'
+compare: allclose
+constraints:
+  forbid_imports:
+    - numpy
+    - torch

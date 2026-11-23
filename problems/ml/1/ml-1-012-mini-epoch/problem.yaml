@@ -1,0 +1,36 @@
+id: ml-1-012-mini-epoch
+title: 按顺序走完所有小批次
+track: ml
+stage: '1'
+order: 120
+format: write
+mode: function
+difficulty: 33
+skills:
+  requires:
+    - ml.descent
+    - py.slice
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 尾批仍除以预定的批量大小。
+    code: |
+      import numpy as np
+
+
+      def epoch(X, y, w, rate, size):
+          X = np.asarray(X, dtype=float)
+          y = np.asarray(y, dtype=float)
+          w = np.asarray(w, dtype=float)
+          for start in range(0, len(X), size):
+              block = X[start:start + size]
+              target = y[start:start + size]
+              grad = 2 * block.T @ (block @ w - target) / size
+              w = w - rate * grad
+          return w
+entry: epoch
+signature: 'def epoch(X, y, w, rate, size):'
+compare: allclose

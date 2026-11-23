@@ -1,0 +1,22 @@
+id: ml-1-001-quote-shape
+title: 两趟行程会有几个报价
+track: ml
+stage: '1'
+order: 10
+format: predict
+mode: predict
+difficulty: 22
+skills:
+  requires:
+    - math.dot
+    - math.matrix-vector
+    - tensor.broadcast
+  introduces: ml.affine
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 把一维权重当成保留列轴的矩阵。
+    code: |
+      print('(3, 1)\n[8, 7, 9]')

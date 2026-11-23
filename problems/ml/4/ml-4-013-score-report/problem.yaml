@@ -1,0 +1,37 @@
+id: ml-4-013-score-report
+title: 从混淆矩阵整理四个分数
+track: ml
+stage: '4'
+order: 130
+format: write
+mode: function
+difficulty: 46
+skills:
+  requires:
+    - ml.metrics
+    - ml.confusion
+    - py.helper-func
+    - py.ternary
+    - py.type-convert
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 把 F1 写成算术平均。
+    code: |
+      import numpy as np
+
+
+      def ratio(a, b):
+          return float(a / b) if b else 0.0
+
+
+      def scores(cm):
+          (tn, fp), (fn, tp) = np.asarray(cm)
+          return [ratio(tn + tp, tn + fp + fn + tp), ratio(tp, tp + fp),
+                  ratio(tp, tp + fn), (ratio(tp, tp + fp) + ratio(tp, tp + fn)) / 2]
+entry: scores
+signature: 'def scores(cm):'
+compare: allclose

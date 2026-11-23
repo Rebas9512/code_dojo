@@ -1,0 +1,33 @@
+id: ml-2-008-class-log-loss
+title: 给多类预测计算交叉熵
+track: ml
+stage: '2'
+order: 80
+format: combine
+mode: function
+difficulty: 33
+skills:
+  requires:
+    - ml.multiclass
+    - ml.affine
+    - math.cross-entropy
+    - wrangle.axis
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 按模型猜的类取数，没看真实标签。
+    code: |
+      import numpy as np
+
+
+      def class_loss(X, W, b, y):
+          scores = np.asarray(X, dtype=float) @ W + b
+          scores = scores - np.max(scores, axis=1, keepdims=True)
+          normalizer = np.log(np.sum(np.exp(scores), axis=1))
+          return np.mean(normalizer - np.max(scores, axis=1))
+entry: class_loss
+signature: 'def class_loss(X, W, b, y):'
+compare: allclose

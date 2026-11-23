@@ -1,0 +1,27 @@
+id: ml-1-003-predict-rows
+title: 一次给一批样本报价
+track: ml
+stage: '1'
+order: 30
+format: write
+mode: function
+difficulty: 24
+skills:
+  requires:
+    - ml.affine
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 原点处仍然预测零。
+    code: |
+      import numpy as np
+
+
+      def predict(X, w, b):
+          return np.asarray(X, dtype=float) @ w
+entry: predict
+signature: 'def predict(X, w, b):'
+compare: allclose

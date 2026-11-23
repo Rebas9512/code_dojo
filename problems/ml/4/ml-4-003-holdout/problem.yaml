@@ -1,0 +1,32 @@
+id: ml-4-003-holdout
+title: 把特征和标签成对划分
+track: ml
+stage: '4'
+order: 30
+format: write
+mode: function
+difficulty: 36
+skills:
+  requires:
+    - ml.split
+    - py.slice
+    - py.tuple
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 特征洗牌后仍使用原顺序的标签。
+    code: |
+      import numpy as np
+
+
+      def holdout(X, y, count, seed):
+          X, y = np.asarray(X), np.asarray(y)
+          order = np.random.default_rng(seed).permutation(len(y))
+          test, train = order[:count], order[count:]
+          return X[train], y[train], X[test], y[:count]
+entry: holdout
+signature: 'def holdout(X, y, count, seed):'
+compare: checker

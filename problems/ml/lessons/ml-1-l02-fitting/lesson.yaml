@@ -1,0 +1,56 @@
+id: ml-1-l02-fitting
+title: 解方程与逐步拟合
+track: ml
+skills:
+  - ml.normal
+  - ml.descent
+steps:
+  - type: read
+    skill: ml.normal
+    md: |-
+      有很多带答案的记录时，可以反过来找一组让均方误差最小的权重。把每行特征末尾添一个 1，得到设计矩阵 A；最后一个权重乘 1，刚好充当偏置。
+
+      例如特征 0、1、2 的实测值为 1、3、5，直线的斜率为 2、偏置为 1。一般的记录可能不在同一直线上。最小平方误差处梯度为零，整理得 AᵀA θ = Aᵀy。把左右两项交给 solve 就能直接求 θ；本组保证列独立。
+  - type: example
+    skill: ml.normal
+    code: |
+      import numpy as np
+      # ① 最后一列的 1 对应截距
+      A = np.array([[0., 1.], [1., 1.], [2., 1.]])
+      # ② 同时解出斜率和截距
+      print(np.linalg.solve(A.T @ A, A.T @ [1, 3, 5]).round(3).tolist())  # 输出 [2.0, 1.0]
+    md: 将三个目标值都加 2，哪个参数会变化？
+  - type: quiz
+    skill: ml.normal
+    q: 设计矩阵的最后一列为什么全是 1？
+    options:
+      - 保证矩阵是方阵
+      - 替每个样本保留自己的权重
+      - 让同一截距加到每个预测上
+    answer: 2
+    explain: 每行的最后一项都是 1 乘以共享的最后一个参数。
+  - type: read
+    skill: ml.descent
+    md: |-
+      当样本很多时，可以从猜测的权重出发，逐步降低损失。梯度给出损失上升的方向；学习率决定往相反方向走多远。对无截距线性模型，批次内平均平方损失的梯度是 2 Xᵀ(Xw−y)/批内样本数。
+
+      若 x=1、y=3、w=1，残差是 −2，梯度为 −4。学习率 0.1 更新一次得到 1.4。全批用全部记录算一次梯度；小批先更新，再用新的权重读下一批，最后一批可能较短。
+  - type: example
+    skill: ml.descent
+    code: |
+      import numpy as np
+      # ① 用一个批次求平均梯度
+      x = np.array([1., 2.])
+      g = 2 * np.mean(x * (x * 0 - [1, 2]))
+      # ② 按负梯度方向更新
+      print(0 - 0.1 * g)  # 输出 0.5
+    md: 只保留第一条记录，同时截短目标列，看第一步走多远。
+  - type: quiz
+    skill: ml.descent
+    q: 五条记录每批两条，最后一批的平均梯度除以几？
+    options:
+      - '1'
+      - '2'
+      - '5'
+    answer: 0
+    explain: 最后一个批次只有一条。

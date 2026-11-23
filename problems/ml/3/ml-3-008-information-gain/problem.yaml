@@ -1,0 +1,38 @@
+id: ml-3-008-information-gain
+title: 分组能省多少比特
+track: ml
+stage: '3'
+order: 80
+format: write
+mode: function
+difficulty: 37
+skills:
+  requires:
+    - ml.impurity
+    - py.helper-func
+    - py.tuple
+    - wrangle.axis
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 把大小不同的子组各算一半。
+    code: |
+      import numpy as np
+
+
+      def entropy(labels):
+          counts = np.bincount(labels)
+          p = counts[counts > 0] / len(labels)
+          return -np.sum(p * np.log2(p))
+
+
+      def gain(left, right):
+          total = len(left) + len(right)
+          remaining = (entropy(left) + entropy(right)) / 2
+          return entropy(np.concatenate((left, right))) - remaining
+entry: gain
+signature: 'def gain(left, right):'
+compare: allclose

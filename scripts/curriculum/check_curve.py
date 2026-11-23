@@ -161,6 +161,9 @@ _STR_METHODS = [
 ]
 # 接收者类型未知时按方法名映射（取最先教的那个技能）
 PY_METHODS_DEFAULT: dict[str, str | None] = {
+    "default_rng": None,  # 按指定种子创建 NumPy 随机数生成器
+    "tanh": None,  # 标量节点或张量的双曲正切
+    "permutation": None,  # 取得洗牌后的行号
     "next": "algo.generator", "hasNext": "algo.generator",  # 搜索树迭代器的读取和探询接口
     "getstate": None,  # 随机设计题的校验器固定抽样起点
     "__init__": "py.class-basic",  # 通过 super 初始化父类状态
@@ -217,6 +220,8 @@ PY_METHODS_BY_TYPE: dict[str, dict[str, str | None]] = {
 }
 # import：模块或 模块.名字
 PY_IMPORTS: dict[str, str | None] = {
+    "numpy.linalg.solve": "ml.normal",
+    "math.tanh": None,  # 纯 Python 的标量激活值
     "random.randrange": None, "random.Random": None, "random.setstate": None,  # 抽签及判题端的可复现抽样
     "torch.tensor": "tensor.create", "torch.arange": "tensor.create",
     "torch.sum": "tensor.reduce", "torch.mean": "tensor.reduce",

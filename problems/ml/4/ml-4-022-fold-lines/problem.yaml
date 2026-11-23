@@ -1,0 +1,46 @@
+id: ml-4-022-fold-lines
+title: 逐折拟合一条直线
+track: ml
+stage: '4'
+order: 220
+format: combine
+mode: function
+difficulty: 55
+skills:
+  requires:
+    - ml.crossval
+    - ml.normal
+    - ml.mse
+    - ml.affine
+    - py.list-append
+    - wrangle.axis
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+  forbid_calls:
+    - numpy.linalg.inv
+    - numpy.linalg.pinv
+    - numpy.linalg.lstsq
+wrong_examples:
+  - why: 用训练误差代替留出折误差。
+    code: |
+      import numpy as np
+      import numpy.linalg as la
+
+
+      def validate_line(x, y, k):
+          A = np.column_stack((x, np.ones(len(x))))
+          y = np.asarray(y, dtype=float)
+          result = []
+          for ids in np.array_split(np.arange(len(x)), k):
+              train = np.ones(len(x), dtype=bool)
+              train[ids] = False
+              design = A[train]
+              params = la.solve(design.T @ design, design.T @ y[train])
+              result.append(np.mean((design @ params - y[train]) ** 2))
+          return result
+entry: validate_line
+signature: 'def validate_line(x, y, k):'
+compare: allclose

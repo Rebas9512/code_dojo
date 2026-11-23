@@ -1,0 +1,40 @@
+id: ml-5-l01-scalar-graph
+title: 给标量留下运算图
+track: ml
+skills:
+  - ml.value
+steps:
+  - type: read
+    skill: ml.value
+    md: |-
+      普通浮点数只留下计算结果。想知道改动输入会怎样影响输出，还要记下结果从哪里来。用一个 Value 节点装数值 data、累积梯度 grad，以及指向各输入的边。每条边还带一份局部导数，表示只改动这个输入时结果的变化率。
+
+      例如 a=2、b=3，乘积是 6。a 多一点，积会按 b=3 的倍数增加，所以通向 a 的边写 3，通向 b 的边写 2。加法的两条边都写 1。tanh 把数压到 −1 与 1 之间，若输出为 t，它的输入边写 1−t²。同一个输入用两次，就留下两条边。
+  - type: example
+    skill: ml.value
+    code: |
+      # ① 用节点保存数值、梯度和指向父节点的边
+      class Value:
+          def __init__(self, data, parents=()):
+              self.data = data
+              self.grad = 0.0
+              self.parents = parents
+
+          def __mul__(self, other):
+              edges = [(self, other.data), (other, self.data)]
+              return Value(self.data * other.data, edges)
+
+      a, b = Value(2.0), Value(3.0)
+      product = a * b
+      # ② 读出乘积与两条输入边的斜率
+      print([product.data, product.parents[0][1], product.parents[1][1]])  # 输出 [6.0, 3.0, 2.0]
+    md: 把 b 改成 −3，观察哪条输入边上的斜率会改变。
+  - type: quiz
+    skill: ml.value
+    q: 若 a=−2，b=4，积对 b 的局部导数是多少？
+    options:
+      - '4'
+      - −8
+      - −2
+    answer: 2
+    explain: 固定 a 时，b 改变一单位，积就改变 a 个单位。

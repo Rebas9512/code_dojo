@@ -1,0 +1,21 @@
+id: ml-3-001-nearest-center
+title: 两个中心撞在同一个位置
+track: ml
+stage: '3'
+order: 10
+format: predict
+mode: predict
+difficulty: 30
+skills:
+  requires:
+    - math.distance
+    - ml.standardize
+  introduces: ml.lloyd
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 点 4 同距时给了靠右的中心。
+    code: |
+      print('[0, 2, 2]')

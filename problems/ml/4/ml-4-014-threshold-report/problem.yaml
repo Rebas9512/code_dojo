@@ -1,0 +1,40 @@
+id: ml-4-014-threshold-report
+title: 两种报警阈值下的精确率和召回率
+track: ml
+stage: '4'
+order: 140
+format: combine
+mode: function
+difficulty: 47
+skills:
+  requires:
+    - ml.metrics
+    - ml.logistic
+    - ml.confusion
+    - py.list-append
+    - py.ternary
+    - wrangle.axis
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 刚好达到阈值却未报警。
+    code: |
+      import numpy as np
+
+
+      def threshold_report(z, y, levels):
+          prob = np.exp(-np.logaddexp(0, -np.asarray(z, dtype=float)))
+          y = np.asarray(y)
+          rows = []
+          for level in levels:
+              pred = prob > level
+              tp = np.sum(y[pred])
+              reported, actual = np.sum(pred), np.sum(y)
+              rows.append([tp / reported if reported else 0.0, tp / actual if actual else 0.0])
+          return rows
+entry: threshold_report
+signature: 'def threshold_report(z, y, levels):'
+compare: allclose

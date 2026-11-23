@@ -1,0 +1,45 @@
+id: ml-4-017-roc-points
+title: 画出所有实际可达的 ROC 点
+track: ml
+stage: '4'
+order: 170
+format: write
+mode: function
+difficulty: 50
+skills:
+  requires:
+    - ml.auc
+    - py.bool-ops
+    - py.enumerate
+    - py.if-else
+    - py.list-append
+    - py.slice
+    - wrangle.axis
+  introduces: null
+source: original
+constraints:
+  forbid_imports:
+    - sklearn
+wrong_examples:
+  - why: 交换了 ROC 的横纵轴。
+    code: |
+      import numpy as np
+
+
+      def roc(scores, labels):
+          order = np.argsort(scores)[::-1]
+          scores = np.asarray(scores)[order]
+          labels = np.asarray(labels)[order]
+          positive = int(np.sum(labels))
+          negative = len(labels) - positive
+          tp, fp = 0, 0
+          points = [[0.0, 0.0]]
+          for i, label in enumerate(labels):
+              tp += int(label == 1)
+              fp += int(label == 0)
+              if i + 1 == len(labels) or scores[i + 1] != scores[i]:
+                  points.append([tp / positive, fp / negative])
+          return points
+entry: roc
+signature: 'def roc(scores, labels):'
+compare: allclose

@@ -1,0 +1,31 @@
+id: ml-3-l03-recursive
+title: 把决策桩接成树
+track: ml
+skills:
+  - ml.tree
+steps:
+  - type: read
+    skill: ml.tree
+    md: |-
+      一刀可能无法分开全部标签。把左右子组分别作为新问题，重新选各自最合适的一刀，就得到一棵树。深度预算限制一条路径最多能问几次。在预算用尽、标签相同或特征再也分不开时，用多数类做叶子。
+
+      例如 x=0、1、2 的标签是 0、1、0。根切在 0.5 后左侧已经纯净，右侧还可以切在 1.5。两层能区分三段。递归时必须传入当前子组，每走一条边都要扣一次深度。
+  - type: example
+    skill: ml.tree
+    code: |
+      import numpy as np
+      # ① 第二刀只看根的右子组
+      x = np.array([0., 1., 2.])
+      right = x[x > 0.5]
+      # ② 在右子组再切一次
+      print((right <= 1.5).tolist())  # 输出 [True, False]
+    md: 将第二刀改成 2.5，还能分开右侧的点吗？
+  - type: quiz
+    skill: ml.tree
+    q: 根的剩余预算为 1，做完这一刀后子组该怎样处理？
+    options:
+      - 重新获得预算 1
+      - 输出多数类叶子
+      - 继续直到标签纯净
+    answer: 1
+    explain: 每条边消耗一层，子节点剩余预算是零。
