@@ -1,28 +1,28 @@
 # 把 code-dojo 部署在自己的机器上
 
-每台机器可用本地模式从浏览器练习。下方第 1–5 节是可选的服务器部署，适合想从浏览器远程访问同一台常开电脑的情况。
+每台机器可以安装桌面应用，在应用窗口里练习。下方第 1–5 节是可选的服务器部署，适合想从浏览器远程访问同一台常开电脑的情况。
 
 ## 在一台新电脑上用
 
 1. **下载安装包。** 登录有仓库访问权的 GitHub 账号，打开最新的 `app-v*` Release，在 Assets 中选择对应平台。[下载安装包](https://github.com/Rebas9512/code_dojo/releases/latest)
 
-   - **Linux x86-64** 推荐下载 `code-dojo-1.0.1-x86_64.AppImage`。在下载目录打开终端，给文件执行权限并放进应用目录（其他版本请替换文件名）。
+   - **Linux x86-64** 推荐下载 `code-dojo-1.1.0-x86_64.AppImage`。在下载目录打开终端，给文件执行权限并放进应用目录（其他版本请替换文件名）。
 
      ```sh
-     chmod +x code-dojo-1.0.1-x86_64.AppImage
+     chmod +x code-dojo-1.1.0-x86_64.AppImage
      mkdir -p ~/Applications
-     mv code-dojo-1.0.1-x86_64.AppImage ~/Applications/
+     mv code-dojo-1.1.0-x86_64.AppImage ~/Applications/
      ```
 
-     在文件管理器中双击它即可打开。AppImageLauncher Lite 监视 `~/Applications` 时会自动添加菜单项。使用 Gear Lever 时，用它打开文件并选择加入应用菜单。也可下载备用 tar.gz，完整解压后运行目录中的 `./code-dojo`。
+     在文件管理器中双击它即可打开。没有 FUSE 时，在文件所在目录运行 `./code-dojo-1.1.0-x86_64.AppImage --appimage-extract-and-run`。AppImageLauncher Lite 监视 `~/Applications` 时会自动添加菜单项。使用 Gear Lever 时，用它打开文件并选择加入应用菜单。也可下载备用 tar.gz，完整解压后运行目录中的 `./code-dojo`。
    - **Apple Silicon Mac** 解压 zip，将 `code-dojo.app` 移到“应用程序”。安装包未签名，首次请右键点“打开”，再确认“打开”。如果系统仍拦截，可在“系统设置 → 隐私与安全性”确认打开。
    - **Windows x64** 完整解压 zip，再双击 `code-dojo.exe`。保留解压后的整个目录。
 
-2. **第一次打开。** 在控制窗口输入发布者设置的解锁密码，点“解锁”。首次联网下载完成后，浏览器会打开学习地图。以后在这台电脑上直接打开即可。已有本机令牌，或本机已登录的 GitHub CLI 能读取两个仓库时，启动器会自动使用已有凭据。
-3. **备用方式。** 点“改用令牌”可手动粘贴。没有随包密文时会直接显示两个令牌框。为 `Rebas9512/code_dojo` 创建仅有 Contents 读权限的 fine-grained 令牌，为 `Rebas9512/code_dojo_sync` 单独创建有 Contents 读写权限的令牌。每个令牌只选择对应仓库，分别粘贴后点“保存”。过期后可在“设置 → 更新令牌与 AI 助教…”更换。[创建 GitHub 令牌](https://github.com/settings/personal-access-tokens/new)
-4. **可选，启用 AI。** 按官方说明安装 Claude Code，在终端运行 `claude` 并按提示登录个人订阅。确认命令在 PATH 中可用，或将 `CODE_DOJO_CLAUDE_BIN` 设为其绝对路径，再重新打开桌面应用。窗口的“设置”提供安装入口。[Claude Code 安装说明](https://code.claude.com/docs/en/setup)
+2. **第一次打开。** 在应用启动页输入发布者设置的解锁密码，点“解锁”。首次联网下载题库时可看到进度，随后同一窗口会显示学习地图。以后在这台电脑上直接打开即可。已有本机令牌，或本机已登录的 GitHub CLI 能读取两个仓库时，启动器会自动使用已有凭据。
+3. **备用方式。** 点“改用令牌”可手动粘贴。没有随包密文时会直接显示两个令牌框。为 `Rebas9512/code_dojo` 创建仅有 Contents 读权限的 fine-grained 令牌，为 `Rebas9512/code_dojo_sync` 单独创建有 Contents 读写权限的令牌。每个令牌只选择对应仓库，分别粘贴后点“保存”。过期后可在“桌面 → 设置”更换。[创建 GitHub 令牌](https://github.com/settings/personal-access-tokens/new)
+4. **可选，启用 AI。** 按官方说明安装 Claude Code，在终端运行 `claude` 并按提示登录个人订阅。确认命令在 PATH 中可用，或将 `CODE_DOJO_CLAUDE_BIN` 设为其绝对路径，再重新打开桌面应用。“桌面 → 设置”显示助教状态。[Claude Code 安装说明](https://code.claude.com/docs/en/setup)
 
-解锁或手动输入后，令牌优先存入系统钥匙串，备用位置是本机数据目录的 `github-tokens.json`。Linux 和 macOS 的备用文件权限为 600。磁盘不支持权限保护且钥匙串不可用时，窗口会提示令牌仅用于本次运行。关闭窗口前保持联网，断网时待推送的学习记录留在本机。
+解锁或手动输入后，令牌优先存入系统钥匙串，备用位置是本机数据目录的 `github-tokens.json`。Linux 和 macOS 的备用文件权限为 600。磁盘不支持权限保护且钥匙串不可用时，窗口会提示令牌仅用于本次运行。顶栏“桌面”提供立即同步、设置和关于。原生应用菜单还能检查更新。LeetCode 等外部链接在系统浏览器打开。关闭主窗口时会显示“正在同步…”，最多等待 10 秒。离线或超时的待推送记录保留在本机，下次联网继续同步。
 
 使用自己的仓库时，在打开应用前设置 `CODE_DOJO_REPO` 和 `CODE_DOJO_SYNC_REPO`，值可写成 `账户/仓库名`。进度仓库需私有，有 main 分支且可读写，初始提交只有 README 即可。`CODE_DOJO_DATA` 可指定本机数据目录。Linux 默认使用 `~/.local/share/code-dojo`，macOS 使用 `~/Library/Application Support/code-dojo`，Windows 使用 `%APPDATA%\code-dojo`。每台电脑各用自己的目录。应用退出后可以移动或替换安装目录，学习记录保存在数据目录。
 
@@ -30,7 +30,7 @@
 
 1. 在发布者电脑上更新项目外的 `../../.env`。变量 `code_dojo` 填代码仓库的只读令牌，`code_dojo_sync` 填进度仓库的读写令牌。发布用的明文只保存在本机这份文件里，Actions 密钥和安装包里保存的是密文。解锁密码至少 10 个字符，请使用专用密码。
 2. 在项目根目录运行 `uv run scripts/desktop/seal_tokens.py`，按提示输入两遍解锁密码。如果同一份文件已用 `password` 保存密码，运行 `uv run scripts/desktop/seal_tokens.py --env ../../.env --password-key password` 即可。脚本先验证代码仓库的 Releases 和进度仓库的 README 可读，再通过已登录的 `gh` 设置 `CODE_DOJO_SEALED_TOKENS`。完成后妥善保管或删除这份文件。
-3. 确认上传成功后，在对应的发布提交上推送与启动器版本一致的 `app-vX.Y.Z` 标签。本版为 `app-v1.0.1`。三个系统的新安装包会带上这次的密文。已安装的电脑优先用本机令牌，轮换时可通过“设置 → 更新令牌与 AI 助教…”更换。
+3. 确认上传成功后，在对应的发布提交上推送与启动器版本一致的 `app-vX.Y.Z` 标签。本版为 `app-v1.1.0`。三个系统的新安装包会带上这次的密文。已安装的电脑优先用本机令牌，轮换时可通过“桌面 → 设置”更换。
 
 ## 本地模式和同步仓库怎么建
 

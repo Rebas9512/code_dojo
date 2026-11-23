@@ -115,7 +115,7 @@ class Updates:
                                env=os.environ | {"TMPDIR": tmp, "TEMP": tmp, "TMP": tmp})
             libraries.rename(target)
 
-    def check(self) -> Result:
+    def check(self, progress=lambda message: None) -> Result:
         old = self.current()
         if not self.github.token:
             return Result(old, "请在设置中填写令牌以开启更新和同步")
@@ -140,7 +140,17 @@ class Updates:
                 stage = Path(temporary) / "payload"
                 archive = Path(temporary) / "payload.zip"
                 with self.github.open(assets["payload.zip"], "application/octet-stream") as source, archive.open("wb") as output:
-                    shutil.copyfileobj(source, output)
+                    size = int(getattr(source, "headers", {}).get("Content-Length", 0))
+                    received = 0
+                    last = -1
+                    progress("正在下载题库…")
+                    while chunk := source.read(1024 * 1024):
+                        output.write(chunk)
+                        received += len(chunk)
+                        percent = min(100, received * 100 // size) if size else 0
+                        if size and percent != last:
+                            last = percent
+                            progress(f"下载题库 {percent}%")
                 if digest(archive) != checksum:
                     raise ValueError("更新包 SHA-256 校验失败")
                 with ZipFile(archive) as package:
@@ -155,6 +165,7 @@ class Updates:
                              "requirements.txt", "problems", "sql-cache"):
                     if not (stage / name).exists():
                         raise ValueError(f"更新包缺少 {name}")
+                progress("准备运行环境…")
                 self.prepare_dependencies(stage, manifest)
                 if not final.exists():
                     stage.rename(final)
@@ -164,5 +175,5 @@ class Updates:
             return Result(old, f"无法读取更新（HTTP {exc.code}），请检查网络和令牌")
         except URLError:
             return Result(old, "更新失败：无法连接 GitHub，请检查网络")
-        except (OSError, HTTPException, ValueError, KeyError, TypeError, BadZipFile, subprocess.SubprocessError) as exc:
-            return Result(old, f"更新失败：{exc}")
+        except (OSError, HTTPException, ValueError, KeyError, TypeError, BadZipFile, subprocess.SubprocessError):
+            return Result(old, "更新包校验或安装失败，请检查下载内容和本机磁盘空间")

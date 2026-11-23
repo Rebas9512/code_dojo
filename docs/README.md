@@ -13,7 +13,8 @@
 ```
 code-dojo/
 ├── dojo.py、dojo、dojo.ps1  本机启动、环境诊断和旧记录导入
-├── bootstrap/            桌面控制窗口、令牌、更新包校验与本机服务启动
+├── desktop/              Electron 主进程、受限 preload、本地启动页与打包配置
+├── bootstrap/            JSONL 控制协议、令牌、更新包校验与本机服务启动
 ├── .github/workflows/    三系统测试、更新包发布、桌面安装包发布
 ├── docs/
 │   ├── README.md         本文件
@@ -41,19 +42,21 @@ code-dojo/
 
 ## 桌面应用
 
-新电脑可从私有代码仓库的 Releases 下载对应安装包。Linux x86-64 推荐 AppImage，1.0.1 要求 glibc 2.34 或更高，另有备用 tar.gz。Apple Silicon macOS 使用内含 .app 的 zip，Windows x64 使用内含可双击 exe 的 zip。安装包内有 python-build-standalone 的 CPython 3.14 install_only、Tk、pip、按 `server/uv.lock` 锁定的后端依赖和启动器。Linux 可把 AppImage 放进 `~/Applications`，从应用菜单或文件管理器打开。没有 FUSE 的系统可从终端运行 `./code-dojo-1.0.1-x86_64.AppImage --appimage-extract-and-run`。[首次安装和令牌设置](../deploy/README.md#在一台新电脑上用)
+桌面版 1.1.0 在同一个 Electron 窗口里完成解锁、进地图和做题。Linux x86-64 提供 AppImage 与备用 tar.gz，Apple Silicon macOS 提供 .app zip，Windows x64 提供便携 zip。安装包内有 Chromium、CPython 3.14、pip、锁定的后端依赖及启动器。Linux 的 AppImage 可以交给 AppImageLauncher Lite 集成到菜单，也可以使用 `--appimage-extract-and-run` 启动。[首次安装和令牌设置](../deploy/README.md#在一台新电脑上用)
 
-启动器 1.0.1 依次查找本机保存的令牌、能读两个仓库的 GitHub CLI 登录凭据、安装包内的加密令牌。首次解锁后保存到系统钥匙串或受保护的本机文件。没有可用来源时，窗口提供手动输入；“设置”可更新令牌。
+Electron 主进程先载入随包启动页，再通过标准输入输出驱动 `python -m bootstrap serve --protocol jsonl`。启动器依次查本机凭据、能读取两个仓库的 GitHub CLI 登录、包内加密令牌，最后提供手动填写。输入的密码与令牌经本地启动页和标准输入传递。连续输错五次需等待 30 秒。首次解锁后优先存入系统钥匙串，备用位置是受保护的本机文件。
+
+协议使用 UTF-8，每行一个 JSON 对象。stdin 的 `command` 支持 `unlock`（`password`）、`set_tokens`（`code`、可选的 `sync`）、`sync`、`check_update` 和 `quit`。stdout 的 `type` 为 `status`、`need_unlock`、`need_tokens`、`unlock_failed`、`ready`、`sync` 或 `error`。`unlock_failed` 返回剩余次数 `remaining` 和等待秒数 `wait`。`ready` 返回 `port`、启动器 `version` 和 `payload_version`。
 
 每次打开时，启动器从 `CODE_DOJO_REPO`（默认 `Rebas9512/code_dojo`）的 `payload-latest` Release 获取清单。更新包包含 FastAPI 代码、网页、固定题库、判题程序、技能识别规则和预先计算的 SQL 期望表。清单记录版本、提交 SHA、生成时间、最低启动器版本、题库格式版本和依赖锁 SHA-256。外部清单还记录整个 zip 的 SHA-256。
 
 下载、解压和依赖准备均在用户数据目录的 `desktop/` 下完成。锁有变化时，内置 pip 按带哈希的运行时依赖清单安装到独立目录。新服务成功启动后才原子替换 `current.json`，并保留上一个版本。断网、校验失败或安装失败时仍可用原版本练习。启动器过旧时窗口提供新版安装包链接。第一次使用需要联网下载题库。
 
-本机服务绑定 `127.0.0.1`。首次自动选端口，以后优先复用，便于浏览器找到草稿。窗口显示版本、更新时间和学习记录同步状态，“立即同步”交换学习记录，关闭窗口会尝试最后一次推送再退出。记录使用与 `dojo` 相同的数据目录和事件格式。进度仓库由 `CODE_DOJO_SYNC_REPO` 指定，默认 `Rebas9512/code_dojo_sync`。有 Git 时使用 Git，没有 Git 时通过 GitHub Contents API 同步 main 上每台机器自己的月度 JSONL。同步失败的事件保留在本机。
+本机服务绑定 `127.0.0.1`，优先复用上次端口。启动器发出 `ready` 后，主窗口载入该端口的学习地图，原题等外链交给系统浏览器。网页运行在隔离的渲染进程中，通过 preload 提供的有限接口使用桌面功能。顶栏“桌面”可立即同步、打开设置或查看版本，原生菜单另有检查更新和退出。设置提供令牌更换和助教状态。再次启动会聚焦原窗口。关闭窗口先推送进度，最多等待 10 秒。记录使用与 `dojo` 相同的数据目录和事件格式。进度仓库由 `CODE_DOJO_SYNC_REPO` 指定，默认 `Rebas9512/code_dojo_sync`。有 Git 时使用 Git，没有 Git 时通过 GitHub Contents API 同步 main 上每台机器自己的月度 JSONL。同步失败的事件保留在本机。
 
-普通 Python 题直接用随包解释器运行独立的 harness 子进程。数据科学题首次使用时在数据目录的 `judge-envs/` 创建专用环境并安装 NumPy、pandas 和 CPU 版 PyTorch。AppImage 启动时会将 `desktop/python-<解释器版本>` 链接到当前挂载的运行时，使同一 Python 版本的判题环境在重开后仍然可用。固定 SQL 题从更新包读取期望表，用户 SQL 在浏览器运行。SQL 附加题的动态校验也由已打开的网页交给 PGlite Worker。助教使用 PATH 中已登录的 Claude Code，缺少时可在控制窗口的“设置”查看安装和登录步骤。
+普通 Python 题直接用随包解释器运行独立的 harness 子进程。数据科学题首次使用时在数据目录的 `judge-envs/` 创建专用环境并安装 NumPy、pandas 和 CPU 版 PyTorch。AppImage 启动时会将 `desktop/python-<解释器版本>` 链接到当前挂载的运行时，使同一 Python 版本的判题环境在重开后仍然可用。固定 SQL 题从更新包读取期望表，用户 SQL 和附加题的动态校验都在应用窗口内的 PGlite Worker 中运行。助教使用 PATH 中已登录的 Claude Code，缺少时可在应用的“设置”查看安装和登录提示。
 
-**发布**。推送到 main 后，`ci.yml` 的三系统测试通过才触发 `release-payload.yml`。固定 Release 提供桌面更新，另保留最近五个带版本号的 `payload-v*` Release。需要回退时将目标版本的一对 `payload.zip` 和 `manifest.json` 依次覆盖固定 Release 的同名资产。修改启动器时更新 `bootstrap.VERSION`，发布对应的 `app-vX.Y.Z` 标签。`release-app.yml` 在三个系统构建、自检解释器和 Tk，全部成功后发布安装包。可选的 Actions 密钥 `CODE_DOJO_SEALED_TOKENS` 由发布者在本机加密后上传，打包时写入 `sealed-tokens.json`。本版更新包的最低启动器版本是 1.0.0。有不兼容更新时先发布新版安装包，再提高 `bootstrap.MIN_BOOTSTRAP` 并发布更新包。
+**发布**。推送到 main 后，`ci.yml` 的三系统测试通过才触发 `release-payload.yml`。固定 Release 提供桌面更新，另保留最近五个带版本号的 `payload-v*` Release。需要回退时将目标版本的一对 `payload.zip` 和 `manifest.json` 依次覆盖固定 Release 的同名资产。修改启动器时同步更新 `bootstrap.VERSION` 和 `desktop/package.json` 中的版本与 npm 锁文件，发布对应的 `app-vX.Y.Z` 标签。`release-app.yml` 用 electron-builder 在三系统构建，在 Linux 上用 xvfb 和 Playwright 实际解锁、交卷并检查退出推送，全部成功后发布安装包。可选的 Actions 密钥 `CODE_DOJO_SEALED_TOKENS` 由发布者在本机加密后上传，打包时写入 `sealed-tokens.json`。本版更新包的最低启动器版本是 1.0.0。有不兼容更新时先发布新版安装包，再提高 `bootstrap.MIN_BOOTSTRAP` 并发布更新包。
 
 ## 怎么跑
 
@@ -98,22 +101,24 @@ cd web && npm run build                                # 类型检查 + 打包
 开发后端默认 `CODE_DOJO_AUTH=off`，记录保存在 `server/data/`。生产脚本启用登录，默认在用户的 Linux 数据目录保存个人记录，前端与 API 共用一个端口。后端测试使用独立数据目录和样例题库。[全部环境变量](../deploy/.env.example) · [部署步骤](../deploy/README.md)
 
 ## 代码结构
-- `bootstrap/update.py` 管理不可变版本目录和活动版本指针。`window.py` 持有桌面窗口，在服务就绪后打开浏览器。`service.py` 从选定更新包加载后端。`credentials.py` 选择凭据来源，`sealed.py` 与发布者的 `scripts/desktop/seal_tokens.py` 共用加解密格式。`scripts/desktop/build.py` 在发布机器上导出锁定依赖和预计算数据。Linux 发布构建在 Ubuntu 22.04 上运行，校验 appimagetool 和 Type 2 运行时的 SHA-256，用系统的 `squashfs-tools` 生成 AppImageLauncher Lite 2.2 可读的 gzip 镜像。桌面图标和网页 favicon 共用 `web/public/code-dojo.svg` 的图形。
+- `bootstrap/update.py` 管理不可变版本目录和活动版本指针。`protocol.py` 管理凭据、更新和后端生命周期。`desktop/main.cjs` 持有窗口、导航与菜单，`preload.cjs` 为启动页和练习页提供各自的接口。`service.py` 从选定更新包加载后端。`credentials.py` 选择凭据来源，`sealed.py` 与发布者的 `scripts/desktop/seal_tokens.py` 共用加解密格式。`scripts/desktop/build.py` 在发布机器上导出锁定依赖和预计算数据。Linux 发布构建在 Ubuntu 22.04 上运行，校验 appimagetool 和 Type 2 运行时的 SHA-256，用系统的 `squashfs-tools` 生成 AppImageLauncher Lite 2.2 可读的 gzip 镜像。桌面图标和网页 favicon 共用 `web/public/code-dojo.svg` 的图形。
 - `server/app/github_sync.py` 通过 Contents API 读写与 Git 后端兼容的 JSONL。`desktop_sql.py` 将动态 SQL 验证交给网页，网页与 Node 共用 `web/src/sql/validate.ts`。
-- `server/app/events.py` 给学习记录分配跨机器标识、导出按月分隔的 JSONL。写记录和登记待导出的事件共用一个 SQLite 事务。`sync.py` 管理独立 Git 克隆、重试和定时同步。`GET /api/sync` 返回状态，`POST /api/sync` 立即交换进度，顶栏入口在 `web/src/components/SyncStatus.tsx`。
+- `server/app/events.py` 给学习记录分配跨机器标识、导出按月分隔的 JSONL。写记录和登记待导出的事件共用一个 SQLite 事务。`sync.py` 管理独立 Git 克隆、重试和定时同步。`GET /api/sync` 返回状态，`POST /api/sync` 立即交换进度，外部页面顶栏和做题页状态栏共用 `web/src/components/SyncStatus.tsx`。
 - `server/app/auth.py` 管理密码校验、登录限流和签名会话，`server/scripts/set_password.py` 交互设密。`web/src/pages/LoginPage.tsx` 提供登录页，`web/src/api.ts` 统一处理 401。`server/app/frontend.py` 托管静态文件并支持直接打开前端路由。
 - 首页的 `pages/MapPage.tsx` 用 `pages/mapTree.ts` 组装学习线树，样式在 `pages/map.css`。`server/app/units.py` 按本阶段技能分组归题，供地图和题目列表共用。
 - `server/app/mastery.py` 根据正式提交和复习日程计算技能状态、下一题、卡住提示和周统计。`db.py` 以 SQLite 事务保存提交与复习日程，并记录提示、题解和每日上限。启动时升级旧表，首次读取学习进度时按历史通过日期补排到期日。
 - `pages/PlanPages.tsx` 提供 `/today` 今日计划和 `/stats` 手感统计，对应 `GET /api/today`、`GET /api/stats`。页面通过 `PUT /api/today/settings` 保存每日上限。复习链接携带原题与到期日，运行和提交分别向已有接口传 `review_source`、`review_due`。过期或重复交卷返回 409，可回到今日计划取当前题目。统计展示最近八个周一开始的自然周，日期按服务器本地时间划分。
-- `server/app/result_preview.py` 在判题结束后生成摘要。样例的单个输入、期望、实际等字段超过约 2 KB 时保存前缀和总字符数，隐藏用例使用更短的预览。SQLite 保存这份摘要。SQL 修改题的即时结果面板使用 Worker 的表格预览，其他题型显示服务器返回的摘要。
+- `server/app/result_preview.py` 在判题结束后生成摘要。样例的单个输入、期望、实际等字段超过约 2 KB 时保存前缀和总字符数，隐藏用例使用更短的预览。SQLite 保存这份摘要。SQL 的即时结果面板使用 Worker 的表格预览，Python 和数据题显示服务器返回的摘要。
 - `judge/python/harness.py` 在工作目录读 `job.json`，逐个执行用例，以 `@@CODE_DOJO_RESULT@@` 前缀输出一行 JSON。checker 需要检查学生源码时，从当前工作目录读取 UTF-8 的 `user.py`。工作线程使用 256 MiB 栈和 20 万层递归上限。主线程负责计时，超时后保留已完成的用例，把剩余用例标为跳过。
 - `server/app/judge.py` 选择判题后端，`local_judge.py` 用 uv 准备专用解释器并管理子进程。题库、课和技能索引由 `tracks.py` 和 `problems.py` 加载，文件修改后自动重载。`db.py` 保存提交和 AI 对话，`main.py` 提供相应 API。
 - `server/app/sql_judge.py` 展开 SQL 数据集、缓存期望表并调用 `sql_runner.mjs`。开发后端、`scripts/verify_bank.py` 和内容侧 `verify_sql.py` 的修改类题都用这个 Node 入口。浏览器的入口在 `web/src/sql/client.ts` 和 `worker.ts`，两个环境共用 `engine.ts` 和 `compare.ts`。
 - `server/app/inspect_data.py` 是题库加载、内容检查和 AI 附加题共用的数据块与答案校验。前端 `components/InspectData.tsx` 显示五种题面数据和课里的 CSV 编辑视图。
 - `server/app/ai/`：`provider.py` 调 `claude -p`（走 Claude 订阅；测试用 `FakeProvider`）；`tutor.py` 是助教——提示词设定、上下文组装（题面、参考解、带行号的当前代码、最近一次判题、对话历史）、修改建议的定位检查。
-- `web/src/`：`pages/MapPage.tsx` 首页学习地图；`pages/SkillsPage.tsx` 分阶段、分组展示技能卡、前置与练习；`pages/TrackPage.tsx` 题目列表（按阶段、完成状态、新技能、难度、选修标记）；`pages/ProblemPage.tsx` → `components/ProblemWorkspace.tsx` 做题页（左栏"题目 / 课"两个标签、共享编辑框、裸写模式、计时、草稿自动保存）；`components/LessonView.tsx` "课"标签（本题新知识展开在前：讲解 / 可改可运行的示例 / 小测；用到的已学知识折叠在后）；`components/ResultPanel.tsx` 结果；`components/ChatPanel.tsx` 助教聊天。设计原则见 `.impeccable.md`。
+- `web/src/pages/` 的学习地图、题目列表、知识点、今日计划、统计和登录页共用深浅两套 VS Code Modern 色板。界面使用本地 TeX Gyre Heros 和按需加载的 Noto Sans SC 分片，代码和数值使用 JetBrains Mono。字体和图标的署名及许可证随前端发布到 `/licenses/`。
+- `pages/ProblemPage.tsx` 打开做题工作区。`components/WorkbenchLayout.tsx` 管理本单元题目列表、分隔线和布局偏好。`ProblemWorkspace.tsx` 在两个编辑器组中显示题面、课、附加题和作答区；每题独立保存草稿。`LessonView.tsx` 显示讲解、可运行的示例和小测。`ChatPanel.tsx` 提供共享编辑框和快捷提问。宽度小于 900px 时，编辑器组上下排列，题目列表和助教从两侧呼出。
+- `WorkbenchPanel.tsx` 的测试结果页使用 `ResultPanel.tsx` 展示用例和结果表，输出页汇集 stdout 和课示例，问题页的源代码行可跳回编辑器。运行和提交会展开面板。22px 状态栏显示行列、用时、判题方式、同步状态和上下题，桌面菜单位于最右。布局尺寸和开关由浏览器保存。
 - 导航与接口：`/` 展示地图，`/t/:track` 展示题目，`/t/:track/skills` 展示知识点，`/p/:id` 是做题页，旧地址 `/sql` 跳转到 `/t/sql`。根路由共享 `GET /api/tracks` 的名称、阶段、题量、下一题和前置完成状态，提交后刷新进度。`GET /api/tracks/{track}/skills` 返回技能卡、带所属线的前置、课和引入它的题，`used_by` 统计全题库中只用到它的题数。
-- 快捷键：看数据作答按数字 1–9 选项、Ctrl+Enter 提交。代码题 Ctrl+Enter 运行样例，Ctrl+Shift+Enter 提交。Alt+← 按题库顺序返回上一题，Alt+→ 与“继续”打开同一道推荐题，Alt+L 切换"题目 / 课"，Alt+B 切换裸写模式，Alt+I 开关助教。
+- Ctrl+P 在各页按题名、题号或 LeetCode slug 快速打开题目；受保护的题库需要先登录。做题页 Ctrl+Shift+P 打开命令面板。Ctrl+B 开关单元列表，Ctrl+J 开关底部面板，Ctrl+Alt+I 或 Alt+I 开关助教。Ctrl+Enter 运行，Ctrl+Shift+Enter 提交；看数据作答还支持数字 1–9 选项和 Ctrl+Enter 提交。Alt+L 切换课，Alt+B 切换裸写。状态栏箭头按题库顺序切题；Alt+← 返回上一题，Alt+→ 继续推荐练习。
 - 列表状态：● 绿 = 有一次通过时未应用 AI 修改、● 黄 = 仅有 AI 协助通过、◐ = 提交过没通过。知识点页另列技能状态、独立写对题数和最近使用时间；技能接口对应字段为 `state`、`counted_solves`、`last_used`。
 - 课相关接口：`/api/problems/{id}/lesson`（这道题的课：按技能拼出的教学内容）、`/api/playground/run`（运行 Python 示例，只看输出）。SQL 示例随课取得共享库及补丁，在做题页的 Worker 中执行并显示结果表。助教的上下文里也带着这道题的课。
 - 附加题（2026-11-22）：左栏标签"题目 | 课 | 附加题 1 | 附加题 2 … | ＋"。点"＋"或在助教里说"再来一道 / 换个场景 / 难一点"，后台由 `server/app/ai/extra.py` 出题。inspect 附加题验证内联数据和答案，SQL 附加题用 PGlite 验证，桌面端在浏览器运行，开发模式在服务端运行。Python 附加题在判题沙箱验证（参考解全过、典型错误写法和挖空 / 带 bug 的初始代码都被测试抓住，不过就带着问题重出，最多 3 次），出好自动切过去；实测 13–19 秒。助教也能按编号删附加题（`delete_extras`），用户在标签上点两下 × 删除。附加题存在 SQLite（`extra_problems` 表，编号删了不复用），id 形如 `x-12`，判题、课、共享编辑框都和原题一样用；原题和附加题共用一段助教对话，助教知道当前在看哪一道。接口：`GET/POST /api/problems/{id}/extras`、`DELETE /api/problems/{id}/extras/{seq}`。已知不足："只用原题的技能"目前只是提示词约束，以后可以把 check_curve 的 AST 技能检测接进验证。开发时 `CODE_DOJO_API=http://127.0.0.1:8001 npx vite --port 5174` 可以让前端指向另一个后端（比如用样例题库起的测试实例）。
@@ -277,7 +282,7 @@ Python 基础和算法题共用 Python 判题格式，SQL 题使用各自目录�
 - **effort**：提示和聊天 low，点评 medium，出题 high。
 
 **已实现（2026-11-22）：助教聊天 + 共享编辑框**
-- 做题页右侧第三栏是助教（Alt+I 开关）。快捷提问：讲讲思路 / 我卡住了 / 帮我补一下 / （判题没过时）这个错误是什么意思。每次回复约 4 秒。
+- 做题页右侧是助教面板（Ctrl+Alt+I 或 Alt+I 开关）。快捷提问：讲讲思路 / 我卡住了 / 帮我补一下 / （判题没过时）这个错误是什么意思。每次回复约 4 秒。
 - SQL 助教还会看到样例库各表的列名、类型和前三行，以及学生的查询、最近的差异或 PostgreSQL 报错。
 - 助教看得到：题面、样例、本题技能、参考解（只供判断）、带行号的当前代码、最近一次运行结果、本题对话历史、已应用过几次修改。
 - 共享编辑框（用户 2026-11-22 决定，替代了最初的"建议 + 点应用"）：助教看得到编辑框里的当前内容，它给的修改（`edits`：若干处 `old` → `new` + 一句理由，按顺序生效）直接写进编辑框，可以 Ctrl+Z 撤销；AI 写入的行有淡底色和左侧细线，聊天里折叠显示改了哪几处。`old` 为空表示接在末尾追加。预测输出题没有代码，编辑框里是用户写的预测输出。

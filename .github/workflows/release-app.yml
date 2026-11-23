@@ -24,30 +24,48 @@ jobs:
         with:
           python-version: '3.14'
       - uses: astral-sh/setup-uv@v7
-      - name: 校验安装包版本
-        run: python -c "import os; from bootstrap import VERSION; assert os.environ['GITHUB_REF_NAME'] == 'app-v' + VERSION"
-      - name: 构建并检查独立 Python 安装包
-        if: runner.os != 'Linux'
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: 校验标签与两个启动器的版本
+        run: python -c "import json, os; from bootstrap import VERSION; assert os.environ['GITHUB_REF_NAME'] == 'app-v' + VERSION; assert json.load(open('desktop/package.json'))['version'] == VERSION"
+      - working-directory: desktop
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+        run: npm ci
+      - name: 安装 Linux 构建与验收工具
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y squashfs-tools desktop-file-utils xvfb
+      - name: 构建独立 Electron 安装包
         env:
           CODE_DOJO_SEALED_TOKENS: ${{ secrets.CODE_DOJO_SEALED_TOKENS }}
         run: python scripts/desktop/build.py --output dist app
-      - name: 在虚拟显示器中构建 Linux AppImage 和备用 tar.gz
+      - name: 检查正式 AppImage 的菜单、图标和压缩格式
         if: runner.os == 'Linux'
-        env:
-          CODE_DOJO_SEALED_TOKENS: ${{ secrets.CODE_DOJO_SEALED_TOKENS }}
         run: |
-          if ! command -v mksquashfs >/dev/null || ! command -v desktop-file-validate >/dev/null; then
-            sudo apt-get update && sudo apt-get install -y squashfs-tools desktop-file-utils
-          fi
-          xvfb-run -a python scripts/desktop/build.py --output dist app
           name="dist/code-dojo-${GITHUB_REF_NAME#app-v}-x86_64"
-          test -s "$name-unknown-linux-gnu.tar.gz"
+          test -s "$name-linux.tar.gz"
           image="$name.AppImage"
           unsquashfs -s -o "$("$image" --appimage-offset)" "$image" | grep -Fx 'Compression gzip'
           "$image" --appimage-extract > /dev/null
           desktop-file-validate squashfs-root/code-dojo.desktop
           test -x squashfs-root/AppRun && cmp squashfs-root/.DirIcon scripts/desktop/code-dojo.png
           cmp squashfs-root/usr/share/icons/hicolor/scalable/apps/code-dojo.svg web/public/code-dojo.svg
+      - name: 用合成令牌和回环服务验证解锁、交卷、同步与退出
+        if: runner.os == 'Linux'
+        env:
+          CODE_DOJO_DATA: ${{ runner.temp }}/dojo-data
+        run: |
+          uv sync --project server --locked
+          (cd server && .venv/bin/python -m pytest -q ../bootstrap/tests)
+          (cd web && npm ci && npm run build)
+          (cd scripts/curriculum && npm ci)
+          mkdir -p smoke
+          server/.venv/bin/python scripts/desktop/build.py --output smoke/payload payload --sha "$GITHUB_SHA" --version smoke.30
+          CODE_DOJO_SEALED_TOKENS="$(server/.venv/bin/python desktop/tests/seal.py)" python scripts/desktop/build.py --output smoke/app app
+          xvfb-run -a -s '-screen 0 1600x1000x24' node desktop/tests/smoke.cjs smoke/app/*.AppImage smoke/payload smoke
       - uses: actions/upload-artifact@v4
         with:
           name: app-${{ matrix.os }}

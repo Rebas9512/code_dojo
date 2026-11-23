@@ -4,7 +4,6 @@ import argparse
 import json
 import os
 import platform
-import plistlib
 import re
 import shutil
 import subprocess
@@ -89,17 +88,10 @@ def payload(args, work: Path) -> None:
     (args.output / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
 
-def shell_launcher(path: Path, app: bool) -> None:
-    location = "../Resources" if app else "."
-    path.parent.mkdir(exist_ok=True, parents=True)
-    path.write_text('#!/bin/sh\nset -eu\nbase=$(CDPATH= cd -- "$(dirname "$0")/' + location
-                    + '" && pwd)\nexec "$base/python/bin/python3" -I -B "$base/start.py" "$@"\n', encoding="utf-8")
-    path.chmod(0o755)
-
-
 def appimage(bundle: Path, output: Path) -> None:
     work = bundle.parent
     (bundle / "AppRun").symlink_to("code-dojo")
+    shutil.copy(Path(__file__).with_name("code-dojo.png"), bundle)
     shutil.copy(Path(__file__).with_name("code-dojo.desktop"), bundle)
     shutil.copy(ROOT / "web/public/code-dojo.svg", bundle)
     (bundle / ".DirIcon").symlink_to("code-dojo.png")
@@ -141,9 +133,7 @@ def installer(args, work: Path) -> None:
     sealed = os.environ.pop("CODE_DOJO_SEALED_TOKENS", "")
     system = platform.system()
     target, expected = TARGETS[system, platform.machine().lower()]
-    title = f"code-dojo-{VERSION}-{target}"
-    outer = work / ("code-dojo.app" if system == "Darwin" else "code-dojo")
-    bundle = outer / "Contents/Resources" if system == "Darwin" else outer
+    bundle = work / "runtime"
     bundle.mkdir(parents=True)
     source = args.runtime_archive
     if not source:
@@ -155,8 +145,6 @@ def installer(args, work: Path) -> None:
     with tarfile.open(source) as tar:
         tar.extractall(bundle, filter="data")
     python = bundle / ("python/python.exe" if system == "Windows" else "python/bin/python3")
-    subprocess.run([str(python), "-I", "-c", "import tkinter, pip; w=tkinter.Tk(); w.withdraw(); "
-                    "print('Tk', w.tk.call('package','provide','Tk')); w.destroy()"], check=True)
     (work / "job.json").write_text(json.dumps({"mode": "stdio", "cases": [{"expected": "42"}]}))
     (work / "user.py").write_text("print(6 * 7)")
     run = subprocess.run([str(python), "-I", "-B", "-X", "utf8", str(ROOT / "judge/python/harness.py"),
@@ -168,7 +156,7 @@ def installer(args, work: Path) -> None:
                     "--only-binary=:all:", "--require-hashes", "--target", str(bundle / "libraries"),
                     "-r", str(work / "requirements.txt")], check=True)
     (bundle / "lock.sha256").write_text(digest(ROOT / "server/uv.lock"), encoding="ascii")
-    shutil.copytree(ROOT / "bootstrap", bundle / "bootstrap", ignore=shutil.ignore_patterns("__pycache__"))
+    shutil.copytree(ROOT / "bootstrap", bundle / "bootstrap", ignore=shutil.ignore_patterns("__pycache__", "tests"))
     shutil.copy(Path(__file__).with_name("start.py"), bundle)
     if sealed:
         (bundle / "sealed-tokens.json").write_text(sealed, encoding="utf-8")
@@ -177,30 +165,18 @@ def installer(args, work: Path) -> None:
                     "import json, sys; from pathlib import Path; sys.path[:0] = ['.', 'libraries']; "
                     "from bootstrap.sealed import unpack; p = Path('sealed-tokens.json'); "
                     "unpack(json.loads(p.read_bytes())) if p.exists() else None"], cwd=bundle, check=True)
-    if system == "Windows":
-        native = work / "native"
-        subprocess.run(["cmake", "-S", str(Path(__file__).parent), "-B", str(native), "-A", "x64"], check=True)
-        subprocess.run(["cmake", "--build", str(native), "--config", "Release"], check=True)
-        shutil.copy(native / "Release/code-dojo.exe", outer)
-        shutil.make_archive(str(args.output / title), "zip", work, outer.name)
-    elif system == "Darwin":
-        shell_launcher(outer / "Contents/MacOS/code-dojo", True)
-        with (outer / "Contents/Info.plist").open("wb") as file:
-            plistlib.dump(dict(CFBundleExecutable="code-dojo", CFBundleIdentifier="local.code-dojo.desktop",
-                               CFBundleName="code-dojo", CFBundlePackageType="APPL",
-                               CFBundleShortVersionString=VERSION, CFBundleVersion=VERSION), file)
-        subprocess.run(["ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", str(outer),
-                        str(args.output / (title + ".zip"))], check=True)
-    else:
-        shell_launcher(outer / "code-dojo", False)
-        shutil.copy(Path(__file__).with_name("code-dojo.png"), outer)
-        with tarfile.open(args.output / (title + ".tar.gz"), "w:gz", compresslevel=5) as tar:
-            def permissions(entry):
-                # 构建目录可能位于不保存 Unix 权限的共享盘。
-                entry.mode = 0o755 if entry.isdir() or "/bin/" in entry.name or entry.name == "code-dojo/code-dojo" else 0o644
-                return entry
-            tar.add(outer, arcname=outer.name, filter=permissions)
-        appimage(outer, args.output)
+    desktop = ROOT / "desktop"
+    builder = desktop / "node_modules/electron-builder/cli.js"
+    output = work / "electron"
+    env = os.environ | {"CODE_DOJO_RESOURCES": str(bundle), "CSC_IDENTITY_AUTO_DISCOVERY": "false"}
+    subprocess.run(["node", str(builder), "--config", "builder.cjs", "--publish", "never",
+                    f"--config.directories.output={output}"], cwd=desktop, env=env, check=True)
+    if system == "Linux":
+        # 继续使用已验证的 Lite 兼容入口和 gzip 运行时，直接启动带沙箱的 Electron。
+        appimage(output / "linux-unpacked", args.output)
+    for asset in output.glob("code-dojo-*"):
+        if asset.is_file() and asset.name.endswith((".zip", ".tar.gz")):
+            asset.replace(args.output / asset.name)
 
 
 if __name__ == "__main__":

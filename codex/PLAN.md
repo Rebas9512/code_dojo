@@ -87,5 +87,8 @@
 - ⏳ 27：题目语言约定。用户 2026-11-22 要求题干用中文，作答用英文；改约 94 道题和相关的课，规则写进格式文档和附加题提示词。22-llm 已加这条要求。
 - ✓ 28：令牌用密码加密后打包进安装包（用户 2026-11-22 定）+ 收尾（week 字段、控制窗口中文字体、地图算法行、README 总量）。
 - ✓ 28b：28 被会话关闭打断后接着做；加密脚本加 `--password-key`，可以从 .env 读密码。
-- ⏳ 29：Linux 打成 AppImage，配合用户的 AppImageLauncher Lite 放进 ~/Applications；加图标。等 28b 做完再派，两者都改 release-app.yml 和 build.py。
+- ✓ 29：Linux 打成 AppImage，配合用户的 AppImageLauncher Lite 放进 ~/Applications；加图标。等 28b 做完再派，两者都改 release-app.yml 和 build.py。
 - ✓ 主控已跑 seal_tokens.py（用户 .env 里的令牌和密码），Actions 密钥 CODE_DOJO_SEALED_TOKENS 已上传（2026-11-23）。
+- ✓ 主控已发 app-v1.0.1（含 AppImage 和加密令牌），并放进用户的 ~/Applications，AppImageLauncher 已经自动集成进菜单。
+- ✓ 30（Electron 外壳，界面嵌进应用窗口）和 31 同时跑。31 原本是"Helvetica 风格字体 + 界面打磨"，用户又说要往 VS Code 靠，主控停掉它，改派 31-vscode-workbench。用户随后又收窄了范围，所以再停一次，最终派 31-workspace-vscode：只有做题页按 VS Code 布局（本单元题目列表、题面和代码拆分编辑区、底部面板、右侧助教、状态栏、命令面板 / Ctrl+P）；首页树状地图和外部页面保留结构，只统一配色（VS Code Modern）和字体（Heros + Noto Sans SC + JetBrains Mono，打包进应用）。前端文件归 31；30 只新建 DesktopBridge.tsx 并在 App.tsx 挂载，31 重构布局时保留它的挂载，放进状态栏。用户 2026-11-23 定。
+- ✓ 31-workspace-vscode 已验收提交（ae66fdd）。主控补了一处：桌面启动页换成 VS Code 配色和打包的 Heros 字体，CSP 加 font-src 'self'。

@@ -16,7 +16,7 @@ from .update import atomic_json
 
 def judge_python(data: Path) -> str:
     bundle = Path(__file__).resolve().parents[1]
-    if not (bundle / "AppRun").is_file():
+    if not (sys.platform.startswith("linux") and (bundle / "python/bin/python3").is_file()):
         return sys.executable
     # venv 保存解释器的绝对路径。窗口持有实例锁时，将固定链接指向本次挂载。
     desktop = data / "desktop"

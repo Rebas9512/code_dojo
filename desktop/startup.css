@@ -1,0 +1,30 @@
+/* 和网页同一套：VS Code Dark / Light Modern 的配色关系 + 打包的 TeX Gyre Heros（Helvetica 开源克隆，GUST 许可见 fonts/） */
+@font-face { font-family: 'TeX Gyre Heros'; src: url('fonts/tex-gyre-heros-regular.woff2') format('woff2'); font-weight: 400; }
+@font-face { font-family: 'TeX Gyre Heros'; src: url('fonts/tex-gyre-heros-bold.woff2') format('woff2'); font-weight: 700; }
+:root { color-scheme: dark; --bg: #1f1f1f; --bar: #181818; --fg: #cccccc; --muted: #9d9d9d; --line: #2b2b2b;
+  --field: #313131; --accent: #0078d4; --ink: #ffffff;
+  font: 14px/1.55 "TeX Gyre Heros", "Helvetica Neue", Helvetica, Arial, "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei UI", sans-serif; }
+@media (prefers-color-scheme: light) {
+  :root { color-scheme: light; --bg: #ffffff; --bar: #f8f8f8; --fg: #3b3b3b; --muted: #616161; --line: #e5e5e5;
+    --field: #ffffff; --accent: #005fb8; --ink: #ffffff; }
+}
+header { background: var(--bar); }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); }
+header { border-bottom: 1px solid var(--line); font-size: 17px; font-weight: 600; padding: 12px 24px; }
+main { max-width: 30rem; margin: clamp(24px, 12vh, 128px) auto 32px; padding: 0 30px; }
+h1 { margin: 0 0 24px; font-size: clamp(22px, 2.4vw, 30px); letter-spacing: -.025em; line-height: 1.35; }
+p { color: var(--muted); margin: 14px 0; }
+label { display: block; margin: 15px 0 6px; }
+input, button { font: inherit; border-radius: 3px; }
+input { background: var(--field); color: var(--fg); width: 100%; padding: 8px 10px; border: 1px solid var(--line); }
+.actions { display: flex; align-items: center; gap: 12px; }
+form .actions, #save { margin-top: 20px; }
+button { cursor: pointer; border: 0; background: var(--accent); color: var(--ink); padding: 6px 17px; }
+button.quiet { background: transparent; color: var(--muted); }
+button:disabled { cursor: default; opacity: .65; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+progress { accent-color: var(--accent); width: 100%; height: 5px; display: block; }
+a { display: inline-block; margin-top: 16px; color: var(--accent); }
+#ai { padding-top: 14px; border-top: 1px solid var(--line); }
+[hidden] { display: none !important; }
