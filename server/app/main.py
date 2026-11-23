@@ -29,6 +29,7 @@ from .result_preview import compact_result
 from .judge import Judge
 from .problems import ExtraProblem, Problem, ProblemBank, build_extra, shared_db
 from .sql_judge import sql_cases
+from .standard import StandardAnswer, standard_answer
 from .sync import ProgressSync
 from .tracks import Track
 from .units import group_units, introduction_status, plan_session, progress_frontier, resume_track, stage_progress
@@ -528,6 +529,16 @@ def use_hint(problem_id: str, number: int, req: ReviewRequest) -> dict:
         raise HTTPException(404, "没有这条提示")
     store.record_help(p.id, solution=False, source=req.review_source, due=req.review_due, author=number)
     return {"hint": p.meta.hints[number - 1]}
+
+
+@app.get("/api/problems/{problem_id}/standard")
+def problem_standard(problem_id: str) -> StandardAnswer:
+    p = bank.get(problem_id)
+    if p is None or p.meta.format in ("predict", "inspect"):
+        raise HTTPException(404, "这道题没有参考答案")
+    if not store.has_passed(p.id):
+        raise HTTPException(403, "正式提交通过后可以查看参考答案")
+    return standard_answer(p)
 
 
 @app.post("/api/problems/{problem_id}/solution")

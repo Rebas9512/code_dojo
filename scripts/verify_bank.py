@@ -6,7 +6,8 @@
   2. function / class / stdio 题：solution.py 跑全部用例（examples + hidden）必须 accepted；
   3. predict 题：solution.py 能正常运行、有输出；
   4. fix 题：starter.py（带 bug 的代码）必须至少挂一个用例。
-  5. SQL 题：Node PGlite 实跑各数据集，检查参考解、典型错误写法和改错题初始代码。
+  5. 标准写法与进阶写法使用相同判题规则；标准写法还要通过显式技能和说明检查。
+  6. SQL 题：Node PGlite 实跑各数据集，检查参考解、典型错误写法和改错题初始代码。
 
 用法：
   cd server && uv run python ../scripts/verify_bank.py [--judge local|docker] [--only <题目 id 前缀>] [--jobs 4]
@@ -21,26 +22,22 @@ from dataclasses import replace
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "server"))
-
+sys.path.insert(0, str(Path(__file__).resolve().parent / "curriculum"))
+from verify_standard import check_answers  # noqa: E402
 from app.config import load_settings  # noqa: E402
 from app.judge import Judge  # noqa: E402
 from app.local_judge import PreparationError  # noqa: E402
 from app.problems import Problem, ProblemBank  # noqa: E402
-from app.sql_judge import dataset, verify_sql_files  # noqa: E402
 
 
 def check_problem(judge: Judge, p: Problem) -> list[str]:
     m = p.meta
-    problems: list[str] = []
-    if p.track.language == "sql":
-        try:
-            verify_sql_files(p.path, m.model_dump(), [dataset(p, spec) for spec in m.datasets])
-        except (OSError, ValueError) as exc:
-            return [str(exc)]
-        return []
+    problems = check_answers(judge, p)
+    if p.track.language == "sql" or p.inspect:
+        return problems
     solution = p.read("solution.py")
     if solution is None:
-        return ["缺少 solution.py"]
+        return [*problems, "缺少 solution.py"]
 
     if m.mode == "predict":
         r = judge.run(mode="stdio", code=solution, cases=[{"stdin": "", "expected": ""}], **p.judge_options())
@@ -125,7 +122,7 @@ def main() -> int:
         print(f"✗ 加载失败 {err.path}\n    {err.message}")
 
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
-        results = list(pool.map(lambda p: (p, check_problem(judge, p)), python + sql))
+        results = list(pool.map(lambda p: (p, check_problem(judge, p)), python + sql + inspect))
     passed = {"python": 0, "sql": 0}
     for p, issues in results:
         if issues:
@@ -133,7 +130,7 @@ def main() -> int:
             print(f"✗ {p.id}")
             for issue in issues:
                 print(f"    {issue}")
-        else:
+        elif not p.inspect:
             passed[p.track.language] += 1
     print(f"\nPython：{passed['python']}/{len(python)} 通过；"
           f"看数据作答：{len(inspect)} 道已验证；SQL：{passed['sql']}/{len(sql)} 通过；加载错误 {len(bank.errors)} 个")

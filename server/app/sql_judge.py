@@ -70,8 +70,8 @@ def validation_job(directory: Path, meta: dict, datasets: list[list[str]]) -> di
     }
 
 
-def verify_sql_files(directory: Path, meta: dict, datasets: list[list[str]]) -> list:
-    return run_node(**validation_job(directory, meta, datasets))
+def verify_sql_files(directory: Path, meta: dict, datasets: list[list[str]], *, answers: dict[str, str] | None = None) -> list:
+    return run_node(**validation_job(directory, meta, datasets), answers=answers or {})
 
 
 def sql_cases(p: Problem, data_dir: Path, *, all_cases: bool) -> dict:

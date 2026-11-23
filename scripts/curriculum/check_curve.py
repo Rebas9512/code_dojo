@@ -958,6 +958,22 @@ def detect_sql(source: str) -> list[Detection]:
     return found
 
 
+def standard_skill_errors(source: str, language: str, mode: str | None, entry: str | None,
+                          declared: set[str]) -> list[str]:
+    if language == "python":
+        try:
+            found, unknown = detect_python(source, mode or "function", entry)
+        except SyntaxError as exc:
+            return [f"标准写法语法错误：{exc}"]
+    else:
+        found, unknown = detect_sql(source), []
+    issues = [f"标准写法：{message}" for message in unknown]
+    for skill in sorted({item.skill for item in found} - declared):
+        uses = sorted({d.construct + (f"@{d.line}" if d.line else "") for d in found if d.skill == skill})
+        issues.append(f"标准写法用到 {skill}（{', '.join(uses)}），不在 requires ∪ introduces 及其前置里")
+    return issues
+
+
 # =====================================================================
 # 题库加载与检查
 # =====================================================================
@@ -1333,6 +1349,12 @@ def check_track(track: Track, problems: list[dict], own: dict, skills: dict, inh
             rep.err(f"{pid}：识别出的技能 {s} 不在技能图里（检查映射表）")
         if m.get("format") != "inspect" and intro and intro in detectable and intro not in used:
             rep.warn(f"{pid}：引入的 {intro} 是可识别的语法，但参考解里没有用到")
+
+        standard = m["_dir"] / ("standard.sql" if track.language == "sql" else "standard.py")
+        if standard.is_file():
+            for issue in standard_skill_errors(standard.read_text(encoding="utf-8"), track.language,
+                                               m.get("mode"), m.get("entry"), allowed):
+                rep.err(f"{pid}：{issue}")
 
         # 选修：必修题不能依赖选修内容引入的技能
         is_optional = bool(m.get("optional"))

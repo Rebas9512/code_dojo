@@ -375,6 +375,13 @@ class Store:
         with self._lock:
             return dict(self._conn.execute("SELECT track, MAX(created_at) FROM submissions GROUP BY track"))
 
+    def has_passed(self, problem_id: str) -> bool:
+        with self._lock:
+            return self._conn.execute(
+                "SELECT 1 FROM submissions WHERE problem_id=? AND kind IN ('submit','review') AND verdict='accepted' LIMIT 1",
+                (problem_id,),
+            ).fetchone() is not None
+
     def status_by_problem(self, track: str) -> dict[str, str]:
         """solved：有不靠 AI 修改的通过；assisted：只有用过 AI 修改的通过；attempted：提交过没通过。"""
         with self._lock:

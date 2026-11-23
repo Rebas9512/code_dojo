@@ -1,4 +1,6 @@
-# 题目格式规范 v1.10
+# 题目格式规范 v1.11
+
+> v1.11 支持正式通过后查看的 `standard.py` / `standard.sql` 和 `standard.md`，包括可执行的进阶写法。
 
 > v1.10 支持 SQL 改错查询用 `starter_dialect: mysql` 指定需要迁移的 MySQL 原稿。
 
@@ -33,6 +35,7 @@ problems/
 │       ├── problem.yaml
 │       ├── statement.md
 │       ├── solution.py                   参考解（predict 模式下是要展示的程序）
+│       ├── standard.py、standard.md       可选，标准写法与简短说明成对提供
 │       ├── tests.json                    predict 模式没有
 │       ├── starter.py                    可选：编辑器初始代码（complete / fix 题型必填）
 │       └── checker.py                    可选：compare: checker 时必填
@@ -43,9 +46,29 @@ problems/
         ├── problem.yaml
         ├── statement.md
         ├── solution.sql
+        ├── standard.sql、standard.md       可选，标准写法与简短说明成对提供
         ├── starter.sql                   编辑器初始查询或脚本（complete / fix 题型必填）
         └── datasets/*.sql                可选：题目自带的数据集或补丁
 ```
+
+## 通过后可看的参考答案
+
+固定代码题可以在题目目录中同时提供 `standard.py` 或 `standard.sql` 与 `standard.md`。文件扩展名跟随学习线语言。没有这组文件的题，正式通过后显示 `solution.py` 或 `solution.sql` 的原文，说明留空。预测题、看数据作答题和附加题没有这个入口。
+
+标准写法和进阶代码均按正式提交验证。Python 跑 `tests.json` 的全部 examples 与 hidden，沿用本题的运行环境、入口、类型转换、比较器、checker、写法约束和时限。SQL 在每个数据集上与 `solution.sql` 对照，沿用行序、数值容差以及查询、DML 和脚本各自的判法。每份 SQL 从独立的事务开始。
+
+标准写法的技能范围和参考解相同：`requires ∪ {introduces}` 及其前置链上的技能，不为参考答案改动题目的 `requires`。校验器复用 `check_curve.py` 的 Python AST 和 SQL 技能识别规则。进阶代码可以展示尚未学习的技能。
+
+`standard.md` 依次使用以下 Markdown 二级标题。
+
+| 小节 | 内容 |
+|---|---|
+| `## 思路` | 用 2–4 句说明怎样从题意得到代码。 |
+| `## 复杂度` | Python 基础与算法题填写。算法题给出时间和额外空间，并解释变量含义。SQL、数学和数据科学题按教学价值选写。 |
+| `## 写法要点` | 用 1–3 条指出和常见写法的具体差别。 |
+| `## 进阶写法` | 可选。用 1–2 句说明适用场景，加一个标明 `python` 或 `sql` 的三反引号代码块。代码块包含可以独立提交的完整答案。 |
+
+写法与示例选择见[教学设计](teaching-design.md#参考答案的写法)。
 
 ## track.yaml
 
@@ -341,6 +364,7 @@ checks:
 ## 谁检查什么
 
 - `scripts/curriculum/check_curve.py`（内容侧）：技能图无环；按学习顺序，每题 `requires` 都已在本线引入或来自前置线；每题最多引入 1 个新技能；参考解实际用到的语法（AST / SQL 解析）不超出标注。
+- `scripts/curriculum/verify_standard.py` 按题检查标准代码、技能范围、小节和进阶代码。支持 `--only <题号前缀>` 与 `--track <线名>`。全库 `verify_bank.py` 同时执行这些检查，`check_curve.py` 也检查标准代码的技能。
 - `scripts/curriculum/verify_sql.py` 检查 SQL 参考解、典型错误写法、改错题原稿和课示例。默认输出中可看到每份 MySQL 原稿在样例上触发的 PostgreSQL 报错。
 - `scripts/verify_bank.py`（平台侧）：校验 inspect 数据与答案，使用本地解释器或 Docker 跑每道 Python 题的参考解，使用 Node PGlite 验证 SQL 题。
 
@@ -350,7 +374,7 @@ checks:
 
 依据：用户决定"每一题我们可以对应一节课（不用做成两个部分），上来我们可以看到题，如果能做就直接做了，做不了我们切到上课部分 再去了解这节课需要用到的知识点这样 ai助手也能看到一起聊这些点"。
 
-- 题目列表里只有题。做题页左栏有两个标签：**题目** 和 **课**。默认打开题目；不会做就切到课。
+- 题目列表里只有题。做题页左栏默认打开**题目**，需要讲解时切到**课**。固定代码题通过后还可查看**参考答案**。
 - 课的内容按**技能**写：每个技能一段教学内容（讲解 → 带步骤名的示例 → 小测），写在 lesson 文件里。一道题的"课"标签 = 它 `introduces` 的技能的教学内容（展开、放最前）+ 它 `requires` 的技能（折叠）。
 - 原来的判题阶梯（predict → complete → fix → write → variant → combine）不变，就是每个技能的练习。
 - AI 助教的上下文里带上这道题的课的内容，可以一起聊这些知识点。

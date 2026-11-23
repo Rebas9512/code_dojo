@@ -46,6 +46,8 @@ import { WorkbenchPanel, diagnostics, type Attempt, type ExampleOutput, type Pan
 
 const LessonView = lazy(() => import('./LessonView').then(m => ({ default: m.LessonView })))
 
+const StandardAnswerView = lazy(() => import('./StandardAnswerView'))
+
 function paramNames(signature: string | null): string[] {
   const m = signature?.match(/def\s+\w+\s*\((.*)\)/)
   if (!m) return []
@@ -94,13 +96,15 @@ interface ActiveProps {
   tabs: ReactNode
   /** 左栏显示什么：这道题的题面 / 课 / 别的内容（比如附加题还在出） */
   left: 'statement' | 'lesson' | ReactNode
+  onParentPassed: () => void
+  onShowStandard?: () => void
   onShowLesson: () => void
   onResult: (failed: boolean) => void
   onDetail: (detail: ProblemDetail) => void
 }
 
 const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProblem(
-  { id, parent, review, session, waiting, generating, onExtra, theme, nav, bare, setBare, layout, unit, backend, tabs, left, onShowLesson, onResult, onDetail },
+  { id, parent, review, session, waiting, generating, onExtra, theme, nav, bare, setBare, layout, unit, backend, tabs, left, onShowLesson, onShowStandard, onParentPassed, onResult, onDetail },
   ref,
 ) {
   const navigate = useNavigate()
@@ -143,6 +147,9 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   latest.current = { code, answer }
   const [started] = useState(Date.now)
   const [autoAt, setAutoAt] = useState<number | null>(null)
+  useEffect(() => {
+    if (left === 'standard' && autoAt !== null) setAutoAt(null)
+  }, [left, autoAt])
   const [sound, setSound] = useState(() => readPref('dojo-sound', '0') === '1')
   const toggleSound = () => { writePref('dojo-sound', sound ? '0' : '1'); setSound(!sound) }
   const index = session && !session.ended && !waiting ? session.items.findIndex(item => item.id === id) : -1
@@ -292,7 +299,10 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
             const updated = recordSubmission(session.id, index, passed)
             if (passed && updated) setAutoAt(Date.now() + 1500)
           }
-          if (passed) playPassSound()
+          if (passed) {
+            playPassSound()
+            if (id === parent.id) onParentPassed()
+          }
           if (isReview) setFinished(true)
           void revalidate()
           if (id !== parent.id) setP(await api.problem(id))
@@ -308,7 +318,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
         setBusy(null)
       }
     },
-    [p, judgeable, busy, id, parent.id, review, isReview, isSqlAnswer, isPredict, isInspect, answer, code, started, session, item, index, hintsShown, aiLines, onResult, revalidate, setPanel],
+    [p, judgeable, busy, id, parent.id, review, isReview, isSqlAnswer, isPredict, isInspect, answer, code, started, session, item, index, hintsShown, aiLines, onResult, onParentPassed, revalidate, setPanel],
   )
 
   async function runCurrent() {
@@ -424,6 +434,8 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
         setPanelTab('输出')
         setPanel(true)
       }} /></Suspense>
+  } else if (left === 'standard') {
+    leftBody = <Suspense fallback={null}><StandardAnswerView id={id} code={code} theme={theme} /></Suspense>
   } else if (left !== 'statement') {
     leftBody = left
   } else if (loadError) {
@@ -511,6 +523,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
     { id: 'sound', title: '开关通过提示音', run: toggleSound },
     { id: 'chat', title: '开关助教', shortcut: 'Ctrl+Alt+I', run: layout.toggleChat },
     { id: 'reset', title: isInspect ? '清空答案' : '重置代码', run: resetCode },
+    ...(onShowStandard ? [{ id: 'standard', title: '打开参考答案', run: onShowStandard }] : []),
     { id: 'lesson', title: '打开课', shortcut: 'Alt+L', run: onShowLesson },
     { id: 'panel', title: '开关底部面板', shortcut: 'Ctrl+J', run: togglePanel },
     { id: 'files', title: '开关本单元题目列表', shortcut: 'Ctrl+B', disabled: layout.focus, run: layout.toggleFiles },
@@ -520,7 +533,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   ]
   return <>
     <div className="wb-desk">
-      {session && item && <SessionBar session={session} index={index} autoAt={autoAt} setAutoAt={setAutoAt}
+      {session && item && <SessionBar session={session} index={index} autoAt={left === 'standard' ? null : autoAt} setAutoAt={setAutoAt}
         busy={!!busy || loadingHelp} review={isReview} />}
       <div className="editor-groups">
         <section className="wb-reading">
@@ -666,6 +679,7 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
   const variant = params.has('variant')
   const requestedExtra = params.get('extra')
   const [currentProblem, setCurrentProblem] = useState(parent)
+  const [passedHere, setPassedHere] = useState(false)
   const [extraError, setExtraError] = useState<string | null>(null)
   const [extras, setExtras] = useState<ExtraSummary[]>([])
   const [tab, setTab] = useState<LeftTab>(requestedExtra ?? 'problem')
@@ -802,8 +816,12 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
   const parentNew = parent.skill_cards.some((s) => s.new) && parent.has_lesson
   const tabExtra = extras.find((e) => e.id === tab)
 
+  const showStandard = activeId === id && !parent.parent && !variant && !tab.startsWith('x-') &&
+    !(review.review_source && requestedExtra) && parent.format !== 'predict' && parent.format !== 'inspect' &&
+    (passedHere || parent.status === 'solved' || parent.status === 'assisted')
+  const openStandard = () => setTab('standard')
   const tabs = (
-    <nav className="left-tabs" aria-label="题目、课和附加题">
+    <nav className="left-tabs" aria-label="题目、课、参考答案和附加题">
       <button
         disabled={!!review.review_source && !!requestedExtra}
         className={tab === 'problem' ? 'is-active' : ''}
@@ -821,6 +839,8 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
       >
         <Icon name="book" />课{parentNew ? <span className="tab-new">新</span> : null}
       </button>
+      {showStandard && <button className={tab === 'standard' ? 'is-active' : ''} aria-pressed={tab === 'standard'}
+        onClick={openStandard}>参考答案</button>}
       {extras.filter(e => !review.review_source || e.id === requestedExtra).map((e) => (
         <span key={e.id} className={`extra-tab ${tab === e.id ? 'is-active' : ''} ${e.status}`}>
           <button
@@ -858,7 +878,7 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
   )
 
   // 左栏内容：题面 / 课 / 还没出好的附加题的状态
-  let left: ActiveProps['left'] = tab === 'lesson' ? 'lesson' : 'statement'
+  let left: ActiveProps['left'] = tab === 'standard' && showStandard ? 'standard' : tab === 'lesson' ? 'lesson' : 'statement'
   if (tabExtra && tabExtra.status !== 'ready') {
     left =
       tabExtra.status === 'generating' ? (
@@ -916,6 +936,8 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
         tabs={<>{tabs}{extraError && <p role="alert" className="tone-fail">{extraError}</p>}</>}
         onDetail={setCurrentProblem}
         left={left}
+        onParentPassed={() => setPassedHere(true)}
+        onShowStandard={showStandard ? openStandard : undefined}
         onShowLesson={() => setTab('lesson')}
         onResult={setLastFailed}
       />

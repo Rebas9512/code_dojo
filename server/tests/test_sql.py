@@ -326,3 +326,24 @@ def test_script_query_compares_order_per_check():
 def test_script_reference_rejects_unexpected_probe_acceptance():
     with pytest.raises(ValueError, match="重复邮箱.*未通过检查"):
         sql_judge.run_node(mode="script", checks=CHECKS, solution=MEMBERS.replace(" UNIQUE", ""), datasets=[[]])
+
+
+@pytest.mark.parametrize(("exercise", "bad_answer"), [
+    ({"solution": SOLUTION, "ordered": True}, "SELECT n FROM books WHERE n < 13 ORDER BY n"),
+    ({"mode": "dml", "solution": "DELETE FROM books WHERE n >= 8", "check_query": SOLUTION},
+     "DELETE FROM books WHERE n = 8"),
+    ({"mode": "script", "solution": MEMBERS, "checks": CHECKS}, MEMBERS.replace(" UNIQUE", "")),
+])
+def test_standard_sql_uses_exercise_comparison(exercise, bad_answer):
+    datasets = [[SCHEMA, SEED], [SCHEMA, SEED, "INSERT INTO books VALUES (13)"]]
+    good = exercise["solution"]
+    assert len(sql_judge.run_node(**exercise, datasets=datasets, answers={"标准写法": good, "进阶写法": good})) == 2
+    dataset = 1 if exercise.get("mode") == "script" else 2
+    with pytest.raises(ValueError, match=f"数据集 {dataset}，进阶写法"):
+        sql_judge.run_node(**exercise, datasets=datasets, answers={"标准写法": good, "进阶写法": bad_answer})
+
+
+def test_ordered_standard_query_needs_order_by():
+    with pytest.raises(ValueError, match="标准写法缺少 ORDER BY"):
+        sql_judge.run_node(datasets=[[SCHEMA, "INSERT INTO books VALUES (1), (2)"]], solution=SOLUTION,
+                           ordered=True, answers={"标准写法": "SELECT n FROM books"})

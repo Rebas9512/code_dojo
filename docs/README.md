@@ -36,6 +36,7 @@ code-dojo/
 │   ├── <track>/track.yaml     名称、顺序、语言、运行环境、前置线、阶段和单元名
 │   ├── <track>/skills.yaml    本线技能、前置技能、知识卡
 │   ├── <track>/lessons/       按技能编排的课
+│   ├── <track>/<阶段>/<题目 id>/standard.*  可选的通过后参考答案与说明
 │   ├── python/、algo/         Python 基础（0A/0B）与算法（1–5），题在 <阶段>/<题目 id>/
 │   ├── sql/                  SQL 题（含 MySQL 迁移练习）与 _db/ 下的共享练习库
 │   ├── data/                 认识数据，看数据作答
@@ -98,6 +99,7 @@ deploy/run.sh --build                                   # 浏览器打开 http:/
 # 测试与校验
 cd server && uv run pytest -q                          # API、Python 判题与 Node PGlite
 cd server && uv run python ../scripts/verify_bank.py --judge local   # 可改用 --judge docker
+cd server && uv run python ../scripts/curriculum/verify_standard.py --only py-0a-409  # 按题号前缀，也可用 --track
 cd server && uv run python ../scripts/curriculum/verify_sql.py       # SQL 题、方言迁移原稿报错和课示例
 (cd web && node --experimental-strip-types --test tests/sql.test.mjs)
 cd web && npm run build                                # 类型检查 + 打包
@@ -120,6 +122,7 @@ cd web && npm run build                                # 类型检查 + 打包
 - `server/app/ai/provider.py` 探测本机命令，通过 `claude -p` 和 `codex exec` 使用个人订阅，测试用 `FakeProvider`。`codex_schema.py` 转换严格输出格式并还原可选字段和误解映射。`tutor.py` 组装题面、参考解、带行号的当前代码、最近一次判题和对话历史，并检查修改建议的位置。
 - `web/src/pages/` 的学习地图、题目列表、知识点、今日计划、统计和登录页共用深浅两套 VS Code Modern 色板。界面使用本地 TeX Gyre Heros 和按需加载的 Noto Sans SC 分片，代码和数值使用 JetBrains Mono。字体和图标的署名及许可证随前端发布到 `/licenses/`。
 - 做题页（带 Monaco）和知识点页（带 Markdown）单独打包，首页的包里没有它们。首页画好后，`App.tsx` 趁浏览器空闲预先载入做题页和 Monaco，第一次点开题目不用再等编辑器初始化。`pages/ProblemPage.tsx` 打开做题工作区。`api.ts` 给题目详情、学习线题目列表和今日计划留 60 秒读缓存，任何写请求完成后全部作废；判题状态一个页面会话只读一次。做题页提前取好上一题、下一题、继续和单元列表里悬停的题，切题时路由不等网络。路由等数据超过 120ms 时顶边出现一条蓝线。`components/WorkbenchLayout.tsx` 管理本单元题目列表、分隔线和布局偏好。`ProblemWorkspace.tsx` 在两个编辑器组中显示题面、课、附加题和作答区；每题独立保存草稿。`LessonView.tsx` 显示讲解、可运行的示例和小测。`ChatPanel.tsx` 提供共享编辑框和快捷提问。宽度小于 900px 时，编辑器组上下排列，题目列表和助教从两侧呼出。
+- `GET /api/problems/{id}/standard` 从已有正式通过记录解锁答案。`server/app/standard.py` 读取本题代码和说明，响应包含 `code`、`language`、`notes_md`、`advanced_md` 和 `has_notes`。未通过的代码题返回 403，附加题、预测题和看数据题返回 404。`components/StandardAnswerView.tsx` 按需显示 Markdown 与只读 Monaco，代码对比左侧跟随当前答案编辑框，右侧显示标准写法。
 - 每道题都有草稿，按题保存在当前浏览器。点文件标签或按 Alt+S 可在答案与草稿之间切换。在草稿中按 Ctrl+Enter 只看运行输出，不记作答。普通 SQL 题的 `scratch.sql` 使用本题首个样例库，SQL 看数据题使用书店练习库。其余题的 `scratch.py` 运行 Python。Ctrl+Shift+Enter 始终提交答案。
 - `WorkbenchPanel.tsx` 的测试结果页使用 `ResultPanel.tsx` 展示用例和结果表，输出页显示用例 stdout 和最近运行的草稿或课示例，问题页的源代码行可跳回答案编辑器。运行和提交会展开面板。22px 状态栏显示行列、判题方式、同步状态和上下题，桌面菜单位于最右。悬停时钟才显示本题用时（分钟），运行和提交时计算实际的 `elapsed_ms`。提交按钮旁的声音图标和命令面板可开关通过提示音，默认关闭。
 - 地图的「开始一组」可选 3、5、8 题和不限时、25、45 分钟，默认 5 题、不限时。`GET /api/session-plan?tab=python&size=5` 先取当前标签可直接作答的到期复习题（最早到期的在前，最多两题），再沿「继续」所在学习线的前沿向后取未做的必修题。组进度由 `practiceSession.ts` 保存在本机浏览器，12 小时内可以从地图接续。组条按本组第一次正式提交计连续通过；通过后 1.5 秒进入下一题，Esc 留在原题，也可跳过或提前结束。时间盒到点后做完手上这题即收，`/session` 展示逐题结果、用时和最高连续首次通过数。
@@ -128,11 +131,12 @@ cd web && npm run build                                # 类型检查 + 打包
 - Ctrl+P 在各页按题名、题号或 LeetCode slug 快速打开题目；受保护的题库需要先登录。做题页 Ctrl+Shift+P 打开命令面板。Ctrl+B 开关单元列表，Ctrl+J 开关底部面板，Ctrl+Alt+I 或 Alt+I 开关助教。Ctrl+Enter 运行，Ctrl+Shift+Enter 提交；看数据作答还支持数字 1–9 选项和 Ctrl+Enter 提交。Alt+L 切换课，Alt+B 切换裸写。状态栏箭头按题库顺序切题；Alt+← 返回上一题，Alt+→ 继续推荐练习。
 - 列表状态：● 绿 = 有一次通过时未应用 AI 修改、● 黄 = 仅有 AI 协助通过、◐ = 提交过没通过。知识点页另列技能状态、独立写对题数和最近使用时间；技能接口对应字段为 `state`、`counted_solves`、`last_used`。
 - 课相关接口：`/api/problems/{id}/lesson`（这道题的课：按技能拼出的教学内容）、`/api/playground/run`（运行 Python 示例，只看输出）。SQL 示例随课取得共享库及补丁，在做题页的 Worker 中执行并显示结果表。助教的上下文里也带着这道题的课。
-- 附加题（2026-11-22）：左栏标签"题目 | 课 | 附加题 1 | 附加题 2 … | ＋"。点"＋"或在助教里说"再来一道 / 换个场景 / 难一点"，后台由 `server/app/ai/extra.py` 出题。inspect 附加题验证内联数据和答案，SQL 附加题用 PGlite 验证，桌面端在浏览器运行，开发模式在服务端运行。Python 附加题在判题沙箱验证（参考解全过、典型错误写法和挖空 / 带 bug 的初始代码都被测试抓住，不过就带着问题重出，最多 3 次），出好自动切过去；实测 13–19 秒。助教也能按编号删附加题（`delete_extras`），用户在标签上点两下 × 删除。附加题存在 SQLite（`extra_problems` 表，编号删了不复用），id 形如 `x-12`，判题、课、共享编辑框都和原题一样用；原题和附加题共用一段助教对话，助教知道当前在看哪一道。接口：`GET/POST /api/problems/{id}/extras`、`DELETE /api/problems/{id}/extras/{seq}`。已知不足："只用原题的技能"目前只是提示词约束，以后可以把 check_curve 的 AST 技能检测接进验证。开发时 `CODE_DOJO_API=http://127.0.0.1:8001 npx vite --port 5174` 可以让前端指向另一个后端（比如用样例题库起的测试实例）。
+- 附加题（2026-11-22）：左栏在题目、课及已解锁的参考答案之后列出附加题和「＋」。点"＋"或在助教里说"再来一道 / 换个场景 / 难一点"，后台由 `server/app/ai/extra.py` 出题。inspect 附加题验证内联数据和答案，SQL 附加题用 PGlite 验证，桌面端在浏览器运行，开发模式在服务端运行。Python 附加题在判题沙箱验证（参考解全过、典型错误写法和挖空 / 带 bug 的初始代码都被测试抓住，不过就带着问题重出，最多 3 次），出好自动切过去；实测 13–19 秒。助教也能按编号删附加题（`delete_extras`），用户在标签上点两下 × 删除。附加题存在 SQLite（`extra_problems` 表，编号删了不复用），id 形如 `x-12`，判题、课、共享编辑框都和原题一样用；原题和附加题共用一段助教对话，助教知道当前在看哪一道。接口：`GET/POST /api/problems/{id}/extras`、`DELETE /api/problems/{id}/extras/{seq}`。已知不足："只用原题的技能"目前只是提示词约束，以后可以把 check_curve 的 AST 技能检测接进验证。开发时 `CODE_DOJO_API=http://127.0.0.1:8001 npx vite --port 5174` 可以让前端指向另一个后端（比如用样例题库起的测试实例）。
 
 ## 设计
 
 ### 1. 核心原则：练"手写"，不是刷数量
+- 原题正式提交通过（独立或 AI 协助）后，左栏立即出现「参考答案」，命令面板也可打开。查看和对比均不记求助，不影响掌握度与复习日程。组内通过后主动打开参考答案会留在本题，便于对照和修改。原有「看完整题解 · 明天重写」仍按求助排复习。
 - AI 默认不替你写代码；只有逐级点到"完整题解"才给，而且看过题解的题自动进重写队列、本次不算掌握。
 - 掌握一个技能需要独立写对两道不同的计入题。作者提示、助教提示、应用过 AI 修改、看完整题解都会影响本轮独立资格。普通练习看第一次正式提交，次日从空白重写可以重新取得资格。
 - 从今日计划或“继续”进入复习，编辑器使用 starter，答案框留空。间隔为 1、3、7、21、60 天，之后每 60 天再练。第二轮起换同套路的新题，题库不足时可以在原题下生成一道。复习失败隔天再练。看题解或 AI 协助通过也安排次日重写。
@@ -237,6 +241,7 @@ SQL 题按"用到的最高概念"归阶段，不照搬 SQL 50 的分节。阶段
   - 同种子两次运行 loss 完全一致，"和参考实现对拍 loss 轨迹"可行。
 
 ### 3. 题库
+- **通过后的标准写法**随题放在 `standard.py` / `standard.sql` 和 `standard.md`。尚未编写的题直接显示已有的 `solution.*`。全库验题覆盖标准代码和进阶代码，写单条线时可用 `scripts/curriculum/verify_standard.py --track <线名>`。写作规范见[教学设计](teaching-design.md#参考答案的写法)。
 - **固定题库**：题目是仓库里的文件，版本固定、循序渐进。开发时由 Claude Code 编写，每道题都用 `scripts/` 的校验跑过参考解和测试才入库。
 - **标准题单**（调研建议，待确认；详见 `docs/reports/2026 技术面试 高频题单 调研.md`）：算法与数据结构用 NeetCode 250 做骨架，Blind 75 / NC150 / 热题 100 做里程碑，另加"面试混合"阶段；SQL 用 SQL 50 按题目用到的最高概念重排，窗口函数和综合阶段靠自写和 AI 出题。只存题号、slug、套路标签、原题链接（leetcode.com），题面和测试用自己的话重写，不搬运原题面（版权）。各题单成员数据在 `docs/research_notes/2026 技术面试 高频题单 调研/lists.json`（2026-11-22 一次性快照）。
 - **公司标签**：独立的私有元数据表（公司、时间窗口、名次、快照日期），不写进题目文件；数据来自公开 GitHub 数据集，无许可证、LeetCode 条款禁止爬取，所以只私用、不自己爬。

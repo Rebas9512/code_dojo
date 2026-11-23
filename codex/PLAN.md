@@ -144,5 +144,5 @@
 - 待派：42–45 四个 Python 项目（并行）→ 46–48 三个 SQL 项目（并行），都等 41 验收后再派。
 
 ## 参考答案（用户 2026-11-23："每题我做完正确以后 最好有一个比较标准的参考答案可以选择性的查看"；量大，"还是先全给codex去做吧 要确保代码优雅简洁，以教学为核心，禁止防御型写作"；简短说明）
-- ⏳ 42-standard-answer-platform：standard.* + standard.md、verify_standard.py、通过后的"参考答案"标签和对比视图、写法规范（teaching-design.md）、5 道示范。先于 41 派（两者改同一批文件）。
+- ✓ 42-standard-answer-platform（主控验收：技能范围改成和参考解同一规则——requires ∪ introduces 及其前置，撤回 codex 为示范改的 4 处 requires；对比视图窄栏改行内；5 道示范风格合格）：standard.* + standard.md、verify_standard.py、通过后的"参考答案"标签和对比视图、写法规范（teaching-design.md）、5 道示范。先于 41 派（两者改同一批文件）。
 - 待派：42 验收后按线分 8 个内容任务写约 1300 道参考答案，和 41 并行。

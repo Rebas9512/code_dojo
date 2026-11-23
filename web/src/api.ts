@@ -178,6 +178,14 @@ export interface PlaygroundResult {
   time_ms: number
 }
 
+export interface StandardAnswer {
+  code: string
+  language: 'python' | 'sql'
+  notes_md: string
+  advanced_md: string
+  has_notes: boolean
+}
+
 export interface ProblemDetail extends ProblemSummary {
   language: Language
   statement: string
@@ -344,6 +352,7 @@ export const api = {
   hint: (id: string, number: number, review: ReviewContext) => request(`/api/problems/${id}/hints/${number}`, {
     method: 'POST', body: JSON.stringify(review),
   }),
+  standard: (id: string) => request<StandardAnswer>(`/api/problems/${encodeURIComponent(id)}/standard`),
   solution: (id: string, review: ReviewContext) => request<{ solution: string }>(`/api/problems/${id}/solution`, {
     method: 'POST', body: JSON.stringify(review),
   }),

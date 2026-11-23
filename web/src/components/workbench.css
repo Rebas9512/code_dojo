@@ -79,6 +79,13 @@
 .workbench .prose, .workbench .lesson-pointer, .workbench .hints { font-size: 13px; }
 .workbench .prose pre, .workbench .program, .workbench .io { font-size: 13px; }
 .workbench .editor-wrap { flex: 1; min-height: 0; overflow: hidden; }
+.standard-answer { display: grid; gap: 16px; min-width: 0; }
+.standard-answer > * { min-width: 0; }
+.standard-answer > .secondary { justify-self: start; }
+.standard-answer section h2 { margin: 0 0 8px; font-size: 14px; color: var(--muted); }
+.standard-answer .prose > :last-child { margin-bottom: 0; }
+.standard-code, .standard-diff { overflow: hidden; border: 1px solid var(--line); }
+.diff-labels { margin: 0; padding: 4px 8px; font-size: 12px; color: var(--muted); background: var(--panel); border-bottom: 1px solid var(--line); }
 .workbench .inspect-answer { flex: 1; min-height: 0; overflow: auto; padding: 20px; }
 .editor-notice { font-size: 12px; padding: 3px 12px; }
 .wb-chat { grid-area: chat; border-left: 1px solid var(--line); }

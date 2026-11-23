@@ -10,10 +10,15 @@ export interface Validation extends Omit<SqlExercise, 'mode'> {
   datasets: string[][]
   solution?: string
   ordered?: boolean
+  answers?: Record<string, string>
   wrong?: string[]
   starter?: string
   preview?: boolean
   requiredTables?: string[]
+}
+
+function requireOrderBy(sql: string, label: string) {
+  if (!/\border\s+by\b/i.test(checkQuery(sql))) throw new Error(label + '缺少 ORDER BY')
 }
 
 export async function validate(db: PGlite, job: Validation) {
@@ -28,8 +33,12 @@ export async function validate(db: PGlite, job: Validation) {
     if (mode === 'script' && !job.checks?.length) throw new Error('脚本题需要非空的 checks')
     if (mode !== 'script' && job.checks?.length) throw new Error('checks 只用于脚本题')
     const readSql = mode === 'dml' ? check_query : solution
-    if (mode !== 'script' && ordered && !/\border\s+by\b/i.test(checkQuery(readSql!)))
-      throw new Error(`ordered 题的${mode === 'dml' ? '检查查询' : '参考解'}缺少 ORDER BY`)
+    if (mode !== 'script' && ordered) {
+      requireOrderBy(readSql!, mode === 'dml' ? 'ordered 题的检查查询' : 'ordered 题的参考解')
+      if (mode !== 'dml') {
+        for (const [label, sql] of Object.entries(job.answers ?? {})) requireOrderBy(sql, label)
+      }
+    }
     for (const [i, setup] of datasets.entries()) {
       context = `数据集 ${i + 1}，建表`
       if (requiredTables && mode === 'script') setup.forEach(checkScript)
@@ -83,15 +92,22 @@ export async function validate(db: PGlite, job: Validation) {
       }
       if ('checks' in table) {
         const checks = job.checks!
+        const checkScriptAnswer = async (sql: string) => {
+          const actual = await inDataset(db, setup, tx => runScript(tx, sql, checks), 'script')
+          return checks.map((check, j) => compareCheck(check, actual[j], table.checks[j])).find(Boolean)
+        }
+        for (const [label, sql] of Object.entries(job.answers ?? {})) {
+          context = `数据集 ${i + 1}，${label}`
+          const diff = await checkScriptAnswer(sql)
+          if (diff) throw new Error(diff.message)
+        }
         const fails = async (sql: string) => {
-          let actual
           try {
-            actual = await inDataset(db, setup, tx => runScript(tx, sql, checks), 'script')
+            return !!await checkScriptAnswer(sql)
           } catch {
             // 脚本本身执行失败时，同样不能通过这个数据集。
             return true
           }
-          return checks.some((check, j) => compareCheck(check, actual[j], table.checks[j]))
         }
         for (const [j, sql] of wrong.entries()) {
           if (!detected.has(j) && await fails(sql)) detected.add(j)
@@ -103,6 +119,12 @@ export async function validate(db: PGlite, job: Validation) {
       }
       // 每份答案从同一份原始数据开始，修改结果不会叠加。
       const candidate = (sql: string) => inDataset(db, setup, tx => runStatement(tx, sql, exercise), mode)
+      for (const [label, sql] of Object.entries(job.answers ?? {})) {
+        context = `数据集 ${i + 1}，${label}`
+        const { actual } = await candidate(sql)
+        const diff = compareTables(actual, table, ordered)
+        if (diff) throw new Error(diff.message)
+      }
       for (const [j, sql] of wrong.entries()) {
         context = `数据集 ${i + 1}，错误写法 ${j + 1}`
         const { actual } = await candidate(sql)

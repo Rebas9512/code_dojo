@@ -93,3 +93,21 @@ def test_week_is_positive_integer(curriculum, week, valid):
         assert any("week 应为正整数" in e for e in errors())
         with pytest.raises(ValueError, match="week 应为正整数"):
             ProblemMeta(**meta)
+
+
+def test_standard_skills_follow_solution_closure(curriculum):
+    """标准写法和参考解同一规则：requires ∪ introduces 及其前置链上的技能都能用，不用为此改题目的 requires。"""
+    directory = curriculum / "leaf/3/leaf-3-001-print"
+    path = directory / "problem.yaml"
+    skills_path = curriculum / "base/skills.yaml"
+    skills = yaml.safe_load(skills_path.read_text())
+    skills["skills"].append(dict(skills["skills"][0], id="py.output", prereqs=["py.print"]))
+    skills_path.write_text(yaml.safe_dump(skills))
+    meta = yaml.safe_load(path.read_text()) | {"format": "write", "mode": "stdio", "skills": {"requires": ["py.output"]}}
+    path.write_text(yaml.safe_dump(meta))
+    (directory / "tests.json").write_text("{}")
+    (directory / "standard.py").write_text("print(1)")
+    assert not any("标准写法" in msg for msg in errors())
+    meta["skills"]["requires"] = []
+    path.write_text(yaml.safe_dump(meta))
+    assert any("标准写法用到 py.print" in msg for msg in errors())
