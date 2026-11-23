@@ -6,7 +6,7 @@
 ## 这个项目是什么
 - **目标**：长时间没手写代码，手很生。做一个类似 LeetCode 的网页，从 beginner 开始一步步把手写能力练回来，同时覆盖求职常用的标准题单。
 - **学习线**：12 条线全部开放，共 1554 题。认识数据（20）是 Python 基础（238）与 SQL（216）的共同起点。SQL 之后可学产品分析 SQL（90）和建模与写数据（70）。其余为算法与数据结构（403）、数学（80）、数据处理（100）、张量（90）、机器学习（87）、训练（80）、手搓 LLM（80）。
-- **使用方式**：每台机器运行自己的本机网页，代码和题库共用一个私有仓库，个人学习记录可用另一个私有仓库同步。助教使用个人订阅。也可以在自己的服务器启用登录后远程访问。
+- **使用方式**：每台机器运行自己的本机网页，代码和题库在公开仓库 `Rebas9512/code_dojo`，个人学习记录用另一个私有仓库同步。助教使用个人订阅。也可以在自己的服务器启用登录后远程访问。
 - **当前成果**：地图和知识点页展示技能掌握度，今日计划安排到期复习和新题，手感统计按周展示练习趋势。Python 可用本机解释器或 Docker 判题，SQL 在浏览器中判题，两者都支持可运行的课、AI 助教和附加题。
 
 ## 目录
@@ -57,7 +57,7 @@ Electron 主进程建好窗口后，同时载入随包启动页和启动 `python
 
 普通 Python 题直接用随包解释器运行独立的 harness 子进程。数据科学题首次使用时在数据目录的 `judge-envs/` 创建专用环境并安装 NumPy、pandas 和 CPU 版 PyTorch。AppImage 启动时会将 `desktop/python-<解释器版本>` 链接到当前挂载的运行时，使同一 Python 版本的判题环境在重开后仍然可用。固定 SQL 题从更新包读取期望表，用户 SQL 和附加题的动态校验都在应用窗口内的 PGlite Worker 中运行。助教使用本机登录的 Claude Code 或 Codex，在做题页助教面板选择。桌面“设置”显示助教状态。只有 Codex 的机器需要含双助教探测的启动器；已发布的 1.1.2 启动器仍按 Claude Code 判断开关。
 
-**发布**。推送到 main 后，`ci.yml` 在 Linux 上测试，通过才触发 `release-payload.yml`。私有仓库的 Actions 额度按 macOS 10 倍、Windows 2 倍计费，所以三系统测试改为手动触发（`gh workflow run ci.yml`），改了判题、启动器或发版前跑一次。固定 Release 提供桌面更新，另保留最近五个带版本号的 `payload-v*` Release。需要回退时将目标版本的一对 `payload.zip` 和 `manifest.json` 依次覆盖固定 Release 的同名资产。修改启动器时同步更新 `bootstrap.VERSION` 和 `desktop/package.json` 中的版本与 npm 锁文件，发布对应的 `app-vX.Y.Z` 标签。`release-app.yml` 用 electron-builder 在三系统构建，在 Linux 上用 xvfb 和 Playwright 实际解锁、交卷并检查退出推送，全部成功后发布安装包。可选的 Actions 密钥 `CODE_DOJO_SEALED_TOKENS` 由发布者在本机加密后上传，打包时写入 `sealed-tokens.json`。本版更新包的最低启动器版本是 1.0.0。有不兼容更新时先发布新版安装包，再提高 `bootstrap.MIN_BOOTSTRAP` 并发布更新包。
+**发布**。推送到 main 后，`ci.yml` 在 Linux 上测试，通过才触发 `release-payload.yml`。仓库自 2026-11-23 起公开，标准机器的 Actions 不计费；推送时仍只跑 Linux，更新包发得快。三系统测试手动触发（`gh workflow run ci.yml`），改了判题、启动器或发版前跑一次。固定 Release 提供桌面更新，另保留最近五个带版本号的 `payload-v*` Release。需要回退时将目标版本的一对 `payload.zip` 和 `manifest.json` 依次覆盖固定 Release 的同名资产。修改启动器时同步更新 `bootstrap.VERSION` 和 `desktop/package.json` 中的版本与 npm 锁文件，发布对应的 `app-vX.Y.Z` 标签。`release-app.yml` 用 electron-builder 在三系统构建，在 Linux 上用 xvfb 和 Playwright 实际解锁、交卷并检查退出推送，全部成功后发布安装包。可选的 Actions 密钥 `CODE_DOJO_SEALED_TOKENS` 由发布者在本机加密后上传，打包时写入 `sealed-tokens.json`。本版更新包的最低启动器版本是 1.0.0。有不兼容更新时先发布新版安装包，再提高 `bootstrap.MIN_BOOTSTRAP` 并发布更新包。
 
 ## 怎么跑
 

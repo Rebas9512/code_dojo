@@ -101,7 +101,7 @@
 - 32、33 并行：留存、漏斗、会话切分的深入练习归 32，33 在阶段 5 只补到各一道补全 / 独立写 / 改错。两者都会给 check_curve 的 SQL 识别表加行，只加不改。
 - 第 4 条「PostgreSQL 进阶与性能」用户暂不做。
 - 2026-11-23 主控验收：SQL 主线 216 题、analytics 90 题、modeling 70 题；verify_sql 361/361、课示例 118/118、check_curve 0 错 0 警、pytest 274。
-- 待返工（主控验收时发现）：33 的 5 道"MySQL 改 PostgreSQL"改错题，starter 是已经翻译好的 PG 写法（只是参数顺序错），练不到方言迁移。应改成 starter 就是真 MySQL 写法（IFNULL、DATE_ADD、LIMIT x, y、GROUP_CONCAT、反引号），在 PG 上运行报错，学习者改写；verify_sql 需要允许 fix 题的 starter 报错。
+- ⏳ 38-sql-mysql-port-rework（用户 2026-11-23："这个也可以一起做了"）返工中。原记录：33 的 5 道"MySQL 改 PostgreSQL"改错题，starter 是已经翻译好的 PG 写法（只是参数顺序错），练不到方言迁移。应改成 starter 就是真 MySQL 写法（IFNULL、DATE_ADD、LIMIT x, y、GROUP_CONCAT、反引号），在 PG 上运行报错，学习者改写；verify_sql 需要允许 fix 题的 starter 报错。
 
 ## 桌面应用 1.1.1 / 1.1.2（主控 2026-11-23）
 - 1.1.1：Linux AppImage 的 AppRun 一律带 --no-sandbox（Ubuntu 23.10+ 点图标打不开）；桌面版不扫题库。

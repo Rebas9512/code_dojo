@@ -34,7 +34,7 @@
 
 ## 本地模式和同步仓库怎么建
 
-1. 安装 Git、uv 和 Node.js 22.13+（含 npm）。克隆私有代码仓库，进入项目目录，Linux 或 macOS 运行 `./dojo`，Windows PowerShell 运行 `.\dojo.ps1`。浏览器自动打开本机网页。三个系统的通用入口是 `uv run dojo.py`，环境诊断用 `uv run dojo.py doctor`。
+1. 安装 Git、uv 和 Node.js 22.13+（含 npm）。克隆代码仓库，进入项目目录，Linux 或 macOS 运行 `./dojo`，Windows PowerShell 运行 `.\dojo.ps1`。浏览器自动打开本机网页。三个系统的通用入口是 `uv run dojo.py`，环境诊断用 `uv run dojo.py doctor`。
 2. 在 GitHub 新建**另一个私有仓库**，例如 `dojo-progress`。空仓库或只有 README 的仓库都可以。每台机器都需有读写权限。使用 SSH 时，在 GitHub 账户中添加这台机器的 SSH 公钥，提前用 `ssh -T git@github.com` 确认连接。使用 HTTPS 时，可运行 `gh auth login` 选择 HTTPS，然后运行 `gh auth setup-git`。
 3. 将同一个仓库地址写入每台机器的环境变量。下面使用 SSH 地址。使用 HTTPS 凭据时替换为 `https://github.com/<账户>/dojo-progress.git`。
 
