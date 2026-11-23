@@ -39,9 +39,9 @@ const ASSISTED: EditorOptions = {
 }
 
 const BASE: EditorOptions = {
-  fontFamily: "'JetBrains Mono Variable', 'JetBrains Mono', monospace",
-  fontSize: 15,
-  lineHeight: 24,
+  fontFamily: "'JetBrains Mono Variable', 'Noto Sans SC', monospace",
+  fontSize: 14,
+  lineHeight: 22,
   fontLigatures: false,
   minimap: { enabled: false },
   scrollBeyondLastLine: false,
@@ -67,10 +67,12 @@ const BASE: EditorOptions = {
 interface Props {
   value: string
   onChange: (v: string) => void
-  language: 'python' | 'pgsql'
+  language: 'python' | 'pgsql' | 'plaintext'
+  placeholder?: string
   theme: Theme
   bare: boolean
   readOnly?: boolean
+  onCursor?: (line: number, col: number) => void
   onRun?: () => void
   onSubmit?: () => void
   /** 紧凑模式：课里的小示例用，字号小、不抢焦点 */
@@ -86,21 +88,28 @@ const COMPACT: EditorOptions = {
 }
 
 export interface CodeEditorHandle {
+  jumpTo(line: number): void
   /** 把当前代码里唯一出现的 oldText 换成 newText（oldText 为空则接在末尾），可以 Ctrl+Z 撤销，并标出 AI 写入的行。找不到或不唯一返回 false。 */
   applyEdit(oldText: string, newText: string): boolean
 }
 
 export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEditor(
-  { value, onChange, language, theme, bare, readOnly, onRun, onSubmit, compact = false },
+  { value, onChange, language, theme, bare, readOnly, placeholder, onCursor, onRun, onSubmit, compact = false },
   ref,
 ) {
   // 快捷键回调放进 ref：Monaco 的命令只在挂载时注册一次
-  const handlers = useRef({ onRun, onSubmit })
-  handlers.current = { onRun, onSubmit }
+  const handlers = useRef({ onRun, onSubmit, onCursor })
+  handlers.current = { onRun, onSubmit, onCursor }
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
   const aiMarks = useRef<monaco.editor.IEditorDecorationsCollection | null>(null)
 
   useImperativeHandle(ref, () => ({
+    jumpTo(line) {
+      const editor = editorRef.current
+      editor?.setPosition({ lineNumber: line, column: 1 })
+      editor?.revealLineInCenterIfOutsideViewport(line)
+      editor?.focus()
+    },
     applyEdit(oldText, newText) {
       const editor = editorRef.current
       const model = editor?.getModel()
@@ -142,6 +151,8 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEdito
 
   const onMount: OnMount = (editor) => {
     editorRef.current = editor
+    editor.onDidChangeCursorPosition(({ position }) => handlers.current.onCursor?.(position.lineNumber, position.column))
+    void document.fonts.load('14px "JetBrains Mono Variable"').then(() => monaco.editor.remeasureFonts())
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => handlers.current.onRun?.())
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Enter, () =>
       handlers.current.onSubmit?.(),
@@ -159,7 +170,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEdito
       onChange={(v) => onChange(v ?? '')}
       language={language}
       theme={`dojo-${theme}`}
-      options={{ ...BASE, ...(compact ? COMPACT : {}), ...(bare ? BARE : ASSISTED), readOnly: !!readOnly }}
+      options={{ ...BASE, placeholder, ...(compact ? COMPACT : {}), ...(bare ? BARE : ASSISTED), readOnly: !!readOnly }}
       onMount={onMount}
       loading={null}
     />

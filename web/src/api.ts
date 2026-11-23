@@ -378,3 +378,10 @@ export interface JudgeRequest extends ReviewContext {
   hints_used?: number
   ai_lines?: number
 }
+
+export async function loadWorkspace(id: string) {
+  const parent = await api.problem(id)
+  const [rows, plan, status] = await Promise.all([api.problems(parent.track), api.today(), api.status()])
+  return { parent, rows, reviews: plan.reviews, status }
+}
+export type WorkspaceData = Awaited<ReturnType<typeof loadWorkspace>>

@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { replace, useLoaderData, type LoaderFunctionArgs } from 'react-router-dom'
+import { writePref } from '../theme'
+import { Picker, usePickerShortcut } from '../components/Picker'
 import { api } from '../api'
 
 export async function loginLoader({ request }: LoaderFunctionArgs) {
@@ -21,6 +23,8 @@ export async function loginLoader({ request }: LoaderFunctionArgs) {
 export function LoginPage() {
   const next = useLoaderData<typeof loginLoader>()
   const [error, setError] = useState('')
+  const [quick, setQuick] = useState(false)
+  usePickerShortcut(false, () => { writePref('dojo-search-after-login', '1'); setQuick(true) })
   const [pending, setPending] = useState(false)
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -42,6 +46,8 @@ export function LoginPage() {
 
   return <div className="shell">
     <header className="topbar"><span className="wordmark">code-dojo</span></header>
+    {quick && <Picker label="快速打开" items={[]} message="请先登录，登录后可搜索题库。"
+      close={() => { setQuick(false); document.getElementById('password')?.focus() }} />}
     <main className="track login-page">
       <h1>登录</h1>
       <form onSubmit={submit} method="post">

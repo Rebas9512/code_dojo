@@ -71,24 +71,21 @@ function CaseDetail({ c, mode, names }: { c: FullCaseResult; mode: Mode; names: 
           )}
         </>
       ) : (
-        <>
-          <div className="row-label">输入</div>
-          {mode === 'stdio' ? (
-            <pre className="io">{String(c.input.stdin ?? '')}</pre>
-          ) : (
-            <FunctionInput args={(c.input.args as unknown[]) ?? []} names={names} />
-          )}
-          <div className="row-label">期望</div>
-          <pre className="io">{mode === 'stdio' ? String(c.expected ?? '') : show(c.expected)}</pre>
-          {c.status !== 'runtime_error' && c.status !== 'timeout' && c.status !== 'skipped' && (
-            <>
-              <div className="row-label">实际</div>
+        <div className="case-fields">
+          <div><div className="row-label">输入</div>
+            {mode === 'stdio' ? <pre className="io">{String(c.input.stdin ?? '')}</pre> :
+              <FunctionInput args={(c.input.args as unknown[]) ?? []} names={names} />}
+          </div>
+          <div><div className="row-label">期望</div>
+            <pre className="io">{mode === 'stdio' ? String(c.expected ?? '') : show(c.expected)}</pre>
+          </div>
+          {c.status !== 'runtime_error' && c.status !== 'timeout' && c.status !== 'skipped' &&
+            <div><div className="row-label">实际</div>
               <pre className={`io ${tone === 'fail' ? 'tone-fail' : ''}`}>
                 {mode === 'stdio' ? String(c.actual ?? '') : show(c.actual)}
               </pre>
-            </>
-          )}
-        </>
+            </div>}
+        </div>
       )}
       {c.error && (
         <>
@@ -149,7 +146,7 @@ export function ResultPanel({ result, kind, mode, paramNames, sql }: Props) {
         )}
       </header>
       {result.error && <pre className="io tone-fail">{result.error}</pre>}
-      {c?.preview && <div className="case-detail">
+      {c?.preview && <div className="case-detail case-fields">
         {([['输入', c.input], ['期望', c.expected], ['实际', c.actual], ['差异', c.difference],
            ['报错', c.error], ['输出', c.stdout]] as const).filter(([, v]) => v != null && v !== '').map(([label, v]) =>
           <div key={label}><div className="row-label">{label}</div>

@@ -5,11 +5,12 @@ import { CodeEditor } from './LazyCodeEditor'
 import { InspectData } from './InspectData'
 import { Markdown } from './Markdown'
 
+import type { ExampleOutput } from './WorkbenchPanel'
 import type { TablePreview } from '../sql/client'
 const SqlTableView = lazy(() => import('../sql/SqlTableView'))
 
 /** 示例代码：可以改、可以运行，只看输出不判对错。 */
-function ExampleStep({ step, theme, problemId, runStatus }: { problemId: string; step: Extract<LessonStep, { code: string }>; theme: Theme; runStatus?: ReactNode }) {
+function ExampleStep({ step, theme, problemId, runStatus, onOutput }: { problemId: string; step: Extract<LessonStep, { code: string }>; theme: Theme; runStatus?: ReactNode; onOutput: (out: ExampleOutput) => void }) {
   const [code, setCode] = useState(step.code)
   const [out, setOut] = useState<PlaygroundResult | null>(null)
   const [running, setRunning] = useState(false)
@@ -27,9 +28,16 @@ function ExampleStep({ step, theme, problemId, runStatus }: { problemId: string;
         const client = await import('../sql/client')
         await client.prepare()
         setPreparing(false)
-        setTable((await client.query({ setup: step.setup!, sql: code })).actual)
-      } else setOut(await api.playground(code, step.stdin ?? '', problemId))
+        const { actual } = await client.query({ setup: step.setup!, sql: code })
+        setTable(actual)
+        onOutput({ table: actual, stdout: '' })
+      } else {
+        const result = await api.playground(code, step.stdin ?? '', problemId)
+        setOut(result)
+        onOutput(result)
+      }
     } catch (e) {
+      onOutput({ stdout: '', error: (e as Error).message })
       setOut({ status: 'system_error', stdout: '', error: (e as Error).message, time_ms: 0 })
     } finally {
       setPreparing(false)
@@ -111,7 +119,7 @@ function QuizStep({ step }: { step: Extract<LessonStep, { type: 'quiz' }> }) {
   )
 }
 
-function Section({ sec, theme, problemId, runStatus }: { problemId: string; sec: LessonSection; theme: Theme; runStatus?: ReactNode }) {
+function Section({ sec, theme, problemId, runStatus, onOutput }: { problemId: string; sec: LessonSection; theme: Theme; runStatus?: ReactNode; onOutput: (out: ExampleOutput) => void }) {
   const body =
     sec.steps.length > 0 ? (
       sec.steps.map((st, i) =>
@@ -120,7 +128,7 @@ function Section({ sec, theme, problemId, runStatus }: { problemId: string; sec:
         ) : st.type === 'example' && 'data' in st ? (
           <div key={i}><InspectData block={st.data} lesson />{st.md && <Markdown>{st.md}</Markdown>}</div>
         ) : st.type === 'example' ? (
-          <ExampleStep key={i} step={st} theme={theme} problemId={problemId} runStatus={runStatus} />
+          <ExampleStep key={i} step={st} theme={theme} problemId={problemId} runStatus={runStatus} onOutput={onOutput} />
         ) : (
           <QuizStep key={i} step={st} />
         ),
@@ -149,7 +157,7 @@ function Section({ sec, theme, problemId, runStatus }: { problemId: string; sec:
 }
 
 /** 一道题的"课"：本题新知识展开在最前，用到的已学知识折叠在后面。 */
-export function LessonView({ problemId, theme, runStatus }: { problemId: string; theme: Theme; runStatus?: ReactNode }) {
+export function LessonView({ problemId, theme, runStatus, onOutput }: { problemId: string; theme: Theme; runStatus?: ReactNode; onOutput: (out: ExampleOutput) => void }) {
   const [sections, setSections] = useState<LessonSection[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   useEffect(() => {
@@ -169,13 +177,13 @@ export function LessonView({ problemId, theme, runStatus }: { problemId: string;
       {sections
         .filter((s) => s.new)
         .map((s) => (
-          <Section key={s.skill} sec={s} theme={theme} problemId={problemId} runStatus={runStatus} />
+          <Section key={s.skill} sec={s} theme={theme} problemId={problemId} runStatus={runStatus} onOutput={onOutput} />
         ))}
       {used.length > 0 && (
         <div className="lesson-used">
           <p className="faint lesson-used-title">用到的已学知识</p>
           {used.map((s) => (
-            <Section key={s.skill} sec={s} theme={theme} problemId={problemId} runStatus={runStatus} />
+            <Section key={s.skill} sec={s} theme={theme} problemId={problemId} runStatus={runStatus} onOutput={onOutput} />
           ))}
         </div>
       )}

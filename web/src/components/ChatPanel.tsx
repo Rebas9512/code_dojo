@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { api, type ChatMessage, type ExtraSummary, type TutorEdit, type ReviewContext } from '../api'
+import { Icon } from './WorkbenchLayout'
 import { Markdown } from './Markdown'
 
 export interface ApplyResult {
@@ -8,6 +9,8 @@ export interface ApplyResult {
 }
 
 interface Props {
+  aiOn: boolean
+  close: () => void
   /** 原题 id：原题和它的附加题共用这一段对话 */
   problemId: string
   /** 学生正在看的题（原题或附加题 x-12），助教按它组织上下文 */
@@ -62,13 +65,12 @@ function EditsView({ msg, result }: { msg: ChatMessage; result?: ApplyResult }) 
   )
 }
 
-export function ChatPanel({ problemId, currentId, review, choice, getCode, getAnswer, onEdits, lastFailed, onExtras }: Props) {
+export function ChatPanel({ aiOn, close, problemId, currentId, review, choice, getCode, getAnswer, onEdits, lastFailed, onExtras }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [results, setResults] = useState<Record<number, ApplyResult>>({})
-  const [aiOn, setAiOn] = useState(true)
   const activeId = useRef(currentId)
   activeId.current = currentId
   const listRef = useRef<HTMLDivElement>(null)
@@ -81,10 +83,6 @@ export function ChatPanel({ problemId, currentId, review, choice, getCode, getAn
     if (!review.review_source) api
       .chat(problemId)
       .then(setMessages)
-      .catch(() => {})
-    api
-      .status()
-      .then((h) => setAiOn(h.ai !== 'off'))
       .catch(() => {})
   }, [problemId, review.review_source])
 
@@ -143,13 +141,14 @@ export function ChatPanel({ problemId, currentId, review, choice, getCode, getAn
   return (
     <aside className="chat" aria-label="AI 助教">
       <header className="chat-head">
-        <span className="chat-title">{choice ? '助教' : '助教 · 共享编辑框'}</span>
+        <Icon name="comment-discussion" /><span className="chat-title">{choice ? '助教' : '助教 · 共享编辑框'}</span>
         <span className="bar-spacer" />
         {messages.length > 0 && (
           <button className="ghost" onClick={clear} title="清空这道题的对话">
             清空
           </button>
         )}
+        <button className="icon-btn" onClick={close} title="收起助教（Ctrl+Alt+I）"><Icon name="close" /></button>
       </header>
 
       <div className="chat-list" ref={listRef}>

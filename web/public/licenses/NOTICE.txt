@@ -1,0 +1,17 @@
+TeX Gyre Heros — GUST e-foundry, Bogusław Jackowski and Janusz M. Nowacki.
+https://ctan.org/pkg/tex-gyre
+Regular and Bold converted from OpenType to WOFF2 for local web embedding.
+See GUST-FONT-LICENSE.txt.
+
+Noto Sans SC — The Noto Project Authors. Distributed by Fontsource.
+https://fontsource.org/fonts/noto-sans-sc
+See Noto-Sans-SC.txt.
+
+JetBrains Mono — The JetBrains Mono Project Authors. Distributed by Fontsource.
+https://www.jetbrains.com/lp/mono/
+See JetBrains-Mono.txt.
+
+VS Code Codicons — Microsoft Corporation. Icons distributed unmodified under CC BY 4.0.
+https://github.com/microsoft/vscode-codicons
+https://creativecommons.org/licenses/by/4.0/
+See Codicons-CC-BY-4.0.txt and Codicons-MIT.txt.

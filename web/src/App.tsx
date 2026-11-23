@@ -3,15 +3,18 @@ import {
   createBrowserRouter, Link, Navigate, NavLink, Outlet, RouterProvider,
   useLoaderData, useMatches, useParams, useRouteError,
 } from 'react-router-dom'
-import { api, type ProblemDetail } from './api'
+import { api, loadWorkspace, type WorkspaceData } from './api'
 import { TodayPage, StatsPage } from './pages/PlanPages'
 import { LoginPage, loginLoader } from './pages/LoginPage'
 import { MapPage } from './pages/MapPage'
 import { SkillsPage } from './pages/SkillsPage'
 import { TrackPage } from './pages/TrackPage'
-import { useTheme } from './theme'
+import { readPref, writePref, useTheme } from './theme'
 import { useTracks } from './tracks'
+import { DesktopBridge } from './components/DesktopBridge'
 import { SyncStatus } from './components/SyncStatus'
+
+import { QuickOpen, usePickerShortcut } from './components/Picker'
 
 // 做题页带 Monaco，单独打包。
 const ProblemPage = lazy(() => import('./pages/ProblemPage').then((m) => ({ default: m.ProblemPage })))
@@ -20,9 +23,15 @@ function Shell() {
   const { session } = useLoaderData<typeof loadMap>()
   const [logoutError, setLogoutError] = useState('')
   const tracks = useTracks()
+  const [quick, setQuick] = useState(() => readPref('dojo-search-after-login', '') === '1')
+  function closeQuick() {
+    writePref('dojo-search-after-login', null)
+    setQuick(false)
+  }
+  usePickerShortcut(false, () => setQuick(true))
   const { track } = useParams()
-  const problem = useMatches().find((m) => m.id === 'problem')?.data as ProblemDetail | undefined
-  const current = tracks.find((t) => t.id === (problem?.track ?? track))
+  const problem = useMatches().find((m) => m.id === 'problem')?.data as WorkspaceData | undefined
+  const current = tracks.find((t) => t.id === (problem?.parent.track ?? track))
   const [theme, toggleTheme] = useTheme()
   const themeLabel = theme === 'dark' ? '切到浅色' : '切到深色'
   async function logout() {
@@ -35,9 +44,9 @@ function Shell() {
   }
   return (
     <div className="shell">
-      <header className="topbar">
+      <header className={problem ? "topbar wb-titlebar" : "topbar"}>
         <Link to="/" className="wordmark">code-dojo</Link>
-        {current && <>
+        {current && !problem && <>
           <span className="current-track">{current.name}</span>
           <nav className="tracks" aria-label="学习线视图">
             <NavLink end to={`/t/${current.id}`} className={({ isActive }) => isActive || problem ? 'active' : ''}>题目</NavLink>
@@ -48,12 +57,15 @@ function Shell() {
         <nav className="tracks plan-nav" aria-label="练习计划">
           <NavLink to="/today">今日计划</NavLink><NavLink to="/stats">手感统计</NavLink>
         </nav>
-        <SyncStatus />
+        {!problem && <><SyncStatus /><DesktopBridge /></>}
+        {problem && <button className="quick-trigger" onClick={() => setQuick(true)} title="快速打开（Ctrl+P）">
+          <span aria-hidden="true" className="codicon codicon-search" /> 快速打开题目 <kbd>Ctrl P</kbd></button>}
         <button className="ghost theme-toggle" onClick={toggleTheme} title={themeLabel} aria-label={themeLabel}>
           {theme === 'dark' ? '☀' : '☾'}
         </button>
         {session.enabled && <button className="ghost logout" onClick={logout}>退出</button>}
       </header>
+      {quick && <QuickOpen tracks={tracks} close={closeQuick} />}
       {logoutError && <p className="tone-fail" role="alert">{logoutError}</p>}
       <Suspense fallback={<main />}><Outlet context={theme} /></Suspense>
     </div>
@@ -92,7 +104,7 @@ const router = createBrowserRouter([{
     },
     {
       id: 'problem', path: 'p/:id', element: <ProblemPage />, errorElement: <RouteError />,
-      loader: ({ params }) => api.problem(params.id!),
+      loader: ({ params }) => loadWorkspace(params.id!),
     },
   ],
 }])

@@ -18,9 +18,9 @@ import {
   type ReviewContext,
   type ExtraSummary,
   type ItemRef,
-  type JudgeResult,
   type JudgeRequest,
   type ProblemDetail,
+  type WorkspaceData,
   type TutorEdit,
 } from '../api'
 import { variantRequest } from '../pages/PlanPages'
@@ -33,7 +33,11 @@ import type { CodeEditorHandle } from './CodeEditor'
 import { CodeEditor } from './LazyCodeEditor'
 import { InspectData } from './InspectData'
 import { Markdown } from './Markdown'
-import { ResultPanel } from './ResultPanel'
+import { Picker, usePickerShortcut, type PickerItem } from './Picker'
+import { DesktopBridge } from './DesktopBridge'
+import { SyncStatus } from './SyncStatus'
+import { Explorer, Icon, Separator, useWorkbenchLayout, type WorkbenchLayout } from './WorkbenchLayout'
+import { WorkbenchPanel, diagnostics, type Attempt, type ExampleOutput, type PanelTab } from './WorkbenchPanel'
 
 const LessonView = lazy(() => import('./LessonView').then(m => ({ default: m.LessonView })))
 
@@ -91,8 +95,9 @@ interface ActiveProps {
   nav: { prev: ItemRef | null; crumbTrack: string; stage: string }
   bare: boolean
   setBare: (f: (b: boolean) => boolean) => void
-  chatOpen: boolean
-  setChatOpen: (f: (b: boolean) => boolean) => void
+  layout: WorkbenchLayout
+  unit: string
+  backend: string
   /** 左栏顶部的标签条 */
   tabs: ReactNode
   /** 左栏显示什么：这道题的题面 / 课 / 别的内容（比如附加题还在出） */
@@ -103,7 +108,7 @@ interface ActiveProps {
 }
 
 const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProblem(
-  { id, parent, review, waiting, generating, onExtra, theme, nav, bare, setBare, chatOpen, setChatOpen, tabs, left, onShowLesson, onResult, onDetail },
+  { id, parent, review, waiting, generating, onExtra, theme, nav, bare, setBare, layout, unit, backend, tabs, left, onShowLesson, onResult, onDetail },
   ref,
 ) {
   const navigate = useNavigate()
@@ -115,8 +120,15 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   const [code, setCode] = useState('')
   const [answer, setAnswer] = useState('')
   const [busy, setBusy] = useState<'run' | 'submit' | null>(null)
-  const [result, setResult] = useState<{ r: JudgeResult; kind: 'run' | 'submit' } | null>(null)
+  const [result, setResult] = useState<Attempt | null>(null)
   const [requestError, setRequestError] = useState<string | null>(null)
+  const [panelTab, setPanelTab] = useState<PanelTab>('测试结果')
+  const [output, setOutput] = useState<ExampleOutput | null>(null)
+  const [commandsOpen, setCommandsOpen] = useState(false)
+  const [cursor, setCursor] = useState({ line: 1, col: 1 })
+  const problems = diagnostics(result, requestError)
+  const { setPanel } = layout
+  usePickerShortcut(true, () => setCommandsOpen(true))
   const scope = review.review_source ? `review:${review.review_source}:${review.review_due}:${id}` : id
   const hintKey = `dojo-hints:${scope}`
   const aiKey = `dojo-ai-lines:${scope}`
@@ -151,7 +163,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
 
   const isPredict = p?.mode === 'predict'
   const isInspect = p?.format === 'inspect' || p?.language === 'none'
-  const textAnswer = isPredict || p?.answer?.type === 'short'
+  const textAnswer = p?.answer?.type === 'short'
   const isSql = p?.language === 'sql' && !isInspect
   const [preparing, setPreparing] = useState(false)
   useEffect(() => {
@@ -223,7 +235,10 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   const judge = useCallback(
     async (kind: 'run' | 'submit') => {
       if (!p || !judgeable || busy || (isInspect && !answer.trim())) return
+      setPanel(true)
+      setPanelTab('测试结果')
       setBusy(kind)
+      setResult(null)
       setRequestError(null)
       try {
         const body: JudgeRequest = isPredict || isInspect
@@ -232,8 +247,8 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
         Object.assign(body, review)
         if (isSql) body.sql_result = await (await import('../sql/client')).grade(p.id, code, kind)
         const r = kind === 'run' ? await api.run(p.id, body) : await api.submit(p.id, body)
-        // 修改题当场对照 Worker 留下的表格预览，提交记录仍使用服务器的紧凑摘要。
-        setResult({ r: p.mode === 'dml' && body.sql_result ? { ...r, cases: body.sql_result.cases } : r, kind })
+        // 当前 SQL 作答展示 Worker 返回的表格，历史提交继续使用服务端摘要。
+        setResult({ r: body.sql_result ? { ...r, cases: body.sql_result.cases } : r, kind, source: code })
         if (kind === 'submit') {
           if (isReview) setFinished(true)
           void revalidate()
@@ -243,17 +258,19 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
       } catch (e) {
         setRequestError((e as Error).message)
       } finally {
+        setPanel(true)
+        setPanelTab('测试结果')
         setBusy(null)
       }
     },
-    [p, judgeable, busy, id, parent.id, review, isReview, isSql, isPredict, isInspect, answer, code, elapsed.ms, hintsShown, aiLines, onResult, revalidate],
+    [p, judgeable, busy, id, parent.id, review, isReview, isSql, isPredict, isInspect, answer, code, elapsed.ms, hintsShown, aiLines, onResult, revalidate, setPanel],
   )
 
   // 编辑器外的快捷键（编辑器内的由 CodeEditor 注册）
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const mod = e.ctrlKey || e.metaKey
-      if (e.defaultPrevented || e.isComposing) return
+      if (e.defaultPrevented || e.isComposing || document.querySelector('dialog[open]')) return
       const target = e.target instanceof HTMLElement ? e.target : null
       if (isInspect && target?.closest('.chat, .lesson-view')) return
       if (p?.answer?.type === 'choice' && !mod && !e.altKey && /^[1-9]$/.test(e.key) &&
@@ -275,14 +292,11 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
       } else if (!isInspect && e.altKey && (e.key === 'b' || e.key === '∫')) {
         e.preventDefault()
         setBare((b) => !b)
-      } else if (e.altKey && (e.key === 'i' || e.key === 'ˆ')) {
-        e.preventDefault()
-        setChatOpen((c) => !c)
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [judge, navigate, nav, next, setBare, setChatOpen, isInspect, p?.answer, updateAnswer])
+  }, [judge, navigate, nav, next, setBare, isInspect, p?.answer, updateAnswer])
 
   const names = useMemo(() => paramNames(p?.signature ?? null), [p])
   const newSkill = p?.skill_cards.find((s) => s.new)
@@ -312,7 +326,8 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   const runStatus = track.runtime === 'ds' && <DsPreparation />
   let leftBody: ReactNode
   if (left === 'lesson') {
-    leftBody = <Suspense fallback={null}><LessonView problemId={id} theme={theme} runStatus={runStatus} /></Suspense>
+    leftBody = <Suspense fallback={null}><LessonView problemId={id} theme={theme} runStatus={runStatus}
+      onOutput={value => { setOutput(value); setPanelTab('输出'); setPanel(true) }} /></Suspense>
   } else if (left !== 'statement') {
     leftBody = left
   } else if (loadError) {
@@ -377,58 +392,51 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
     )
   }
 
-  return (
-    <>
-      <div className="problem-bar">
-        <Link to={`/t/${track.id}`} className="crumb">
-          {track.name} / {nav.stage} · {track.stages.find((s) => s.id === nav.stage)?.name}
-        </Link>
-        <span className="bar-spacer" />
-        {isReview && <Link to="/today" className="crumb">{finished ? '本轮已结束 · 今日计划' : '复习 · 今日计划'}</Link>}
-        <span className="faint" title="本题用时">
-          {elapsed.label}
-        </span>
-        {!isInspect && <button
-          className={`toggle ${bare ? 'is-on' : ''}`}
-          onClick={() => setBare((b) => !b)}
-          title="裸写模式：关闭自动补全、括号配对、参数提示（Alt+B）"
-          aria-pressed={bare}
-        >
-          裸写
-        </button>}
-        <button
-          className={`toggle ${chatOpen ? 'is-on' : ''}`}
-          onClick={() => setChatOpen((c) => !c)}
-          title="AI 助教（Alt+I）"
-          aria-pressed={chatOpen}
-        >
-          助教
-        </button>
-        <button className="ghost" onClick={resetCode} title={isInspect ? "清空答案" : "恢复这道题的初始代码"}>
-          ↺
-        </button>
-        <span className="nav">
-          <button
-            className="ghost"
-            disabled={!nav.prev}
-            onClick={() => nav.prev && navigate(itemPath(nav.prev))}
-            title={nav.prev ? `上一题：${nav.prev.title}（Alt+←）` : undefined}
-          >
-            ‹
-          </button>
-          {next && <Link className="crumb" to={practicePath(next)} title={`继续：${next.title}（Alt+→）`}>
-            继续 →
-          </Link>}
-        </span>
-      </div>
-
-      <article className="statement">
-        {tabs}
-        {leftBody}
-      </article>
-
-      <section className={isInspect ? 'workspace inspect-workspace' : 'workspace'}>
-        <div className={isInspect ? 'inspect-answer' : 'editor-wrap'}>
+  const filename = isInspect ? 'answer' : isPredict ? 'answer.txt' : isSql ? 'query.sql' : 'solution.py'
+  const crumbs = [track.name, nav.stage, unit, p?.title].filter(Boolean).join('  ›  ')
+  const nextPath = isReview ? (next && practicePath(next)) : parent.next && itemPath(parent.next)
+  const prevPath = nav.prev && itemPath(nav.prev)
+  const togglePanel = () => setPanel(!layout.panel)
+  const showIssues = () => { setPanelTab('问题'); setPanel(true) }
+  const commands: PickerItem[] = [
+    { id: 'run', title: '运行样例', shortcut: 'Ctrl+Enter', disabled: !judgeable || !!busy || isInspect, run: () => judge('run') },
+    { id: 'submit', title: '提交', shortcut: 'Ctrl+Shift+Enter', disabled: !judgeable || !!busy || (isInspect && !answer.trim()), run: () => judge('submit') },
+    { id: 'bare', title: '切换裸写模式', shortcut: 'Alt+B', disabled: isInspect, run: () => setBare(b => !b) },
+    { id: 'chat', title: '开关助教', shortcut: 'Ctrl+Alt+I', run: layout.toggleChat },
+    { id: 'reset', title: isInspect ? '清空答案' : '重置代码', run: resetCode },
+    { id: 'lesson', title: '打开课', shortcut: 'Alt+L', run: onShowLesson },
+    { id: 'panel', title: '开关底部面板', shortcut: 'Ctrl+J', run: togglePanel },
+    { id: 'files', title: '开关本单元题目列表', shortcut: 'Ctrl+B', run: layout.toggleFiles },
+    { id: 'prev', title: '上一题', disabled: !prevPath, run: () => prevPath && navigate(prevPath) },
+    { id: 'next', title: '下一题', disabled: !nextPath, run: () => nextPath && navigate(nextPath) },
+    { id: 'map', title: '返回地图', run: () => navigate(isSql ? '/?tab=sql' : '/') },
+  ]
+  return <>
+    <div className="wb-desk">
+      <div className="editor-groups">
+        <section className="wb-reading">
+          <div className="editor-tabs reading-tabs">
+            <button className="icon-btn" title="本单元题目列表（Ctrl+B）" aria-pressed={layout.filesOpen}
+              onClick={layout.toggleFiles}><Icon name="layout-sidebar-left" /></button>{tabs}
+            <button className="icon-btn chat-access" title="打开助教" aria-pressed={layout.chatOpen}
+              onClick={layout.toggleChat}><Icon name="comment-discussion" /></button>
+          </div>
+          <div className="breadcrumbs" title={crumbs}>{crumbs}</div>
+          <article className="statement">{leftBody}</article>
+          <Separator side={layout.narrow ? 'top' : 'left'} size={layout.split} percent label="调整题面与编辑器比例" />
+        </section>
+        <section className="wb-code">
+          <div className="editor-tabs file-tabs">
+            <span className="active-file"><Icon name={isInspect ? 'table' : isPredict ? 'file-text' : isSql ? 'database' : 'code'} />{filename}</span>
+            <span className="bar-spacer" />
+            {!isInspect && <button className="run-action" disabled={!judgeable || !!busy} title="运行样例（Ctrl+Enter）"
+              onClick={() => judge('run')}><Icon name="play" />{busy === 'run' ? '运行中' : '运行'}</button>}
+            <button className="submit-action" disabled={!judgeable || !!busy || (isInspect && !answer.trim())}
+              onClick={() => judge('submit')} title="提交（Ctrl+Shift+Enter）">{busy === 'submit' ? '判题中' : '提交'}</button>
+            <button className="icon-btn" title="命令面板（Ctrl+Shift+P）" onClick={() => setCommandsOpen(true)}><Icon name="ellipsis" /></button>
+          </div>
+          <div className="breadcrumbs" title={crumbs}>{crumbs}</div>
+          <div className={isInspect ? 'inspect-answer' : 'editor-wrap'}>
           {!p ? null : isInspect ? (
             <fieldset><legend>你的答案</legend>
               {p.answer?.type === 'choice' ? p.answer.options.map((option, i) =>
@@ -438,61 +446,60 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
                   <span className="option-number">{i + 1}</span><span>{option}</span>
                 </label>) :
                 <input className="short-answer" aria-label="短答案" autoComplete="off" spellCheck={false}
+                  onSelect={e => setCursor({ line: 1, col: (e.currentTarget.selectionStart ?? 0) + 1 })}
                   maxLength={20000} value={answer} onChange={(e) => updateAnswer(e.target.value)} />}
             </fieldset>
-          ) : isPredict ? (
-            <textarea
-              className="answer"
-              value={answer}
-              onChange={(e) => updateAnswer(e.target.value)}
-              placeholder="写出程序的输出"
-              spellCheck={false}
-              autoFocus
-            />
           ) : (
             <CodeEditor
               ref={editorRef}
-              value={code}
-              onChange={updateCode}
-              language={p.language === 'sql' ? 'pgsql' : 'python'}
+              value={isPredict ? answer : code}
+              onChange={isPredict ? updateAnswer : updateCode}
+              onCursor={(line, col) => setCursor({ line, col })}
+              language={isPredict ? 'plaintext' : isSql ? 'pgsql' : 'python'}
+              placeholder={isPredict ? '写出程序的输出' : undefined}
               theme={theme}
               bare={bare}
               onRun={() => judge('run')}
               onSubmit={() => judge('submit')}
             />
           )}
-        </div>
-        <div className="actions">
-          {(busy || generating) && runStatus}
-          {preparing && <span className="faint" role="status">正在准备数据库…</span>}
-          {!isInspect && aiLines > 0 && (
-            <span className="ai-badge" title="编辑框里有助教写的代码；这次通过记为 AI 协助，不算独立掌握">
-              AI 协助 {aiLines} 行
-            </span>
-          )}
-          {requestError && <span className="tone-fail">{requestError}</span>}
-          {!isInspect && <span className="bar-spacer" />}
-          {!isInspect && <button
-            className="secondary"
-            disabled={!judgeable || !!busy}
-            onClick={() => judge('run')}
-            title="运行样例（Ctrl+Enter）"
-          >
-            {busy === 'run' ? '运行中' : '运行'}
-          </button>}
-          <button
-            className="primary"
-            disabled={!judgeable || !!busy || (isInspect && !answer.trim())}
-            onClick={() => judge('submit')}
-            title={isInspect ? "提交（Ctrl+Enter）" : "提交（Ctrl+Shift+Enter）"}
-          >
-            {busy === 'submit' ? '判题中' : '提交'}
-          </button>
-        </div>
-        {result && p && <ResultPanel result={result.r} kind={result.kind} sql={isSql} mode={p.mode} paramNames={names} />}
-      </section>
-    </>
-  )
+          </div>
+          {(preparing || aiLines > 0 || requestError || ((busy || generating) && runStatus)) && <div className="editor-notice" role="status">
+            {(busy || generating) && runStatus}
+            {preparing && '正在准备数据库…'}
+            {aiLines > 0 && <span className="ai-badge">AI 协助 {aiLines} 行</span>}
+            {requestError && <span className="tone-fail">{requestError}</span>}
+          </div>}
+        </section>
+      </div>
+      {layout.panel && <WorkbenchPanel layout={layout} tab={panelTab} setTab={setPanelTab}
+        attempt={result} problems={problems} sql={isSql} mode={p?.mode ?? null} names={names}
+        jump={isInspect || isPredict ? undefined : n => editorRef.current?.jumpTo(n)} output={output} busy={!!busy} />}
+    </div>
+    <footer className="wb-status">
+      <div className="status-items">
+        <Link to={'/t/' + track.id} title={track.name + ' · ' + nav.stage}><Icon name="source-control" />{track.name} · {nav.stage}</Link>
+        <button title="查看问题" onClick={showIssues}><Icon name="error" />{problems.length}</button>
+        <span>{backend}</span>
+        {isReview && <Link to="/today">{finished ? '本轮已结束 · 今日计划' : '复习 · 今日计划'}</Link>}
+        <span className="bar-spacer" />
+        <span title="本题用时"><Icon name="clock" />{elapsed.label}</span>
+        {!isInspect || textAnswer ? <span>行 {cursor.line}，列 {cursor.col}</span> : null}
+        <span>{isInspect ? '数据' : isSql ? 'SQL' : 'Python'}</span>
+        {!isInspect && <button aria-pressed={bare} onClick={() => setBare(b => !b)} title="切换裸写（Alt+B）"><Icon name={bare ? 'check' : 'dash'} />裸写</button>}
+        <button aria-pressed={layout.chatOpen} onClick={layout.toggleChat} title="开关助教（Ctrl+Alt+I）"><Icon name="comment-discussion" />助教</button>
+        <button onClick={togglePanel} title="开关底部面板（Ctrl+J）" aria-pressed={layout.panel}><Icon name="layout-panel" /></button>
+        <SyncStatus />
+        <button title="重置代码或答案" onClick={resetCode}><Icon name="discard" /></button>
+        <button title={'上一题 · ' + (nav.prev?.title ?? '')} disabled={!prevPath} onClick={() => prevPath && navigate(prevPath)}><Icon name="chevron-left" /></button>
+        <button title={'下一题 · ' + ((isReview ? next : parent.next)?.title ?? '')} disabled={!nextPath} onClick={() => nextPath && navigate(nextPath)}><Icon name="chevron-right" /></button>
+        {next && practicePath(next) !== nextPath && <Link to={practicePath(next)} title={'继续 · ' + next.title + '（Alt+→）'}>继续 →</Link>}
+      </div>
+      <div className="desktop-slot"><DesktopBridge /></div>
+    </footer>
+    {commandsOpen && <Picker label="搜索命令" items={commands} close={() => setCommandsOpen(false)} />}
+  </>
+
 })
 
 // ---------------------------------------------------------------------------
@@ -502,7 +509,16 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
 
 type LeftTab = 'problem' | 'lesson' | string // string = 附加题 id
 
-export function ProblemWorkspace({ parent, theme }: { parent: ProblemDetail; theme: Theme }) {
+export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: Theme }) {
+  const { parent, rows, reviews, status } = data
+  const track = useTracks().find(t => t.id === parent.track)!
+  const unitId = rows.find(p => p.id === (parent.parent || parent.id))?.unit
+  const unit = track.stages.find(s => s.id === parent.stage)?.units.find(u => u.id === unitId)
+  const unitRows = rows.filter(p => p.stage === parent.stage && p.unit === unitId)
+  const due = new Set(reviews.map(item => item.source || item.id))
+  const layout = useWorkbenchLayout()
+  const backend = track.runtime === 'pglite' || track.runtime === 'none' ? '本地' :
+    (status.judge_backends?.[track.runtime] ?? status.judge_mode) === 'docker' ? 'Docker' : '本地'
   const id = parent.id
   const [params] = useSearchParams()
   const navigate = useNavigate()
@@ -517,7 +533,6 @@ export function ProblemWorkspace({ parent, theme }: { parent: ProblemDetail; the
   const [tab, setTab] = useState<LeftTab>(requestedExtra ?? 'problem')
   const [activeId, setActiveId] = useState(id)
   const [bare, setBare] = useState(readPref('dojo-bare', '1') === '1')
-  const [chatOpen, setChatOpen] = useState(readPref('dojo-chat', '1') === '1')
   const [lastFailed, setLastFailed] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
   const autoOpen = useRef<Set<string>>(new Set()) // 出好后要自动切过去的附加题
@@ -537,7 +552,21 @@ export function ProblemWorkspace({ parent, theme }: { parent: ProblemDetail; the
   }, [id, requestedExtra])
 
   useEffect(() => writePref('dojo-bare', bare ? '1' : '0'), [bare])
-  useEffect(() => writePref('dojo-chat', chatOpen ? '1' : '0'), [chatOpen])
+  useEffect(() => {
+    function key(e: KeyboardEvent) {
+      if (e.isComposing || document.querySelector('dialog[open]')) return
+      const mod = e.ctrlKey || e.metaKey
+      if (mod && !e.shiftKey && !e.altKey && e.code === 'KeyB') layout.toggleFiles()
+      else if (mod && !e.shiftKey && !e.altKey && e.code === 'KeyJ') layout.setPanel(!layout.panel)
+      else if (e.altKey && !e.shiftKey && e.code === 'KeyI') layout.toggleChat()
+      else if (e.key === 'Escape' && layout.narrow && (layout.filesOpen || layout.chatOpen)) layout.closeDrawer()
+      else return
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    window.addEventListener('keydown', key, true)
+    return () => window.removeEventListener('keydown', key, true)
+  }, [layout])
 
   const reloadExtras = useCallback(() => {
     api
@@ -632,14 +661,14 @@ export function ProblemWorkspace({ parent, theme }: { parent: ProblemDetail; the
           setActiveId(id)
         }}
       >
-        题目
+        <Icon name="markdown" />题目
       </button>
       <button
         className={tab === 'lesson' ? 'is-active' : ''}
         onClick={() => setTab('lesson')}
         title="这道题要用的知识点（Alt+L）"
       >
-        课{parentNew ? <span className="tab-new">新</span> : null}
+        <Icon name="book" />课{parentNew ? <span className="tab-new">新</span> : null}
       </button>
       {extras.filter(e => !review.review_source || e.id === requestedExtra).map((e) => (
         <span key={e.id} className={`extra-tab ${tab === e.id ? 'is-active' : ''} ${e.status}`}>
@@ -714,7 +743,10 @@ export function ProblemWorkspace({ parent, theme }: { parent: ProblemDetail; the
       让助教出一道同套路的</button></div>
 
   return (
-    <main className={`problem ${chatOpen ? 'with-chat' : ''}`}>
+    <main className="workbench" style={layout.style}>
+      {layout.narrow && (layout.filesOpen || layout.chatOpen) &&
+        <button className="drawer-shade" aria-label="收起抽屉" onClick={layout.closeDrawer} />}
+      {layout.filesOpen && <Explorer rows={unitRows} unit={unit?.name || parent.stage} layout={layout} parent={parent} due={due} />}
       <ActiveProblem
         key={activeId}
         ref={active}
@@ -728,16 +760,16 @@ export function ProblemWorkspace({ parent, theme }: { parent: ProblemDetail; the
         nav={{ prev: parent.prev, crumbTrack: parent.track, stage: parent.stage }}
         bare={bare}
         setBare={setBare}
-        chatOpen={chatOpen}
-        setChatOpen={setChatOpen}
+        layout={layout} unit={unit?.name || parent.stage} backend={backend}
         tabs={<>{tabs}{extraError && <p role="alert" className="tone-fail">{extraError}</p>}</>}
         onDetail={setCurrentProblem}
         left={left}
         onShowLesson={() => setTab('lesson')}
         onResult={setLastFailed}
       />
-      {chatOpen && (
-        <ChatPanel
+      <div className="wb-chat" hidden={!layout.chatOpen}>
+        {!layout.narrow && layout.chatOpen && <Separator label="调整助教宽度" side="right" size={layout.tutor} />}
+        <ChatPanel aiOn={status.ai !== 'off'} close={layout.toggleChat}
           review={review}
           problemId={id}
           currentId={activeId}
@@ -748,7 +780,7 @@ export function ProblemWorkspace({ parent, theme }: { parent: ProblemDetail; the
           lastFailed={lastFailed}
           onExtras={onChatExtras}
         />
-      )}
+      </div>
     </main>
   )
 }

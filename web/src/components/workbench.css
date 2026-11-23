@@ -1,0 +1,153 @@
+/* 做题页用同一条标题栏和状态栏围住四个可独立滚动的区域。 */
+.shell:has(.workbench) { height: 100dvh; min-height: 0; overflow: hidden; }
+.wb-titlebar { position: relative; height: 38px; gap: 14px; padding: 0 14px; background: var(--panel); }
+.wb-titlebar .wordmark { font-size: 15px; letter-spacing: -.025em; }
+.wb-titlebar .tracks { font-size: 12px; }
+.wb-titlebar .tracks a { padding: 4px 0; }
+.quick-trigger {
+  position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center;
+  justify-content: center; gap: 8px; width: min(30vw, 390px); height: 25px; font-size: 12px;
+  color: var(--muted); background: var(--bg); border: 1px solid var(--line); border-radius: 4px;
+}
+.quick-trigger kbd { font: 10px var(--font-code); color: var(--faint); }
+.workbench {
+  position: relative; flex: 1; min-height: 0; display: grid;
+  grid-template-columns: var(--files-w) minmax(0, 1fr) var(--chat-w);
+  grid-template-rows: minmax(0, 1fr) 22px;
+  grid-template-areas: "files desk chat" "status status status";
+  font-size: 13px; line-height: 1.55;
+}
+.workbench button { font-size: 13px; }
+.workbench .icon-btn {
+  display: inline-grid; place-items: center; flex: none; width: 28px; height: 26px;
+  padding: 0; color: var(--muted); border: 0; border-radius: 2px;
+}
+.workbench .icon-btn:hover, .workbench .run-action:hover { color: var(--text); background: var(--hover); }
+.wb-explorer, .wb-chat, .wb-desk, .wb-panel, .wb-reading, .wb-code { min-width: 0; min-height: 0; position: relative; }
+.wb-explorer, .wb-chat { background: var(--panel); }
+.wb-explorer { grid-area: files; display: flex; flex-direction: column; border-right: 1px solid var(--line); }
+.side-head, .chat-head {
+  flex: none; display: flex; height: 36px; align-items: center; padding: 0 10px; gap: 7px;
+  border-bottom: 1px solid var(--line); color: var(--muted);
+}
+.side-head strong { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; color: var(--text); }
+.side-head a { flex: none; text-decoration: none; font-size: 11px; color: var(--muted); }
+.side-head a:hover { text-decoration: underline; }
+.wb-explorer nav { overflow: auto; padding: 5px 0; }
+.wb-explorer nav a { display: flex; align-items: center; gap: 8px; padding: 4px 12px; height: 27px; text-decoration: none; }
+.wb-explorer nav a:hover { background: var(--hover); }
+.wb-explorer nav a[aria-current] { background: var(--sel); color: var(--text); }
+.wb-explorer nav .codicon { color: var(--accent); font-size: 15px; }
+.file-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.review-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--assisted); }
+.wb-desk { grid-area: desk; display: grid; grid-template-rows: minmax(0, 1fr) var(--panel-h); }
+.editor-groups { display: grid; min-height: 0; min-width: 0; grid-template-columns: var(--split) minmax(0, 1fr); }
+.wb-reading, .wb-code { display: flex; flex-direction: column; }
+.wb-reading { border-right: 1px solid var(--line); }
+.editor-tabs {
+  display: flex; align-items: center; min-width: 0; flex: none; height: 36px;
+  background: var(--panel); border-bottom: 1px solid var(--line); white-space: nowrap;
+}
+.reading-tabs > .icon-btn { margin-inline: 3px; }
+.workbench .left-tabs {
+  min-width: 0; height: 100%; display: flex; align-items: stretch; flex-wrap: nowrap;
+  gap: 0; margin: 0; border: 0; overflow-x: auto; scrollbar-width: thin;
+}
+.workbench .left-tabs > button, .workbench .extra-tab, .active-file {
+  display: inline-flex; align-items: center; gap: 7px; padding: 0 11px; margin: 0;
+  border: 0; border-right: 1px solid var(--line); border-top: 2px solid transparent; border-radius: 0;
+  color: var(--muted); font-size: 12px;
+}
+.workbench .left-tabs [hidden] { display: none; }
+.workbench .left-tabs > .is-active, .active-file { border-top-color: var(--action); color: var(--text); background: var(--bg); }
+.workbench .tab-new { margin-left: -4px; font-size: 10px; }
+.workbench .left-tabs .codicon, .active-file .codicon { color: var(--accent); }
+.workbench .extra-tab { padding-inline: 7px; }
+.active-file { height: 100%; font: 12px var(--font-code); }
+.file-tabs { gap: 4px; padding-right: 4px; overflow-x: auto; scrollbar-width: thin; }
+.file-tabs .run-action { display: flex; align-items: center; gap: 3px; padding: 1px 5px; font-size: 12px; }
+.run-action .codicon { color: var(--pass); }
+.file-tabs .submit-action { font-size: 12px; color: white; background: var(--action); border-radius: 2px; padding: 1px 8px; }
+.breadcrumbs {
+  flex: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; height: 25px;
+  padding: 3px 12px; font-size: 11px; color: var(--muted); border-bottom: 1px solid var(--line);
+}
+.workbench .statement { flex: 1; min-height: 0; padding: 21px clamp(15px, 1.4vw, 26px) 36px; overflow: auto; border: 0; }
+.workbench .statement h1 { font-size: 22px; font-weight: 700; line-height: 1.35; letter-spacing: -.02em; }
+.workbench .statement .meta { font-size: 12px; margin-bottom: 18px; }
+.workbench .prose, .workbench .lesson-pointer, .workbench .hints { font-size: 13px; }
+.workbench .prose pre, .workbench .program, .workbench .io { font-size: 13px; }
+.workbench .editor-wrap { flex: 1; min-height: 0; overflow: hidden; }
+.workbench .inspect-answer { flex: 1; min-height: 0; overflow: auto; padding: 20px; }
+.editor-notice { font-size: 12px; padding: 3px 12px; }
+.wb-chat { grid-area: chat; border-left: 1px solid var(--line); }
+.wb-chat[hidden] { display: none; }
+.wb-chat .chat { height: 100%; border: 0; }
+.chat-head .codicon { font-size: 15px; }
+.wb-chat .chat-list { padding: 16px 12px; }
+.wb-chat .chat-input { background: var(--bg); font-size: 13px; border-radius: 3px; }
+.wb-chat .chat-input:focus { border-color: var(--accent); }
+.wb-chat .chat-quick { padding: 8px 10px 0; }
+.wb-chat .chat-quick button { font-size: 12px; }
+.sash { position: absolute; z-index: 3; touch-action: none; user-select: none; }
+.sash-left, .sash-right { inset-block: 0; width: 6px; cursor: col-resize; }
+.sash-left { right: -3px; } .sash-right { left: -3px; }
+.sash-bottom, .sash-top { inset-inline: 0; height: 6px; cursor: row-resize; }
+.sash-bottom { top: -3px; } .sash-top { bottom: -3px; }
+.sash:hover, .sash:focus-visible, .sash:active { background: var(--action); outline: none; }
+.wb-panel { border-top: 1px solid var(--line); display: flex; flex-direction: column; background: var(--bg); }
+.panel-tabs { display: flex; align-items: stretch; gap: 17px; height: 34px; flex: none; padding: 0 12px; }
+.panel-tabs > button:not(.icon-btn) { border: 0; padding: 0; color: var(--muted); background: none; border-bottom: 1px solid transparent; border-radius: 0; font-size: 12px; }
+.panel-tabs > button[aria-pressed=true] { color: var(--text); border-bottom-color: var(--accent); }
+.panel-tabs small { margin-left: 5px; font-family: var(--font-code); }
+.panel-tabs .icon-btn { margin: auto 0 auto auto; }
+.panel-body { flex: 1; overflow: auto; min-height: 0; font: 13px/1.6 var(--font-code); }
+.panel-empty { margin: 12px 14px; color: var(--muted); }
+.panel-body .result { max-height: none; border: 0; overflow: visible; padding: 10px 14px 18px; font-size: 13px; }
+.panel-body .result-head { align-items: center; }
+.panel-body .verdict { font-size: 14px; }
+.panel-output > div, .trace { padding: 6px 14px; margin: 0; }
+.panel-output small { color: var(--muted); }
+.panel-output pre, .trace { white-space: pre-wrap; overflow-wrap: anywhere; }
+.panel-output pre { margin: 3px 0 10px; }
+.trace { color: var(--fail); }
+.trace button { color: inherit; font: inherit; padding: 0; text-align: left; text-decoration: underline; text-underline-offset: 3px; }
+.wb-status {
+  grid-area: status; min-width: 0; display: flex; position: relative; z-index: 5;
+  background: var(--action); color: #fff; font: 11px/22px var(--font-code);
+}
+.status-items { display: flex; align-items: center; overflow-x: auto; white-space: nowrap; flex: 1; scrollbar-width: none; }
+.status-items > * { flex-shrink: 0; }
+.status-items > :is(a, button, span):not(.bar-spacer), .desktop-slot summary {
+  display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 7px; border: 0;
+  font: inherit; color: inherit; text-decoration: none; border-radius: 0;
+}
+.status-items .codicon { font-size: 13px; }
+.status-items button:hover:not(:disabled), .status-items a:hover, .status-items [aria-pressed=true], .desktop-slot summary:hover { background: rgb(0 0 0 / .18); }
+.status-items button:focus-visible, .status-items a:focus-visible { outline: 1px solid white; outline-offset: -2px; }
+.status-items .sync-status .tone-fail { color: inherit; text-decoration: underline; }
+.desktop-slot details > div { top: auto !important; bottom: 100%; color: var(--text); }
+.drawer-shade { display: none; }
+
+@media (width < 900px) {
+  .wb-titlebar { overflow: visible; gap: 6px; }
+  .wb-titlebar .plan-nav { display: none; }
+  .wb-titlebar .quick-trigger { width: min(44vw, 260px); }
+  .workbench { grid-template-columns: minmax(0, 1fr); grid-template-areas: "desk" "status"; }
+  .editor-groups { grid-template-columns: minmax(0, 1fr); grid-template-rows: var(--split) minmax(0,1fr); }
+  .wb-reading { border-right: 0; border-bottom: 1px solid var(--line); }
+  .workbench .statement { padding: 12px 14px 22px; }
+  .workbench .statement h1 { font-size: 20px; }
+  .wb-explorer, .wb-chat { position: absolute; top: 0; bottom: 22px; z-index: 8; grid-area: auto; width: min(84vw, 340px); }
+  .wb-explorer { left: 0; } .wb-chat { right: 0; }
+  .drawer-shade { display: block; position: absolute; inset: 0 0 22px; z-index: 7; border: 0; border-radius: 0; background: rgb(0 0 0 / .36); }
+  .status-items > :is(a, button, span):not(.bar-spacer) { padding-inline: 5px; }
+  .status-items { scrollbar-width: thin; }
+}
+
+.case-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12em), 1fr)); gap: 4px 16px; }
+.case-fields > div { min-width: 0; }
+.workbench .chat-access { display: none; }
+@media (width < 900px) {
+  .workbench .chat-access { display: inline-grid; margin-left: auto; margin-right: 4px; }
+}

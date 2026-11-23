@@ -29,7 +29,6 @@
   border: 1px solid var(--line); padding: .6em .75em;
 }
 .inspect-csv { resize: vertical; white-space: pre; }
-.inspect-workspace { overflow-y: auto; }
 .inspect-answer { padding: 1.5rem clamp(1rem, 3vw, 2.25rem) .75rem; }
 .inspect-answer fieldset { padding: 0; margin: 0; border: 0; min-width: 0; }
 .inspect-answer legend { margin-bottom: .85rem; font-weight: 600; }
@@ -37,5 +36,4 @@
 .inspect-option input { accent-color: var(--accent); margin: 0; }
 .option-number { font-family: var(--font-code); font-size: .85em; }
 .short-answer { max-width: 32em; font: 1rem/1.5 var(--font-code); }
-.inspect-workspace .actions { border-top: 0; padding: .25rem clamp(1rem, 3vw, 2.25rem) 1.25rem; }
 .inspect-result { max-height: none; flex-shrink: 0; padding-inline: clamp(1rem, 3vw, 2.25rem); }

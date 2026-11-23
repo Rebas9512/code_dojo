@@ -1,0 +1,18 @@
+.picker {
+  position: fixed; inset: min(10vh, 64px) auto auto 50%; transform: translateX(-50%);
+  width: min(610px, calc(100% - 24px)); max-height: 75dvh; padding: 0; margin: 0;
+  background: var(--panel); color: var(--text); border: 1px solid var(--faint); border-radius: 5px;
+}
+.picker::backdrop { background: rgb(0 0 0 / .20); }
+.picker-box { padding: 7px; }
+.picker input { width: 100%; font: 14px var(--font-ui); padding: 8px 10px; background: var(--bg); color: var(--text); border: 1px solid var(--accent); outline: 0; }
+.picker-list { overflow: auto; max-height: min(53dvh, 390px); margin-top: 5px; }
+.picker-list:empty { display: none; }
+.picker-list button { display: flex; width: 100%; gap: 12px; align-items: baseline; padding: 5px 9px; border: 0; text-align: left; font-size: 13px; }
+.picker-list button[aria-selected=true] { background: var(--sel); }
+.picker-list button:hover { outline: 1px solid var(--muted); outline-offset: -1px; }
+.picker-list small, .picker-list kbd { color: var(--muted); font: 11px var(--font-code); }
+.picker-list small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.picker-list button span { flex-shrink: 0; max-width: 75%; }
+.picker-list kbd { margin-left: auto; }
+.picker p { font-size: 13px; margin: 8px; }

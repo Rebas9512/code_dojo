@@ -17,7 +17,8 @@
   border-bottom: 2px solid transparent;
   border-radius: 0;
   color: var(--muted);
-  font: 500 clamp(32px, 3vw, 44px)/1.18 var(--font-title);
+  letter-spacing: -.035em;
+  font: 700 clamp(32px, 3vw, 44px)/1.18 var(--font-title);
 }
 .map-tabs button[aria-selected="true"] { border-bottom-color: var(--accent); color: var(--text); }
 .map-tabs button:hover { color: var(--text); }
@@ -40,7 +41,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--assisted);
   box-shadow: 0 0 0 1px var(--bg);
 }
 
