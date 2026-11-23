@@ -43,7 +43,7 @@ code-dojo/
 
 ## 桌面应用
 
-桌面版 1.1.0 在同一个 Electron 窗口里完成解锁、进地图和做题。Linux x86-64 提供 AppImage 与备用 tar.gz，Apple Silicon macOS 提供 .app zip，Windows x64 提供便携 zip。安装包内有 Chromium、CPython 3.14、pip、锁定的后端依赖及启动器。Linux 的 AppImage 可以交给 AppImageLauncher Lite 集成到菜单，也可以使用 `--appimage-extract-and-run` 启动。[首次安装和令牌设置](../deploy/README.md#在一台新电脑上用)
+桌面版 1.1.2 在同一个 Electron 窗口里完成解锁、进地图和做题。Linux x86-64 提供 AppImage 与备用 tar.gz，Apple Silicon macOS 提供 .app zip，Windows x64 提供便携 zip。安装包内有 Chromium、CPython 3.14、pip、锁定的后端依赖及启动器。Linux 的 AppImage 可以交给 AppImageLauncher Lite 集成到菜单，也可以使用 `--appimage-extract-and-run` 启动。AppImage 的 `AppRun` 是一个只用 shell 内建的包装脚本，一律带 `--no-sandbox` 启动 Electron。Ubuntu 23.10 起默认禁止普通程序建用户命名空间，AppImage 里的 `chrome-sandbox` 又不可能归 root，不带这个参数就会直接退出。网页仍然是 sandbox + contextIsolation 的隔离页面，冒烟测试确认这个参数还在。Windows 和 macOS 照常启用 Chromium 沙箱。[首次安装和令牌设置](../deploy/README.md#在一台新电脑上用)
 
 Electron 主进程先载入随包启动页，再通过标准输入输出驱动 `python -m bootstrap serve --protocol jsonl`。启动器依次查本机凭据、能读取两个仓库的 GitHub CLI 登录、包内加密令牌，最后提供手动填写。输入的密码与令牌经本地启动页和标准输入传递。连续输错五次需等待 30 秒。首次解锁后优先存入系统钥匙串，备用位置是受保护的本机文件。
 
@@ -51,7 +51,7 @@ Electron 主进程先载入随包启动页，再通过标准输入输出驱动 `
 
 每次打开时，启动器从 `CODE_DOJO_REPO`（默认 `Rebas9512/code_dojo`）的 `payload-latest` Release 获取清单。更新包包含 FastAPI 代码、网页、固定题库、判题程序、技能识别规则和预先计算的 SQL 期望表。清单记录版本、提交 SHA、生成时间、最低启动器版本、题库格式版本和依赖锁 SHA-256。外部清单还记录整个 zip 的 SHA-256。
 
-下载、解压和依赖准备均在用户数据目录的 `desktop/` 下完成。锁有变化时，内置 pip 按带哈希的运行时依赖清单安装到独立目录。新服务成功启动后才原子替换 `current.json`，并保留上一个版本。断网、校验失败或安装失败时仍可用原版本练习。启动器过旧时窗口提供新版安装包链接。第一次使用需要联网下载题库。
+下载和解压均在用户数据目录的 `desktop/` 下完成。更新包的依赖锁和安装包的 `lock.sha256` 一致时，后端直接使用安装包里的 `libraries`，不复制。锁不一致时，内置 pip 按带哈希的运行时依赖清单安装到 `desktop/dependencies/<锁哈希>`；这时若又离线，旧更新包会缺依赖，联网更新一次即可。`.gitattributes` 让 `server/uv.lock` 在 Windows 检出时不转成 CRLF，否则两边的锁哈希对不上。新服务成功启动后才原子替换 `current.json`，并保留上一个版本。断网、校验失败或安装失败时仍可用原版本练习。启动器过旧时窗口提供新版安装包链接。第一次使用需要联网下载题库。
 
 本机服务绑定 `127.0.0.1`，优先复用上次端口。启动器发出 `ready` 后，主窗口载入该端口的学习地图，原题等外链交给系统浏览器。网页运行在隔离的渲染进程中，通过 preload 提供的有限接口使用桌面功能。顶栏“桌面”可立即同步、打开设置或查看版本，原生菜单另有检查更新和退出。设置提供令牌更换和助教状态。再次启动会聚焦原窗口。关闭窗口先推送进度，最多等待 10 秒。记录使用与 `dojo` 相同的数据目录和事件格式。进度仓库由 `CODE_DOJO_SYNC_REPO` 指定，默认 `Rebas9512/code_dojo_sync`。有 Git 时使用 Git，没有 Git 时通过 GitHub Contents API 同步 main 上每台机器自己的月度 JSONL。同步失败的事件保留在本机。
 
