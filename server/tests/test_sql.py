@@ -45,6 +45,14 @@ def site(tmp_path, monkeypatch):
     return TestClient(main.app), main.bank.get(PID), tmp_path
 
 
+def test_playground_bookstore(site):
+    client, _, directory = site
+    url = "/api/playground/bookstore"
+    shared = directory / "bank/sql/_db"
+    shutil.copytree(shared / "store", shared / "bookstore")
+    assert client.get(url).json() == [SCHEMA, SEED]
+
+
 def test_sql_cases_and_cache(site, monkeypatch):
     client, p, directory = site
     sample = client.get(URL + "/sql-cases").json()

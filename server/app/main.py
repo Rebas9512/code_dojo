@@ -27,7 +27,7 @@ from .frontend import Frontend
 from .mastery import Exercise, Progress, weekly_stats
 from .result_preview import compact_result
 from .judge import Judge
-from .problems import ExtraProblem, Problem, ProblemBank, build_extra
+from .problems import ExtraProblem, Problem, ProblemBank, build_extra, shared_db
 from .sql_judge import sql_cases
 from .sync import ProgressSync
 from .tracks import Track
@@ -545,6 +545,12 @@ def submissions(problem_id: str) -> list[dict[str, Any]]:
 def problem_lesson(problem_id: str) -> dict[str, Any]:
     p = require(problem_id)
     return {"sections": bank.lesson_sections(p, with_setup=True)}
+
+
+@app.get("/api/playground/bookstore")
+def playground_bookstore() -> list[str]:
+    """SQL 看数据题没有自己的数据集，草稿用课里的书店库。"""
+    return shared_db(bank.root / "sql", "bookstore")
 
 
 @app.post("/api/playground/run")

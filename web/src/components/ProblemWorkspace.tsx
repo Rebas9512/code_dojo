@@ -126,6 +126,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   const [scratch, setScratch] = useState(() => readPref(scratchKey, ''))
   const scratchText = useRef(scratch)
   const [inScratch, setInScratch] = useState(false)
+  const [scratchOpened, setScratchOpened] = useState(false)
   const [scratchBusy, setScratchBusy] = useState(false)
   const [busy, setBusy] = useState<'run' | 'submit' | null>(null)
   const [result, setResult] = useState<Attempt | null>(null)
@@ -149,7 +150,6 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   const [loadingHelp, setLoadingHelp] = useState(false)
   const [finished, setFinished] = useState(false)
   const editorRef = useRef<CodeEditorHandle>(null)
-  const scratchRef = useRef<CodeEditorHandle>(null)
   const latest = useRef({ code: '', answer: '' })
   latest.current = { code, answer }
   const elapsed = useElapsed(id)
@@ -176,25 +176,33 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   const isPredict = p?.mode === 'predict'
   const isInspect = p?.format === 'inspect' || p?.language === 'none'
   const textAnswer = p?.answer?.type === 'short'
-  const isSql = p?.language === 'sql' && !isInspect
-  const hasScratch = !!p && !isInspect && !isPredict
+  const isSql = p?.language === 'sql'
+  const isSqlAnswer = isSql && !isInspect
+  const inspectAnswerActive = isInspect && !inScratch
+  const hasScratch = !!p
   const [preparing, setPreparing] = useState(false)
   useEffect(() => {
-    if (!isSql) return
+    if (!isSqlAnswer) return
     let current = true
     setPreparing(true)
     import('../sql/client').then(m => m.prepare())
       .catch((e: Error) => { if (current) setRequestError(e.message) })
       .finally(() => { if (current) setPreparing(false) })
     return () => { current = false }
-  }, [isSql])
+  }, [isSqlAnswer])
   const judgeable = !!p && !preparing && !waiting && !finished && !loadingHelp
-  const canRun = inScratch ? hasScratch && !preparing && !waiting && !scratchBusy : judgeable && !busy
+  const canRun = inScratch ? hasScratch && !preparing && !waiting && !scratchBusy : judgeable && !busy && !isInspect
 
   const switchFile = (scratch: boolean) => {
-    flushSync(() => setInScratch(scratch))
-    document.getElementById(scratch ? 'scratch-editor' : 'answer-editor')
-      ?.querySelector<HTMLElement>('[role="textbox"]')?.focus()
+    flushSync(() => {
+      if (scratch) setScratchOpened(true)
+      setInScratch(scratch)
+    })
+    const pane = document.getElementById(scratch ? 'scratch-editor' : 'answer-editor')
+    const control = !scratch && isInspect
+      ? pane?.querySelector<HTMLInputElement>('input:checked') ?? pane?.querySelector<HTMLInputElement>('input')
+      : pane?.querySelector<HTMLElement>('[role="textbox"]')
+    control?.focus()
   }
 
   const updateCode = (v: string) => {
@@ -272,7 +280,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
           ? { answer, elapsed_ms: elapsed.ms, hints_used: hintsShown, ai_lines: aiLines }
           : { code, elapsed_ms: elapsed.ms, hints_used: hintsShown, ai_lines: aiLines }
         Object.assign(body, review)
-        if (isSql) body.sql_result = await (await import('../sql/client')).grade(p.id, code, kind)
+        if (isSqlAnswer) body.sql_result = await (await import('../sql/client')).grade(p.id, code, kind)
         const r = kind === 'run' ? await api.run(p.id, body) : await api.submit(p.id, body)
         // 当前 SQL 作答展示 Worker 返回的表格，历史提交继续使用服务端摘要。
         setResult({ r: body.sql_result ? { ...r, cases: body.sql_result.cases } : r, kind, source: code })
@@ -292,7 +300,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
         setBusy(null)
       }
     },
-    [p, judgeable, busy, id, parent.id, review, isReview, isSql, isPredict, isInspect, answer, code, elapsed.ms, hintsShown, aiLines, onResult, revalidate, setPanel],
+    [p, judgeable, busy, id, parent.id, review, isReview, isSqlAnswer, isPredict, isInspect, answer, code, elapsed.ms, hintsShown, aiLines, onResult, revalidate, setPanel],
   )
 
   async function runCurrent() {
@@ -308,8 +316,8 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
     let result: ExampleOutput
     try {
       if (isSql) {
-        const plan = await api.sqlCases(id, 'sample')
-        const table = await (await import('../sql/client')).runExample(plan.datasets[0].setup, text)
+        const setup = isInspect ? await api.bookstoreSetup() : (await api.sqlCases(id, 'sample')).datasets[0].setup
+        const table = await (await import('../sql/client')).runExample(setup, text)
         result = { stdout: '', table }
       } else {
         result = await api.playground(text, '', id)
@@ -328,8 +336,18 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
       const mod = e.ctrlKey || e.metaKey
       if (e.defaultPrevented || e.isComposing || document.querySelector('dialog[open]')) return
       const target = e.target instanceof HTMLElement ? e.target : null
-      if (isInspect && target?.closest('.chat, .lesson-view')) return
-      if (p?.answer?.type === 'choice' && !mod && !e.altKey && /^[1-9]$/.test(e.key) &&
+      if (hasScratch && e.altKey && !mod && !e.shiftKey && e.code === 'KeyS') {
+        e.preventDefault()
+        switchFile(!inScratch)
+        return
+      }
+      if (mod && e.shiftKey && e.key === 'Enter') {
+        e.preventDefault()
+        void judge('submit')
+        return
+      }
+      if (inspectAnswerActive && target?.closest('.chat, .lesson-view')) return
+      if (inspectAnswerActive && p?.answer?.type === 'choice' && !mod && !e.altKey && /^[1-9]$/.test(e.key) &&
           !target?.closest('input:not([type="radio"]), textarea, [contenteditable="true"]')) {
         const index = Number(e.key) - 1
         if (index < p.answer.options.length) {
@@ -338,25 +356,22 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
         }
       } else if (mod && e.key === 'Enter') {
         e.preventDefault()
-        if (isInspect || e.shiftKey) void judge('submit')
+        if (inspectAnswerActive) void judge('submit')
         else void runCurrent()
-      } else if (hasScratch && e.altKey && !mod && !e.shiftKey && e.code === 'KeyS') {
-        e.preventDefault()
-        switchFile(!inScratch)
       } else if (e.altKey && e.key === 'ArrowLeft' && nav.prev) {
         e.preventDefault()
         navigate(itemPath(nav.prev))
       } else if (e.altKey && e.key === 'ArrowRight' && next) {
         e.preventDefault()
         navigate(practicePath(next))
-      } else if (!isInspect && e.altKey && (e.key === 'b' || e.key === '∫')) {
+      } else if (!inspectAnswerActive && e.altKey && (e.key === 'b' || e.key === '∫')) {
         e.preventDefault()
         setBare((b) => !b)
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [judge, runCurrent, inScratch, hasScratch, navigate, nav, next, setBare, isInspect, p?.answer, updateAnswer])
+  }, [judge, runCurrent, inScratch, hasScratch, navigate, nav, next, setBare, inspectAnswerActive, p?.answer, updateAnswer])
 
   const names = useMemo(() => paramNames(p?.signature ?? null), [p])
   const newSkill = p?.skill_cards.find((s) => s.new)
@@ -479,10 +494,10 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   const togglePanel = () => setPanel(!layout.panel)
   const showIssues = () => { setPanelTab('问题'); setPanel(true) }
   const commands: PickerItem[] = [
-    { id: 'run', title: runLabel, shortcut: 'Ctrl+Enter', disabled: !canRun || isInspect, run: runCurrent },
+    { id: 'run', title: runLabel, shortcut: 'Ctrl+Enter', disabled: !canRun, run: runCurrent },
     { id: 'submit', title: '提交', shortcut: 'Ctrl+Shift+Enter', disabled: !judgeable || !!busy || (isInspect && !answer.trim()), run: () => judge('submit') },
     ...(hasScratch ? [{ id: 'scratch', title: '切换答案 / 草稿', shortcut: 'Alt+S', run: () => switchFile(!inScratch) }] : []),
-    { id: 'bare', title: '切换裸写模式', shortcut: 'Alt+B', disabled: isInspect, run: () => setBare(b => !b) },
+    { id: 'bare', title: '切换裸写模式', shortcut: 'Alt+B', disabled: inspectAnswerActive, run: () => setBare(b => !b) },
     { id: 'chat', title: '开关助教', shortcut: 'Ctrl+Alt+I', run: layout.toggleChat },
     { id: 'reset', title: isInspect ? '清空答案' : '重置代码', run: resetCode },
     { id: 'lesson', title: '打开课', shortcut: 'Alt+L', run: onShowLesson },
@@ -516,7 +531,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
                 <Icon name="beaker" />{isSql ? 'scratch.sql' : 'scratch.py'}</button>}
             </nav>
             <span className="bar-spacer" />
-            {!isInspect && <button className="run-action" disabled={!canRun} title={runLabel + '（Ctrl+Enter）'}
+            {!inspectAnswerActive && <button className="run-action" disabled={!canRun} title={runLabel + '（Ctrl+Enter）'}
               onClick={runCurrent}><Icon name="play" />{(inScratch ? scratchBusy : busy === 'run') ? '运行中' : '运行'}</button>}
             <button className="submit-action" disabled={!judgeable || !!busy || (isInspect && !answer.trim())}
               onClick={() => judge('submit')} title="提交（Ctrl+Shift+Enter）">{busy === 'submit' ? '判题中' : '提交'}</button>
@@ -552,10 +567,10 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
           )}
           </div>
           {hasScratch && <div id="scratch-editor" hidden={!inScratch} className="editor-wrap">
-            <CodeEditor ref={scratchRef} value={scratch} language={isSql ? 'pgsql' : 'python'}
+            {scratchOpened && <Suspense fallback={null}><CodeEditor value={scratch} language={isSql ? 'pgsql' : 'python'}
               onChange={updateScratch}
               onCursor={(line, col) => setScratchCursor({ line, col })} theme={theme} bare={bare}
-              placeholder="随手试代码，不判题" onRun={runCurrent} onSubmit={() => judge('submit')} />
+              placeholder="随手试代码，不判题" onRun={runCurrent} onSubmit={() => judge('submit')} /></Suspense>}
           </div>}
           {(preparing || aiLines > 0 || requestError || ((busy || scratchBusy || generating) && runStatus)) && <div className="editor-notice" role="status">
             {(busy || scratchBusy || generating) && runStatus}
@@ -566,7 +581,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
         </section>
       </div>
       {layout.panel && <WorkbenchPanel layout={layout} tab={panelTab} setTab={setPanelTab}
-        attempt={result} problems={problems} sql={isSql} mode={p?.mode ?? null} names={names}
+        attempt={result} problems={problems} sql={isSqlAnswer} mode={p?.mode ?? null} names={names}
         jump={isInspect || isPredict ? undefined : n => {
           flushSync(() => setInScratch(false))
           editorRef.current?.jumpTo(n)
@@ -580,9 +595,9 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
         {isReview && <Link to="/today">{finished ? '本轮已结束 · 今日计划' : '复习 · 今日计划'}</Link>}
         <span className="bar-spacer" />
         <span title="本题用时"><Icon name="clock" />{elapsed.label}</span>
-        {!isInspect || textAnswer ? <span>行 {cursor.line}，列 {cursor.col}</span> : null}
-        <span>{isInspect ? '数据' : isSql ? 'SQL' : 'Python'}</span>
-        {!isInspect && <button aria-pressed={bare} onClick={() => setBare(b => !b)} title="切换裸写（Alt+B）"><Icon name={bare ? 'check' : 'dash'} />裸写</button>}
+        {!inspectAnswerActive || textAnswer ? <span>行 {cursor.line}，列 {cursor.col}</span> : null}
+        <span>{inspectAnswerActive ? '数据' : isSql ? 'SQL' : 'Python'}</span>
+        {!inspectAnswerActive && <button aria-pressed={bare} onClick={() => setBare(b => !b)} title="切换裸写（Alt+B）"><Icon name={bare ? 'check' : 'dash'} />裸写</button>}
         <button aria-pressed={layout.chatOpen} onClick={layout.toggleChat} title="开关助教（Ctrl+Alt+I）"><Icon name="comment-discussion" />助教</button>
         <button onClick={togglePanel} title="开关底部面板（Ctrl+J）" aria-pressed={layout.panel}><Icon name="layout-panel" /></button>
         <SyncStatus />

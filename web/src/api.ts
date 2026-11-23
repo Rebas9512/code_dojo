@@ -355,6 +355,7 @@ export const api = {
   sqlCases: (id: string, scope: 'sample' | 'all') =>
     request<SqlPlan>(
       `/api/problems/${encodeURIComponent(id)}/sql-cases?scope=${scope}`),
+  bookstoreSetup: () => cached('bookstore-setup', () => request<string[]>('/api/playground/bookstore')),
   run: (id: string, body: JudgeRequest) =>
     request<JudgeResult>(`/api/problems/${encodeURIComponent(id)}/run`, { method: 'POST', body: JSON.stringify(body) }),
   submit: (id: string, body: JudgeRequest) =>
