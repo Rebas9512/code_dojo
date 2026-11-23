@@ -134,7 +134,8 @@ async function main() {
       return { pid: process.pid, executable: process.execPath, sandbox: prefs.sandbox,
         isolated: prefs.contextIsolation, node: prefs.nodeIntegration, noSandbox: app.commandLine.hasSwitch('no-sandbox') }
     })
-    assert.ok(main.sandbox && main.isolated && !main.node && !main.noSandbox)
+    // 网页仍是隔离的沙箱页面；AppImage 的 AppRun 一律带 --no-sandbox（见 scripts/desktop/build.py），这里确认没丢。
+    assert.ok(main.sandbox && main.isolated && !main.node && main.noSandbox)
     execFileSync(main.executable, ['--ozone-platform=x11'], { env, timeout: 10000, stdio: 'ignore' })
     assert.equal(await app.evaluate(() => globalThis.secondLaunches), 1)
     const supervisor = childMatching(main.pid, args => args.includes('bootstrap') && args.includes('jsonl'))

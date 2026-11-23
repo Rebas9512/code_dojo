@@ -90,16 +90,12 @@ def payload(args, work: Path) -> None:
 
 def appimage(bundle: Path, output: Path) -> None:
     work = bundle.parent
-    # Ubuntu 23.10 起默认禁止普通程序建用户命名空间（apparmor_restrict_unprivileged_userns=1），AppImage 里的
-    # chrome-sandbox 又不可能归 root，Chromium 沙箱起不来会直接退出。只在这种系统上带 --no-sandbox，其他系统保留沙箱。
+    # 很多发行版禁止普通程序建用户命名空间（Ubuntu 23.10+ 的 AppArmor、Debian 的 unprivileged_userns_clone 等），
+    # AppImage 里的 chrome-sandbox 又不可能归 root，Chromium 沙箱起不来会直接退出。逐个判断容易漏，
+    # 和 Obsidian、LM Studio 一样一律带 --no-sandbox（用户 2026-11-23 定）。
     # 只用 shell 内建：APPDIR 由 AppImage 运行时设置（含 --appimage-extract-and-run），PATH 可能是空的。
     apprun = bundle / "AppRun"
-    apprun.write_text(
-        "#!/bin/sh\n"
-        "r= flag=\n"
-        "read r 2>/dev/null < /proc/sys/kernel/apparmor_restrict_unprivileged_userns\n"  # dash 读 /proc 返回 1，不看返回码
-        "[ \"$r\" = 1 ] && flag=--no-sandbox\n"
-        'exec "${APPDIR:-${0%/*}}/code-dojo" $flag "$@"\n', encoding="utf-8")
+    apprun.write_text('#!/bin/sh\nexec "${APPDIR:-${0%/*}}/code-dojo" --no-sandbox "$@"\n', encoding="utf-8")
     apprun.chmod(0o755)
     shutil.copy(Path(__file__).with_name("code-dojo.png"), bundle)
     shutil.copy(Path(__file__).with_name("code-dojo.desktop"), bundle)
