@@ -277,13 +277,7 @@ def test_api_token_does_not_follow_redirect():
     assert headers == ["Bearer fake", None]
 
 
-def test_replacing_installer_keeps_old_dependencies_offline(updates, monkeypatch):
-    (updates.bundle / "libraries/backend.py").write_text("old")
+def test_matching_lock_uses_bundled_libraries_without_copy(updates):
     active = updates.check().active
-    updates.activate(active)
-    (updates.bundle / "lock.sha256").write_text("b" * 64)
-    (updates.bundle / "libraries/backend.py").write_text("new")
-    monkeypatch.setattr(updates.github, "json", Mock(side_effect=OSError("离线")))
-    selected = updates.check().active
-    assert selected == active
-    assert (updates.libraries(selected.manifest) / "backend.py").read_text() == "old"
+    assert updates.libraries(active.manifest) == updates.bundle / "libraries"
+    assert not (updates.root / "dependencies").exists()
