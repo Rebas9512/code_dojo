@@ -1,0 +1,55 @@
+id: modeling-1-005-pending-by-default
+title: 给工单一个初始状态
+track: modeling
+stage: '1'
+order: 50
+unit: 1
+format: write
+difficulty: 13
+skills:
+  requires:
+  - modeling.required
+  introduces: null
+source: original
+mode: script
+datasets:
+- db:workshop
+checks:
+- label: 表结构 · tickets
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.tickets') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: tickets 的记录
+  query: SELECT * FROM tickets
+  ordered: false
+- label: 可以省略状态
+  probe: INSERT INTO tickets(title) VALUES ('more')
+  expect: ok
+- label: 下一条新记录也会取得默认值
+  probe: |-
+    DO $$
+    DECLARE v tickets.status%TYPE;
+    BEGIN
+        INSERT INTO tickets(title) VALUES ('probe') RETURNING status INTO v;
+        IF v IS DISTINCT FROM 'open' THEN RAISE EXCEPTION 'unexpected default: %', v; END IF;
+    END $$
+  expect: ok
+wrong_examples:
+- why: 默认状态填错
+  sql: |-
+    CREATE TABLE tickets (
+        title text NOT NULL,
+        status text NOT NULL DEFAULT 'closed'
+    );
+    INSERT INTO tickets(title) VALUES ('pack');
+- why: 漏了必填约束
+  sql: |-
+    CREATE TABLE tickets (
+        title text NOT NULL,
+        status text DEFAULT 'open'
+    );
+    INSERT INTO tickets(title) VALUES ('pack');

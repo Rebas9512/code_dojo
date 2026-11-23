@@ -1,0 +1,35 @@
+id: sql-2-108-delivery-mileage
+title: 按总里程排列送书员
+track: sql
+stage: '2'
+order: 93
+format: write
+difficulty: 32
+skills:
+  requires:
+    - sql.coalesce
+    - sql.join-aggregate
+    - sql.left-join
+    - sql.sum-avg
+  introduces: null
+source: leetcode-db
+leetcode: top-travellers
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: true
+hints:
+  - 用名册保留零里程员工，再用第二个排序键排好同里程者。
+wrong_examples:
+  - why: 无行时得到空值
+    sql: |-
+      SELECT b.given, SUM(r.km) AS distance
+      FROM binders b LEFT JOIN route_lengths r ON r.badge = b.badge
+      GROUP BY b.badge, b.given ORDER BY distance DESC, b.given;
+  - why: 并列时姓名倒序
+    sql: |-
+      SELECT b.given, COALESCE(SUM(r.km), 0) AS distance
+      FROM binders b LEFT JOIN route_lengths r ON r.badge = b.badge
+      GROUP BY b.badge, b.given ORDER BY distance DESC, b.given DESC;

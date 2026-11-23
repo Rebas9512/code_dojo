@@ -1,0 +1,46 @@
+id: sql-4-112-three-craft-reviews
+title: 最近三次工艺评审连续提高
+track: sql
+stage: '4'
+order: 99
+format: combine
+difficulty: 58
+skills:
+  requires:
+    - sql.and-or
+    - sql.lag-lead
+    - sql.top-n-per-group
+  introduces: null
+source: leetcode-db
+leetcode: find-consistently-improving-employees
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: true
+hints:
+  - 从最近一评向前看两行。一次跨两评的净增长不足以证明每步都提高。
+wrong_examples:
+  - why: 平分也算进步
+    sql: |-
+      WITH history AS (
+          SELECT maker, day, grade,
+                 LAG(grade) OVER (PARTITION BY maker ORDER BY day, review) AS previous,
+                 LAG(grade, 2) OVER (PARTITION BY maker ORDER BY day, review) AS oldest,
+                 ROW_NUMBER() OVER (PARTITION BY maker ORDER BY day DESC, review DESC) AS pos
+          FROM craft_reviews WHERE day IS NOT NULL
+      )
+      SELECT maker, grade - oldest AS gain FROM history
+      WHERE pos = 1 AND grade >= previous AND previous > oldest ORDER BY gain DESC, maker;
+  - why: 有过连续提高就算，忽略最近一次
+    sql: |-
+      WITH history AS (
+          SELECT maker, day, grade,
+                 LAG(grade) OVER (PARTITION BY maker ORDER BY day, review) AS previous,
+                 LAG(grade, 2) OVER (PARTITION BY maker ORDER BY day, review) AS oldest,
+                 ROW_NUMBER() OVER (PARTITION BY maker ORDER BY day DESC, review DESC) AS pos
+          FROM craft_reviews WHERE day IS NOT NULL
+      )
+      SELECT maker, grade - oldest AS gain FROM history
+      WHERE grade > previous AND previous > oldest ORDER BY gain DESC, maker;

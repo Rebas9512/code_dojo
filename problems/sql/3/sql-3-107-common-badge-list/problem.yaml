@@ -1,0 +1,32 @@
+id: sql-3-107-common-badge-list
+title: 两份名册都有的编号
+track: sql
+stage: '3'
+order: 161
+format: write
+difficulty: 49
+skills:
+  requires:
+    - sql.set-ops
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 画出两张名单重叠的区域，找只保留这一区域的集合运算。
+wrong_examples:
+  - why: 取成两边的并集
+    sql: |-
+      SELECT badge FROM press_badges
+      UNION
+      SELECT badge FROM fee_cards;
+  - why: 取成左侧独有
+    sql: |-
+      SELECT badge FROM press_badges
+      EXCEPT
+      SELECT badge FROM fee_cards;

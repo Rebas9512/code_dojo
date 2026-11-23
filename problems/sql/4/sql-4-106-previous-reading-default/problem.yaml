@@ -1,0 +1,30 @@
+id: sql-4-106-previous-reading-default
+title: 修一修：分清前一张为空和没有前一张
+track: sql
+stage: '4'
+order: 94
+format: fix
+difficulty: 57
+skills:
+  requires:
+    - sql.lag-lead
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 窗口越界时的默认值和前一行字段里的 NULL，含义不同。
+wrong_examples:
+  - why: 把真实空读数也填成零
+    sql: |-
+      SELECT slip, COALESCE(LAG(reading) OVER (PARTITION BY press ORDER BY day NULLS LAST, slip), 0) AS previous
+      FROM press_readings;
+  - why: 往前多看一行
+    sql: |-
+      SELECT slip, LAG(reading, 2, 0) OVER (PARTITION BY press ORDER BY day NULLS LAST, slip) AS previous
+      FROM press_readings;

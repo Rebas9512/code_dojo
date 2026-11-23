@@ -1,0 +1,29 @@
+id: analytics-3-l01-fixed-return
+title: 固定日与滚动留存
+track: analytics
+skills:
+  - analytics.fixed-return
+steps:
+  - type: read
+    skill: analytics.fixed-return
+    md: 周一注册的两人，甲周二登录三次，乙周三才来。次日留存只有甲，分母仍是两位注册者。若问“次日或以后回来过”，乙也符合。先明确观察截止日期：昨天才注册的人还没有到第七天，不能拿他判断七日留存。按注册名单固定分母，再检查每个人的目标日期上有没有登录；可以先去重，也可以用
+      EXISTS 记录是否匹配。始终没回来的人在分母中占一位。
+  - type: example
+    skill: analytics.fixed-return
+    db: readerapp
+    code: |-
+      -- ① 用注册日计算唯一目标日
+      -- ② 观察一位读者在这个日期有几条登录
+      SELECT r.user_id, r.joined_on + 1 AS target_day, COUNT(l.login_id) AS matches
+      FROM readers r LEFT JOIN logins l ON l.user_id=r.user_id AND l.logged_at::date=r.joined_on+1
+      WHERE r.user_id=4 GROUP BY r.user_id;
+    md: 把目标日改为注册日加七，再对照加八。
+  - type: quiz
+    skill: analytics.fixed-return
+    q: 甲第八天才回来，乙第七天登录两次。两人固定七日留存率是多少？
+    options:
+      - '0'
+      - '0.5'
+      - '1'
+    answer: 1
+    explain: 只有乙在目标日期留下登录。

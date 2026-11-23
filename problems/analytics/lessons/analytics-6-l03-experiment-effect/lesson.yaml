@@ -1,0 +1,38 @@
+id: analytics-6-l03-experiment-effect
+title: 实验转化、提升与两比例检验
+track: analytics
+skills:
+  - analytics.experiment-effect
+steps:
+  - type: read
+    skill: analytics.experiment-effect
+    md: 新封面组买书的人多，可能只是分进来的人多。用各组转化人数除以入组人数，再比较比例。相对提升以对照组转化率为基准；比如从四成到五成，增加十个百分点，相对提升四分之一。若问这种差距相当于多少个标准误，在两组真实比例相等的假设下，合并成功率
+      p，计算 √[p(1−p)(1/nA+1/nB)]。用 B 减 A 的比例差除以它得到有方向的 z 值。若流量来自不同人群，还应拆开看，各层权重能扭转总体方向。
+  - type: example
+    skill: analytics.experiment-effect
+    db: readerapp
+    code: |-
+      -- ① 用两组实际的合格名单计算成功人数
+      WITH roster AS (
+          SELECT user_id, MIN(arm) AS arm, MIN(assigned_at) AS entered FROM assignments
+          WHERE experiment='cover' GROUP BY user_id HAVING COUNT(DISTINCT arm)=1
+      ), people AS (
+          SELECT r.user_id, r.arm, BOOL_OR(p.amount>0) AS bought FROM roster r LEFT JOIN payments p
+            ON p.user_id=r.user_id AND p.paid_at>=r.entered AND p.paid_at<r.entered+INTERVAL '7 days'
+          GROUP BY r.user_id, r.arm
+      ), groups AS (
+          SELECT arm, COUNT(*) AS n, COUNT(*) FILTER (WHERE bought) AS x FROM people GROUP BY arm
+      )
+      -- ② 让每个组看到自己的成功率和同一个合并成功率
+      SELECT arm, x, n, ROUND(x::numeric/n, 4) AS group_rate,
+             ROUND(SUM(x) OVER () / SUM(n) OVER (), 4) AS pooled_rate FROM groups ORDER BY arm;
+    md: 分别算 14/17、10/17 和 24/34，对照表中两种成功率。把七天改为一天，观察分母和分子哪一个变化。
+  - type: quiz
+    skill: analytics.experiment-effect
+    q: 对照为 0.4，新组为 0.5，相对提升是多少？
+    options:
+      - '0.10'
+      - '0.25'
+      - '1.25'
+    answer: 1
+    explain: 比例差 0.10 除以对照的 0.40 得 0.25。

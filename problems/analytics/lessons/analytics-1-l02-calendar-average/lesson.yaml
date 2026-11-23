@@ -1,0 +1,28 @@
+id: analytics-1-l02-calendar-average
+title: 完整日历与移动平均
+track: analytics
+skills:
+  - analytics.calendar-average
+steps:
+  - type: read
+    skill: analytics.calendar-average
+    md: 周报里缺了一天，可能是没人来，也可能是数据还没到。本组假设采集完整，因此空日应记零。如果直接在登录日上取最近七行，上一周没人来的日期会消失。先用连续日期做左表，把登录接到相同日期上，再数右表中有编号的用户。现在每个格子正好一天，可以在七格上求平均。报表通常只展示完整窗口，先算好窗口再筛掉最前面的六天。
+  - type: example
+    skill: analytics.calendar-average
+    db: readerapp
+    code: |-
+      -- ① 列出开年三天
+      WITH days AS (SELECT generate_series(DATE '2025-01-01', DATE '2025-01-03', INTERVAL '1 day')::date AS day)
+      -- ② 日期留在左侧，空格也有一行
+      SELECT day, COUNT(l.login_id) AS visits FROM days LEFT JOIN logins l ON l.logged_at::date = day
+      GROUP BY day ORDER BY day;
+    md: 把 COUNT(l.login_id) 改为 COUNT(*)，观察头两天。
+  - type: quiz
+    skill: analytics.calendar-average
+    q: 七天里只有周一有七位读者，其余六天为零。日均活跃是多少？
+    options:
+      - '0'
+      - '1'
+      - '7'
+    answer: 1
+    explain: 七天的总人数之和为 7，除以 7 个日期。

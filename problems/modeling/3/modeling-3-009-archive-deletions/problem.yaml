@@ -1,0 +1,39 @@
+id: modeling-3-009-archive-deletions
+title: 把实际删除的待办写入档案
+track: modeling
+stage: '3'
+order: 90
+unit: 2
+format: write
+difficulty: 33
+skills:
+  requires: []
+  introduces: modeling.returning
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: archive 的记录
+  query: SELECT * FROM archive
+  ordered: false
+- label: queue 的记录
+  query: SELECT * FROM queue
+  ordered: false
+- label: cancelled 的记录
+  query: SELECT * FROM cancelled
+  ordered: false
+wrong_examples:
+- why: 归档列丢失原任务名
+  sql: |-
+    WITH removed AS (
+        DELETE FROM queue q USING cancelled c WHERE q.id=c.id RETURNING q.id,q.task
+    )
+    INSERT INTO archive SELECT id,'gone' FROM removed;
+- why: 删除时错误地处理所有待办
+  sql: |-
+    WITH removed AS (
+        DELETE FROM queue q USING cancelled c RETURNING q.id,q.task
+    )
+    INSERT INTO archive SELECT id,task FROM removed;

@@ -1,0 +1,48 @@
+id: sql-5-117-reader-session-count
+title: 修一修：修正跨读者的场次编号
+track: sql
+stage: '5'
+order: 115
+format: fix
+difficulty: 71
+skills:
+  requires:
+    - sql.conditional-agg
+    - sql.date-funcs
+    - sql.sessionization
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 取前一行和累计起点是两步窗口计算；分别检查这两步的分区键。
+wrong_examples:
+  - why: 把上一位读者的操作当作本人的前次
+    sql: |-
+      WITH neighbors AS (
+          SELECT event, reader, at_time, LAG(at_time) OVER (ORDER BY at_time, event) AS prev
+          FROM desk_actions WHERE at_time IS NOT NULL
+      ), numbered AS (
+          SELECT event, reader, at_time,
+                 SUM(CASE WHEN prev IS NULL OR at_time - prev > INTERVAL '30 minutes' THEN 1 ELSE 0 END)
+                 OVER (PARTITION BY reader ORDER BY at_time, event ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS session_no
+          FROM neighbors
+      )
+      SELECT reader, MAX(session_no) AS sessions FROM numbered GROUP BY reader;
+  - why: 把所有操作数当场数
+    sql: |-
+      WITH neighbors AS (
+          SELECT event, reader, at_time, LAG(at_time) OVER (PARTITION BY reader ORDER BY at_time, event) AS prev
+          FROM desk_actions WHERE at_time IS NOT NULL
+      ), numbered AS (
+          SELECT event, reader, at_time,
+                 SUM(CASE WHEN prev IS NULL OR at_time - prev > INTERVAL '30 minutes' THEN 1 ELSE 0 END)
+                 OVER (PARTITION BY reader ORDER BY at_time, event ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS session_no
+          FROM neighbors
+      )
+      SELECT reader, COUNT(*) AS sessions FROM numbered GROUP BY reader;

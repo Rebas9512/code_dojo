@@ -1,0 +1,37 @@
+id: analytics-1-004-january-stickiness
+title: 改错：月末的活跃粘性
+track: analytics
+stage: '1'
+unit: 1
+order: 40
+format: fix
+difficulty: 34
+skills:
+  requires:
+    - sql.round-cast
+    - sql.conditional-agg
+    - analytics.active-reach
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+  - db:readerapp + datasets/empty-month.sql
+ordered: false
+hints:
+  - 一个窗口内数不同的登录者。一天刷三次仍算一个人。粘性的两个窗口要有明确的起止日期。
+wrong_examples:
+  - why: 把所有注册者当月活分母
+    sql: |-
+      SELECT COUNT(DISTINCT user_id) FILTER (WHERE logged_at::date = DATE '2025-01-31') AS dau,
+             COUNT(DISTINCT user_id) AS mau,
+             ROUND(COUNT(DISTINCT user_id) FILTER (WHERE logged_at::date = DATE '2025-01-31')::numeric
+                   / (SELECT COUNT(*) FROM readers), 4) AS stickiness
+      FROM logins WHERE logged_at >= DATE '2025-01-01' AND logged_at < DATE '2025-02-01';
+  - why: 整数先相除会舍掉小数
+    sql: |-
+      SELECT COUNT(DISTINCT user_id) FILTER (WHERE logged_at::date = DATE '2025-01-31') AS dau,
+             COUNT(DISTINCT user_id) AS mau,
+             ROUND(COUNT(DISTINCT user_id) FILTER (WHERE logged_at::date = DATE '2025-01-31')
+                   / NULLIF(COUNT(DISTINCT user_id), 0), 4) AS stickiness
+      FROM logins WHERE logged_at >= DATE '2025-01-01' AND logged_at < DATE '2025-02-01';

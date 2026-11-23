@@ -1,0 +1,35 @@
+id: sql-1-102-repeat-imprints
+title: 补全：圈出重复出现的厂牌
+track: sql
+stage: '1'
+order: 41
+format: complete
+difficulty: 20
+skills:
+  requires:
+    - sql.having
+    - sql.select-expr
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 先按厂牌整理成组，等每组的张数算好，再检查门槛。
+wrong_examples:
+  - why: 只选正好两次
+    sql: |-
+      SELECT imprint, COUNT(*) AS slips
+      FROM proof_slips
+      GROUP BY imprint
+      HAVING COUNT(*) = 2;
+  - why: 漏掉刚好两次
+    sql: |-
+      SELECT imprint, COUNT(*) AS slips
+      FROM proof_slips
+      GROUP BY imprint
+      HAVING COUNT(*) > 2;

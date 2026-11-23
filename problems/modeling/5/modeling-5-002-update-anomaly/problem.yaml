@@ -1,0 +1,44 @@
+id: modeling-5-002-update-anomaly
+title: 识别改名后的更新异常
+track: modeling
+stage: '5'
+order: 20
+unit: 1
+format: inspect
+difficulty: 42
+skills:
+  requires:
+  - modeling.dependency
+  introduces: null
+source: original
+mode: inspect
+data:
+- kind: table
+  title: 图书与出版社
+  content: |-
+    book_id,press_id,press_name
+    1,P1,Field
+    2,P1,Oak
+    3,P2,Stone
+answer:
+  type: choice
+  options:
+  - book_id
+  - press_name
+  - press_id
+  correct: 1
+  misconceptions:
+    '0':
+      id: Model0
+      name: book_id
+      line: 两本不同的书应有不同编号。
+    '2':
+      id: Model2
+      name: press_id
+      line: 多本书可以共享同一个出版社编号。
+explain: 两本书的 press_id 都指 P1，但记录的当前名称不同。把社名放入每社一行的表，就只需要修改一行。
+wrong_examples:
+- why: 两本不同的书应有不同编号。
+  answer: '0'
+- why: 多本书可以共享同一个出版社编号。
+  answer: '2'

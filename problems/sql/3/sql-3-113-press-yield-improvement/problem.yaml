@@ -1,0 +1,45 @@
+id: sql-3-113-press-yield-improvement
+title: 半年平均用纸效率的提升
+track: sql
+stage: '3'
+order: 136
+format: combine
+difficulty: 48
+skills:
+  requires:
+    - sql.conditional-agg
+    - sql.cte
+    - sql.round-cast
+    - sql.sum-avg
+  introduces: null
+source: leetcode-db
+leetcode: find-drivers-with-improved-fuel-efficiency
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: true
+hints:
+  - 先算每班效率再按半年求平均，留到最后才对各项结果舍入。
+wrong_examples:
+  - why: 按整数相除后才求平均
+    sql: |-
+      WITH rates AS (
+          SELECT press, AVG(sheets / hours) FILTER (WHERE month <= 6) AS early_rate,
+                 AVG(sheets / hours) FILTER (WHERE month > 6) AS late_rate
+          FROM print_shifts GROUP BY press
+      )
+      SELECT press, ROUND(early_rate, 2) AS early_rate, ROUND(late_rate, 2) AS late_rate,
+             ROUND(late_rate - early_rate, 2) AS gain FROM rates
+      WHERE late_rate > early_rate ORDER BY gain DESC, press;
+  - why: 把六月划到下半年
+    sql: |-
+      WITH rates AS (
+          SELECT press, AVG(1.0 * sheets / hours) FILTER (WHERE month <= 5) AS early_rate,
+                 AVG(1.0 * sheets / hours) FILTER (WHERE month > 5) AS late_rate
+          FROM print_shifts GROUP BY press
+      )
+      SELECT press, ROUND(early_rate, 2) AS early_rate, ROUND(late_rate, 2) AS late_rate,
+             ROUND(late_rate - early_rate, 2) AS gain FROM rates
+      WHERE late_rate > early_rate ORDER BY gain DESC, press;

@@ -1,0 +1,31 @@
+id: sql-2-102-phone-fallback
+title: 修一修：移植分机号的默认值
+track: sql
+stage: '2'
+order: 51
+format: fix
+difficulty: 28
+skills:
+  requires:
+    - sql.coalesce
+    - sql.left-join
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 把真实分机和默认文字分别当成第一个参数，比较哪一个能保留已分配号码。
+wrong_examples:
+  - why: 默认值排在真实号码前
+    sql: |-
+      SELECT b.badge, COALESCE('unrouted', e.dial) AS dial
+      FROM binders b LEFT JOIN extensions e ON e.badge = b.badge;
+  - why: 缺失号码者消失
+    sql: |-
+      SELECT b.badge, COALESCE(e.dial, 'unrouted') AS dial
+      FROM binders b JOIN extensions e ON e.badge = b.badge;

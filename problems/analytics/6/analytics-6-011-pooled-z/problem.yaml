@@ -1,0 +1,63 @@
+id: analytics-6-011-pooled-z
+title: 比较差距有几个标准误
+track: analytics
+stage: '6'
+unit: 3
+order: 110
+format: combine
+difficulty: 61
+skills:
+  requires:
+    - sql.self-join
+    - sql.round-cast
+    - sql.multi-join
+    - sql.join-conditions
+    - sql.join-aggregate
+    - analytics.clean-assignment
+    - analytics.experiment-effect
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+  - db:readerapp + datasets/no-conversions.sql
+ordered: false
+hints:
+  - 每人最多转化一次。相对提升=(pB−pA)/pA。两比例 z 检验用总成功数除以总人数得到合并比例 p，再用差值除以标准误。
+wrong_examples:
+  - why: 把效果的方向颠倒
+    sql: |-
+      WITH clean AS (
+          SELECT user_id, MIN(arm) AS arm, MIN(assigned_at) AS entered FROM assignments
+          WHERE experiment='cover' GROUP BY user_id HAVING COUNT(DISTINCT arm)=1
+      ), person AS (
+          SELECT c.user_id, c.arm, BOOL_OR(p.amount>0) AS converted FROM clean c LEFT JOIN payments p
+            ON p.user_id=c.user_id AND p.paid_at >= c.entered AND p.paid_at < c.entered + INTERVAL '7 days'
+          GROUP BY c.user_id, c.arm
+      ), rates AS (
+          SELECT arm, COUNT(*) AS n, COUNT(*) FILTER (WHERE converted) AS x FROM person GROUP BY arm
+      ), paired AS (
+          SELECT a.x::numeric / a.n AS pa, b.x::numeric / b.n AS pb,
+                 (a.x+b.x)::numeric / (a.n+b.n) AS pooled, a.n AS na, b.n AS nb
+          FROM rates a JOIN rates b ON a.arm='A' AND b.arm='B'
+      )
+      SELECT ROUND((pa-pb) / NULLIF(SQRT(pooled*(1-pooled)*(1.0/na+1.0/nb)), 0), 4) AS z
+      FROM paired;
+  - why: 把倒数的和误作总人数的倒数
+    sql: |-
+      WITH clean AS (
+          SELECT user_id, MIN(arm) AS arm, MIN(assigned_at) AS entered FROM assignments
+          WHERE experiment='cover' GROUP BY user_id HAVING COUNT(DISTINCT arm)=1
+      ), person AS (
+          SELECT c.user_id, c.arm, BOOL_OR(p.amount>0) AS converted FROM clean c LEFT JOIN payments p
+            ON p.user_id=c.user_id AND p.paid_at >= c.entered AND p.paid_at < c.entered + INTERVAL '7 days'
+          GROUP BY c.user_id, c.arm
+      ), rates AS (
+          SELECT arm, COUNT(*) AS n, COUNT(*) FILTER (WHERE converted) AS x FROM person GROUP BY arm
+      ), paired AS (
+          SELECT a.x::numeric / a.n AS pa, b.x::numeric / b.n AS pb,
+                 (a.x+b.x)::numeric / (a.n+b.n) AS pooled, a.n AS na, b.n AS nb
+          FROM rates a JOIN rates b ON a.arm='A' AND b.arm='B'
+      )
+      SELECT ROUND((pb-pa) / NULLIF(SQRT(pooled*(1-pooled)*(1.0/(na+nb))), 0), 4) AS z
+      FROM paired;

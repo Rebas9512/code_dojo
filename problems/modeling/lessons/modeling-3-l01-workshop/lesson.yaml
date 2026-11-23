@@ -1,0 +1,53 @@
+id: modeling-3-l01-workshop
+title: 批量写入
+track: modeling
+skills:
+- modeling.values
+- modeling.load-select
+steps:
+- type: read
+  skill: modeling.values
+  md: |-
+    一批来自同一张登记单的记录有同样的字段。INSERT INTO 后显式列出目标列，每组 VALUES 的值依次对齐，组与组之间用逗号。没有写出的目标列按各自的默认规则处理。
+
+    例如只给两条船填名称而省略座位数，每条船都会独立获得默认座位数。若业务已经明确知道第二条船有四座，就要直接为它指定这个值。
+- type: example
+  skill: modeling.values
+  db: workshop
+  code: |-
+    CREATE TABLE boats (name text, seats int DEFAULT 2);
+    INSERT INTO boats(name) VALUES ('ark'),('bay');
+    SELECT * FROM boats;
+  md: 增加第三条船，确认前两条没有被覆盖。
+- type: quiz
+  skill: modeling.values
+  q: 两组 VALUES 写入几行？
+  options:
+  - '1'
+  - '2'
+  answer: 1
+  explain: 一组括号表示一条记录。两行可以共享列清单，但每一行仍有自己的值。
+- type: read
+  skill: modeling.load-select
+  md: |-
+    当待写的行已经在数据库里，先写一个 SELECT，把来源行按规则筛选并排成目标列的顺序。再在查询前加 INSERT INTO 和列清单。以后换一批源数据，相同的筛选条件仍能工作。
+
+    检查来源时，先在心里挑出应留下的行，再逐列对照目标。例如两次有效扫描来自同一件商品，保留每次扫描的任务就不应该先做去重。
+- type: example
+  skill: modeling.load-select
+  db: workshop
+  code: |-
+    CREATE TABLE scan (n int);
+    INSERT INTO scan VALUES (0),(3);
+    CREATE TABLE kept (n int);
+    INSERT INTO kept SELECT n FROM scan WHERE n>0;
+    SELECT * FROM kept;
+  md: 把源表的 3 改成 9，检查载入结果是否随之改变。
+- type: quiz
+  skill: modeling.load-select
+  q: 源表增加一条符合条件的记录，重新从空库载入会怎样？
+  options:
+  - 目标多一行
+  - 结果相同
+  answer: 0
+  explain: SELECT 读的是当次运行的源表。在答案里抄样例值会漏掉下一批数据。

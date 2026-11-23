@@ -1,0 +1,35 @@
+id: sql-5-102-keep-zero-return-cohorts
+title: 修一修：找回次日无人返回的批次
+track: sql
+stage: '5'
+order: 15
+format: fix
+difficulty: 65
+skills:
+  requires:
+    - sql.join-aggregate
+    - sql.join-conditions
+    - sql.retention
+    - sql.round-cast
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 先检查连接以后还剩几张不同的领卡，再去算比例。
+wrong_examples:
+  - why: 内连接使未返回的领卡人消失
+    sql: |-
+      SELECT c.issued, ROUND(1.0 * COUNT(DISTINCT t.card) / COUNT(DISTINCT c.card), 2) AS share
+      FROM card_issues c JOIN card_taps t ON t.card = c.card AND t.day = c.issued + 1
+      GROUP BY c.issued;
+  - why: 分母按连接后的行数计算
+    sql: |-
+      SELECT c.issued, ROUND(1.0 * COUNT(DISTINCT t.card) / COUNT(*), 2) AS share
+      FROM card_issues c LEFT JOIN card_taps t ON t.card = c.card AND t.day = c.issued + 1
+      GROUP BY c.issued;

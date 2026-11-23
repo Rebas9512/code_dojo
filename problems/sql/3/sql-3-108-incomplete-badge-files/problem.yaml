@@ -1,0 +1,40 @@
+id: sql-3-108-incomplete-badge-files
+title: 修一修：只在一份名册出现的编号
+track: sql
+stage: '3'
+order: 163
+format: fix
+difficulty: 49
+skills:
+  requires:
+    - sql.cte
+    - sql.self-join
+    - sql.set-ops
+  introduces: null
+source: leetcode-db
+leetcode: employees-with-missing-information
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: true
+hints:
+  - 先求左边缺右边的清单，再求右边缺左边的清单，最后合并。
+wrong_examples:
+  - why: 两边都做同方向的差集
+    sql: |-
+      WITH missing_fees AS (
+          SELECT badge FROM press_badges EXCEPT SELECT badge FROM fee_cards
+      ), missing_badges AS (
+          SELECT badge FROM press_badges EXCEPT SELECT badge FROM fee_cards
+      )
+      SELECT badge FROM missing_fees UNION SELECT badge FROM missing_badges ORDER BY badge;
+  - why: 第二侧误取交集
+    sql: |-
+      WITH missing_fees AS (
+          SELECT badge FROM press_badges EXCEPT SELECT badge FROM fee_cards
+      ), missing_badges AS (
+          SELECT badge FROM fee_cards INTERSECT SELECT badge FROM press_badges
+      )
+      SELECT badge FROM missing_fees UNION SELECT badge FROM missing_badges ORDER BY badge;

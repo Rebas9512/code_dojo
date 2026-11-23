@@ -1,0 +1,8 @@
+WITH neighbors AS (
+    SELECT e.*, LAG(happened_at) OVER (____ ORDER BY happened_at, event_id) AS prev_at
+    FROM events e
+), starts AS (
+    SELECT neighbors.*, CASE WHEN prev_at IS NULL OR happened_at - prev_at >= INTERVAL '30 minutes'
+                             THEN 1 ELSE 0 END AS is_start FROM neighbors
+)
+SELECT event_id, user_id, is_start FROM starts ORDER BY user_id, happened_at, event_id;

@@ -1,0 +1,29 @@
+id: modeling-4-003-refresh-member
+title: 合并会员标签快照
+track: modeling
+stage: '4'
+order: 30
+unit: 1
+format: write
+difficulty: 35
+skills:
+  requires: []
+  introduces: modeling.upsert
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: members 的记录
+  query: SELECT * FROM members
+  ordered: false
+wrong_examples:
+- why: 保留了过时标签
+  sql: |-
+    INSERT INTO members SELECT id,tag FROM inbox
+    ON CONFLICT(id) DO NOTHING;
+- why: 只处理已存在会员
+  sql: |-
+    INSERT INTO members SELECT id,tag FROM inbox WHERE id IN (SELECT id FROM members)
+    ON CONFLICT(id) DO UPDATE SET tag=excluded.tag;

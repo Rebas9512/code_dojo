@@ -1,0 +1,35 @@
+id: sql-2-109-funded-desks
+title: 余额超过门槛的工作台
+track: sql
+stage: '2'
+order: 96
+format: combine
+difficulty: 31
+skills:
+  requires:
+    - sql.having
+    - sql.join-aggregate
+    - sql.sum-avg
+  introduces: null
+source: leetcode-db
+leetcode: bank-account-summary-ii
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 每个人的正负流水都要参与求和，在求和后检查门槛。
+wrong_examples:
+  - why: 把门槛本身也算入
+    sql: |-
+      SELECT b.given, SUM(c.coins) AS balance
+      FROM binders b JOIN credit_moves c ON c.badge = b.badge
+      GROUP BY b.badge, b.given HAVING SUM(c.coins) >= 100;
+  - why: 先剔除负流水
+    sql: |-
+      SELECT b.given, SUM(c.coins) AS balance
+      FROM binders b JOIN credit_moves c ON c.badge = b.badge
+      WHERE c.coins > 0
+      GROUP BY b.badge, b.given HAVING SUM(c.coins) > 100;

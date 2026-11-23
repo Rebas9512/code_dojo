@@ -1,0 +1,38 @@
+id: sql-5-109-unfold-counter-quotes
+title: 把三个柜台的报价展开
+track: sql
+stage: '5'
+order: 46
+format: variant
+difficulty: 67
+skills:
+  requires:
+    - sql.pivot
+    - sql.self-join
+    - sql.set-ops
+  introduces: null
+source: leetcode-db
+leetcode: rearrange-products-table
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 每个柜台分别选出纸种、柜台名及报价，然后纵向拼接三份结果。
+wrong_examples:
+  - why: 丢掉合法零价
+    sql: |-
+      SELECT paper, 'east' AS counter, east AS price FROM quote_board WHERE east IS NOT NULL
+      UNION ALL
+      SELECT paper, 'west', west FROM quote_board WHERE west > 0
+      UNION ALL
+      SELECT paper, 'pier', pier FROM quote_board WHERE pier IS NOT NULL;
+  - why: 误把西柜的价格贴到码头柜
+    sql: |-
+      SELECT paper, 'east' AS counter, east AS price FROM quote_board WHERE east IS NOT NULL
+      UNION ALL
+      SELECT paper, 'west', west FROM quote_board WHERE west IS NOT NULL
+      UNION ALL
+      SELECT paper, 'pier', west FROM quote_board WHERE pier IS NOT NULL;

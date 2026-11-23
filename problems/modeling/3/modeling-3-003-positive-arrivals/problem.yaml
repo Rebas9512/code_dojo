@@ -1,0 +1,29 @@
+id: modeling-3-003-positive-arrivals
+title: 只接收正数入库单
+track: modeling
+stage: '3'
+order: 30
+unit: 1
+format: complete
+difficulty: 27
+skills:
+  requires: []
+  introduces: modeling.load-select
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: arrivals 的记录
+  query: SELECT * FROM arrivals
+  ordered: false
+wrong_examples:
+- why: 把零也载入
+  sql: |-
+    INSERT INTO arrivals(sku,qty)
+    SELECT sku,qty FROM scans WHERE qty>=0;
+- why: 把重复扫描合并
+  sql: |-
+    INSERT INTO arrivals(sku,qty)
+    SELECT DISTINCT sku,qty FROM scans WHERE qty>0;

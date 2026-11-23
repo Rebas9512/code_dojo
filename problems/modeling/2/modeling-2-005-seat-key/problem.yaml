@@ -1,0 +1,52 @@
+id: modeling-2-005-seat-key
+title: 同一车次内的座号
+track: modeling
+stage: '2'
+order: 50
+unit: 1
+format: write
+difficulty: 21
+skills:
+  requires: []
+  introduces: modeling.composite
+source: original
+mode: script
+datasets:
+- db:workshop
+checks:
+- label: 表结构 · seats
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.seats') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 主键列 · seats
+  query: |-
+    SELECT k.column_name FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog, constraint_schema, constraint_name, table_name)
+    WHERE c.table_schema = 'public' AND c.table_name = 'seats' AND c.constraint_type = 'PRIMARY KEY'
+    ORDER BY k.ordinal_position
+  ordered: true
+- label: 同车不同座及跨车同座合法
+  probe: INSERT INTO seats VALUES (3,8),(3,9),(4,8)
+  expect: ok
+- label: 拒绝重复座位
+  probe: INSERT INTO seats VALUES (3,8),(3,8)
+  expect: error
+wrong_examples:
+- why: 只按车次判重
+  sql: |-
+    CREATE TABLE seats (
+        run_id integer,
+        seat_no integer,
+        PRIMARY KEY(run_id)
+    );
+- why: 只按座号判重
+  sql: |-
+    CREATE TABLE seats (
+        run_id integer,
+        seat_no integer,
+        PRIMARY KEY(seat_no)
+    );

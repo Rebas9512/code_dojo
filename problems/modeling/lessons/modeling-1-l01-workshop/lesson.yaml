@@ -1,0 +1,73 @@
+id: modeling-1-l01-workshop
+title: 表和字段
+track: modeling
+skills:
+- modeling.create
+- modeling.types
+- modeling.required
+steps:
+- type: read
+  skill: modeling.create
+  md: |-
+    查询从已有记录取值。设计一个登记簿要先给它起表名，再在括号里依次写列名和类型，用逗号分开。建表本身留下表头，记录数仍是零。
+
+    例如值班室等着录入第一间房时，房名这一列已经存在，却还没有任何一间房的记录。可以先读表头，再用计数确认登记工作尚未开始。
+- type: example
+  skill: modeling.create
+  db: workshop
+  code: |-
+    CREATE TABLE rooms (label text);
+    SELECT COUNT(*) FROM rooms;
+  md: 在最后一行之前插入一行 West，再观察计数。
+- type: quiz
+  skill: modeling.create
+  q: 只执行建表后有几行记录？
+  options:
+  - '0'
+  - '1'
+  answer: 0
+  explain: 列描述将来能存什么。一列并不等于一条已经登记的数据。
+- type: read
+  skill: modeling.types
+  md: |-
+    库存用于数整件，金额需要精确到分，含前导零的编号却要逐字保存。先问同一个值要参加什么比较或运算，再决定列的类型。DATE 只保存日历日期，TIMESTAMPTZ 表示可跨时区比较的同一时刻。
+
+    遇到形似数字的字段，可以试着读出它的用途。邮编用于辨认区域，丢掉前导零可能换了含义；费用要汇总，选定的小数位数则决定可以精确记到哪一位。
+- type: example
+  skill: modeling.types
+  db: workshop
+  code: |-
+    CREATE TABLE bill (code text, fee numeric(6,2));
+    INSERT INTO bill VALUES ('007', 1.20);
+    SELECT code, fee * 3 FROM bill;
+  md: 把编号换为 0003，观察前导零。
+- type: quiz
+  skill: modeling.types
+  q: 金额 0.10 需要精确记账，应选哪种类型？
+  options:
+  - double precision
+  - numeric(8,2)
+  answer: 1
+  explain: 精确十进制的小数位数由第二个参数决定。浮点数只能近似表示一部分十进制小数。
+- type: read
+  skill: modeling.required
+  md: |-
+    漏写某列时，数据库会取它的默认值。没有设置默认值的列通常得到 NULL。显式写 NULL 是另一种请求，只有 NOT NULL 才能在入库时拒绝未知值。
+
+    设想新货箱刚登记但还未盘点。业务可能要求件数先记零，也可能要区分未知与已确认空箱。列的默认值和能否为空应分别按这两个问题决定。
+- type: example
+  skill: modeling.required
+  db: workshop
+  code: |-
+    CREATE TABLE bins (label text NOT NULL, qty integer DEFAULT 0);
+    INSERT INTO bins(label) VALUES ('east');
+    SELECT * FROM bins;
+  md: 再写一行，将 qty 显式设成 NULL，看看它与省略列有什么差别。
+- type: quiz
+  skill: modeling.required
+  q: 列允许空且默认 0，显式填 NULL 会存什么？
+  options:
+  - '0'
+  - 'NULL'
+  answer: 1
+  explain: DEFAULT 在省略列或使用 DEFAULT 关键字时生效，显式给出的值会保留。

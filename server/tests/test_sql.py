@@ -238,3 +238,65 @@ def test_lesson_uses_its_database_and_patch(site):
     result, = sql_judge.run_node(datasets=[example["setup"]], solution=example["code"])
     assert result["rows"] == [[42]]
     assert client.get(URL + "/sql-cases").json()["datasets"][0]["expected"]["rows"] == [[5], [8]]
+
+
+MEMBERS = "CREATE TABLE members(email text UNIQUE); INSERT INTO members VALUES ('a')"
+CHECKS = [
+    {"label": "重复邮箱", "probe": "INSERT INTO members VALUES ('a')", "expect": "error"},
+    {"label": "新邮箱", "probe": "INSERT INTO members VALUES ('b')", "expect": "ok"},
+    {"label": "会员名单", "query": "SELECT email FROM members ORDER BY email", "ordered": True},
+]
+
+
+def test_script_expected_checks_and_cache(site):
+    client, p, _ = site
+    path = p.path / "problem.yaml"
+    meta = yaml.safe_load(path.read_text()) | {"mode": "script", "checks": CHECKS}
+    path.write_text(yaml.safe_dump(meta))
+    (p.path / "solution.sql").write_text(MEMBERS)
+    plan = client.get(URL + "/sql-cases?scope=all").json()
+    assert plan["checks"] == CHECKS and len(plan["datasets"]) == 2
+    for dataset in plan["datasets"]:
+        duplicate, fresh, members = dataset["expected"]["checks"]
+        assert duplicate["outcome"] == "error" and "unique" in duplicate["error"]
+        assert fresh == {"outcome": "ok"} and members["rows"] == [["a"]]
+    path.write_text(yaml.safe_dump(meta | {"checks": CHECKS[:2]}))
+    assert len(client.get(URL + "/sql-cases").json()["datasets"][0]["expected"]["checks"]) == 2
+
+
+def test_script_validates_reference_and_wrong_scripts():
+    job = dict(mode="script", checks=CHECKS, solution=MEMBERS, datasets=[[]])
+    assert sql_judge.run_node(**job, wrong=[MEMBERS.replace(" UNIQUE", ""), "CREATE TABLE broken("])
+    for sql, reason in [(MEMBERS, "没有抓住"), (MEMBERS.replace(" UNIQUE", ""), "参考解未通过"),
+                        (MEMBERS + "; COMMIT", "事务控制语句")]:
+        with pytest.raises(ValueError, match=reason):
+            sql_judge.run_node(**(job | {"solution": sql}), wrong=[sql])
+
+
+def test_script_extra_from_empty_database(site):
+    _, parent, directory = site
+    spec = extra_spec(mode="script", checks=CHECKS, tables=[], datasets=["", "", ""], solution=MEMBERS,
+                      wrong_solutions=[MEMBERS.replace(" UNIQUE", "")], starter="SELECT 1")
+    fake = FakeProvider([spec])
+    out, notes = extra.generate(fake, None, parent, request="", skill_names={}, existing=[])
+    assert not notes
+    problem = build_extra(parent, 1, 1, out)
+    plan = sql_judge.sql_cases(problem, directory, all_cases=True)
+    assert plan["mode"] == "script" and plan["datasets"][2]["expected"]["checks"][-1]["rows"] == [["a"]]
+
+
+def test_script_query_compares_order_per_check():
+    job = dict(mode="script", datasets=[[]],
+               solution="CREATE TABLE t(n int); INSERT INTO t VALUES (1),(2)",
+               checks=[{"label": "名单", "query": "SELECT n FROM t", "ordered": False}])
+    reversed_rows = "CREATE TABLE t(n int); INSERT INTO t VALUES (2),(1)"
+    with pytest.raises(ValueError, match="没有抓住"):
+        sql_judge.run_node(**job, wrong=[reversed_rows])
+    wrong_query = [{"label": "名单", "query": "SELECT missing FROM t"}]
+    with pytest.raises(ValueError, match="名单.*missing"):
+        sql_judge.run_node(**(job | {"checks": wrong_query}))
+
+
+def test_script_reference_rejects_unexpected_probe_acceptance():
+    with pytest.raises(ValueError, match="重复邮箱.*未通过检查"):
+        sql_judge.run_node(mode="script", checks=CHECKS, solution=MEMBERS.replace(" UNIQUE", ""), datasets=[[]])

@@ -1,0 +1,75 @@
+id: modeling-6-l01-workshop
+title: 访问与计划
+track: modeling
+skills:
+- modeling.view
+- modeling.index
+- modeling.plan
+steps:
+- type: read
+  skill: modeling.view
+  md: |-
+    每天查待处理订单时，如果每人各抄一份过滤条件，结果可能慢慢出现分歧。CREATE VIEW 给查询定义一个名字，使用者像读表那样读取它。普通视图保留查询定义，底表变化后再查会看到变化。
+
+    给查询取名后，可以用普通 SELECT 再对视图筛选或汇总。做实验时先创建视图，再向底表加入一条满足条件的记录，观察查询定义怎样作用于新行。
+- type: example
+  skill: modeling.view
+  db: workshop
+  code: |-
+    CREATE TABLE inbox (id int,done boolean);
+    CREATE VIEW pending AS SELECT id FROM inbox WHERE NOT done;
+    INSERT INTO inbox VALUES (1,false),(2,true);
+    SELECT * FROM pending;
+  md: 在最后一行前把 1 号标为完成，再运行查看。
+- type: quiz
+  skill: modeling.view
+  q: 视图建立后插入待办行，再查能否看见它？
+  options:
+  - 能
+  - 不能
+  answer: 0
+  explain: 每次读取普通视图都会根据现在的底表求值，创建时表中可以完全没有数据。
+- type: read
+  skill: modeling.index
+  md: |-
+    索引保存键和记录位置，可以帮助数据库快速定位某个值或连续范围。复合 B-tree 按从左到右的键组织，常见模式是先放等值筛选列，再放范围列。索引会随写入维护，本身不改变表中的业务记录。
+
+    例如一本登记册按部门和日期排页，知道部门时可先缩小到这一段，再寻找日期区间。若每一页先按日期排，再按部门排，同一部门的记录会散在更多位置。
+- type: example
+  skill: modeling.index
+  db: workshop
+  code: |-
+    CREATE TABLE events (team int,day date);
+    CREATE INDEX events_team_day ON events(team,day);
+    SELECT indexname FROM pg_indexes WHERE tablename='events';
+  md: 交换索引键的顺序，思考只知道 team 时哪种排列更容易定位。
+- type: quiz
+  skill: modeling.index
+  q: 常按 team 等值、day 范围筛选，先放哪个键？
+  options:
+  - day
+  - team
+  answer: 1
+  explain: 同一个 team 的键排在一起，随后才按日期排，缩小范围时可以利用这个顺序。
+- type: read
+  skill: modeling.plan
+  md: |-
+    EXPLAIN 描述规划器准备怎样取数。Seq Scan 会扫描表，Index Scan 借索引定位再取行。Filter 表示读到行之后才检查的条件，Index Cond 表示可以直接用于定位的条件。小表即使有索引也可能选择顺序扫描。
+
+    例如计划先用站点编号定位，再对找到的行判断是否完成。即使两个条件同在 WHERE 里，它们在执行时也可能承担不同的工作，读计划时要看各自出现在哪一栏。
+- type: example
+  skill: modeling.plan
+  db: workshop
+  code: |-
+    CREATE TABLE log (id int PRIMARY KEY, label text);
+    INSERT INTO log VALUES (1,'ok');
+    EXPLAIN SELECT label FROM log WHERE id=1;
+  md: 将 WHERE 去掉，比较计划的节点名和条件。
+- type: quiz
+  skill: modeling.plan
+  q: 计划里哪一项用于索引定位？
+  options:
+  - Filter
+  - Index Cond
+  answer: 1
+  explain: 读计划要看实际选择的节点及其条件。仅看到建过索引，还不能断定一次查询会使用它。

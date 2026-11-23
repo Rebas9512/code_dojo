@@ -1,0 +1,30 @@
+id: sql-1-105-recurring-binding-teams
+title: 经常搭档的装订小组
+track: sql
+stage: '1'
+order: 54
+format: variant
+difficulty: 22
+skills:
+  requires:
+    - sql.having
+  introduces: null
+source: leetcode-db
+leetcode: actors-and-directors-who-cooperated-at-least-three-times
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 组的身份由两个人一起确定。写出分组键以后再数合作单数。
+wrong_examples:
+  - why: 把三次也排除
+    sql: |-
+      SELECT binder, cutter FROM binding_jobs
+      GROUP BY binder, cutter HAVING COUNT(*) > 3;
+  - why: 只要合作过一次就算
+    sql: |-
+      SELECT binder, cutter FROM binding_jobs
+      GROUP BY binder, cutter HAVING COUNT(*) >= 1;

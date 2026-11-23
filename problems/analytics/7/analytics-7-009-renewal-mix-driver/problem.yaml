@@ -1,0 +1,32 @@
+id: analytics-7-009-renewal-mix-driver
+title: 续费提醒④ · 哪种套餐权重变大
+track: analytics
+stage: '7'
+unit: 2
+order: 90
+format: inspect
+difficulty: 66
+skills:
+  requires:
+    - analytics.renewal-mix
+  introduces: null
+source: original
+mode: inspect
+data:
+  - kind: table
+    title: 续费提醒④ · 哪种套餐权重变大
+    file: evidence.csv
+answer:
+  type: short
+  accept:
+    - basic
+  misconceptions:
+    plus:
+      id: AN72E1
+      name: 把高续费率当成权重上升
+      line: plus 的到期数从 12 减至 4。
+    both:
+      id: AN72E2
+      name: 混淆人数与权重
+      line: 两套餐内部的率虽持平，份额变化方向却不同。
+explain: basic 的到期份额从四分之一升到四分之三，它的续费率一直较低。

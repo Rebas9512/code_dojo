@@ -1,0 +1,36 @@
+id: sql-4-104-one-proof-per-rack
+title: 修一修：每架抽一张已评分的校样
+track: sql
+stage: '4'
+order: 195
+format: fix
+difficulty: 62
+skills:
+  requires:
+    - sql.top-n-per-group
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 先按架号分区，架内用分数和唯一的单号排出只取一张的顺序。
+wrong_examples:
+  - why: 漏分区使所有架共用一个名额
+    sql: |-
+      WITH picked AS (
+          SELECT rack, sheet, ROW_NUMBER() OVER (ORDER BY score DESC, sheet) AS pos
+          FROM proof_marks WHERE score IS NOT NULL
+      )
+      SELECT rack, sheet FROM picked WHERE pos = 1;
+  - why: 同分时拿了大编号
+    sql: |-
+      WITH picked AS (
+          SELECT rack, sheet, ROW_NUMBER() OVER (PARTITION BY rack ORDER BY score DESC, sheet DESC) AS pos
+          FROM proof_marks WHERE score IS NOT NULL
+      )
+      SELECT rack, sheet FROM picked WHERE pos = 1;

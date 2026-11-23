@@ -1,0 +1,30 @@
+id: modeling-4-004-accumulate-credit
+title: 把日增量合并进余额
+track: modeling
+stage: '4'
+order: 40
+unit: 1
+format: write
+difficulty: 36
+skills:
+  requires:
+  - modeling.upsert
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: purse 的记录
+  query: SELECT * FROM purse
+  ordered: false
+wrong_examples:
+- why: 覆盖余额而未累计
+  sql: |-
+    INSERT INTO purse SELECT id,n FROM daily
+    ON CONFLICT(id) DO UPDATE SET n=excluded.n;
+- why: 把所有变动当作增加
+  sql: |-
+    INSERT INTO purse SELECT id,n FROM daily
+    ON CONFLICT(id) DO UPDATE SET n=purse.n+abs(excluded.n);

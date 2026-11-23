@@ -1,0 +1,2 @@
+ALTER TABLE packs ALTER COLUMN qty SET DEFAULT 6;
+INSERT INTO packs(code) VALUES ('blue');

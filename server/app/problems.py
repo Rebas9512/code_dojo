@@ -35,6 +35,20 @@ class Constraints(BaseModel):
     forbid_imports: list[str] = Field(default_factory=list)
 
 
+class QueryCheck(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    label: str = Field(min_length=1)
+    query: str = Field(min_length=1)
+    ordered: bool = False
+
+
+class ProbeCheck(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    label: str = Field(min_length=1)
+    probe: str = Field(min_length=1)
+    expect: Literal["error", "ok"]
+
+
 class ProblemMeta(BaseModel):
     """problem.yaml 的公共字段；未知字段保留（如 wrong_examples），方便内容侧先行试验。"""
 
@@ -57,7 +71,7 @@ class ProblemMeta(BaseModel):
     unit: int | None = None               # 直接指定单元（见 units.group_units）
     replaces_premium: str | None = None   # 替代的 LeetCode 会员题 slug
 
-    mode: Literal["function", "class", "stdio", "predict", "inspect", "dml"] | None = None
+    mode: Literal["function", "class", "stdio", "predict", "inspect", "dml", "script"] | None = None
     # Python
     entry: str | None = None
     signature: str | None = None
@@ -75,6 +89,7 @@ class ProblemMeta(BaseModel):
     datasets: list[str] = Field(default_factory=list)
     ordered: bool = False
     check_query: str | None = None
+    checks: list[QueryCheck | ProbeCheck] = Field(default_factory=list)
 
     @field_validator("week", mode="before")
     @classmethod
@@ -89,6 +104,11 @@ class ProblemMeta(BaseModel):
         return normalize_stage(v)
 
     def check_language(self, language: str) -> None:
+        if self.mode == "script":
+            if language != "sql" or not self.checks:
+                raise ValueError("script 模式需要 SQL 题和非空的 checks")
+        elif self.checks:
+            raise ValueError("checks 只用于 script 模式")
         if self.mode == "dml":
             if language != "sql" or not (self.check_query or "").strip():
                 raise ValueError("dml 模式需要 SQL 题和非空的 check_query")
@@ -106,8 +126,8 @@ class ProblemMeta(BaseModel):
             if self.mode == "function" and not self.signature:
                 raise ValueError("function 模式必须有 signature")
         if language == "sql":
-            if self.mode not in (None, "dml"):
-                raise ValueError("SQL 代码题省略 mode 或使用 dml")
+            if self.mode not in (None, "dml", "script"):
+                raise ValueError("SQL 代码题省略 mode 或使用 dml、script")
             if not self.datasets:
                 raise ValueError("SQL 题必须至少有一个 dataset")
 
@@ -242,7 +262,7 @@ def build_extra(parent: Problem, row_id: int, seq: int, spec: dict[str, Any]) ->
         id=extra_id(row_id), title=spec["title"], track=pm.track, stage=pm.stage, order=pm.order,
         format=spec.get("review_format", fmt), difficulty=pm.difficulty, skills=refs, source="ai",
         datasets=list(sql_files), ordered=spec.get("ordered", False), check_query=spec.get("check_query"),
-        mode=mode, entry=spec.get("entry"), signature=spec.get("signature"),
+        checks=spec.get("checks", []), mode=mode, entry=spec.get("entry"), signature=spec.get("signature"),
         compare=spec.get("compare") or "exact", time_limit_ms=pm.time_limit_ms,
         **{k: spec[k] for k in ("constraints", "rtol", "atol", "ignore_index", "ignore_row_order",
                                 "check_column_names") if k in spec},
@@ -271,6 +291,8 @@ class Skill:
 
 def default_starter(meta: ProblemMeta, language: str) -> str:
     if language == "sql":
+        if meta.mode == "script":
+            return "-- 在这里写 SQL 脚本\n"
         if meta.mode == "dml":
             return "-- 在这里写修改语句\n"
         return "-- 在这里写 SQL 查询\n"

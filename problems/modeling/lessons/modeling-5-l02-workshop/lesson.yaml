@@ -1,0 +1,57 @@
+id: modeling-5-l02-workshop
+title: 事实、维度与历史
+track: modeling
+skills:
+- modeling.star
+- modeling.history
+steps:
+- type: read
+  skill: modeling.star
+  md: |-
+    在做销量报表前，先写下一行代表的事件，例如一笔交易中的一个行项目。事实表保留数量与维度键。维度表保存门店等稳定的描述属性，让不同的汇总都能回到同一批明细。
+
+    例如一笔订单买了两种书，事实表按行项目留两条记录，统计订单时按订单号去重，统计件数时把两条数量相加。两种指标可从同一份明细得到。
+- type: example
+  skill: modeling.star
+  db: workshop
+  code: |-
+    CREATE TABLE shop (id int PRIMARY KEY,city text);
+    CREATE TABLE sale (item int PRIMARY KEY,shop_id int REFERENCES shop,qty int);
+    INSERT INTO shop VALUES (2,'York');
+    INSERT INTO sale VALUES (10,2,3),(11,2,4);
+    SELECT city,SUM(qty) FROM sale JOIN shop ON shop_id=id GROUP BY city;
+  md: 把两行事实改成同一笔订单的两个商品，考虑按订单计数要用哪个键。
+- type: quiz
+  skill: modeling.star
+  q: 若粒度是交易行，数量适合放在哪里？
+  options:
+  - 事实表
+  - 城市维度
+  answer: 0
+  explain: 数量由一次具体事件决定。把数量放在维度上会在下一次事件到达时混淆两次业务事实。
+- type: read
+  skill: modeling.history
+  md: |-
+    会员的等级会变化。只覆盖当前等级，会让旧订单也看见新等级。慢变维度第二型为变化新增一行，旧版本结束于变更当日，新版本从这天开始。区间约定为左闭右开，当前行的结束日为空。
+
+    例如会员 2 月 1 日升档，先结束旧等级，再追加从这天开始的新等级。以后分析 1 月订单时，仍能按旧版本解释交易；这正是保留两行的原因。
+- type: example
+  skill: modeling.history
+  db: workshop
+  code: |-
+    CREATE TABLE levels (id int,tier text,start_on date,end_on date,is_current boolean);
+    INSERT INTO levels VALUES (1,'base','2025-01-01',NULL,true);
+    -- ① 关闭旧版本，再写入新版本
+    UPDATE levels SET end_on='2025-02-01',is_current=false WHERE id=1 AND is_current;
+    INSERT INTO levels VALUES (1,'gold','2025-02-01',NULL,true);
+    -- ② 按消费日期查当时的等级
+    SELECT tier FROM levels WHERE start_on <= DATE '2025-02-01' AND (end_on IS NULL OR end_on > DATE '2025-02-01');
+  md: 把观察日改成一月的某天，比较取到的版本。
+- type: quiz
+  skill: modeling.history
+  q: 从 2 月 1 日开始升级，2 月 1 日消费应归哪个等级？
+  options:
+  - base
+  - gold
+  answer: 1
+  explain: 旧版本的结束日不包含在有效期内，同一天的交易应当只匹配一个版本。

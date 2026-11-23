@@ -1,0 +1,1 @@
+INSERT INTO batch VALUES ('B',3);

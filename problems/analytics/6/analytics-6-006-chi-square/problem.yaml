@@ -1,0 +1,49 @@
+id: analytics-6-006-chi-square
+title: 给分流偏差算一个卡方值
+track: analytics
+stage: '6'
+unit: 2
+order: 60
+format: write
+difficulty: 60
+skills:
+  requires:
+    - sql.round-cast
+    - sql.left-join
+    - sql.join-aggregate
+    - sql.cte
+    - analytics.split-balance
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+  - db:readerapp + datasets/empty.sql
+ordered: false
+hints:
+  - 期望人数等于总人数乘计划份额。卡方统计量为各组 (实际−期望)²/期望 之和，用来量化分流偏离。
+wrong_examples:
+  - why: 有符号偏差会抵消
+    sql: |-
+      WITH clean AS (
+          SELECT user_id, MIN(arm) AS arm, MIN(assigned_at) AS entered FROM assignments
+          WHERE experiment='cover' GROUP BY user_id HAVING COUNT(DISTINCT arm)=1
+      ), plan(arm, target) AS (VALUES ('A', 0.60), ('B', 0.40)), sizes AS (
+          SELECT p.arm, p.target, COUNT(c.user_id) AS observed FROM plan p LEFT JOIN clean c ON c.arm=p.arm
+          GROUP BY p.arm, p.target
+      ), expected AS (
+          SELECT arm, observed, SUM(observed) OVER () * target AS expected_n FROM sizes
+      )
+      SELECT ROUND(SUM((observed-expected_n) / NULLIF(expected_n, 0)), 4) AS chi_square FROM expected;
+  - why: 用实际人数代替理论人数
+    sql: |-
+      WITH clean AS (
+          SELECT user_id, MIN(arm) AS arm, MIN(assigned_at) AS entered FROM assignments
+          WHERE experiment='cover' GROUP BY user_id HAVING COUNT(DISTINCT arm)=1
+      ), plan(arm, target) AS (VALUES ('A', 0.60), ('B', 0.40)), sizes AS (
+          SELECT p.arm, p.target, COUNT(c.user_id) AS observed FROM plan p LEFT JOIN clean c ON c.arm=p.arm
+          GROUP BY p.arm, p.target
+      ), expected AS (
+          SELECT arm, observed, SUM(observed) OVER () * target AS expected_n FROM sizes
+      )
+      SELECT ROUND(SUM(POWER(observed-expected_n, 2) / NULLIF(observed, 0)), 4) AS chi_square FROM expected;

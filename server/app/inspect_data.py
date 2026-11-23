@@ -148,7 +148,11 @@ class InspectExercise:
             if not isinstance(info, dict) or not all(nonblank(info.get(k)) for k in ("id", "name", "line")):
                 raise ValueError("误解需要已知编号或 {id, name, line}")
             feedback[key] = {k: info[k] for k in ("id", "name", "line")}
-        return cls(blocks, answer, spec["explain"], feedback, rules, accepted)
+        exercise = cls(blocks, answer, spec["explain"], feedback, rules, accepted)
+        for wrong in spec.get("wrong_examples") or []:
+            if "answer" in wrong and exercise.grade(str(wrong["answer"]))["verdict"] == "accepted":
+                raise ValueError("典型误答会被判为正确")
+        return exercise
 
     def grade(self, submitted: str) -> dict:
         key = normalize(submitted, self.rules)

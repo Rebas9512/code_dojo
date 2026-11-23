@@ -1,0 +1,2 @@
+CREATE TABLE depots (id int PRIMARY KEY);
+INSERT INTO depots VALUES (4),(8);

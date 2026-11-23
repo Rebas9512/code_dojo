@@ -1,0 +1,30 @@
+id: sql-2-104-unbooked-gallery-names
+title: 从未挂过作品的展厅
+track: sql
+stage: '2'
+order: 63
+format: write
+difficulty: 28
+skills:
+  requires:
+    - sql.anti-join
+  introduces: null
+source: leetcode-db
+leetcode: customers-who-never-order
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 从所有展厅开始查，判断能不能找到一张真正的挂展单。
+wrong_examples:
+  - why: 把无标题的作品当作没有作品
+    sql: |-
+      SELECT g.name FROM gallery_list g
+      LEFT JOIN hang_log h ON h.gallery = g.gallery WHERE h.title IS NULL;
+  - why: 调换是否存在的判断
+    sql: |-
+      SELECT g.name FROM gallery_list g
+      LEFT JOIN hang_log h ON h.gallery = g.gallery WHERE h.slip IS NOT NULL;

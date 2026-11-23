@@ -1,0 +1,325 @@
+track: modeling
+skills:
+- id: modeling.create
+  name: 创建一张空表
+  stage: '1'
+  group: 1
+  prereqs:
+  - sql.schema-types
+  card: |-
+    查询从已有记录取值。设计一个登记簿要先给它起表名，再在括号里依次写列名和类型，用逗号分开。建表本身留下表头，记录数仍是零。
+
+    例如值班室等着录入第一间房时，房名这一列已经存在，却还没有任何一间房的记录。可以先读表头，再用计数确认登记工作尚未开始。
+- id: modeling.types
+  name: 按业务含义选类型
+  stage: '1'
+  group: 1
+  prereqs:
+  - modeling.create
+  card: |-
+    库存用于数整件，金额需要精确到分，含前导零的编号却要逐字保存。先问同一个值要参加什么比较或运算，再决定列的类型。DATE 只保存日历日期，TIMESTAMPTZ 表示可跨时区比较的同一时刻。
+
+    遇到形似数字的字段，可以试着读出它的用途。邮编用于辨认区域，丢掉前导零可能换了含义；费用要汇总，选定的小数位数则决定可以精确记到哪一位。
+- id: modeling.required
+  name: 区分必填与默认值
+  stage: '1'
+  group: 1
+  prereqs:
+  - modeling.types
+  card: |-
+    漏写某列时，数据库会取它的默认值。没有设置默认值的列通常得到 NULL。显式写 NULL 是另一种请求，只有 NOT NULL 才能在入库时拒绝未知值。
+
+    设想新货箱刚登记但还未盘点。业务可能要求件数先记零，也可能要区分未知与已确认空箱。列的默认值和能否为空应分别按这两个问题决定。
+- id: modeling.primary
+  name: 指定行的主键
+  stage: '1'
+  group: 2
+  prereqs:
+  - modeling.required
+  card: |-
+    两个仓位可以同名，需要一列稳定标识每个仓位。PRIMARY KEY 给整张表选定行的身份，数据库同时检查这个值非空且没有重复。业务标签仍然可以重复。
+
+    可以先拿两行标签完全相同的记录问自己：明天只修改其中某一行，用哪一列能准确找到它？若一列会重名，就需要另外挑选稳定的身份。
+- id: modeling.identity
+  name: 让数据库分配编号
+  stage: '1'
+  group: 2
+  prereqs:
+  - modeling.primary
+  card: |-
+    多个写入者自己算最大编号再加一可能拿到同一个数。整数列声明 GENERATED ALWAYS AS IDENTITY 后，省略编号就能由数据库分配一个新值。再加主键约束保证行的身份唯一。
+
+    例如两笔取件请求都没有编号，数据库先后给出两个号码。以后业务上撤销其中一笔，余下的号码仍然代表原来的请求，不能按现在的行数重新排号。
+- id: modeling.alter
+  name: 在原表上演进结构
+  stage: '1'
+  group: 2
+  prereqs:
+  - modeling.required
+  card: |-
+    已经投入使用的表里有业务记录。ALTER TABLE 修改原表的定义。ADD COLUMN 加字段，ALTER COLUMN ... TYPE 改变类型。先想旧行在新字段上应该看到什么，再写默认值或转换规则。
+
+    改结构时可以先列出修改前已经存在的几行。执行后应逐行找回它们，再试插一条新记录，这样能分别核对旧行的迁移与今后写入的默认行为。
+- id: modeling.unique
+  name: 约束业务值唯一
+  stage: '2'
+  group: 1
+  prereqs:
+  - modeling.primary
+  card: |-
+    主键用来定位行，邮箱还可以作为第二个唯一标识。给邮箱加 UNIQUE，数据库会在第二行试图使用同一邮箱时拒绝整条写入。可以用一条应成功和一条应失败的试写来验证。
+
+    例如保留首个邮箱后，再尝试写同邮箱的第二个编号，数据库应报重复。另试一个新邮箱则应该成功。两次试写分别证实规则能拦错，也能放行正常数据。
+- id: modeling.check
+  name: 用条件守住取值边界
+  stage: '2'
+  group: 1
+  prereqs:
+  - modeling.required
+  card: |-
+    CHECK 的括号里写一条对本行的判断。插入和更新都要经过它。库存允许零时用大于等于零，不能只测试正常的正数。条件结果为未知时可以通过，所以要求必填还需 NOT NULL。
+
+    先选边界本身，再选刚低于和刚高于边界的两个值进行验证。若条件比较两列日期，就用同一天、一早一晚与顺序颠倒三组日期检查业务含义。
+- id: modeling.composite
+  name: 以多列共同标识一行
+  stage: '2'
+  group: 1
+  prereqs:
+  - modeling.primary
+  card: |-
+    一个货架能放多种书，同一本书也能分布到多个货架。给每列单独加唯一约束都会拒绝合法库存。把两列放进同一对 PRIMARY KEY 括号，就以有序的一组值标识一行。
+
+    可以用小表格画出 (1,1)、(1,2)、(2,1)。三对座标分别占据三个格子；再次出现第一对时才想要冲突。单看其中一列会误删合法位置。
+- id: modeling.foreign
+  name: 把外键放在引用方
+  stage: '2'
+  group: 2
+  prereqs:
+  - modeling.primary
+  card: |-
+    每份预约属于一个已登记的房间。先让房间编号成为主键，再在预约表的房间列写 REFERENCES。数据库从子行出发到父表查编号，所以许多预约都可以指向同一间房。
+
+    例如房间 4 已经存在，可以让两笔预约都写房间 4。若房间 9 还没登记，预约中的 9 就找不到对应记录，需要先登记房间再预约。
+- id: modeling.on-delete
+  name: 决定删除父行时子行的去向
+  stage: '2'
+  group: 2
+  prereqs:
+  - modeling.foreign
+  card: |-
+    删除一张发货单时明细也随之失去意义，可以在明细的外键上选 ON DELETE CASCADE。员工记录若需要留档，部门删除后只清除部门引用，可用 ON DELETE SET NULL，引用列必须允许空。
+
+    核对删除策略时，应实际删除一条已有子记录的父行，再分别查看父表和子表。仅测试删除语句有无报错，无法确认子记录是消失还是留下了空引用。
+- id: modeling.values
+  name: 用列清单批量写入
+  stage: '3'
+  group: 1
+  prereqs:
+  - sql.dml
+  card: |-
+    一批来自同一张登记单的记录有同样的字段。INSERT INTO 后显式列出目标列，每组 VALUES 的值依次对齐，组与组之间用逗号。没有写出的目标列按各自的默认规则处理。
+
+    例如只给两条船填名称而省略座位数，每条船都会独立获得默认座位数。若业务已经明确知道第二条船有四座，就要直接为它指定这个值。
+- id: modeling.load-select
+  name: 把查询结果载入目标表
+  stage: '3'
+  group: 1
+  prereqs:
+  - modeling.values
+  - sql.where
+  card: |-
+    当待写的行已经在数据库里，先写一个 SELECT，把来源行按规则筛选并排成目标列的顺序。再在查询前加 INSERT INTO 和列清单。以后换一批源数据，相同的筛选条件仍能工作。
+
+    检查来源时，先在心里挑出应留下的行，再逐列对照目标。例如两次有效扫描来自同一件商品，保留每次扫描的任务就不应该先做去重。
+- id: modeling.update-from
+  name: 按键连接后更新
+  stage: '3'
+  group: 2
+  prereqs:
+  - modeling.load-select
+  card: |-
+    调价表给的是每种商品的新价格。UPDATE 的目标是库存，FROM 引入调价单，WHERE 把两边表示同一商品的键对齐。没有匹配调价行的商品必须保留旧值。每个目标键应当至多匹配一行。
+
+    例如来源只改商品 B，手边先记下 A 的价格。执行后既要读出 B 的新价格，也要确认 A 的旧值仍在，这能发现没有写连接条件的更新。
+- id: modeling.delete-using
+  name: 按另一张表清理记录
+  stage: '3'
+  group: 2
+  prereqs:
+  - modeling.update-from
+  card: |-
+    撤单清单只存订单编号。DELETE FROM 指定真正要删除的目标，USING 引入辅助表，WHERE 比较两个编号。先想清楚哪个表需要保留原样，再决定它应该出现在 FROM 还是 USING 后面。
+
+    撤销清单中可能有过期编号。这个编号在目标表中没有对应行，执行时自然没有记录可删；不能因为在清单中出现就创建一条删除回执。
+- id: modeling.returning
+  name: 用 RETURNING 保留写入回执
+  stage: '3'
+  group: 2
+  prereqs:
+  - modeling.delete-using
+  - sql.cte
+  card: |-
+    写入语句末尾的 RETURNING 把实际受影响的行交给下一步。把这条语句放进 WITH，再把返回的列写到回执表里，就能同时看到哪些数据改变了以及改变后的值。删除时返回被移走的旧行。
+
+    例如两个删除申请里只有一个能匹配，回执表应只有一行。将查询回执和读剩余记录放在两个检查里，可以发现漏删和误报两类问题。
+- id: modeling.ignore
+  name: 冲突时保留已有记录
+  stage: '4'
+  group: 1
+  prereqs:
+  - modeling.unique
+  - modeling.load-select
+  card: |-
+    消息可能因为重试而再次到达。想让同一个业务键只登记一次，先给它建立唯一约束，再在插入末尾用 ON CONFLICT (键) DO NOTHING。新键被写入，已有键的其他字段维持原值。
+
+    例如重复请求只带来标签改动，会员身份仍是原来那个。如果任务要保留首次登记时的标签，第一行的标签也应保留，不能随最后一次尝试而变化。
+- id: modeling.upsert
+  name: 冲突时合并新旧值
+  stage: '4'
+  group: 1
+  prereqs:
+  - modeling.ignore
+  - modeling.update-from
+  card: |-
+    批次里既有新会员也有已经建档的会员。ON CONFLICT ... DO UPDATE 把两条路径放在一个写入里。EXCLUDED 指这次本来要插入的行，目标表名指已存在的行。区分覆盖值与累加量。
+
+    可以先把批次手工分成两堆，一堆在目标中能查到，一堆查不到。只要两堆都非空，一次小样例就可以同时核对合并时的新增路径和更新路径。
+- id: modeling.merge
+  name: 把批次分流给 MERGE
+  stage: '4'
+  group: 2
+  prereqs:
+  - modeling.upsert
+  card: |-
+    MERGE 的 ON 写源行与目标行的身份关系。匹配和未匹配分别进入 WHEN MATCHED 和 WHEN NOT MATCHED，可以各自选择更新、删除或插入。把键写在 ON，业务动作的条件放到对应的 WHEN。
+
+    例如目标只有编号 1，来源同时发来 1 和 2。拿两者顺着 ON 条件各走一次，写下最后应该有的两行，便能看出是否漏了未匹配分支。
+- id: modeling.latest
+  name: 归并每个键的最新版本
+  stage: '4'
+  group: 2
+  prereqs:
+  - modeling.upsert
+  - sql.row-number
+  card: |-
+    一批变更中同一业务键可能出现多次。先在每个键内部按版本从新到旧排序，只让第一行进入合并。版本相同要按题意再比较事件号。合并时还要比较目标版本，防止晚到的旧消息把状态倒退。
+
+    例如同一个键先收到版本 4 又收到版本 2，最后出现的消息并非最新。选中版本 4 以后，状态文字也要来自版本 4 的同一行，不能独立取最大文字。
+- id: modeling.dependency
+  name: 识别字段依赖和更新异常
+  stage: '5'
+  group: 1
+  prereqs:
+  - modeling.primary
+  card: |-
+    记录里反复出现同一个仓库的地址，说明地址描述的是仓库，而非某笔发货。看见重复先问哪一个键确定了这个事实。把事实存到对应实体的表中，修改地址时就只需要找到一个仓库。
+
+    例如某仓只有一个当前地址，三份出库单都抄了旧地址。搬家时漏改其中一份，即使每个单号都没有重复，仍会对同一仓库读到互相冲突的地址。
+- id: modeling.one-many
+  name: 将一对多关系拆成父子表
+  stage: '5'
+  group: 1
+  prereqs:
+  - modeling.dependency
+  - modeling.foreign
+  - modeling.load-select
+  card: |-
+    一名作者写多份日报，每份日报只有一名作者。建立作者表时一名作者占一行，再让日报存作者编号。载入时先收集不重复的父实体，随后载入子行。读完整日报时再沿外键连接。
+
+    拆表后可以沿着子表指向父表的编号重新拼回原始明细。若两名作者恰好同名，仍应按作者编号建立两份档案，以免日报被归到错误的人。
+- id: modeling.bridge
+  name: 用中间表表达多对多
+  stage: '5'
+  group: 1
+  prereqs:
+  - modeling.one-many
+  - modeling.composite
+  card: |-
+    一本书可能属于多个书单，一个书单也能收多本书。每次收录是一条关系，在独立表里用两个外键各指一端，并让这对键唯一。逗号分隔的字符串需要拆字才能查询，也无法逐项检查引用。
+
+    例如两个书单都收录同一本书，只需保存两对编号。删除其中一对只意味着从那个书单撤下图书，图书自身及其在另一个书单里的关联都应保留。
+- id: modeling.star
+  name: 确定事实粒度并连接维度
+  stage: '5'
+  group: 2
+  prereqs:
+  - modeling.one-many
+  card: |-
+    在做销量报表前，先写下一行代表的事件，例如一笔交易中的一个行项目。事实表保留数量与维度键。维度表保存门店等稳定的描述属性，让不同的汇总都能回到同一批明细。
+
+    例如一笔订单买了两种书，事实表按行项目留两条记录，统计订单时按订单号去重，统计件数时把两条数量相加。两种指标可从同一份明细得到。
+- id: modeling.history
+  name: 用半开区间保留维度历史
+  stage: '5'
+  group: 2
+  prereqs:
+  - modeling.star
+  - modeling.update-from
+  card: |-
+    会员的等级会变化。只覆盖当前等级，会让旧订单也看见新等级。慢变维度第二型为变化新增一行，旧版本结束于变更当日，新版本从这天开始。区间约定为左闭右开，当前行的结束日为空。
+
+    例如会员 2 月 1 日升档，先结束旧等级，再追加从这天开始的新等级。以后分析 1 月订单时，仍能按旧版本解释交易；这正是保留两行的原因。
+- id: modeling.view
+  name: 保存可复用的查询口径
+  stage: '6'
+  group: 1
+  prereqs:
+  - sql.where
+  card: |-
+    每天查待处理订单时，如果每人各抄一份过滤条件，结果可能慢慢出现分歧。CREATE VIEW 给查询定义一个名字，使用者像读表那样读取它。普通视图保留查询定义，底表变化后再查会看到变化。
+
+    给查询取名后，可以用普通 SELECT 再对视图筛选或汇总。做实验时先创建视图，再向底表加入一条满足条件的记录，观察查询定义怎样作用于新行。
+- id: modeling.index
+  name: 按查询条件安排索引键
+  stage: '6'
+  group: 1
+  prereqs:
+  - sql.order-by
+  card: |-
+    索引保存键和记录位置，可以帮助数据库快速定位某个值或连续范围。复合 B-tree 按从左到右的键组织，常见模式是先放等值筛选列，再放范围列。索引会随写入维护，本身不改变表中的业务记录。
+
+    例如一本登记册按部门和日期排页，知道部门时可先缩小到这一段，再寻找日期区间。若每一页先按日期排，再按部门排，同一部门的记录会散在更多位置。
+- id: modeling.plan
+  name: 从执行计划读访问路径
+  stage: '6'
+  group: 1
+  prereqs:
+  - modeling.index
+  card: |-
+    EXPLAIN 描述规划器准备怎样取数。Seq Scan 会扫描表，Index Scan 借索引定位再取行。Filter 表示读到行之后才检查的条件，Index Cond 表示可以直接用于定位的条件。小表即使有索引也可能选择顺序扫描。
+
+    例如计划先用站点编号定位，再对找到的行判断是否完成。即使两个条件同在 WHERE 里，它们在执行时也可能承担不同的工作，读计划时要看各自出现在哪一栏。
+- id: modeling.audit
+  name: 把质量规则写成可核对的查询
+  stage: '6'
+  group: 2
+  prereqs:
+  - modeling.view
+  - sql.group-by
+  - sql.left-join
+  card: |-
+    质量报告先定义检查对象和分母。查重复就按业务键分组数记录，查孤儿就从引用方出发寻找没有匹配父行的记录。计算缺失率时，分母包括被检查的全部行，空表的比例需要事先约定。
+
+    例如五行读数里一行缺失、一行真的是零，缺失率为五分之一。若分母用只计非空值的 COUNT(列)，就会把缺失的那行从被检查总数中错误地减掉。
+- id: modeling.grain
+  name: 为履约流水确定指标粒度
+  stage: '7'
+  group: 1
+  prereqs:
+  - modeling.star
+  - modeling.load-select
+  card: |-
+    履约日志里，一笔订单可能分几次寄出。建仓时先保护原始包裹的唯一编号，再决定指标是在数订单还是数包裹。维度记录按站点去重，事实保留每次寄出的数量，之后可用同一批记录计算多个指标。
+
+    例如订单 8 在周一从同一仓发出两包，各含两件。在仓库指标里得到一单、两包、四件。先写出这样的人工小计，再检查事实表有没有提前丢掉一包。
+- id: modeling.asof
+  name: 按交易日期归属历史版本
+  stage: '7'
+  group: 2
+  prereqs:
+  - modeling.history
+  - modeling.view
+  card: |-
+    会员升档后的交易归新等级，升档前的交易仍归旧等级。把交易与会员版本按业务键及有效期同时关联。最后按等级汇总时，可以用总笔数和总金额与事实表核对，发现区间重叠或遗漏。
+
+    例如交易恰在升级日发生，旧区间结束日与新区间开始日相同。如果把两端都写成包含，这一笔交易会同时计入两个等级，分组金额加总就会超过原始总额。

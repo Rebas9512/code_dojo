@@ -1,0 +1,41 @@
+id: analytics-1-006-quiet-days
+title: 列出无人到访的日期
+track: analytics
+stage: '1'
+unit: 2
+order: 60
+format: write
+difficulty: 35
+skills:
+  requires:
+    - sql.round-cast
+    - sql.join-aggregate
+    - sql.cte
+    - analytics.calendar-average
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 让日历放在 LEFT JOIN 左边。每天一行之后，今天和前六行才覆盖七个自然日。
+wrong_examples:
+  - why: 从登录记录出发找不到空日
+    sql: |-
+      WITH days AS (
+          SELECT generate_series(DATE '2025-01-01', DATE '2025-01-14', INTERVAL '1 day')::date AS day
+      ), daily AS (
+          SELECT day, COUNT(DISTINCT l.user_id) AS dau
+          FROM days JOIN logins l ON l.logged_at::date = day GROUP BY day
+      )
+      SELECT day FROM daily WHERE dau = 0 ORDER BY day;
+  - why: 把一位访客当作无人访问
+    sql: |-
+      WITH days AS (
+          SELECT generate_series(DATE '2025-01-01', DATE '2025-01-14', INTERVAL '1 day')::date AS day
+      ), daily AS (
+          SELECT day, COUNT(DISTINCT l.user_id) AS dau
+          FROM days LEFT JOIN logins l ON l.logged_at::date = day GROUP BY day
+      )
+      SELECT day FROM daily WHERE dau = 1 ORDER BY day;

@@ -1,0 +1,43 @@
+id: analytics-4-002-session-count
+title: 读者一共打开了几次会话
+track: analytics
+stage: '4'
+unit: 1
+order: 20
+format: write
+difficulty: 48
+skills:
+  requires:
+    - sql.date-funcs
+    - sql.cte
+    - sql.case
+    - analytics.session-boundary
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 每人单独按时间、事件编号排序。首条或距上条至少三十分钟就开启新会话，起点标记的累计和是会话号。
+wrong_examples:
+  - why: 上一次操作串到了其他人
+    sql: |-
+      WITH neighbors AS (
+          SELECT e.*, LAG(happened_at) OVER ( ORDER BY happened_at, event_id) AS prev_at
+          FROM events e
+      ), starts AS (
+          SELECT neighbors.*, CASE WHEN prev_at IS NULL OR happened_at - prev_at >= INTERVAL '30 minutes'
+                                   THEN 1 ELSE 0 END AS is_start FROM neighbors
+      )
+      SELECT user_id, SUM(is_start) AS sessions FROM starts GROUP BY user_id ORDER BY user_id;
+  - why: 漏掉恰好三十分钟的起点
+    sql: |-
+      WITH neighbors AS (
+          SELECT e.*, LAG(happened_at) OVER (PARTITION BY user_id ORDER BY happened_at, event_id) AS prev_at
+          FROM events e
+      ), starts AS (
+          SELECT neighbors.*, CASE WHEN prev_at IS NULL OR happened_at - prev_at > INTERVAL '30 minutes'
+                                   THEN 1 ELSE 0 END AS is_start FROM neighbors
+      )
+      SELECT user_id, SUM(is_start) AS sessions FROM starts GROUP BY user_id ORDER BY user_id;

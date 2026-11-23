@@ -21,7 +21,7 @@ from pydantic import BaseModel, Field
 from ..config import PROJECT_ROOT
 from ..inspect_data import InspectExercise, KINDS, MISCONCEPTIONS, NORMALIZE, nonblank
 from ..judge import Judge
-from ..problems import Problem
+from ..problems import Problem, ProbeCheck, QueryCheck
 from ..sql_judge import run_node, sample_context
 from .provider import AIError, AIProvider
 
@@ -48,13 +48,14 @@ SCHEMA: dict[str, Any] = {
 
 
 class SqlExtra(BaseModel):
-    mode: Literal["dml"] | None = None
+    mode: Literal["dml", "script"] | None = None
     check_query: str | None = None
+    checks: list[QueryCheck | ProbeCheck] = Field(default_factory=list)
     title: str = Field(min_length=1)
     statement: str = Field(min_length=1)
-    tables: list[str] = Field(min_length=1)
+    tables: list[str]
     datasets: list[str] = Field(min_length=3)
-    ordered: bool
+    ordered: bool = False
     solution: str = Field(min_length=1)
     wrong_solutions: list[str] = Field(min_length=1, max_length=2)
     starter: str = ""
@@ -65,6 +66,8 @@ tables 是用到的表名。datasets 每项都是独立的小库，用 CREATE TA
 第一个是题面样例，另给至少两个隐藏数据集。沿用原题的判题模式。查询题省略 mode 和 check_query，提交单条 SELECT 或 WITH 查询。
 修改题设 mode 为 dml，solution 和错误写法各写一条 DELETE、UPDATE 或 INSERT，可带 WITH。
 check_query 写读取修改后表状态的一条查询，参考解在每个数据集上都应改变这个结果。
+脚本题设 mode 为 script，列出非空 checks，每项用中文 label、query 和 ordered，或 label、probe 和 expect（ok/error）。
+脚本题的 tables 列初始库中的表，空库写 []。答案可含多条建表、写入语句，事务由判题器管理。
 要求特定行序就设 ordered 并在结果查询中写 ORDER BY。每段可运行的典型错误写法要被隐藏数据区分。
 改错题的 starter 在样例上就要得到错误结果，补全题给挖空的 starter，独立写题可省略 starter。"""
 
@@ -149,6 +152,8 @@ def build_prompt(parent: Problem, *, request: str, skill_names: dict[str, str], 
         parts.append("原题数据和答案：" + json.dumps([parent.inspect.data, parent.inspect.answer], ensure_ascii=False))
     elif parent.track.language == "sql":
         parts.extend([sample_context(parent), "原题参考解：\n```sql\n" + (parent.read("solution.sql") or "") + "\n```"])
+        if m.mode == "script":
+            parts.append("原题脚本检查：" + json.dumps([c.model_dump() for c in m.checks], ensure_ascii=False))
         if m.mode == "dml":
             parts.append("原题用来检查修改结果的查询：" + str(m.check_query))
     else:
@@ -290,7 +295,7 @@ def generate(provider: AIProvider, judge: Judge, parent: Problem, *, request: st
                 if allowed is not None:
                     check_practice_scope(spec, "sql", allowed)
                 run_node(datasets=[[sql] for sql in spec["datasets"]], solution=spec["solution"],
-                         mode=spec["mode"], check_query=spec["check_query"],
+                         mode=spec["mode"], check_query=spec["check_query"], checks=spec["checks"],
                          ordered=spec["ordered"], wrong=spec["wrong_solutions"], requiredTables=spec["tables"],
                          **({"starter": spec["starter"]} if parent.meta.format == "fix" else {}))
                 return spec, notes

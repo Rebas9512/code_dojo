@@ -1,0 +1,35 @@
+id: modeling-6-002-fee-summary
+title: 保存按状态汇总的工单视图
+track: modeling
+stage: '6'
+order: 20
+unit: 1
+format: write
+difficulty: 50
+skills:
+  requires:
+  - modeling.view
+  - sql.group-by
+  - sql.sum-avg
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: 对象是普通视图
+  query: SELECT table_type FROM information_schema.tables WHERE table_schema='public' AND table_name='fee_summary'
+  ordered: false
+- label: fee_summary 的记录
+  query: SELECT state,jobs_n,total_fee FROM fee_summary
+  ordered: false
+wrong_examples:
+- why: 使用去重费用笔数
+  sql: |-
+    CREATE VIEW fee_summary AS
+    SELECT state,COUNT(DISTINCT fee) AS jobs_n,SUM(fee) AS total_fee FROM jobs GROUP BY state;
+- why: 总额只取最大值
+  sql: |-
+    CREATE VIEW fee_summary AS
+    SELECT state,COUNT(*) AS jobs_n,MAX(fee) AS total_fee FROM jobs GROUP BY state;

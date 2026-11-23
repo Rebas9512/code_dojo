@@ -1,0 +1,34 @@
+id: sql-3-110-copy-approved-cards
+title: 补全：把通过的校样复制进归档表
+track: sql
+stage: '3'
+order: 211
+format: complete
+difficulty: 52
+skills:
+  requires:
+    - sql.dml
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+mode: dml
+check_query: SELECT slip, sheets FROM proof_archive ORDER BY slip
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: true
+hints:
+  - 先把源表当成一道普通查询来筛选，再对照归档表的目标列顺序。
+wrong_examples:
+  - why: 把待审单也归入
+    sql: |-
+      INSERT INTO proof_archive (slip, sheets)
+      SELECT slip, sheets FROM proof_queue
+      ;
+  - why: 把张数误写成单号
+    sql: |-
+      INSERT INTO proof_archive (slip, sheets)
+      SELECT slip, slip FROM proof_queue
+      WHERE verdict = 'pass';

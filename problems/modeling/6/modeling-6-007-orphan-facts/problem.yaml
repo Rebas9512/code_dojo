@@ -1,0 +1,28 @@
+id: modeling-6-007-orphan-facts
+title: 找出找不到仓库的事件
+track: modeling
+stage: '6'
+order: 70
+unit: 2
+format: write
+difficulty: 55
+skills:
+  requires:
+  - sql.and-or
+  - sql.anti-join
+  - sql.is-null
+  - sql.left-join
+  - sql.select-basic
+  - sql.where
+  introduces: modeling.audit
+source: original
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+ordered: false
+wrong_examples:
+- why: 把待分配的空引用也列出
+  sql: SELECT f.event_id FROM facts f LEFT JOIN depots d ON f.depot_id=d.id WHERE d.id IS NULL;
+- why: 只列出能连接的行
+  sql: SELECT f.event_id FROM facts f LEFT JOIN depots d ON f.depot_id=d.id WHERE d.id IS NOT NULL AND f.depot_id
+    IS NOT NULL;

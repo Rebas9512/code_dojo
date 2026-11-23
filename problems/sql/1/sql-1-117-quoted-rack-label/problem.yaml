@@ -1,0 +1,27 @@
+id: sql-1-117-quoted-rack-label
+title: 修一修：移植反引号里的架号
+track: sql
+stage: '1'
+order: 36
+format: fix
+difficulty: 20
+skills:
+  requires:
+    - sql.group-by
+    - sql.sum-avg
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 双引号可围住列名；试着对照一行结果里的架号与它所属的组。
+wrong_examples:
+  - why: 把标识符误译成文字
+    sql: SELECT 'rack', SUM(sheets) AS total FROM sheet_lots GROUP BY rack;
+  - why: 只取最大的一批
+    sql: SELECT "rack", MAX(sheets) AS total FROM sheet_lots GROUP BY rack;

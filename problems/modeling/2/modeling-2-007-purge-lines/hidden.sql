@@ -1,0 +1,1 @@
+INSERT INTO depots VALUES (20);

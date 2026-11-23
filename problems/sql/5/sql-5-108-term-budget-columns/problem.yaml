@@ -1,0 +1,35 @@
+id: sql-5-108-term-budget-columns
+title: 把三期的预算放到一行
+track: sql
+stage: '5'
+order: 43
+format: write
+difficulty: 67
+skills:
+  requires:
+    - sql.pivot
+    - sql.sum-avg
+  introduces: null
+source: leetcode-db
+leetcode: reformat-department-table
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 每一列只接收对应期别的数据；没有输入和确实输入零的含义不同。
+wrong_examples:
+  - why: 空缺与零预算混淆
+    sql: |-
+      SELECT desk, MAX(coins) FILTER (WHERE term = 'dawn') AS dawn,
+             COALESCE(MAX(coins) FILTER (WHERE term = 'noon'), 0) AS noon,
+             MAX(coins) FILTER (WHERE term = 'dusk') AS dusk
+      FROM term_grants GROUP BY desk;
+  - why: 把晚期读成早期
+    sql: |-
+      SELECT desk, MAX(coins) FILTER (WHERE term = 'dawn') AS dawn,
+             MAX(coins) FILTER (WHERE term = 'noon') AS noon,
+             MAX(coins) FILTER (WHERE term = 'dawn') AS dusk
+      FROM term_grants GROUP BY desk;

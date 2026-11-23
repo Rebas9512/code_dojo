@@ -1,0 +1,46 @@
+id: analytics-7-003-checkout-devices
+title: 结账改版③ · 分设备查下单
+track: analytics
+stage: '7'
+unit: 1
+order: 30
+format: combine
+difficulty: 64
+skills:
+  requires:
+    - sql.round-cast
+    - analytics.ordered-path
+    - analytics.period-change
+    - analytics.checkout-diagnosis
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+  - db:readerapp + datasets/no-carts.sql
+ordered: true
+hints:
+  - 同一批访问先数到达各步的次数，再用相邻两步作为分子、分母。比较两周的步骤变化，随后按设备验证。
+wrong_examples:
+  - why: 没有用进入这一步的人作分母
+    sql: |-
+      WITH weekly AS (
+          SELECT DATE_TRUNC('week', viewed_at)::date AS week_start, device,
+                 COUNT(*) AS visits,
+                 COUNT(*) FILTER (WHERE carted_at>viewed_at) AS carts,
+                 COUNT(*) FILTER (WHERE carted_at>viewed_at AND ordered_at>carted_at) AS orders
+          FROM checkout_visits GROUP BY week_start, device
+      )
+      SELECT week_start, device, carts, orders, ROUND(orders::numeric/visits, 4) AS cart_order
+      FROM weekly ORDER BY week_start, device;
+  - why: 把提前到达的下单事件也当成功
+    sql: |-
+      WITH weekly AS (
+          SELECT DATE_TRUNC('week', viewed_at)::date AS week_start, device,
+                 COUNT(*) AS visits,
+                 COUNT(*) FILTER (WHERE carted_at>viewed_at) AS carts,
+                 COUNT(*) FILTER (WHERE carted_at>viewed_at AND ordered_at IS NOT NULL) AS orders
+          FROM checkout_visits GROUP BY week_start, device
+      )
+      SELECT week_start, device, carts, orders, ROUND(orders::numeric/NULLIF(carts, 0), 4) AS cart_order
+      FROM weekly ORDER BY week_start, device;

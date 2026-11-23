@@ -1,0 +1,31 @@
+id: sql-1-107-busiest-print-desk
+title: 接单最多的印务台
+track: sql
+stage: '1'
+order: 61
+format: write
+difficulty: 22
+skills:
+  requires:
+    - sql.group-by
+    - sql.limit
+  introduces: null
+source: leetcode-db
+leetcode: customer-placing-the-largest-number-of-orders
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 先算每个柜台有几行，让最大的组排第一，再取这一行。
+wrong_examples:
+  - why: 按升序取最少
+    sql: |-
+      SELECT desk FROM desk_tickets
+      GROUP BY desk ORDER BY COUNT(*) ASC, desk LIMIT 1;
+  - why: 按最早的票号优先
+    sql: |-
+      SELECT desk FROM desk_tickets
+      GROUP BY desk ORDER BY MIN(ticket) ASC, desk LIMIT 1;

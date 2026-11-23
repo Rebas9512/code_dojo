@@ -1,0 +1,27 @@
+id: analytics-3-l03-churn-risk
+title: 流失快照与风险人群
+track: analytics
+skills:
+  - analytics.churn-risk
+steps:
+  - type: read
+    skill: analytics.churn-risk
+    md: 客服有两个不同的问题。发召回信时，她想找截至今天已经连续七天没有登录的老读者。先剔除截止日以后的活动，再看每人最后一次登录日期。如果最后一次恰在七天前，昨天到今天所在的七个自然日都没有记录，这人已经符合。评估整月流失时，先固定上月活跃的人，逐个看本月是否缺席。新注册的人不在这张风险名单里，不能让他们稀释流失率。
+  - type: example
+    skill: analytics.churn-risk
+    db: readerapp
+    code: |-
+      -- ① 只看截止日及以前的登录
+      -- ② 返回距离上一次到访的自然日数
+      SELECT user_id, DATE '2025-02-01' - MAX(logged_at::date) AS idle_days
+      FROM logins WHERE logged_at::date <= DATE '2025-02-01' GROUP BY user_id ORDER BY user_id;
+    md: 把截止日同时向后移一天，看看哪些人又回到了零天。
+  - type: quiz
+    skill: analytics.churn-risk
+    q: 一月活跃 10 人，二月其中 6 人回来，另来了 8 个新人。一月至二月流失率？
+    options:
+      - '0.40'
+      - '0.29'
+      - '0.60'
+    answer: 0
+    explain: 上月的 10 人中有 4 人本月没有再来。

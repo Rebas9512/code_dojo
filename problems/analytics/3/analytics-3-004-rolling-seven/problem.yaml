@@ -1,0 +1,45 @@
+id: analytics-3-004-rolling-seven
+title: 七天以后还来过的人
+track: analytics
+stage: '3'
+unit: 1
+order: 40
+format: variant
+difficulty: 44
+skills:
+  requires:
+    - sql.round-cast
+    - sql.exists
+    - sql.conditional-agg
+    - analytics.fixed-return
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 注册日是第 0 天。固定日只看第 N 天，滚动口径看从第 N 天到观察截止日的任一天。
+wrong_examples:
+  - why: 混淆固定日和滚动口径
+    sql: |-
+      WITH eligible AS (
+          SELECT r.*, EXISTS (
+              SELECT 1 FROM logins l WHERE l.user_id = r.user_id
+                AND l.logged_at::date = r.joined_on + 7 AND l.logged_at::date <= DATE '2025-03-14'
+          ) AS returned FROM readers r WHERE r.joined_on + 7 <= DATE '2025-03-14'
+      )
+      SELECT channel, COUNT(*) AS readers_n, COUNT(*) FILTER (WHERE returned) AS returned_n,
+             ROUND(COUNT(*) FILTER (WHERE returned)::numeric / COUNT(*), 4) AS rate
+      FROM eligible GROUP BY channel ORDER BY channel;
+  - why: 整数相除丢失留存比例
+    sql: |-
+      WITH eligible AS (
+          SELECT r.*, EXISTS (
+              SELECT 1 FROM logins l WHERE l.user_id = r.user_id
+                AND l.logged_at::date >= r.joined_on + 7 AND l.logged_at::date <= DATE '2025-03-14'
+          ) AS returned FROM readers r WHERE r.joined_on + 7 <= DATE '2025-03-14'
+      )
+      SELECT channel, COUNT(*) AS readers_n, COUNT(*) FILTER (WHERE returned) AS returned_n,
+             ROUND(COUNT(*) FILTER (WHERE returned)::integer / COUNT(*), 4) AS rate
+      FROM eligible GROUP BY channel ORDER BY channel;

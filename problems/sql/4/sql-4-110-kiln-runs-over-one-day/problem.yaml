@@ -1,0 +1,45 @@
+id: sql-4-110-kiln-runs-over-one-day
+title: 修一修：保留跨日的巡查段
+track: sql
+stage: '4'
+order: 164
+format: fix
+difficulty: 61
+skills:
+  requires:
+    - sql.cte
+    - sql.gaps-islands
+    - sql.having
+    - sql.round-cast
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 给日期编号以前检查，同一个巡查日在输入中是否出现过两次。
+wrong_examples:
+  - why: 同日第二次巡查也取得行号
+    sql: |-
+      WITH days AS (
+          SELECT kiln, day FROM kiln_checks WHERE day IS NOT NULL
+      ), tagged AS (
+          SELECT kiln, day, day - (ROW_NUMBER() OVER (PARTITION BY kiln ORDER BY day))::int AS block
+          FROM days
+      )
+      SELECT kiln, MIN(day) AS first_day, MAX(day) AS last_day, COUNT(*) AS days
+      FROM tagged GROUP BY kiln, block HAVING COUNT(*) >= 2;
+  - why: 只留下至少三天的段
+    sql: |-
+      WITH days AS (
+          SELECT DISTINCT kiln, day FROM kiln_checks WHERE day IS NOT NULL
+      ), tagged AS (
+          SELECT kiln, day, day - (ROW_NUMBER() OVER (PARTITION BY kiln ORDER BY day))::int AS block
+          FROM days
+      )
+      SELECT kiln, MIN(day) AS first_day, MAX(day) AS last_day, COUNT(*) AS days
+      FROM tagged GROUP BY kiln, block HAVING COUNT(*) > 2;

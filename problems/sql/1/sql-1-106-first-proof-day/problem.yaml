@@ -1,0 +1,31 @@
+id: sql-1-106-first-proof-day
+title: 每台印机第一次试印
+track: sql
+stage: '1'
+order: 34
+format: write
+difficulty: 18
+skills:
+  requires:
+    - sql.group-by
+    - sql.sum-avg
+  introduces: null
+source: leetcode-db
+leetcode: game-play-analysis-i
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 每台机器的一串日期中，哪一种聚合能直接留下最早日期？
+wrong_examples:
+  - why: 取最后一天
+    sql: |-
+      SELECT press, MAX(day) AS first_day
+      FROM press_checks GROUP BY press;
+  - why: 每天各出一行
+    sql: |-
+      SELECT press, MIN(day) AS first_day
+      FROM press_checks GROUP BY press, day;

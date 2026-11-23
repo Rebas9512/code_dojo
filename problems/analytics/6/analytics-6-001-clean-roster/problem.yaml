@@ -1,0 +1,35 @@
+id: analytics-6-001-clean-roster
+title: 补全：给封面实验做一份干净名单
+track: analytics
+stage: '6'
+unit: 1
+order: 10
+format: complete
+difficulty: 58
+skills:
+  requires:
+    - sql.sum-avg
+    - sql.cte
+  introduces: analytics.clean-assignment
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 先锁定实验，再按用户核对组别。同组重复只算一人，同时出现在两个组的人从两边都剔除。
+wrong_examples:
+  - why: 把同组重报者也误删
+    sql: |-
+      WITH clean AS (
+          SELECT user_id, MIN(arm) AS arm, MIN(assigned_at) AS entered FROM assignments
+          WHERE experiment='cover' GROUP BY user_id HAVING COUNT(*)=1
+      )
+      SELECT user_id, arm FROM clean ORDER BY user_id;
+  - why: 混入别的实验
+    sql: |-
+      WITH clean AS (
+          SELECT user_id, MIN(arm) AS arm, MIN(assigned_at) AS entered FROM assignments
+          GROUP BY user_id HAVING COUNT(DISTINCT arm)=1
+      )
+      SELECT user_id, arm FROM clean ORDER BY user_id;

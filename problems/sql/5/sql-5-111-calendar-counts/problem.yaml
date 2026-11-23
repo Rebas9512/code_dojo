@@ -1,0 +1,40 @@
+id: sql-5-111-calendar-counts
+title: 修一修：空日误算一张票
+track: sql
+stage: '5'
+order: 55
+format: fix
+difficulty: 67
+skills:
+  requires:
+    - sql.cte
+    - sql.generate-series
+    - sql.join-aggregate
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: true
+hints:
+  - 看补出来的空日那行，哪一列能证明右侧真的有一张票？
+wrong_examples:
+  - why: 把补齐的空行也数为一张
+    sql: |-
+      WITH calendar AS (
+          SELECT first_day + n AS day FROM display_period,
+               generate_series(0, last_day - first_day) AS offsets(n)
+      )
+      SELECT c.day, COUNT(*) AS tickets FROM calendar c
+      LEFT JOIN show_tickets t ON t.day = c.day GROUP BY c.day ORDER BY c.day;
+  - why: 从第二天才开始生成
+    sql: |-
+      WITH calendar AS (
+          SELECT first_day + n AS day FROM display_period,
+               generate_series(1, last_day - first_day) AS offsets(n)
+      )
+      SELECT c.day, COUNT(t.ticket) AS tickets FROM calendar c
+      LEFT JOIN show_tickets t ON t.day = c.day GROUP BY c.day ORDER BY c.day;

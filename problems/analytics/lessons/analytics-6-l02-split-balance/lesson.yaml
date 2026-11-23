@@ -1,0 +1,29 @@
+id: analytics-6-l02-split-balance
+title: 分流比例与卡方检查
+track: analytics
+skills:
+  - analytics.split-balance
+steps:
+  - type: read
+    skill: analytics.split-balance
+    md: 实验开始前团队写下目标配比。实际进入两个组的人数总会有些波动，先核对偏离有多大，再解读购买差异。比如计划各占一半，实际六人与四人，总共十人，则期望各五人。每组偏差先平方，再除以本组期望人数，两项相加得零点四。统计量本身没有方向；想看哪边偏多还要看各组实际减期望的符号。即使某组没人，计划中的那一格也要留下。
+  - type: example
+    skill: analytics.split-balance
+    db: readerapp
+    code: |-
+      -- ① 去重之后看观测比例
+      WITH roster AS (SELECT user_id, MIN(arm) AS arm FROM assignments WHERE experiment='cover'
+          GROUP BY user_id HAVING COUNT(DISTINCT arm)=1)
+      -- ② 各组人数与总人数使用同一批合格读者
+      SELECT arm, COUNT(*) AS observed, ROUND(COUNT(*) / SUM(COUNT(*)) OVER (), 4) AS share
+      FROM roster GROUP BY arm ORDER BY arm;
+    md: 改成统计分组上报行，再比较两组人数。
+  - type: quiz
+    skill: analytics.split-balance
+    q: 计划均分，实际 6、4，期望 5、5。卡方统计量是多少？
+    options:
+      - '0'
+      - '0.2'
+      - '0.4'
+    answer: 2
+    explain: 两个组各贡献 1/5。

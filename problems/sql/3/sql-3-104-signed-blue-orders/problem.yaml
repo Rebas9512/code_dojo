@@ -1,0 +1,31 @@
+id: sql-3-104-signed-blue-orders
+title: 补全：查到蓝墨订单的工匠
+track: sql
+stage: '3'
+order: 111
+format: complete
+difficulty: 46
+skills:
+  requires:
+    - sql.and-or
+    - sql.exists
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 对当前工匠而言，要找的是哪种颜色、谁署名的订单？
+wrong_examples:
+  - why: 拿掉署名条件
+    sql: |-
+      SELECT m.maker FROM makers m
+      WHERE EXISTS (SELECT 1 FROM ink_orders i WHERE i.pigment = 'blue');
+  - why: 红墨也算
+    sql: |-
+      SELECT m.maker FROM makers m
+      WHERE EXISTS (SELECT 1 FROM ink_orders i WHERE i.maker = m.maker);

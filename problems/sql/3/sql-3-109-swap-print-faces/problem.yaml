@@ -1,0 +1,33 @@
+id: sql-3-109-swap-print-faces
+title: 把双面版的标记对调
+track: sql
+stage: '3'
+order: 212
+format: write
+difficulty: 52
+skills:
+  requires:
+    - sql.case
+    - sql.dml
+  introduces: null
+source: leetcode-db
+leetcode: swap-sex-of-employees
+milestones: []
+mode: dml
+check_query: SELECT plate, face FROM print_faces ORDER BY plate
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: true
+hints:
+  - 让 CASE 读取更新前的标记，为两个方向各给出新值。
+wrong_examples:
+  - why: 只完成一个方向的改写
+    sql: |-
+      UPDATE print_faces
+      SET face = CASE WHEN face = 'recto' THEN 'verso' ELSE face END;
+  - why: 只改第一张
+    sql: |-
+      UPDATE print_faces
+      SET face = CASE WHEN face = 'recto' THEN 'verso' ELSE 'recto' END WHERE plate = 11;

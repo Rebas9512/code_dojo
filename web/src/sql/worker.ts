@@ -1,18 +1,12 @@
 import { PGlite } from '@electric-sql/pglite'
-import { compareStates, compareTables, type SqlTable } from './compare'
-import { explainError, inDataset, parsers, runStatement, type SqlExercise } from './engine'
+import { compareCheck, compareStates, compareTables, previewCheck, previewTable, type CheckValue, type SqlCheck, type SqlTable } from './compare'
+import { explainError, inDataset, lessonTable, parsers, runScript, runStatement } from './engine'
 
-export interface Job extends SqlExercise {
-  setup: string[]
-  sql: string
-  expected?: SqlTable
-  ordered?: boolean
-  tolerance?: number
-}
-
-function preview(table: SqlTable) {
-  return { ...table, rows: table.rows.slice(0, 50), rowCount: table.rows.length }
-}
+interface Input { setup: string[]; sql: string }
+export type Job = Input & (
+  { mode: 'script'; checks: SqlCheck[]; expected: { checks: CheckValue[] } } |
+  { mode?: 'dml' | 'lesson'; expected?: SqlTable; ordered?: boolean; tolerance?: number; check_query?: string }
+)
 
 let db: PGlite
 self.onmessage = async ({ data }: MessageEvent<Job | null>) => {
@@ -22,14 +16,25 @@ self.onmessage = async ({ data }: MessageEvent<Job | null>) => {
       self.postMessage({ done: true })
       return
     }
-    const { actual, affectedRows } = await inDataset(db, data.setup, tx => {
+    const mode = data.mode === 'lesson' ? 'script' : data.mode
+    const reply = await inDataset(db, data.setup, async tx => {
       self.postMessage({ executing: true })
-      return runStatement(tx, data.sql, data)
-    }, data.mode)
-    self.postMessage({ comparing: true })
-    const compare = data.mode === 'dml' ? compareStates : compareTables
-    const difference = data.expected ? compare(actual, data.expected, !!data.ordered, data.tolerance) : null
-    self.postMessage({ actual: preview(actual), affectedRows, difference })
+      if (data.mode === 'script') {
+        const actual = await runScript(tx, data.sql, data.checks)
+        self.postMessage({ comparing: true })
+        return { checks: data.checks.map((check, i) => ({
+          label: check.label, actual: previewCheck(actual[i]), expected: previewCheck(data.expected.checks[i]),
+          difference: compareCheck(check, actual[i], data.expected.checks[i]),
+        })) }
+      }
+      if (data.mode === 'lesson') return { actual: previewTable(await lessonTable(tx, data.sql)) }
+      const { actual, affectedRows } = await runStatement(tx, data.sql, { mode: data.mode, check_query: data.check_query })
+      self.postMessage({ comparing: true })
+      const compare = data.mode === 'dml' ? compareStates : compareTables
+      const difference = data.expected ? compare(actual, data.expected, !!data.ordered, data.tolerance) : null
+      return { actual: previewTable(actual), affectedRows, difference }
+    }, mode)
+    self.postMessage(reply)
   } catch (e) {
     self.postMessage({ error: explainError(e), timeout: (e as { code?: string }).code === '57014' })
   }

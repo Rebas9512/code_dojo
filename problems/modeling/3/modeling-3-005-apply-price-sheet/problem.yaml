@@ -1,0 +1,32 @@
+id: modeling-3-005-apply-price-sheet
+title: 按调价单覆盖指定商品
+track: modeling
+stage: '3'
+order: 50
+unit: 2
+format: fix
+difficulty: 29
+skills:
+  requires: []
+  introduces: modeling.update-from
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: prices 的记录
+  query: SELECT * FROM prices
+  ordered: false
+- label: revisions 的记录
+  query: SELECT * FROM revisions
+  ordered: false
+wrong_examples:
+- why: 遗漏连接条件
+  sql: |-
+    UPDATE prices p SET fee=r.fee
+    FROM revisions r;
+- why: 把新价格当成涨价量
+  sql: |-
+    UPDATE prices p SET fee=p.fee+r.fee
+    FROM revisions r WHERE p.sku=r.sku;

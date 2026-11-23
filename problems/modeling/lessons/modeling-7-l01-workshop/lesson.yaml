@@ -1,0 +1,28 @@
+id: modeling-7-l01-workshop
+title: 履约仓库
+track: modeling
+skills:
+- modeling.grain
+steps:
+- type: read
+  skill: modeling.grain
+  md: |-
+    履约日志里，一笔订单可能分几次寄出。建仓时先保护原始包裹的唯一编号，再决定指标是在数订单还是数包裹。维度记录按站点去重，事实保留每次寄出的数量，之后可用同一批记录计算多个指标。
+
+    例如订单 8 在周一从同一仓发出两包，各含两件。在仓库指标里得到一单、两包、四件。先写出这样的人工小计，再检查事实表有没有提前丢掉一包。
+- type: example
+  skill: modeling.grain
+  db: workshop
+  code: |-
+    CREATE TABLE parcel (id int, order_id int, units int);
+    INSERT INTO parcel VALUES (1,4,2),(2,4,3);
+    SELECT COUNT(*) AS parcels,COUNT(DISTINCT order_id) AS orders,SUM(units) AS units FROM parcel;
+  md: 把第二行改成另一笔订单，观察三个指标中的哪一个会改变。
+- type: quiz
+  skill: modeling.grain
+  q: 同一订单发两个包裹，订单指标是多少？
+  options:
+  - '2'
+  - '1'
+  answer: 1
+  explain: 先给计数对象命名再选择键，才能避免把拆单发货误算成新增订单。

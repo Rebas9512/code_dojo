@@ -1,0 +1,31 @@
+id: modeling-6-009-null-ratio
+title: 计算整批读数的空值率
+track: modeling
+stage: '6'
+order: 90
+unit: 2
+format: write
+difficulty: 57
+skills:
+  requires:
+  - modeling.audit
+  - sql.coalesce
+  - sql.count
+  - sql.nullif
+  - sql.round-cast
+  - sql.select-basic
+  - sql.select-expr
+  introduces: null
+source: original
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+- sample.sql + empty.sql
+ordered: false
+wrong_examples:
+- why: 用非空数作分母
+  sql: SELECT COALESCE((COUNT(*)-COUNT(v))::numeric / NULLIF(COUNT(v),0),0) FROM readings;
+- why: 整数相除丢掉小数
+  sql: SELECT COALESCE((COUNT(*)-COUNT(v)) / NULLIF(COUNT(*),0),0) FROM readings;
+- why: 空表的比例没有按约定返回零
+  sql: SELECT (COUNT(*)-COUNT(v))::numeric / NULLIF(COUNT(*),0) FROM readings;

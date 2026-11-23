@@ -1,0 +1,44 @@
+id: modeling-5-009-no-phantom-history
+title: 相同等级不生成历史版本
+track: modeling
+stage: '5'
+order: 90
+unit: 2
+format: write
+difficulty: 49
+skills:
+  requires:
+  - modeling.history
+  - modeling.latest
+  - sql.anti-join
+  - sql.join-conditions
+  - sql.self-join
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: levels 的记录
+  query: SELECT * FROM levels
+  ordered: false
+wrong_examples:
+- why: 每条快照都触发换版
+  sql: |-
+    CREATE TEMP TABLE delta AS
+    SELECT c.* FROM changes c LEFT JOIN levels t ON t.id=c.id AND t.current_flag
+    ;
+    UPDATE levels t SET until_day=c.day,current_flag=false FROM delta c
+    WHERE t.id=c.id AND t.current_flag;
+    INSERT INTO levels(id,tier,since,until_day,current_flag)
+    SELECT id,tier,day,NULL,true FROM delta;
+- why: 只处理已登记的会员
+  sql: |-
+    CREATE TEMP TABLE delta AS
+    SELECT c.* FROM changes c LEFT JOIN levels t ON t.id=c.id AND t.current_flag
+    WHERE t.tier<>c.tier;
+    UPDATE levels t SET until_day=c.day,current_flag=false FROM delta c
+    WHERE t.id=c.id AND t.current_flag;
+    INSERT INTO levels(id,tier,since,until_day,current_flag)
+    SELECT id,tier,day,NULL,true FROM delta;

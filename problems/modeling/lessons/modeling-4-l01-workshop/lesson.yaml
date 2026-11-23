@@ -1,0 +1,53 @@
+id: modeling-4-l01-workshop
+title: 冲突处理
+track: modeling
+skills:
+- modeling.ignore
+- modeling.upsert
+steps:
+- type: read
+  skill: modeling.ignore
+  md: |-
+    消息可能因为重试而再次到达。想让同一个业务键只登记一次，先给它建立唯一约束，再在插入末尾用 ON CONFLICT (键) DO NOTHING。新键被写入，已有键的其他字段维持原值。
+
+    例如重复请求只带来标签改动，会员身份仍是原来那个。如果任务要保留首次登记时的标签，第一行的标签也应保留，不能随最后一次尝试而变化。
+- type: example
+  skill: modeling.ignore
+  db: workshop
+  code: |-
+    CREATE TABLE seen (id int PRIMARY KEY, tag text);
+    INSERT INTO seen VALUES (1,'old');
+    INSERT INTO seen VALUES (1,'new'),(2,'new') ON CONFLICT(id) DO NOTHING;
+    SELECT * FROM seen ORDER BY id;
+  md: 把第一行的标签换成 first，观察重复请求后留下哪个标签。
+- type: quiz
+  skill: modeling.ignore
+  q: 冲突时哪一行留下？
+  options:
+  - 原行
+  - 新行
+  answer: 0
+  explain: 唯一键给数据库一个判定重复的依据。只在动作里写冲突目标不会自动创建唯一约束。
+- type: read
+  skill: modeling.upsert
+  md: |-
+    批次里既有新会员也有已经建档的会员。ON CONFLICT ... DO UPDATE 把两条路径放在一个写入里。EXCLUDED 指这次本来要插入的行，目标表名指已存在的行。区分覆盖值与累加量。
+
+    可以先把批次手工分成两堆，一堆在目标中能查到，一堆查不到。只要两堆都非空，一次小样例就可以同时核对合并时的新增路径和更新路径。
+- type: example
+  skill: modeling.upsert
+  db: workshop
+  code: |-
+    CREATE TABLE points (id int PRIMARY KEY, n int);
+    INSERT INTO points VALUES (1,4);
+    INSERT INTO points VALUES (1,3) ON CONFLICT(id) DO UPDATE SET n=points.n+excluded.n;
+    SELECT * FROM points;
+  md: 把加法换成只取 excluded.n，再比较余额。
+- type: quiz
+  skill: modeling.upsert
+  q: 旧值 4，新增量 3，累加后是多少？
+  options:
+  - '3'
+  - '7'
+  answer: 1
+  explain: 更新表达式决定保留哪部分旧状态。快照覆盖与增量相加是两种不同的载入合同。

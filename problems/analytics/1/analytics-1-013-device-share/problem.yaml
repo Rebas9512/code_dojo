@@ -1,0 +1,33 @@
+id: analytics-1-013-device-share
+title: 设备在活跃读者中各占多少
+track: analytics
+stage: '1'
+unit: 3
+order: 130
+format: combine
+difficulty: 37
+skills:
+  requires:
+    - sql.round-cast
+    - sql.join-aggregate
+    - sql.cte
+    - sql.and-or
+    - analytics.active-reach
+    - analytics.period-change
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 占比用部分除以整体。增长率用本期与基期之差除以基期，基期为零时没有可定义的增长率。
+wrong_examples:
+  - why: 把最大组当总人数
+    sql: |-
+      WITH sizes AS (SELECT device, COUNT(*) AS n FROM readers JOIN (SELECT DISTINCT user_id FROM logins WHERE logged_at >= DATE '2025-02-01' AND logged_at < DATE '2025-03-01') a USING (user_id) GROUP BY device)
+      SELECT device, n, ROUND(n / MAX(n) OVER (), 4) AS share FROM sizes ORDER BY device;
+  - why: 分母只看自己这组
+    sql: |-
+      WITH sizes AS (SELECT device, COUNT(*) AS n FROM readers JOIN (SELECT DISTINCT user_id FROM logins WHERE logged_at >= DATE '2025-02-01' AND logged_at < DATE '2025-03-01') a USING (user_id) GROUP BY device)
+      SELECT device, n, ROUND(n / SUM(n) OVER (PARTITION BY device), 4) AS share FROM sizes ORDER BY device;

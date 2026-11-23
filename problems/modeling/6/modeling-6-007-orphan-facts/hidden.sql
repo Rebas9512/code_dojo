@@ -1,0 +1,1 @@
+INSERT INTO facts VALUES (13,9),(14,NULL);

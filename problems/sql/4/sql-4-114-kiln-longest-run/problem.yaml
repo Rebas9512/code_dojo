@@ -1,0 +1,46 @@
+id: sql-4-114-kiln-longest-run
+title: 每台窑最长坚持了几天
+track: sql
+stage: '4'
+order: 163
+format: write
+difficulty: 61
+skills:
+  requires:
+    - sql.cte
+    - sql.gaps-islands
+    - sql.round-cast
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 每段先算天数，然后从同一台窑的各段中选最大值。
+wrong_examples:
+  - why: 把分开的几段加在一起
+    sql: |-
+      WITH days AS (
+          SELECT DISTINCT kiln, day FROM kiln_checks WHERE day IS NOT NULL
+      ), tagged AS (
+          SELECT kiln, day, day - (ROW_NUMBER() OVER (PARTITION BY kiln ORDER BY day))::int AS block
+          FROM days
+      ), lengths AS (
+          SELECT kiln, block, COUNT(*) AS length FROM tagged GROUP BY kiln, block
+      )
+      SELECT kiln, SUM(length) AS longest FROM lengths GROUP BY kiln;
+  - why: 按月重置连续段
+    sql: |-
+      WITH days AS (
+          SELECT DISTINCT kiln, day FROM kiln_checks WHERE day IS NOT NULL
+      ), tagged AS (
+          SELECT kiln, day, day - (ROW_NUMBER() OVER (PARTITION BY kiln ORDER BY day))::int AS block
+          FROM days
+      ), lengths AS (
+          SELECT kiln, block, COUNT(*) AS length FROM tagged GROUP BY kiln, block, EXTRACT(MONTH FROM day)
+      )
+      SELECT kiln, MAX(length) AS longest FROM lengths GROUP BY kiln;

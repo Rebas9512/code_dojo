@@ -1,0 +1,26 @@
+id: modeling-6-008-duplicate-business-keys
+title: 列出重复键及其份数
+track: modeling
+stage: '6'
+order: 80
+unit: 2
+format: write
+difficulty: 56
+skills:
+  requires:
+  - modeling.audit
+  - sql.count
+  - sql.group-by
+  - sql.having
+  - sql.select-basic
+  introduces: null
+source: original
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+ordered: false
+wrong_examples:
+- why: 把唯一键也列出
+  sql: SELECT code,COUNT(*) FROM intake GROUP BY code HAVING COUNT(*)>=1;
+- why: 误报超出的份数
+  sql: SELECT code,COUNT(*)-1 FROM intake GROUP BY code HAVING COUNT(*)>1;

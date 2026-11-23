@@ -1,0 +1,43 @@
+id: modeling-1-004-mandatory-sku
+title: 拒收没有货号的记录
+track: modeling
+stage: '1'
+order: 40
+unit: 1
+format: write
+difficulty: 12
+skills:
+  requires: []
+  introduces: modeling.required
+source: original
+mode: script
+datasets:
+- db:workshop
+checks:
+- label: 表结构 · items
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.items') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 缺少货号会被拒绝
+  probe: INSERT INTO items(memo) VALUES ('late')
+  expect: error
+- label: 可省略备注
+  probe: INSERT INTO items(sku) VALUES ('A')
+  expect: ok
+wrong_examples:
+- why: 货号没有设为必填
+  sql: |-
+    CREATE TABLE items (
+        sku text,
+        memo text
+    );
+- why: 把备注也设为必填
+  sql: |-
+    CREATE TABLE items (
+        sku text NOT NULL,
+        memo text NOT NULL
+    );

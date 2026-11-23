@@ -1,0 +1,30 @@
+id: sql-3-101-top-paper-quotes
+title: 补全：每个纸级的最高报价
+track: sql
+stage: '3'
+order: 101
+format: complete
+difficulty: 46
+skills:
+  requires:
+    - sql.correlated-subquery
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 内层查询每次只看外层报价所属的那一个纸级。
+wrong_examples:
+  - why: 拿所有纸级的最高价比较
+    sql: |-
+      SELECT p.quote FROM paper_quotes p
+      WHERE p.price = (SELECT MAX(q.price) FROM paper_quotes q);
+  - why: 只选最低报价
+    sql: |-
+      SELECT p.quote FROM paper_quotes p
+      WHERE p.price = (SELECT MIN(q.price) FROM paper_quotes q WHERE q.grade = p.grade);

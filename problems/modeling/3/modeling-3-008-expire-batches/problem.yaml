@@ -1,0 +1,30 @@
+id: modeling-3-008-expire-batches
+title: 按站点各自的期限清理
+track: modeling
+stage: '3'
+order: 80
+unit: 2
+format: write
+difficulty: 32
+skills:
+  requires:
+  - modeling.delete-using
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: batches 的记录
+  query: SELECT * FROM batches
+  ordered: false
+wrong_examples:
+- why: 把到期当天也删除
+  sql: |-
+    DELETE FROM batches b USING cutoff c
+    WHERE b.site=c.site AND b.day<=c.day;
+- why: 忽略站点范围
+  sql: |-
+    DELETE FROM batches b USING cutoff c
+    WHERE b.day<c.day;

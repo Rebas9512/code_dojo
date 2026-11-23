@@ -1,0 +1,28 @@
+id: analytics-1-l03-period-change
+title: 占比与跨期比较
+track: analytics
+skills:
+  - analytics.period-change
+steps:
+  - type: read
+    skill: analytics.period-change
+    md: 同一天来了二十位读者，其中五位来自广告，渠道占比是五除以二十。比较时间则换了分母：上月二十人，本月二十五人，增长的五人要除以上月二十人。环比要找紧邻的上一期，同比要找上年同一时期；报表缺月时，直接取上一行可能跨过缺口。先把连接键写成确切的基期月份，再计算差额或比率。百分比和比例也要分清，本组以
+      0 到 1 表示份额。
+  - type: example
+    skill: analytics.period-change
+    db: readerapp
+    code: |-
+      -- ① 按获客渠道汇总注册人数
+      WITH sizes AS (SELECT channel, COUNT(*) AS n FROM readers GROUP BY channel)
+      -- ② 让每行看到全体人数
+      SELECT channel, n, ROUND(n / SUM(n) OVER (), 4) AS share FROM sizes ORDER BY channel;
+    md: 先只看一个渠道的人数，再核对它除以总人数的值。
+  - type: quiz
+    skill: analytics.period-change
+    q: 从 20 人增加到 25 人，环比增长率是多少？
+    options:
+      - '0.20'
+      - '0.25'
+      - '1.25'
+    answer: 1
+    explain: 净增 5 人，基期是 20 人。

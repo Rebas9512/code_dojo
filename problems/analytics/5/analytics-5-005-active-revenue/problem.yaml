@@ -1,0 +1,43 @@
+id: analytics-5-005-active-revenue
+title: 补全：每位活跃读者带来多少净收入
+track: analytics
+stage: '5'
+unit: 2
+order: 50
+format: complete
+difficulty: 54
+skills:
+  requires:
+    - sql.round-cast
+    - sql.left-join
+    - sql.cte
+    - sql.conditional-agg
+  introduces: analytics.revenue-per-user
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: false
+hints:
+  - ARPU 用全部当期活跃人数，ARPPU 用其中有正向收款的人数。净收入要扣除退款，付费资格与净额正负分开判断。
+wrong_examples:
+  - why: 只除以有交易的人数
+    sql: |-
+      WITH active AS (
+          SELECT DISTINCT user_id FROM logins WHERE logged_at >= DATE '2025-02-01' AND logged_at < DATE '2025-03-01'
+      ), money AS (
+          SELECT user_id, SUM(amount) AS net, COUNT(*) FILTER (WHERE amount>0) AS charges FROM payments
+          WHERE paid_at >= DATE '2025-02-01' AND paid_at < DATE '2025-03-01' GROUP BY user_id
+      )
+      SELECT ROUND(SUM(COALESCE(net, 0)) / NULLIF(COUNT(money.user_id), 0), 2) AS arpu
+      FROM active LEFT JOIN money USING (user_id);
+  - why: 把退款也加成正收入
+    sql: |-
+      WITH active AS (
+          SELECT DISTINCT user_id FROM logins WHERE logged_at >= DATE '2025-02-01' AND logged_at < DATE '2025-03-01'
+      ), money AS (
+          SELECT user_id, SUM(ABS(amount)) AS net, COUNT(*) FILTER (WHERE amount>0) AS charges FROM payments
+          WHERE paid_at >= DATE '2025-02-01' AND paid_at < DATE '2025-03-01' GROUP BY user_id
+      )
+      SELECT ROUND(SUM(COALESCE(net, 0)) / COUNT(*), 2) AS arpu
+      FROM active LEFT JOIN money USING (user_id);

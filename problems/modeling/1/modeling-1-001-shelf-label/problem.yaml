@@ -1,0 +1,39 @@
+id: modeling-1-001-shelf-label
+title: 开一本货架登记簿
+track: modeling
+stage: '1'
+order: 10
+unit: 1
+format: complete
+difficulty: 9
+skills:
+  requires: []
+  introduces: modeling.create
+source: original
+mode: script
+datasets:
+- db:workshop
+checks:
+- label: 表结构 · shelves
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.shelves') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: shelves 的记录
+  query: SELECT * FROM shelves
+  ordered: false
+wrong_examples:
+- why: 漏掉区域列
+  sql: |-
+    CREATE TABLE shelves (
+        label text
+    );
+- why: 把货架标记当成数字
+  sql: |-
+    CREATE TABLE shelves (
+        label integer,
+        zone text
+    );

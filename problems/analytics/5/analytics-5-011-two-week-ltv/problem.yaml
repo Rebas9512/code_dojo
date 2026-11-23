@@ -1,0 +1,40 @@
+id: analytics-5-011-two-week-ltv
+title: 改错：退款后的十四日价值
+track: analytics
+stage: '5'
+unit: 3
+order: 110
+format: fix
+difficulty: 56
+skills:
+  requires:
+    - sql.round-cast
+    - sql.join-conditions
+    - analytics.cohort-value
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 从注册日开始对齐个人年龄；累计净收入除以整批人数。复购按第二笔正向付款判断。
+wrong_examples:
+  - why: 将退款当作收入
+    sql: |-
+      WITH per_reader AS (
+          SELECT r.user_id, device AS segment, COALESCE(SUM(ABS(p.amount)), 0) AS net
+          FROM readers r LEFT JOIN payments p ON p.user_id=r.user_id
+            AND p.paid_at::date >= r.joined_on AND p.paid_at::date < r.joined_on + 14
+          WHERE r.joined_on + 14-1 <= DATE '2025-03-14' GROUP BY r.user_id
+      )
+      SELECT segment AS device, ROUND(AVG(net), 2) AS ltv FROM per_reader GROUP BY segment ORDER BY segment;
+  - why: 排除了观察期没有消费的人
+    sql: |-
+      WITH per_reader AS (
+          SELECT r.user_id, device AS segment, COALESCE(SUM(p.amount), 0) AS net
+          FROM readers r JOIN payments p ON p.user_id=r.user_id
+            AND p.paid_at::date >= r.joined_on AND p.paid_at::date < r.joined_on + 14
+          WHERE r.joined_on + 14-1 <= DATE '2025-03-14' GROUP BY r.user_id
+      )
+      SELECT segment AS device, ROUND(AVG(net), 2) AS ltv FROM per_reader GROUP BY segment ORDER BY segment;

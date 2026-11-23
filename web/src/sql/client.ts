@@ -1,9 +1,10 @@
 import { api, type CaseResult, type JudgeResult } from '../api'
-import type { Difference, SqlTable } from './compare'
+import { previewTable, type CheckReport, type Difference, type SqlTable } from './compare'
 import type { Job } from './worker'
 
 export type TablePreview = SqlTable & { rowCount: number }
 interface Reply {
+  checks?: CheckReport[]
   affectedRows?: number
   actual?: TablePreview
   difference?: Difference
@@ -52,34 +53,49 @@ export function prepare() {
   })
 }
 
-export async function query(job: Job) {
+async function execute(job: Job) {
   await prepare()
   const reply = await enqueue(() => exchange(job))
   if (reply.error) throw new Error(reply.timeout ? '超时：' + reply.error : reply.error)
-  return { actual: reply.actual!, difference: reply.difference, affectedRows: reply.affectedRows }
+  return reply
+}
+
+export async function runExample(setup: string[], sql: string) {
+  const reply = await execute({ setup, sql, mode: 'lesson' })
+  return reply.actual!
 }
 
 export async function grade(id: string, sql: string, kind: 'run' | 'submit'): Promise<JudgeResult> {
   const plan = await api.sqlCases(id, kind === 'submit' ? 'all' : 'sample')
   const cases: CaseResult[] = []
-  for (const data of plan.datasets) {
-    const expected = { ...data.expected, rows: data.expected.rows.slice(0, 50), rowCount: data.expected.rows.length }
+  for (const i of plan.datasets.keys()) {
+    let job: Job
+    let expected: unknown
+    if (plan.mode === 'script') {
+      const data = plan.datasets[i]
+      job = { sql, setup: data.setup, mode: 'script', checks: plan.checks, expected: data.expected }
+      expected = { labels: plan.checks.map(c => c.label) }
+    } else {
+      const data = plan.datasets[i]
+      job = { sql, setup: data.setup, expected: data.expected, ordered: plan.ordered,
+        tolerance: plan.tolerance, mode: plan.mode, check_query: plan.check_query }
+      expected = previewTable(data.expected)
+    }
     const start = performance.now()
     let status: CaseResult['status'] = 'passed', error = null
-    let actual: TablePreview | null = null, difference: Difference | undefined
+    let actual: TablePreview | { checks: CheckReport[] } | null = null, difference: Difference | undefined
     let affectedRows: number | undefined
     try {
-      const result = await query({ sql, setup: data.setup, expected: data.expected, ordered: plan.ordered,
-        tolerance: plan.tolerance, mode: plan.mode, check_query: plan.check_query })
-      actual = result.actual
+      const result = await execute(job)
+      actual = result.checks ? { checks: result.checks } : result.actual!
       affectedRows = result.affectedRows
       difference = result.difference
-      if (difference) status = 'wrong_answer'
+      if (difference || result.checks?.some(check => check.difference)) status = 'wrong_answer'
     } catch (e) {
       error = (e as Error).message
       status = error.startsWith('超时') ? 'timeout' : 'runtime_error'
     }
-    cases.push({ expected, actual, difference, status, error, hidden: data.hidden, time_ms: Math.round(performance.now() - start),
+    cases.push({ expected, actual, difference, status, error, hidden: plan.datasets[i].hidden, time_ms: Math.round(performance.now() - start),
       input: {}, stdout: '', affected_rows: affectedRows })
   }
   return { cases, verdict: cases.find(c => c.status !== 'passed')?.status ?? 'accepted' }

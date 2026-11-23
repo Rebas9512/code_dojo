@@ -1,0 +1,54 @@
+id: modeling-2-006-depot-reference
+title: 每次交接必须指向已有仓库
+track: modeling
+stage: '2'
+order: 60
+unit: 2
+format: write
+difficulty: 22
+skills:
+  requires: []
+  introduces: modeling.foreign
+source: original
+mode: script
+datasets:
+- sample.sql
+checks:
+- label: 表结构 · handoffs
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.handoffs') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 主键列 · handoffs
+  query: |-
+    SELECT k.column_name FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog, constraint_schema, constraint_name, table_name)
+    WHERE c.table_schema = 'public' AND c.table_name = 'handoffs' AND c.constraint_type = 'PRIMARY KEY'
+    ORDER BY k.ordinal_position
+  ordered: true
+- label: 拒绝未知仓库
+  probe: INSERT INTO handoffs VALUES (1,999)
+  expect: error
+- label: 同仓可多次交接
+  probe: INSERT INTO handoffs VALUES (1,4),(2,4)
+  expect: ok
+wrong_examples:
+- why: 只有整数列，没有外键
+  sql: |-
+    CREATE TABLE handoffs (
+        id int PRIMARY KEY,
+        depot_id int NOT NULL
+    );
+- why: 同仓被限制为只能交接一次
+  sql: |-
+    CREATE TABLE handoffs (
+        id int PRIMARY KEY,
+        depot_id int NOT NULL UNIQUE REFERENCES depots(id)
+    );
+- why: 把外键放在父表，让仓库编号反过来引用交接编号
+  sql: |-
+    CREATE TABLE handoffs (id int PRIMARY KEY,depot_id int NOT NULL);
+    ALTER TABLE depots ADD FOREIGN KEY(id) REFERENCES handoffs(id) NOT VALID;

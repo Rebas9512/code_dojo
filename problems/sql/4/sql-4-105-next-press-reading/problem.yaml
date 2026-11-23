@@ -1,0 +1,27 @@
+id: sql-4-105-next-press-reading
+title: 读出本机下一张读数
+track: sql
+stage: '4'
+order: 92
+format: write
+difficulty: 57
+skills:
+  requires:
+    - sql.lag-lead
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 读下一行时，要同时说明看哪台印机、按什么顺序前进。
+wrong_examples:
+  - why: 回头看成上一单
+    sql: SELECT slip, LAG(reading) OVER (PARTITION BY press ORDER BY day NULLS LAST, slip) AS next_value FROM press_readings;
+  - why: 同日按大编号在先
+    sql: SELECT slip, LEAD(reading) OVER (PARTITION BY press ORDER BY day NULLS LAST, slip DESC) AS next_value FROM
+      press_readings;

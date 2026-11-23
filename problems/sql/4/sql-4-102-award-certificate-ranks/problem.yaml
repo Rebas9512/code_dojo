@@ -1,0 +1,37 @@
+id: sql-4-102-award-certificate-ranks
+title: 修一修：给并列冠军都发奖状
+track: sql
+stage: '4'
+order: 183
+format: fix
+difficulty: 62
+skills:
+  requires:
+    - sql.cte
+    - sql.rank
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 先对每架已知分数排名，再选择冠军；注意窗口里加入唯一编号会拆散并列。
+wrong_examples:
+  - why: 按行发号拆开同分
+    sql: |-
+      WITH awards AS (
+          SELECT sheet, rack, score, ROW_NUMBER() OVER (PARTITION BY rack ORDER BY score DESC) AS place
+          FROM proof_marks WHERE score IS NOT NULL
+      )
+      SELECT rack, sheet, score FROM awards WHERE place = 1;
+  - why: 不同架一起排名
+    sql: |-
+      WITH awards AS (
+          SELECT sheet, rack, score, RANK() OVER (ORDER BY score DESC) AS place
+          FROM proof_marks WHERE score IS NOT NULL
+      )
+      SELECT rack, sheet, score FROM awards WHERE place = 1;

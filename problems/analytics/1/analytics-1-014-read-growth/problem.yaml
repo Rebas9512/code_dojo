@@ -1,0 +1,32 @@
+id: analytics-1-014-read-growth
+title: 基期为零的月份
+track: analytics
+stage: '1'
+unit: 3
+order: 140
+format: inspect
+difficulty: 37
+skills:
+  requires:
+    - analytics.period-change
+  introduces: null
+source: original
+mode: inspect
+data:
+  - kind: table
+    title: 基期为零的月份
+    file: evidence.csv
+answer:
+  type: short
+  accept:
+    - April
+  misconceptions:
+    March:
+      id: AN13E1
+      name: 用本期判断分母
+      line: 三月的基期有 4 人。
+    May:
+      id: AN13E2
+      name: 把增长与无定义混淆
+      line: 五月的基期有 6 人。
+explain: 四月从零起步，增长率需要除以零。三月的增长率为 −1。

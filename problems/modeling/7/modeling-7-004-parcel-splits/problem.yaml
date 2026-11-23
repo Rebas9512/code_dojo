@@ -1,0 +1,35 @@
+id: modeling-7-004-parcel-splits
+title: 履约面试四：定位拆包订单
+track: modeling
+stage: '7'
+order: 40
+unit: 1
+format: write
+difficulty: 60
+skills:
+  requires:
+  - modeling.grain
+  - modeling.view
+  - sql.having
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: 对象是普通视图
+  query: SELECT table_type FROM information_schema.tables WHERE table_schema='public' AND table_name='splits'
+  ordered: false
+- label: splits 的记录
+  query: SELECT order_id,parcels_n FROM splits
+  ordered: false
+wrong_examples:
+- why: 把单包订单也列出来
+  sql: |-
+    CREATE VIEW splits AS
+    SELECT p.order_id,COUNT(*) AS parcels_n FROM parcels p GROUP BY p.order_id HAVING COUNT(*)>=1;
+- why: 按日期把同一订单拆开
+  sql: |-
+    CREATE VIEW splits AS
+    SELECT p.order_id,COUNT(*) AS parcels_n FROM parcels p GROUP BY p.order_id,p.shipped_on HAVING COUNT(*)>1;

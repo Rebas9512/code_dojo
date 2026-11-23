@@ -1,0 +1,28 @@
+id: analytics-4-l03-event-spacing
+title: 首末行为与购买间隔
+track: analytics
+skills:
+  - analytics.event-spacing
+steps:
+  - type: read
+    skill: analytics.event-spacing
+    md: 运营想知道读者打开 App 后首先做了什么，不能把最小时间和按字母排在最前的动作拼成一行。把整行按时间和编号排列，再取端点，编号用来打破时间相同的并列。算购买节奏时先弄清什么算购买：本组正数是收款，负数是退款。先去掉退款，再对每个人的付款序列取相邻记录。如果把退款留在序列中，它就会变成下一笔购买的错误起点。
+  - type: example
+    skill: analytics.event-spacing
+    db: readerapp
+    code: |-
+      -- ① 保留付款并在每人内部排序
+      -- ② 读取同一人前一笔付款的时间
+      SELECT user_id, payment_id, paid_at,
+             LAG(paid_at) OVER (PARTITION BY user_id ORDER BY paid_at, payment_id) AS previous_at
+      FROM payments WHERE amount>0 ORDER BY user_id, paid_at, payment_id;
+    md: 把筛选条件移除，对照退款之后的一笔付款。
+  - type: quiz
+    skill: analytics.event-spacing
+    q: 第 1 天付款，第 3 天退款，第 6 天再次付款。相邻购买隔几天？
+    options:
+      - '3'
+      - '5'
+      - '6'
+    answer: 1
+    explain: 正向收款发生在第 1 和第 6 天，相差 5 天。

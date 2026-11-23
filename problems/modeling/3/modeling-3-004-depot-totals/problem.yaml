@@ -1,0 +1,27 @@
+id: modeling-3-004-depot-totals
+title: 将本批小计追加到日报
+track: modeling
+stage: '3'
+order: 40
+unit: 1
+format: write
+difficulty: 28
+skills:
+  requires:
+  - modeling.load-select
+  - sql.group-by
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: daily 的记录
+  query: SELECT * FROM daily
+  ordered: false
+wrong_examples:
+- why: 把笔数当成件数
+  sql: INSERT INTO daily SELECT depot,COUNT(*) FROM scans GROUP BY depot;
+- why: 只保留最大一笔
+  sql: INSERT INTO daily SELECT depot,MAX(qty) FROM scans GROUP BY depot;

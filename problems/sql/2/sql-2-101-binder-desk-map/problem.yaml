@@ -1,0 +1,30 @@
+id: sql-2-101-binder-desk-map
+title: 给每位装订员配上工位
+track: sql
+stage: '2'
+order: 35
+format: write
+difficulty: 26
+skills:
+  requires:
+    - sql.left-join
+  introduces: null
+source: leetcode-db
+leetcode: combine-two-tables
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 从需要完整保留的员工名册出发，再查对应的工位。
+wrong_examples:
+  - why: 只保留已分工位者
+    sql: |-
+      SELECT b.given, b.family, m.room, m.wing
+      FROM binders b JOIN desk_map m ON m.badge = b.badge;
+  - why: 把缺失工位写成空字符串
+    sql: |-
+      SELECT b.given, b.family, COALESCE(m.room, ''), m.wing
+      FROM binders b LEFT JOIN desk_map m ON m.badge = b.badge;

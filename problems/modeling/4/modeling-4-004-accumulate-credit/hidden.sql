@@ -1,0 +1,1 @@
+INSERT INTO daily VALUES (8,4),(3,-1);

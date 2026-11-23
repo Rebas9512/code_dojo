@@ -1,0 +1,48 @@
+id: sql-3-112-first-repaired-proof
+title: 从首次报损到首次修复
+track: sql
+stage: '3'
+order: 125
+format: combine
+difficulty: 47
+skills:
+  requires:
+    - sql.and-or
+    - sql.correlated-subquery
+    - sql.cte
+  introduces: null
+source: leetcode-db
+leetcode: find-covid-recovery-patients
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: true
+hints:
+  - 先固定首次报损日期；再从本版这个日期之后的正常检验中取最早一条。
+wrong_examples:
+  - why: 把报损前的正常检验也算修复
+    sql: |-
+      WITH failed AS (
+          SELECT plate, MIN(day) AS first_bad FROM plate_tests WHERE verdict = 'bad' GROUP BY plate
+      ), repaired AS (
+          SELECT f.plate, f.first_bad,
+                 (SELECT MIN(t.day) FROM plate_tests t
+                  WHERE t.plate = f.plate AND t.verdict = 'ok') AS first_ok
+          FROM failed f
+      )
+      SELECT plate, first_ok - first_bad AS days FROM repaired
+      WHERE first_ok IS NOT NULL ORDER BY days, plate;
+  - why: 拿最后一次修复作终点
+    sql: |-
+      WITH failed AS (
+          SELECT plate, MIN(day) AS first_bad FROM plate_tests WHERE verdict = 'bad' GROUP BY plate
+      ), repaired AS (
+          SELECT f.plate, f.first_bad,
+                 (SELECT MAX(t.day) FROM plate_tests t
+                  WHERE t.plate = f.plate AND t.verdict = 'ok' AND t.day > f.first_bad) AS first_ok
+          FROM failed f
+      )
+      SELECT plate, first_ok - first_bad AS days FROM repaired
+      WHERE first_ok IS NOT NULL ORDER BY days, plate;

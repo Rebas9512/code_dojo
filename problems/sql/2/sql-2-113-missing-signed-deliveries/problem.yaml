@@ -1,0 +1,33 @@
+id: sql-2-113-missing-signed-deliveries
+title: 哪家工坊没有签收回执
+track: sql
+stage: '2'
+order: 139
+format: variant
+difficulty: 35
+skills:
+  requires:
+    - sql.anti-join
+    - sql.join-conditions
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 先考虑哪类右表记录能证明签收，再查有没有这种记录与当前工坊匹配。
+wrong_examples:
+  - why: 检查所有包裹，误排除只有待签包裹的工坊
+    sql: |-
+      SELECT s.shop FROM parcel_shops s
+      LEFT JOIN parcel_log p ON p.shop = s.shop
+      WHERE p.parcel IS NULL;
+  - why: 查成没有寄出记录的工坊
+    sql: |-
+      SELECT s.shop FROM parcel_shops s
+      LEFT JOIN parcel_log p ON p.shop = s.shop AND p.state = 'sent'
+      WHERE p.parcel IS NULL;

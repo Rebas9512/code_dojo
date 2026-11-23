@@ -95,8 +95,10 @@
 
 ## SQL 扩充（用户 2026-11-23："话说sql的题库是不是挺少的 … 看看sql题库有没有什么可以扩充的track之类的"，选了"123"）
 
-- 32-sql-analytics：新线「产品分析 SQL」（`problems/analytics/`，约 90 题，自带 App 行为库）。
-- 33-sql-deepen：SQL 主线阶段 1–5 加厚（约 +70 题：补阶梯、SQL 50 以外的免费题、改错题）。新题号每阶段从 101 起，已有 id 不改。
-- 34-sql-modeling：平台加 `mode: script`（多语句脚本 + 多条检查 / 探针），再写新线「建模与写数据」（`problems/modeling/`，约 70 题）。要改 server/app、web，等 Opus 清理子代理结束再派。
+- ✓ 32-sql-analytics：新线「产品分析 SQL」（`problems/analytics/`，约 90 题，自带 App 行为库）。
+- ✓ 33-sql-deepen：SQL 主线阶段 1–5 加厚（约 +70 题：补阶梯、SQL 50 以外的免费题、改错题）。新题号每阶段从 101 起，已有 id 不改。
+- ✓ 34-sql-modeling：平台加 `mode: script`（多语句脚本 + 多条检查 / 探针），再写新线「建模与写数据」（`problems/modeling/`，约 70 题）。要改 server/app、web，等 Opus 清理子代理结束再派。
 - 32、33 并行：留存、漏斗、会话切分的深入练习归 32，33 在阶段 5 只补到各一道补全 / 独立写 / 改错。两者都会给 check_curve 的 SQL 识别表加行，只加不改。
 - 第 4 条「PostgreSQL 进阶与性能」用户暂不做。
+- 2026-11-23 主控验收：SQL 主线 216 题、analytics 90 题、modeling 70 题；verify_sql 361/361、课示例 118/118、check_curve 0 错 0 警、pytest 274。
+- 待返工（主控验收时发现）：33 的 5 道"MySQL 改 PostgreSQL"改错题，starter 是已经翻译好的 PG 写法（只是参数顺序错），练不到方言迁移。应改成 starter 就是真 MySQL 写法（IFNULL、DATE_ADD、LIMIT x, y、GROUP_CONCAT、反引号），在 PG 上运行报错，学习者改写；verify_sql 需要允许 fix 题的 starter 报错。

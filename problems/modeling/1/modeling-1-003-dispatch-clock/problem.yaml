@@ -1,0 +1,43 @@
+id: modeling-1-003-dispatch-clock
+title: 区分日历日期与出发时刻
+track: modeling
+stage: '1'
+order: 30
+unit: 1
+format: write
+difficulty: 11
+skills:
+  requires:
+  - modeling.types
+  introduces: null
+source: original
+mode: script
+datasets:
+- db:workshop
+checks:
+- label: 表结构 · departures
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.departures') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: departures 的记录
+  query: SELECT * FROM departures
+  ordered: false
+wrong_examples:
+- why: 时间戳丢失时区
+  sql: |-
+    CREATE TABLE departures (
+        service_day date,
+        departed_at timestamp,
+        insured boolean
+    );
+- why: 用文字存真假
+  sql: |-
+    CREATE TABLE departures (
+        service_day date,
+        departed_at timestamptz,
+        insured text
+    );

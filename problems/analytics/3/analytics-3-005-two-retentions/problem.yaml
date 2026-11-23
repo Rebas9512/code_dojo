@@ -1,0 +1,32 @@
+id: analytics-3-005-two-retentions
+title: 晚一天回来算哪种留存
+track: analytics
+stage: '3'
+unit: 1
+order: 50
+format: inspect
+difficulty: 44
+skills:
+  requires:
+    - analytics.fixed-return
+  introduces: null
+source: original
+mode: inspect
+data:
+  - kind: table
+    title: 晚一天回来算哪种留存
+    file: evidence.csv
+answer:
+  type: short
+  accept:
+    - '1'
+  misconceptions:
+    '2':
+      id: AN31E1
+      name: 把两种口径共同的人也算差额
+      line: Chen 在两边都算。
+    '3':
+      id: AN31E2
+      name: 填写了滚动总人数
+      line: 题目要两组人数之差。
+explain: 固定留存有 Aria、Chen；滚动留存还包括 Bo，差一人。

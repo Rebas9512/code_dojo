@@ -1,0 +1,1 @@
+INSERT INTO readings VALUES (NULL),(NULL),(8);

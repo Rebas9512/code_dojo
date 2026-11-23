@@ -1,0 +1,33 @@
+id: sql-1-112-odd-even-print-runs
+title: 分列奇偶批量
+track: sql
+stage: '1'
+order: 105
+format: variant
+difficulty: 25
+skills:
+  requires:
+    - sql.conditional-agg
+    - sql.sum-avg
+  introduces: null
+source: leetcode-db
+leetcode: odd-and-even-transactions
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: true
+hints:
+  - 分组单位始终是日子；对每一列，用除以 2 的余数决定纳入哪些批次。
+wrong_examples:
+  - why: 数批次而非册数
+    sql: |-
+      SELECT day, SUM(CASE WHEN copies % 2 = 1 THEN 1 ELSE 0 END) AS odd_copies,
+             SUM(CASE WHEN copies % 2 = 0 THEN 1 ELSE 0 END) AS even_copies
+      FROM press_runs GROUP BY day ORDER BY day;
+  - why: 缺类返回空
+    sql: |-
+      SELECT day, SUM(CASE WHEN copies % 2 = 1 THEN copies ELSE NULL END) AS odd_copies,
+             SUM(CASE WHEN copies % 2 = 0 THEN copies ELSE NULL END) AS even_copies
+      FROM press_runs GROUP BY day ORDER BY day;

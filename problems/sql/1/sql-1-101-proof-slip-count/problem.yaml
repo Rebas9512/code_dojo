@@ -1,0 +1,27 @@
+id: sql-1-101-proof-slip-count
+title: 修一修：清点全部校样单
+track: sql
+stage: '1'
+order: 12
+format: fix
+difficulty: 15
+skills:
+  requires:
+    - sql.count
+    - sql.select-expr
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 先想清楚计数单位是一张单，还是一个非空的批注。
+wrong_examples:
+  - why: 只数填写过批注的单据
+    sql: SELECT COUNT(note) AS slip_count FROM proof_slips;
+  - why: 只数出现过的批注种类
+    sql: SELECT COUNT(DISTINCT note) AS slip_count FROM proof_slips;

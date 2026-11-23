@@ -1,0 +1,44 @@
+id: modeling-2-003-nonnegative-stock
+title: 库存可以恰好为零
+track: modeling
+stage: '2'
+order: 30
+unit: 1
+format: complete
+difficulty: 19
+skills:
+  requires: []
+  introduces: modeling.check
+source: original
+mode: script
+datasets:
+- db:workshop
+checks:
+- label: 表结构 · stock
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.stock') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 零库存可登记
+  probe: INSERT INTO stock VALUES (0)
+  expect: ok
+- label: 拒绝负库存
+  probe: INSERT INTO stock VALUES (-1)
+  expect: error
+- label: 正库存可登记
+  probe: INSERT INTO stock VALUES (12)
+  expect: ok
+wrong_examples:
+- why: 拒绝了合法的零
+  sql: |-
+    CREATE TABLE stock (
+        qty integer NOT NULL CHECK (qty > 0)
+    );
+- why: 没有拦住负数
+  sql: |-
+    CREATE TABLE stock (
+        qty integer NOT NULL
+    );

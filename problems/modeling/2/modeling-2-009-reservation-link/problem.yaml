@@ -1,0 +1,54 @@
+id: modeling-2-009-reservation-link
+title: 可暂缓分配的预约
+track: modeling
+stage: '2'
+order: 90
+unit: 2
+format: write
+difficulty: 25
+skills:
+  requires:
+  - modeling.foreign
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+checks:
+- label: 表结构 · requests
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.requests') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 主键列 · requests
+  query: |-
+    SELECT k.column_name FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog, constraint_schema, constraint_name, table_name)
+    WHERE c.table_schema = 'public' AND c.table_name = 'requests' AND c.constraint_type = 'PRIMARY KEY'
+    ORDER BY k.ordinal_position
+  ordered: true
+- label: 未分配可登记
+  probe: INSERT INTO requests VALUES (1,NULL)
+  expect: ok
+- label: 已分配可登记
+  probe: INSERT INTO requests VALUES (1,8)
+  expect: ok
+- label: 未知仓库被拒绝
+  probe: INSERT INTO requests VALUES (1,99)
+  expect: error
+wrong_examples:
+- why: 未分配也强制填仓库
+  sql: |-
+    CREATE TABLE requests (
+        id int PRIMARY KEY,
+        depot_id int NOT NULL REFERENCES depots(id)
+    );
+- why: 丢掉引用规则
+  sql: |-
+    CREATE TABLE requests (
+        id int PRIMARY KEY,
+        depot_id int
+    );

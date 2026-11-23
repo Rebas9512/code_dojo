@@ -1,0 +1,34 @@
+id: analytics-4-009-first-action
+title: 补全：找到读者的第一次操作
+track: analytics
+stage: '4'
+unit: 3
+order: 90
+format: complete
+difficulty: 51
+skills:
+  requires:
+    - sql.cte
+  introduces: analytics.event-spacing
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 端点带着原行的动作或交易编号。计算间隔前先选中业务事件，再在每人自己的序列中取相邻两笔。
+wrong_examples:
+  - why: 读了时间轴的另一端
+    sql: |-
+      WITH ranked AS (
+          SELECT e.*, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY happened_at DESC, event_id DESC) AS n
+          FROM events e
+      )
+      SELECT user_id, event_id, action FROM ranked WHERE n=1 ORDER BY user_id;
+  - why: 全库只取了一个事件
+    sql: |-
+      WITH ranked AS (
+          SELECT e.*, ROW_NUMBER() OVER (ORDER BY happened_at ASC, event_id ASC) AS n
+          FROM events e
+      )
+      SELECT user_id, event_id, action FROM ranked WHERE n=1 ORDER BY user_id;

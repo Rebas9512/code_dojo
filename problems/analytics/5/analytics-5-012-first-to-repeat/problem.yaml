@@ -1,0 +1,39 @@
+id: analytics-5-012-first-to-repeat
+title: 首单后多久再买
+track: analytics
+stage: '5'
+unit: 3
+order: 120
+format: combine
+difficulty: 57
+skills:
+  requires:
+    - sql.round-cast
+    - sql.having
+    - analytics.event-spacing
+    - analytics.cohort-value
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 从注册日开始对齐个人年龄；累计净收入除以整批人数。复购按第二笔正向付款判断。
+wrong_examples:
+  - why: 把退款当作购买
+    sql: "WITH numbered AS (\n    SELECT user_id, paid_at::date AS day,\n           ROW_NUMBER() OVER (PARTITION BY user_id\
+      \ ORDER BY paid_at, payment_id) AS n\n    FROM payments \n), pairs AS (\n    SELECT user_id, MIN(day) AS first_day,\
+      \ MAX(day) AS second_day FROM numbered\n    WHERE n<=2 GROUP BY user_id HAVING COUNT(*)=2\n)\nSELECT user_id, first_day,\
+      \ second_day, second_day-first_day AS gap FROM pairs ORDER BY user_id;"
+  - why: 只挑了总共恰好付过两笔的人
+    sql: |-
+      WITH numbered AS (
+          SELECT user_id, paid_at::date AS day,
+                 ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY paid_at, payment_id) AS n
+          FROM payments WHERE amount>0
+      ), pairs AS (
+          SELECT user_id, MIN(day) AS first_day, MAX(day) AS second_day FROM numbered
+          WHERE n>=1 GROUP BY user_id HAVING COUNT(*)=2
+      )
+      SELECT user_id, first_day, second_day, second_day-first_day AS gap FROM pairs ORDER BY user_id;

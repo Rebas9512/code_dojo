@@ -1,0 +1,34 @@
+id: analytics-4-011-purchase-gaps
+title: 两次付款相隔几个自然日
+track: analytics
+stage: '4'
+unit: 3
+order: 110
+format: variant
+difficulty: 51
+skills:
+  requires:
+    - sql.round-cast
+    - sql.cte
+    - analytics.event-spacing
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 端点带着原行的动作或交易编号。计算间隔前先选中业务事件，再在每人自己的序列中取相邻两笔。
+wrong_examples:
+  - why: 让退款也参与相邻配对
+    sql: "WITH purchases AS (\n    SELECT user_id, payment_id, paid_at,\n           LAG(paid_at) OVER (PARTITION BY user_id\
+      \ ORDER BY paid_at, payment_id) AS previous_at\n    FROM payments \n)\nSELECT user_id, payment_id, paid_at::date - previous_at::date\
+      \ AS gap_days FROM purchases WHERE previous_at IS NOT NULL ORDER BY user_id, paid_at, payment_id;"
+  - why: 把不同读者的购买接在了一起
+    sql: |-
+      WITH purchases AS (
+          SELECT user_id, payment_id, paid_at,
+                 LAG(paid_at) OVER (ORDER BY paid_at, payment_id) AS previous_at
+          FROM payments WHERE amount>0
+      )
+      SELECT user_id, payment_id, paid_at::date - previous_at::date AS gap_days FROM purchases WHERE previous_at IS NOT NULL ORDER BY user_id, paid_at, payment_id;

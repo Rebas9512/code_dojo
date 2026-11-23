@@ -1,0 +1,28 @@
+id: modeling-3-007-remove-cancelled
+title: 按撤销清单删除待办
+track: modeling
+stage: '3'
+order: 70
+unit: 2
+format: write
+difficulty: 31
+skills:
+  requires: []
+  introduces: modeling.delete-using
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: queue 的记录
+  query: SELECT * FROM queue
+  ordered: false
+- label: cancelled 的记录
+  query: SELECT * FROM cancelled
+  ordered: false
+wrong_examples:
+- why: 没对齐编号
+  sql: DELETE FROM queue q USING cancelled c;
+- why: 把名单方向写反
+  sql: DELETE FROM queue q USING cancelled c WHERE q.id<>c.id;

@@ -1,0 +1,44 @@
+id: modeling-5-010-as-of-boundary
+title: 在生效日查一笔交易的等级
+track: modeling
+stage: '5'
+order: 100
+unit: 2
+format: inspect
+difficulty: 50
+skills:
+  requires:
+  - modeling.history
+  introduces: null
+source: original
+mode: inspect
+data:
+- kind: table
+  title: 会员版本
+  content: |-
+    id,tier,since,until_day
+    8,base,2025-01-01,2025-03-01
+    8,gold,2025-03-01,2025-06-01
+    8,plus,2025-06-01,
+answer:
+  type: choice
+  options:
+  - base
+  - gold
+  - plus
+  correct: 1
+  misconceptions:
+    '0':
+      id: Model0
+      name: base
+      line: 旧版本在结束日当天已经失效。
+    '2':
+      id: Model2
+      name: plus
+      line: 最新版本在交易之后才生效。
+explain: 3 月 1 日恰好是 gold 的起始日，也是 base 的区间外边界。
+wrong_examples:
+- why: 旧版本在结束日当天已经失效。
+  answer: '0'
+- why: 最新版本在交易之后才生效。
+  answer: '2'

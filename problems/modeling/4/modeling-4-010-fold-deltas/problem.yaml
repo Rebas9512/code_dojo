@@ -1,0 +1,32 @@
+id: modeling-4-010-fold-deltas
+title: 同键增量要先求和
+track: modeling
+stage: '4'
+order: 100
+unit: 2
+format: write
+difficulty: 42
+skills:
+  requires:
+  - modeling.upsert
+  - modeling.latest
+  - sql.cte
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: purse 的记录
+  query: SELECT * FROM purse
+  ordered: false
+wrong_examples:
+- why: 只取最大一笔
+  sql: |-
+    WITH changes AS (SELECT id,MAX(n) AS delta FROM entries GROUP BY id)
+    INSERT INTO purse SELECT id,delta FROM changes ON CONFLICT(id) DO UPDATE SET n=purse.n+excluded.n;
+- why: 丢弃原余额
+  sql: |-
+    WITH changes AS (SELECT id,SUM(n) AS delta FROM entries GROUP BY id)
+    INSERT INTO purse SELECT id,delta FROM changes ON CONFLICT(id) DO UPDATE SET n=excluded.n;

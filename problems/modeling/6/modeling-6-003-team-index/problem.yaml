@@ -1,0 +1,31 @@
+id: modeling-6-003-team-index
+title: 给站点等值查找建索引
+track: modeling
+stage: '6'
+order: 30
+unit: 1
+format: write
+difficulty: 51
+skills:
+  requires: []
+  introduces: modeling.index
+source: original
+mode: script
+datasets:
+- sample.sql
+checks:
+- label: 索引类型和键顺序
+  query: |-
+    SELECT am.amname, i.indisunique, n, pg_get_indexdef(i.indexrelid,n,true) AS key
+    FROM pg_index i JOIN pg_class c ON c.oid=i.indexrelid JOIN pg_am am ON am.oid=c.relam
+    CROSS JOIN LATERAL generate_series(1,i.indnkeyatts) n
+    WHERE i.indrelid='public.events'::regclass AND c.relname='events_team_idx' AND i.indpred IS NULL ORDER BY n
+  ordered: true
+- label: events 的记录
+  query: SELECT * FROM events
+  ordered: false
+wrong_examples:
+- why: 限制成唯一索引
+  sql: CREATE UNIQUE INDEX events_team_idx ON events (team);
+- why: 建在事件编号上
+  sql: CREATE INDEX events_team_idx ON events (id);

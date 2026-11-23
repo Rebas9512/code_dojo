@@ -1,0 +1,46 @@
+id: modeling-2-001-member-email
+title: 给会员邮箱加唯一约束
+track: modeling
+stage: '2'
+order: 10
+unit: 1
+format: write
+difficulty: 17
+skills:
+  requires: []
+  introduces: modeling.unique
+source: original
+mode: script
+datasets:
+- db:workshop
+checks:
+- label: 表结构 · members
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.members') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 重复邮箱会被拒绝
+  probe: INSERT INTO members VALUES ('a@x.com')
+  expect: error
+- label: 可以登记另一位会员
+  probe: INSERT INTO members VALUES ('b@x.com')
+  expect: ok
+- label: 载入后的会员表
+  query: SELECT * FROM members
+  ordered: false
+wrong_examples:
+- why: 漏了唯一约束
+  sql: |-
+    CREATE TABLE members (
+        email text NOT NULL
+    );
+    INSERT INTO members VALUES ('a@x.com');
+- why: 漏了必填约束
+  sql: |-
+    CREATE TABLE members (
+        email text UNIQUE
+    );
+    INSERT INTO members VALUES ('a@x.com');

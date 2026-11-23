@@ -3,6 +3,7 @@ import type { FullCaseResult, JudgeResult, Mode } from '../api'
 import { Markdown } from './Markdown'
 import { VERDICT_NAME, verdictTone } from '../labels'
 
+import type { CheckReport } from '../sql/compare'
 import type { TablePreview } from '../sql/client'
 const SqlTableView = lazy(() => import('../sql/SqlTableView'))
 
@@ -103,6 +104,27 @@ function CaseDetail({ c, mode, names }: { c: FullCaseResult; mode: Mode; names: 
   )
 }
 
+function ScriptResults({ c }: { c: FullCaseResult }) {
+  const checks = (c.actual as { checks: CheckReport[] } | null)?.checks
+  if (!checks) return <div className="case-detail">
+    <pre className="io tone-fail">{c.error}</pre>
+    {(c.expected as { labels: string[] }).labels.map((label, i) => <div key={i}>{label} · 未执行</div>)}
+  </div>
+  return <div className="case-detail">{checks.map(({ label, difference, actual, expected }, i) =>
+    <details key={i} open={difference ? true : undefined}>
+      <summary className={difference ? 'tone-fail' : 'tone-pass'}>{label} · {difference ? '未通过' : '通过'}</summary>
+      {difference && <p>{difference.message}</p>}
+      <div className="sql-results">
+        {'rows' in actual ? <SqlTableView label="你的结果" table={actual} markedRows={difference?.extraRows}
+          row={difference?.actualRow} column={difference?.column} /> :
+          <div>你的结果 · {'rows' in expected ? '查询失败' : actual.outcome === 'ok' ? '实际被接受' : '实际被拒绝'}{actual.error && <pre className="io">{actual.error}</pre>}</div>}
+        {'rows' in expected ? <SqlTableView label="期望结果" table={expected} markedRows={difference?.missingRows}
+          row={difference?.expectedRow} column={difference?.column} /> :
+          <div>期望结果 · {expected.outcome === 'ok' ? '应当被接受' : '应当被拒绝'}{expected.error && <pre className="io">{expected.error}</pre>}</div>}
+      </div>
+    </details>)}</div>
+}
+
 export function ResultPanel({ result, kind, mode, paramNames, sql }: Props) {
   const firstBad = Math.max(0, result.cases.findIndex((c) => c.status !== 'passed'))
   const [selected, setSelected] = useState(firstBad)
@@ -152,7 +174,8 @@ export function ResultPanel({ result, kind, mode, paramNames, sql }: Props) {
           <div key={label}><div className="row-label">{label}</div>
             <pre className="io">{typeof v === 'string' ? v : show(v)}</pre></div>)}
       </div>}
-      {c && !c.preview && sql && <Suspense fallback={null}><div className="case-detail">
+      {c && !c.preview && mode === 'script' && <Suspense fallback={null}><ScriptResults c={c} /></Suspense>}
+      {c && !c.preview && sql && mode !== 'script' && <Suspense fallback={null}><div className="case-detail">
         {c.difference && <p className="tone-fail">{c.difference.message}</p>}
         {c.error && <pre className="io tone-fail">{c.error}</pre>}
         <div className="sql-results">

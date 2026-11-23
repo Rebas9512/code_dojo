@@ -1,0 +1,38 @@
+id: sql-1-116-steady-patrons
+title: 识别稳定的订纸客户
+track: sql
+stage: '1'
+order: 155
+format: combine
+difficulty: 31
+skills:
+  requires:
+    - sql.conditional-agg
+    - sql.having
+    - sql.sum-avg
+  introduces: null
+source: leetcode-db
+leetcode: find-loyal-customers
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: true
+hints:
+  - 首末日期之差用最大值减最小值。再把退款比例写成两个计数的比较。
+wrong_examples:
+  - why: 漏掉刚满三十天
+    sql: |-
+      SELECT client FROM supply_events GROUP BY client
+      HAVING COUNT(*) FILTER (WHERE action = 'buy') >= 3
+         AND MAX(day) - MIN(day) > 30
+         AND COUNT(*) FILTER (WHERE action = 'refund') * 5 < COUNT(*)
+      ORDER BY client;
+  - why: 把两成也算合格
+    sql: |-
+      SELECT client FROM supply_events GROUP BY client
+      HAVING COUNT(*) FILTER (WHERE action = 'buy') >= 3
+         AND MAX(day) - MIN(day) >= 30
+         AND COUNT(*) FILTER (WHERE action = 'refund') * 5 <= COUNT(*)
+      ORDER BY client;

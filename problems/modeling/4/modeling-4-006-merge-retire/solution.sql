@@ -1,0 +1,4 @@
+MERGE INTO stock t USING batch s ON t.sku=s.sku
+WHEN MATCHED AND s.qty=0 THEN DELETE
+WHEN MATCHED THEN UPDATE SET qty=s.qty
+WHEN NOT MATCHED AND s.qty>0 THEN INSERT VALUES (s.sku,s.qty);

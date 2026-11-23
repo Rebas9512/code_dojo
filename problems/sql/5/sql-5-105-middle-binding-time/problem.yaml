@@ -1,0 +1,30 @@
+id: sql-5-105-middle-binding-time
+title: 补全：计算每台机器的装订中位数
+track: sql
+stage: '5'
+order: 31
+format: complete
+difficulty: 66
+skills:
+  requires:
+    - sql.median
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 连续分位数会在两个中点之间插值，排序列应放在 WITHIN GROUP 中。
+wrong_examples:
+  - why: 拿较低的实测值
+    sql: |-
+      SELECT press, PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY minutes) AS median_minutes
+      FROM bind_times GROUP BY press;
+  - why: 使用均值
+    sql: |-
+      SELECT press, AVG(minutes) AS median_minutes
+      FROM bind_times GROUP BY press;

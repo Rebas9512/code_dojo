@@ -1,0 +1,34 @@
+id: modeling-4-002-install-conflict-key
+title: 先建立可用的冲突键
+track: modeling
+stage: '4'
+order: 20
+unit: 1
+format: write
+difficulty: 34
+skills:
+  requires:
+  - modeling.ignore
+  - modeling.unique
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: codes 的记录
+  query: SELECT * FROM codes
+  ordered: false
+- label: 重复代码会被拒绝
+  probe: INSERT INTO codes VALUES ('A')
+  expect: error
+wrong_examples:
+- why: 声明冲突目标，却没建唯一约束
+  sql: |2-
+
+    INSERT INTO codes SELECT code FROM incoming ON CONFLICT(code) DO NOTHING;
+- why: 只安装约束，未载入数据
+  sql: |-
+    ALTER TABLE codes ADD UNIQUE (code);
+    INSERT INTO codes SELECT code FROM incoming WHERE false ON CONFLICT(code) DO NOTHING;

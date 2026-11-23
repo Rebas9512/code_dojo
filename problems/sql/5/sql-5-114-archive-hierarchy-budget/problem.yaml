@@ -1,0 +1,54 @@
+id: sql-5-114-archive-hierarchy-budget
+title: 逐级核算库房的管理预算
+track: sql
+stage: '5'
+order: 68
+format: combine
+difficulty: 68
+skills:
+  requires:
+    - sql.join-aggregate
+    - sql.multi-join
+    - sql.recursive-cte
+    - sql.self-join
+    - sql.sum-avg
+  introduces: null
+source: leetcode-db
+leetcode: analyze-organization-hierarchy
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: true
+hints:
+  - 让每个库房都当一次起点，记录能到达的所有后代，再按起点汇总。
+wrong_examples:
+  - why: 把自己也算下级
+    sql: |-
+      WITH RECURSIVE paths AS (
+          SELECT unit AS ancestor, unit AS child, 0 AS distance FROM archive_units
+          UNION ALL
+          SELECT p.ancestor, u.unit, p.distance + 1
+          FROM paths p JOIN archive_units u ON u.parent = p.child
+      ), levels AS (
+          SELECT child, MAX(distance) + 1 AS level FROM paths GROUP BY child
+      )
+      SELECT a.label, l.level, COUNT(*) AS reports, SUM(u.budget) AS funds
+      FROM paths p JOIN archive_units a ON a.unit = p.ancestor
+      JOIN archive_units u ON u.unit = p.child JOIN levels l ON l.child = a.unit
+      GROUP BY a.unit, a.label, l.level ORDER BY l.level, funds DESC, a.label;
+  - why: 漏掉下级自己的下级
+    sql: |-
+      WITH RECURSIVE paths AS (
+          SELECT unit AS ancestor, unit AS child, 0 AS distance FROM archive_units
+          UNION ALL
+          SELECT p.ancestor, u.unit, p.distance + 1
+          FROM paths p JOIN archive_units u ON u.parent = p.child WHERE p.distance = 0
+      ), levels AS (
+          SELECT child, MAX(distance) + 1 AS level FROM paths GROUP BY child
+      )
+      SELECT a.label, l.level, COUNT(*) - 1 AS reports, SUM(u.budget) AS funds
+      FROM paths p JOIN archive_units a ON a.unit = p.ancestor
+      JOIN archive_units u ON u.unit = p.child JOIN levels l ON l.child = a.unit
+      GROUP BY a.unit, a.label, l.level ORDER BY l.level, funds DESC, a.label;

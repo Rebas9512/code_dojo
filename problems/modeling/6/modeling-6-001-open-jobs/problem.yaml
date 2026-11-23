@@ -1,0 +1,33 @@
+id: modeling-6-001-open-jobs
+title: 保存未结工单的读取口径
+track: modeling
+stage: '6'
+order: 10
+unit: 1
+format: complete
+difficulty: 49
+skills:
+  requires:
+  - sql.select-expr
+  introduces: modeling.view
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: 对象是普通视图
+  query: SELECT table_type FROM information_schema.tables WHERE table_schema='public' AND table_name='open_jobs'
+  ordered: false
+- label: open_jobs 的记录
+  query: SELECT id,fee FROM open_jobs
+  ordered: false
+wrong_examples:
+- why: 错误地排除零费用
+  sql: |-
+    CREATE VIEW open_jobs AS
+    SELECT id,fee FROM jobs WHERE state='open' AND fee>0;
+- why: 把打开时的快照保存成表
+  sql: |-
+    CREATE TABLE open_jobs AS
+    SELECT id,fee FROM jobs WHERE state='open';

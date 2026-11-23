@@ -1,0 +1,35 @@
+id: sql-4-107-last-three-reading-mean
+title: 最近三张单子的平均读数
+track: sql
+stage: '4'
+order: 142
+format: write
+difficulty: 60
+skills:
+  requires:
+    - sql.between
+    - sql.window-frame
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 从当前行往前画两个位置。开头位置不够时，只用实际存在的行。
+wrong_examples:
+  - why: 多取一笔
+    sql: |-
+      SELECT slip, AVG(reading) OVER (
+          PARTITION BY press ORDER BY day NULLS LAST, slip
+          ROWS BETWEEN 3 PRECEDING AND CURRENT ROW
+      ) AS rolling_mean FROM press_readings;
+  - why: 漏分区混入别台印机
+    sql: |-
+      SELECT slip, AVG(reading) OVER (
+          ORDER BY day NULLS LAST, slip
+          ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+      ) AS rolling_mean FROM press_readings;

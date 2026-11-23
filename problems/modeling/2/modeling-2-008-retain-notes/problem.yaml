@@ -1,0 +1,51 @@
+id: modeling-2-008-retain-notes
+title: 仓库撤销后保留巡检记录
+track: modeling
+stage: '2'
+order: 80
+unit: 2
+format: write
+difficulty: 24
+skills:
+  requires:
+  - modeling.on-delete
+  - sql.where
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: 表结构 · notes
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.notes') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: notes 的记录
+  query: SELECT * FROM notes
+  ordered: false
+- label: depots 的记录
+  query: SELECT * FROM depots
+  ordered: false
+- label: 拒绝指向未知仓库
+  probe: INSERT INTO notes VALUES (99,999)
+  expect: error
+- label: 外键删除策略
+  query: SELECT delete_rule FROM information_schema.referential_constraints r JOIN information_schema.table_constraints
+    t USING (constraint_schema,constraint_name) WHERE t.table_name='notes'
+  ordered: false
+wrong_examples:
+- why: 删除时选错策略
+  sql: |-
+    CREATE TABLE notes (id int PRIMARY KEY, depot_id int REFERENCES depots(id) ON DELETE CASCADE);
+    INSERT INTO notes VALUES (11,4),(12,8);
+    DELETE FROM depots WHERE id=4;
+- why: 删错父行
+  sql: |-
+    CREATE TABLE notes (id int PRIMARY KEY, depot_id int REFERENCES depots(id) ON DELETE SET NULL);
+    INSERT INTO notes VALUES (11,4),(12,8);
+    DELETE FROM depots WHERE id=8;

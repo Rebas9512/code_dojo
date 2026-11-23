@@ -1,0 +1,41 @@
+id: modeling-6-005-plan-node
+title: 从计划认出索引访问
+track: modeling
+stage: '6'
+order: 50
+unit: 1
+format: inspect
+difficulty: 53
+skills:
+  requires: []
+  introduces: modeling.plan
+source: original
+mode: inspect
+data:
+- kind: table
+  title: 取一条包裹记录的执行计划
+  content: |
+    node,index_name,index_cond,filter
+    Index Scan,parcel_key,id = 17,active
+answer:
+  type: choice
+  options:
+  - active
+  - parcel_key
+  - id
+  correct: 1
+  misconceptions:
+    '0':
+      id: Model0
+      name: active
+      line: active 是过滤表达式中的列。
+    '2':
+      id: Model2
+      name: id
+      line: id 是键列，题目问的是索引的名称。
+explain: Index Scan 使用 parcel_key，Index Cond 指定按 id 定位，active 是取出后再验证的条件。
+wrong_examples:
+- why: active 是过滤表达式中的列。
+  answer: '0'
+- why: id 是键列，题目问的是索引的名称。
+  answer: '2'

@@ -97,3 +97,30 @@ export function compareStates(actual: SqlTable, expected: SqlTable, ordered: boo
   })
   return missing ? { ...diff, missingRows: unmatched } : { ...diff, extraRows: unmatched }
 }
+
+export type SqlCheck = { label: string; query: string; ordered?: boolean } |
+  { label: string; probe: string; expect: 'ok' | 'error' }
+export type CheckValue = SqlTable | { outcome: 'ok' | 'error'; error?: string }
+
+export function compareCheck(check: SqlCheck, actual: CheckValue, expected: CheckValue): Difference | null {
+  if ('probe' in check && 'outcome' in actual)
+    return actual.outcome === check.expect ? null : { message: check.expect === 'error' ? '应当被拒绝，实际被接受' : '应当被接受，实际被拒绝' }
+  if ('query' in check && 'rows' in actual && 'rows' in expected)
+    return compareStates(actual, expected, !!check.ordered)
+  return { message: '检查查询执行失败' }
+}
+
+export function previewTable(table: SqlTable) {
+  return { ...table, rows: table.rows.slice(0, 50), rowCount: table.rows.length }
+}
+
+export function previewCheck(value: CheckValue) {
+  return 'rows' in value ? previewTable(value) : value
+}
+
+export interface CheckReport {
+  label: string
+  actual: ReturnType<typeof previewCheck>
+  expected: ReturnType<typeof previewCheck>
+  difference: Difference | null
+}

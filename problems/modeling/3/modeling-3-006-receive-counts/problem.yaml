@@ -1,0 +1,26 @@
+id: modeling-3-006-receive-counts
+title: 按仓位补记到货数量
+track: modeling
+stage: '3'
+order: 60
+unit: 2
+format: write
+difficulty: 30
+skills:
+  requires:
+  - modeling.update-from
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: inventory 的记录
+  query: SELECT * FROM inventory
+  ordered: false
+wrong_examples:
+- why: 把增量当成总量
+  sql: UPDATE inventory t SET n=s.n FROM receipts s WHERE s.id=t.id;
+- why: 方向写反
+  sql: UPDATE inventory t SET n=t.n-s.n FROM receipts s WHERE s.id=t.id;

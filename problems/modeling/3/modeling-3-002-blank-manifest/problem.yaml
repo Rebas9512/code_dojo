@@ -1,0 +1,27 @@
+id: modeling-3-002-blank-manifest
+title: 用默认份数登记新单
+track: modeling
+stage: '3'
+order: 20
+unit: 1
+format: write
+difficulty: 26
+skills:
+  requires:
+  - modeling.values
+  - modeling.required
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: docs 的记录
+  query: SELECT * FROM docs
+  ordered: false
+wrong_examples:
+- why: 把样例默认值写死
+  sql: INSERT INTO docs(title,copies) VALUES ('pack',2),('ship',2);
+- why: 漏掉发货单
+  sql: INSERT INTO docs(title) VALUES ('pack');

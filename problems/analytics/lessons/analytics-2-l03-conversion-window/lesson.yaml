@@ -1,0 +1,34 @@
+id: analytics-2-l03-conversion-window
+title: 限时转化与等待时长
+track: analytics
+skills:
+  - analytics.conversion-window
+steps:
+  - type: read
+    skill: analytics.conversion-window
+    md: 周五深夜看到一本书、周六凌晨下单，相隔可能只有几分钟。营销活动给出的二十四小时是连续时长，跨午夜仍算。把每位读者第一次浏览当作计时起点，向后取得第一笔订单；时间差大于零且不超过二十四小时才算成功。报告速度时让每位成功者贡献一个等待值，从短到长取中间。偶数人取中间两个时长的平均；未购买的人留在转化率分母，却没有可填的时长。
+  - type: example
+    skill: analytics.conversion-window
+    db: readerapp
+    code: |-
+      -- ① 取每人的首次浏览
+      WITH starts AS (
+          SELECT user_id, MIN(happened_at) AS t FROM events WHERE action='view' GROUP BY user_id
+      ), first_orders AS (
+          -- ② 在规定时间内找首单，每人产生一个等待时长
+          SELECT s.user_id, EXTRACT(EPOCH FROM MIN(e.happened_at)-s.t)/60 AS minutes
+          FROM starts s JOIN events e ON e.user_id=s.user_id AND e.action='order'
+            AND e.happened_at>s.t AND e.happened_at<=s.t+INTERVAL '24 hours' GROUP BY s.user_id, s.t
+      )
+      SELECT COUNT(*) AS buyers, ROUND(MIN(minutes), 2) AS fastest,
+             ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY minutes)::numeric, 2) AS median_minutes
+      FROM first_orders;
+    md: 把窗口改为 30 minutes。留下的成交者和等待时长中位数怎样变化？
+  - type: quiz
+    skill: analytics.conversion-window
+    q: 周一 20:00 浏览，周二 20:00 下单。含截止时刻的 24 小时活动计几人转化？
+    options:
+      - '0'
+      - '1'
+    answer: 1
+    explain: 两次操作恰差 24 小时，落在窗口右端点。

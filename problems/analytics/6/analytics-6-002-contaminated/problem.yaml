@@ -1,0 +1,26 @@
+id: analytics-6-002-contaminated
+title: 哪些读者看过两种封面
+track: analytics
+stage: '6'
+unit: 1
+order: 20
+format: write
+difficulty: 58
+skills:
+  requires:
+    - analytics.clean-assignment
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 先锁定实验，再按用户核对组别。同组重复只算一人，同时出现在两个组的人从两边都剔除。
+wrong_examples:
+  - why: 把同组重报当成跨组
+    sql: |-
+      SELECT user_id FROM assignments WHERE experiment='cover'
+      GROUP BY user_id HAVING COUNT(*)>1 ORDER BY user_id;
+  - why: 混入其他实验的分组
+    sql: "SELECT user_id FROM assignments \nGROUP BY user_id HAVING COUNT(DISTINCT arm)>1 ORDER BY user_id;"

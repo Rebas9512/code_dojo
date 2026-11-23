@@ -1,0 +1,54 @@
+id: analytics-5-003-growth-net
+title: 各渠道月活净增多少
+track: analytics
+stage: '5'
+unit: 1
+order: 30
+format: combine
+difficulty: 54
+skills:
+  requires:
+    - sql.round-cast
+    - sql.join-aggregate
+    - sql.in-list
+    - analytics.churn-risk
+    - analytics.growth-ledger
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 本月活跃的人依次分为首次活跃、与上月连续活跃、早于上月活跃后回流。流失单列在上月名单。
+wrong_examples:
+  - why: 把连续活跃归入回流
+    sql: |-
+      WITH flags AS (
+          SELECT user_id, MIN(logged_at)::date AS first_day,
+                 COUNT(*) FILTER (WHERE logged_at >= DATE '2025-03-01' - INTERVAL '1 month'
+                                    AND logged_at < DATE '2025-03-01') AS prev_n,
+                 COUNT(*) FILTER (WHERE logged_at >= DATE '2025-03-01') AS now_n
+          FROM logins WHERE logged_at < DATE '2025-03-01' + INTERVAL '1 month' GROUP BY user_id
+      ), ledger AS (
+          SELECT user_id, CASE WHEN now_n=0 THEN 'lost' WHEN prev_n>0 THEN 'reactivated'
+                               WHEN first_day >= DATE '2025-03-01' THEN 'new' ELSE 'reactivated' END AS status
+          FROM flags WHERE prev_n>0 OR now_n>0
+      )
+      SELECT channel, COUNT(*) FILTER (WHERE status IN ('new','reactivated')) - COUNT(*) FILTER (WHERE status='lost') AS net
+      FROM ledger JOIN readers USING (user_id) GROUP BY channel ORDER BY channel;
+  - why: 净增减去了留存人数
+    sql: |-
+      WITH flags AS (
+          SELECT user_id, MIN(logged_at)::date AS first_day,
+                 COUNT(*) FILTER (WHERE logged_at >= DATE '2025-03-01' - INTERVAL '1 month'
+                                    AND logged_at < DATE '2025-03-01') AS prev_n,
+                 COUNT(*) FILTER (WHERE logged_at >= DATE '2025-03-01') AS now_n
+          FROM logins WHERE logged_at < DATE '2025-03-01' + INTERVAL '1 month' GROUP BY user_id
+      ), ledger AS (
+          SELECT user_id, CASE WHEN now_n=0 THEN 'lost' WHEN prev_n>0 THEN 'retained'
+                               WHEN first_day >= DATE '2025-03-01' THEN 'new' ELSE 'reactivated' END AS status
+          FROM flags WHERE prev_n>0 OR now_n>0
+      )
+      SELECT channel, COUNT(*) FILTER (WHERE status IN ('new','reactivated')) - COUNT(*) FILTER (WHERE status='retained') AS net
+      FROM ledger JOIN readers USING (user_id) GROUP BY channel ORDER BY channel;

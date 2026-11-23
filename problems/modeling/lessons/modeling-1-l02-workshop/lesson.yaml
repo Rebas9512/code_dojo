@@ -1,0 +1,75 @@
+id: modeling-1-l02-workshop
+title: 键与结构演进
+track: modeling
+skills:
+- modeling.primary
+- modeling.identity
+- modeling.alter
+steps:
+- type: read
+  skill: modeling.primary
+  md: |-
+    两个仓位可以同名，需要一列稳定标识每个仓位。PRIMARY KEY 给整张表选定行的身份，数据库同时检查这个值非空且没有重复。业务标签仍然可以重复。
+
+    可以先拿两行标签完全相同的记录问自己：明天只修改其中某一行，用哪一列能准确找到它？若一列会重名，就需要另外挑选稳定的身份。
+- type: example
+  skill: modeling.primary
+  db: workshop
+  code: |-
+    CREATE TABLE locks (id integer PRIMARY KEY, zone text);
+    INSERT INTO locks VALUES (1,'west'),(2,'west');
+    SELECT * FROM locks;
+  md: 把第二个编号改成 1，再运行一次并读错误消息。
+- type: quiz
+  skill: modeling.primary
+  q: 两行同区但编号不同能否写入？
+  options:
+  - 可以
+  - 不可以
+  answer: 0
+  explain: 主键只约束选定的键列。其他列能否重复取决于它们各自的业务规则。
+- type: read
+  skill: modeling.identity
+  md: |-
+    多个写入者自己算最大编号再加一可能拿到同一个数。整数列声明 GENERATED ALWAYS AS IDENTITY 后，省略编号就能由数据库分配一个新值。再加主键约束保证行的身份唯一。
+
+    例如两笔取件请求都没有编号，数据库先后给出两个号码。以后业务上撤销其中一笔，余下的号码仍然代表原来的请求，不能按现在的行数重新排号。
+- type: example
+  skill: modeling.identity
+  db: workshop
+  code: |-
+    CREATE TABLE tickets (id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY, label text);
+    INSERT INTO tickets(label) VALUES ('first'),('second');
+    SELECT * FROM tickets ORDER BY id;
+  md: 改动两个标签，观察编号如何随插入分配。
+- type: quiz
+  skill: modeling.identity
+  q: 普通插入时应该省略哪一列？
+  options:
+  - label
+  - id
+  answer: 1
+  explain: ALWAYS 通常拒绝手工给编号赋值。自增序列用来分配身份，不能把最大编号当作行数。
+- type: read
+  skill: modeling.alter
+  md: |-
+    已经投入使用的表里有业务记录。ALTER TABLE 修改原表的定义。ADD COLUMN 加字段，ALTER COLUMN ... TYPE 改变类型。先想旧行在新字段上应该看到什么，再写默认值或转换规则。
+
+    改结构时可以先列出修改前已经存在的几行。执行后应逐行找回它们，再试插一条新记录，这样能分别核对旧行的迁移与今后写入的默认行为。
+- type: example
+  skill: modeling.alter
+  db: workshop
+  code: |-
+    CREATE TABLE shifts (team text);
+    INSERT INTO shifts VALUES ('red');
+    ALTER TABLE shifts ADD COLUMN hours integer DEFAULT 8;
+    SELECT * FROM shifts;
+  md: 将默认工时改成 6，再查看原有班次。
+- type: quiz
+  skill: modeling.alter
+  q: 要保留已有班次，加一列用什么？
+  options:
+  - DROP TABLE
+  - ALTER TABLE
+  answer: 1
+  explain: 重建空表会丢掉已有登记。原地添加带默认值的列，让旧行也能按新结构读取。

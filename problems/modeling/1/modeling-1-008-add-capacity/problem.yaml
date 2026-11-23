@@ -1,0 +1,45 @@
+id: modeling-1-008-add-capacity
+title: 为在库周转箱增加容量
+track: modeling
+stage: '1'
+order: 80
+unit: 2
+format: write
+difficulty: 16
+skills:
+  requires: []
+  introduces: modeling.alter
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: crates 的记录
+  query: SELECT * FROM crates
+  ordered: false
+- label: 表结构 · crates
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.crates') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 新箱可只填箱号
+  probe: INSERT INTO crates(code) VALUES ('Z')
+  expect: ok
+- label: 下一条新记录也会取得默认值
+  probe: |-
+    DO $$
+    DECLARE v crates.capacity%TYPE;
+    BEGIN
+        INSERT INTO crates(code) VALUES ('probe') RETURNING capacity INTO v;
+        IF v IS DISTINCT FROM 12 THEN RAISE EXCEPTION 'unexpected default: %', v; END IF;
+    END $$
+  expect: ok
+wrong_examples:
+- why: 默认容量少一位
+  sql: ALTER TABLE crates ADD COLUMN capacity integer NOT NULL DEFAULT 2;
+- why: 忘了禁止空容量
+  sql: ALTER TABLE crates ADD COLUMN capacity integer DEFAULT 12;

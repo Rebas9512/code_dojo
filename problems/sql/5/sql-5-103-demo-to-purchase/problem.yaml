@@ -1,0 +1,58 @@
+id: sql-5-103-demo-to-purchase
+title: 试用台的三步人数
+track: sql
+stage: '5'
+order: 22
+format: write
+difficulty: 66
+skills:
+  requires:
+    - sql.distinct
+    - sql.funnel
+    - sql.join-aggregate
+    - sql.join-conditions
+    - sql.multi-join
+    - sql.self-join
+    - sql.subquery-scalar
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 每一步先得到一人一行的合格名单，下一步从上一步最早的合法时刻往后查。
+wrong_examples:
+  - why: 同一时刻也允许向前走
+    sql: |-
+      WITH sampled AS (
+          SELECT visitor, MIN(tick) AS started FROM demo_steps WHERE action = 'sample' GROUP BY visitor
+      ), reserved AS (
+          SELECT s.visitor, MIN(e.tick) AS booked FROM sampled s
+          JOIN demo_steps e ON e.visitor = s.visitor AND e.tick >= s.started
+          WHERE e.action = 'reserve' GROUP BY s.visitor
+      ), paid AS (
+          SELECT DISTINCT r.visitor FROM reserved r
+          JOIN demo_steps e ON e.visitor = r.visitor AND e.tick >= r.booked WHERE e.action = 'pay'
+      )
+      SELECT (SELECT COUNT(*) FROM sampled) AS sampled,
+             (SELECT COUNT(*) FROM reserved) AS reserved,
+             (SELECT COUNT(*) FROM paid) AS paid;
+  - why: 把最早试用前的预订也算入
+    sql: |-
+      WITH sampled AS (
+          SELECT visitor, MIN(tick) AS started FROM demo_steps WHERE action = 'sample' GROUP BY visitor
+      ), reserved AS (
+          SELECT s.visitor, MIN(e.tick) AS booked FROM sampled s
+          JOIN demo_steps e ON e.visitor = s.visitor
+          WHERE e.action = 'reserve' GROUP BY s.visitor
+      ), paid AS (
+          SELECT DISTINCT r.visitor FROM reserved r
+          JOIN demo_steps e ON e.visitor = r.visitor AND e.tick > r.booked WHERE e.action = 'pay'
+      )
+      SELECT (SELECT COUNT(*) FROM sampled) AS sampled,
+             (SELECT COUNT(*) FROM reserved) AS reserved,
+             (SELECT COUNT(*) FROM paid) AS paid;

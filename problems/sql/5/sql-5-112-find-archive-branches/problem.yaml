@@ -1,0 +1,39 @@
+id: sql-5-112-find-archive-branches
+title: 补全：从指定库房寻找所有下级
+track: sql
+stage: '5'
+order: 61
+format: complete
+difficulty: 68
+skills:
+  requires:
+    - sql.recursive-cte
+    - sql.self-join
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 递归项把当前库房当父级，查下一行的 parent 是否指向它。
+wrong_examples:
+  - why: 只走到孩子一层
+    sql: |-
+      WITH RECURSIVE branch AS (
+          SELECT unit, 0 AS depth FROM archive_units WHERE unit = 11
+          UNION ALL
+          SELECT u.unit, b.depth + 1 FROM archive_units u JOIN branch b ON u.parent = b.unit WHERE b.depth = 0
+      )
+      SELECT unit, depth FROM branch;
+  - why: 从整棵树的根开始
+    sql: |-
+      WITH RECURSIVE branch AS (
+          SELECT unit, 0 AS depth FROM archive_units WHERE parent IS NULL
+          UNION ALL
+          SELECT u.unit, b.depth + 1 FROM archive_units u JOIN branch b ON u.parent = b.unit
+      )
+      SELECT unit, depth FROM branch;

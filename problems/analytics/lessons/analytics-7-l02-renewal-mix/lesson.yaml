@@ -1,0 +1,27 @@
+id: analytics-7-l02-renewal-mix
+title: 案例二 · 续费下降与套餐构成
+track: analytics
+skills:
+  - analytics.renewal-mix
+steps:
+  - type: read
+    skill: analytics.renewal-mix
+    md: 提醒短信改版之后，第二周总续费率下降。店长担心文案写坏了，先查这两周收到提醒的人是否相似。分母用每周到期的订阅机会，再按套餐拆分。即使两种套餐内部的续费率都不变，如果较难续费的套餐在第二周变多，整体续费率仍会变低。为了单独看构成因素，可以拿第一周两种套餐的到期人数作固定权重，分别套在各周套餐续费率上。这样得到一个可与实际总率对照的标准化结果。
+  - type: example
+    skill: analytics.renewal-mix
+    db: readerapp
+    code: |-
+      -- ① 把到期名单按套餐拆开
+      -- ② 比较各套餐在两个自然周的权重
+      SELECT DATE_TRUNC('week', due_on)::date AS week_start, plan, COUNT(*) AS due_n
+      FROM renewal_offers GROUP BY week_start, plan ORDER BY week_start, plan;
+    md: 把 COUNT(*) 换成 COUNT(renewed_on)，会漏掉哪类机会？
+  - type: quiz
+    skill: analytics.renewal-mix
+    q: 两套餐续费率都不变，低续费套餐份额上升，整体续费率会怎样？
+    options:
+      - rise
+      - fall
+      - unchanged
+    answer: 1
+    explain: 整体是加权平均，较低的比率得到更大权重。

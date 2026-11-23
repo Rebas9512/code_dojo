@@ -1,0 +1,1 @@
+INSERT INTO raw VALUES (9,2);

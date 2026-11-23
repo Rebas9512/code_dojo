@@ -1,0 +1,50 @@
+id: modeling-7-006-membership-versions
+title: 会员面试一：从升档日志建历史表
+track: modeling
+stage: '7'
+order: 60
+unit: 2
+format: write
+difficulty: 62
+skills:
+  requires:
+  - sql.derived-table
+  - sql.lag-lead
+  introduces: modeling.asof
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: 表结构 · tiers
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.tiers') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 主键列 · tiers
+  query: |-
+    SELECT k.column_name FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog, constraint_schema, constraint_name, table_name)
+    WHERE c.table_schema = 'public' AND c.table_name = 'tiers' AND c.constraint_type = 'PRIMARY KEY'
+    ORDER BY k.ordinal_position
+  ordered: true
+- label: tiers 的记录
+  query: SELECT * FROM tiers
+  ordered: false
+wrong_examples:
+- why: 把不同会员排在一起
+  sql: |-
+    CREATE TABLE tiers (member_id int,since date,tier text,until_day date, is_current boolean, PRIMARY KEY(member_id,since));
+    INSERT INTO tiers
+    SELECT member_id,start_on,tier,next_day,next_day IS NULL
+    FROM (SELECT u.*,LEAD(start_on) OVER (ORDER BY start_on) AS next_day FROM upgrades u) v;
+- why: 把历史版本标成当前
+  sql: |-
+    CREATE TABLE tiers (member_id int,since date,tier text,until_day date, is_current boolean, PRIMARY KEY(member_id,since));
+    INSERT INTO tiers
+    SELECT member_id,start_on,tier,next_day,next_day IS NOT NULL
+    FROM (SELECT u.*,LEAD(start_on) OVER (PARTITION BY member_id ORDER BY start_on) AS next_day FROM upgrades u) v;

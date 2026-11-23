@@ -1,0 +1,50 @@
+id: sql-5-116-reading-session-spans
+title: 汇总每场阅读的起止
+track: sql
+stage: '5'
+order: 113
+format: write
+difficulty: 71
+skills:
+  requires:
+    - sql.conditional-agg
+    - sql.date-funcs
+    - sql.sessionization
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 先把每个操作标上本人的场次号，再按人和场次作普通分组。
+wrong_examples:
+  - why: 同时刻的两个操作只数一次
+    sql: |-
+      WITH neighbors AS (
+          SELECT event, reader, at_time, LAG(at_time) OVER (PARTITION BY reader ORDER BY at_time, event) AS prev
+          FROM desk_actions WHERE at_time IS NOT NULL
+      ), numbered AS (
+          SELECT event, reader, at_time,
+                 SUM(CASE WHEN prev IS NULL OR at_time - prev > INTERVAL '30 minutes' THEN 1 ELSE 0 END)
+                 OVER (PARTITION BY reader ORDER BY at_time, event ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS session_no
+          FROM neighbors
+      )
+      SELECT reader, session_no, MIN(at_time) AS started, MAX(at_time) AS ended, COUNT(DISTINCT at_time) AS actions
+      FROM numbered GROUP BY reader, session_no;
+  - why: 刚满半小时就拆场
+    sql: |-
+      WITH neighbors AS (
+          SELECT event, reader, at_time, LAG(at_time) OVER (PARTITION BY reader ORDER BY at_time, event) AS prev
+          FROM desk_actions WHERE at_time IS NOT NULL
+      ), numbered AS (
+          SELECT event, reader, at_time,
+                 SUM(CASE WHEN prev IS NULL OR at_time - prev >= INTERVAL '30 minutes' THEN 1 ELSE 0 END)
+                 OVER (PARTITION BY reader ORDER BY at_time, event ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS session_no
+          FROM neighbors
+      )
+      SELECT reader, session_no, MIN(at_time) AS started, MAX(at_time) AS ended, COUNT(*) AS actions
+      FROM numbered GROUP BY reader, session_no;

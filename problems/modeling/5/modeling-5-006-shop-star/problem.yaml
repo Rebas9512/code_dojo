@@ -1,0 +1,75 @@
+id: modeling-5-006-shop-star
+title: 将小票明细载入星型模型
+track: modeling
+stage: '5'
+order: 60
+unit: 2
+format: write
+difficulty: 46
+skills:
+  requires:
+  - sql.distinct
+  - sql.self-join
+  introduces: modeling.star
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: 表结构 · shops
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.shops') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 主键列 · shops
+  query: |-
+    SELECT k.column_name FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog, constraint_schema, constraint_name, table_name)
+    WHERE c.table_schema = 'public' AND c.table_name = 'shops' AND c.constraint_type = 'PRIMARY KEY'
+    ORDER BY k.ordinal_position
+  ordered: true
+- label: shops 的记录
+  query: SELECT * FROM shops
+  ordered: false
+- label: 表结构 · sales
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.sales') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 主键列 · sales
+  query: |-
+    SELECT k.column_name FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog, constraint_schema, constraint_name, table_name)
+    WHERE c.table_schema = 'public' AND c.table_name = 'sales' AND c.constraint_type = 'PRIMARY KEY'
+    ORDER BY k.ordinal_position
+  ordered: true
+- label: sales 的记录
+  query: SELECT * FROM sales
+  ordered: false
+- label: 引用关系 · sales
+  query: |-
+    SELECT k.column_name, u.table_name, u.column_name FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog,constraint_schema,constraint_name,table_name)
+    JOIN information_schema.constraint_column_usage u USING (constraint_catalog,constraint_schema,constraint_name)
+    WHERE c.table_schema='public' AND c.constraint_type='FOREIGN KEY' AND c.table_name='sales'
+  ordered: false
+wrong_examples:
+- why: 按门店提前汇总，明细粒度丢失
+  sql: |-
+    CREATE TABLE shops (id int PRIMARY KEY,city text);
+    CREATE TABLE sales (line_id int PRIMARY KEY,shop_id int REFERENCES shops(id),units int);
+    INSERT INTO shops SELECT DISTINCT shop_id,city FROM receipts;
+    INSERT INTO sales SELECT MIN(line_id),shop_id,SUM(units) FROM receipts GROUP BY shop_id;
+- why: 将每条明细误记作一件
+  sql: |-
+    CREATE TABLE shops (id int PRIMARY KEY,city text);
+    CREATE TABLE sales (line_id int PRIMARY KEY,shop_id int REFERENCES shops(id),units int);
+    INSERT INTO shops SELECT DISTINCT shop_id,city FROM receipts;
+    INSERT INTO sales SELECT line_id,shop_id,1 FROM receipts;

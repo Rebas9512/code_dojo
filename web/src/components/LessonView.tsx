@@ -28,7 +28,7 @@ function ExampleStep({ step, theme, problemId, runStatus, onOutput }: { problemI
         const client = await import('../sql/client')
         await client.prepare()
         setPreparing(false)
-        const { actual } = await client.query({ setup: step.setup!, sql: code })
+        const actual = await client.runExample(step.setup!, code)
         setTable(actual)
         onOutput({ table: actual, stdout: '' })
       } else {

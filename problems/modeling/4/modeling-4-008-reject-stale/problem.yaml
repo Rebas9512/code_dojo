@@ -1,0 +1,34 @@
+id: modeling-4-008-reject-stale
+title: 挡住跨批次的过期快照
+track: modeling
+stage: '4'
+order: 80
+unit: 2
+format: fix
+difficulty: 40
+skills:
+  requires:
+  - modeling.latest
+  - sql.distinct
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: catalog 的记录
+  query: SELECT * FROM catalog
+  ordered: false
+wrong_examples:
+- why: 忽略目标版本
+  sql: |-
+    INSERT INTO catalog
+    SELECT DISTINCT ON (id) id,rev,tag FROM feed ORDER BY id,rev DESC
+    ON CONFLICT(id) DO UPDATE SET rev=excluded.rev,tag=excluded.tag;
+- why: 版本相等也覆盖
+  sql: |-
+    INSERT INTO catalog
+    SELECT DISTINCT ON (id) id,rev,tag FROM feed ORDER BY id,rev DESC
+    ON CONFLICT(id) DO UPDATE SET rev=excluded.rev,tag=excluded.tag
+    WHERE excluded.rev>=catalog.rev;

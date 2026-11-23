@@ -1,0 +1,37 @@
+id: sql-2-111-all-moulds-loaned
+title: 哪些模具已全部借出
+track: sql
+stage: '2'
+order: 165
+format: combine
+difficulty: 34
+skills:
+  requires:
+    - sql.having
+    - sql.join-aggregate
+  introduces: null
+source: leetcode-db
+leetcode: find-books-with-no-available-copies
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: true
+hints:
+  - 先保留没有归还日期的借单，再拿在借数与该种模具的副本数比较。
+wrong_examples:
+  - why: 把历史借用也计入
+    sql: |-
+      SELECT m.design, COUNT(*) AS on_loan
+      FROM mould_stock m JOIN mould_loans l ON l.design = m.design
+
+      GROUP BY m.design, m.copies HAVING COUNT(*) = m.copies
+      ORDER BY on_loan DESC, m.design;
+  - why: 有一件借出便认为没有库存
+    sql: |-
+      SELECT m.design, COUNT(*) AS on_loan
+      FROM mould_stock m JOIN mould_loans l ON l.design = m.design
+      WHERE l.back IS NULL
+      GROUP BY m.design, m.copies HAVING COUNT(*) > 0
+      ORDER BY on_loan DESC, m.design;

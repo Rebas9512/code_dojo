@@ -1,0 +1,83 @@
+id: modeling-3-l02-workshop
+title: 关联修改与回执
+track: modeling
+skills:
+- modeling.update-from
+- modeling.delete-using
+- modeling.returning
+steps:
+- type: read
+  skill: modeling.update-from
+  md: |-
+    调价表给的是每种商品的新价格。UPDATE 的目标是库存，FROM 引入调价单，WHERE 把两边表示同一商品的键对齐。没有匹配调价行的商品必须保留旧值。每个目标键应当至多匹配一行。
+
+    例如来源只改商品 B，手边先记下 A 的价格。执行后既要读出 B 的新价格，也要确认 A 的旧值仍在，这能发现没有写连接条件的更新。
+- type: example
+  skill: modeling.update-from
+  db: workshop
+  code: |-
+    CREATE TABLE price (id int, fee int);
+    INSERT INTO price VALUES (1,5),(2,8);
+    CREATE TABLE patch (id int, fee int);
+    INSERT INTO patch VALUES (2,9);
+    UPDATE price p SET fee=s.fee FROM patch s WHERE p.id=s.id;
+    SELECT * FROM price ORDER BY id;
+  md: 删除最后的匹配条件，比较编号 1 的价格。
+- type: quiz
+  skill: modeling.update-from
+  q: 调价单没有编号 1，它应保留什么？
+  options:
+  - 旧价格
+  - 新价格
+  answer: 0
+  explain: 过滤条件决定哪些目标行被修改。漏掉连接键会把无关的目标行也配给来源行。
+- type: read
+  skill: modeling.delete-using
+  md: |-
+    撤单清单只存订单编号。DELETE FROM 指定真正要删除的目标，USING 引入辅助表，WHERE 比较两个编号。先想清楚哪个表需要保留原样，再决定它应该出现在 FROM 还是 USING 后面。
+
+    撤销清单中可能有过期编号。这个编号在目标表中没有对应行，执行时自然没有记录可删；不能因为在清单中出现就创建一条删除回执。
+- type: example
+  skill: modeling.delete-using
+  db: workshop
+  code: |-
+    CREATE TABLE jobs (id int);
+    INSERT INTO jobs VALUES (1),(2);
+    CREATE TABLE voids (id int);
+    INSERT INTO voids VALUES (1);
+    DELETE FROM jobs j USING voids v WHERE j.id=v.id;
+    SELECT * FROM jobs;
+  md: 在清单多写一个不存在的编号，再看剩余订单。
+- type: quiz
+  skill: modeling.delete-using
+  q: 哪个表被删行？
+  options:
+  - jobs
+  - voids
+  answer: 0
+  explain: 匹配上的目标行会被删除，辅助表只提供筛选依据，里面的记录不会因此消失。
+- type: read
+  skill: modeling.returning
+  md: |-
+    写入语句末尾的 RETURNING 把实际受影响的行交给下一步。把这条语句放进 WITH，再把返回的列写到回执表里，就能同时看到哪些数据改变了以及改变后的值。删除时返回被移走的旧行。
+
+    例如两个删除申请里只有一个能匹配，回执表应只有一行。将查询回执和读剩余记录放在两个检查里，可以发现漏删和误报两类问题。
+- type: example
+  skill: modeling.returning
+  db: workshop
+  code: |-
+    CREATE TABLE queue (id int);
+    INSERT INTO queue VALUES (1),(2);
+    CREATE TABLE receipt (id int);
+    WITH gone AS (DELETE FROM queue WHERE id=1 RETURNING id)
+    INSERT INTO receipt SELECT id FROM gone;
+    SELECT * FROM receipt;
+  md: 把删除条件改成 id=3，看看回执还会不会出现。
+- type: quiz
+  skill: modeling.returning
+  q: 修改范围为空时会返回几行？
+  options:
+  - '0'
+  - '1'
+  answer: 0
+  explain: 回执来自实际修改的行。把输入清单直接复制到回执会多记没有匹配的请求。

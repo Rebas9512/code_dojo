@@ -3,8 +3,9 @@
 
 检查项：
   - 查询题的参考解结果非空；修改题的参考解必须改变每个数据集的检查结果。要求行序时结果查询必须有 ORDER BY。
-  - problem.yaml 的 wrong_examples（典型错误写法，提议的可选字段）每一条都能运行，
+  - 查询题和修改题的 wrong_examples 每一条都能运行，
     并且至少在一个**隐藏**数据集上和参考解结果不同——保证隐藏数据真能抓住这个错误。
+  - 脚本题逐项比较查询与探针，保证参考脚本全过，每段错误脚本至少在一个数据集上判错。
   - fix 题：starter.sql 在样例数据集（datasets 第一项）上就和参考解不同（学习者点"运行"能看到 bug）。
   - 打印每个数据集上参考解的结果（默认最多 12 行），方便人工核对期望答案。
   - 课（problems/<学习线>/lessons/*/lesson.yaml）里的每个 example：在它写的 db（+ patch）上能运行。
@@ -32,7 +33,7 @@ except ImportError:  # pragma: no cover
 
 HERE = Path(__file__).resolve().parent
 from track_files import Track, active_tracks, lesson_files, stage_dirs
-from app.sql_judge import verify_sql_files
+from app.sql_judge import validation_job
 
 NUMERIC_TYPES = {20, 21, 23, 700, 701, 1700}
 
@@ -58,7 +59,7 @@ def run_jobs(jobs: list[dict]) -> dict[str, dict]:
     if not (HERE / "node_modules" / "@electric-sql" / "pglite").exists():
         raise SystemExit("缺少 PGlite：先在 scripts/curriculum/ 下运行 npm install")
     proc = subprocess.run(
-        ["node", str(HERE / "pglite_runner.mjs")], input=json.dumps(jobs), capture_output=True,
+        ["node", "--experimental-strip-types", str(HERE / "pglite_runner.mjs")], input=json.dumps(jobs), capture_output=True,
         text=True, cwd=HERE, env={"TZ": "UTC", "PATH": __import__("os").environ.get("PATH", "")},
     )
     if proc.returncode != 0:
@@ -281,24 +282,39 @@ def main() -> int:
     args = ap.parse_args()
     tracks = active_tracks("sql")
     problems = load_problems(tracks, args.only)
-    queries = [(d, m) for d, m in problems if m.get("mode") != "dml"]
-    results = run_jobs(build_jobs(queries)) if queries else {}
-    failed = verify(queries, results, args.quiet, args.rows)
-    for d, meta in problems:
-        if meta.get("mode") != "dml":
-            continue
-        try:
-            tables = verify_sql_files(d, meta, [dataset_scripts(d, spec) for spec in meta.get("datasets") or []])
-            if not args.quiet:
-                print(f"✓ {d.name}  （{len(tables)} 个数据集，修改后的表）")
-                for spec, table in zip(meta["datasets"], tables, strict=True):
-                    print(f"    {spec} → {len(table['rows'])} 行")
-                    print(markdown_table(table["columns"], table["rows"], args.rows))
-        except (ValueError, OSError) as exc:
-            failed += 1
-            print(f"✗ {d.name}：{exc}")
+    queries = [(d, m) for d, m in problems if m.get("mode") not in ("dml", "script")]
+    jobs = build_jobs(queries)
+    failed = 0
+    for directory, meta in problems:
+        if meta.get("mode") in ("dml", "script"):
+            try:
+                datasets = [dataset_scripts(directory, spec) for spec in meta["datasets"]]
+                jobs.append({"key": directory.name, "validation": validation_job(directory, meta, datasets)})
+            except (ValueError, OSError) as exc:
+                print(f"✗ {directory.name}：{exc}")
+                failed += 1
+    results = run_jobs(jobs) if jobs else {}
+    failed += verify(queries, results, args.quiet, args.rows)
+    for job in jobs:
+        if "validation" in job:
+            result = results[job["key"]]
+            if "error" in result:
+                print(f"✗ {job['key']}：{result['error']}")
+                failed += 1
+            elif not args.quiet:
+                print(f"✓ {job['key']}  （{len(result['tables'])} 个数据集）")
+                for i, table in enumerate(result["tables"], 1):
+                    print(f"    数据集 {i}")
+                    if "checks" in table:
+                        for check, value in zip(job["validation"]["checks"], table["checks"], strict=True):
+                            print(f"    {check['label']} → {value.get('outcome', '通过')}")
+                            if "rows" in value:
+                                print(markdown_table(value["columns"], value["rows"], args.rows))
+                    else:
+                        print(markdown_table(table["columns"], table["rows"], args.rows))
     print(f"\n{len(problems) - failed}/{len(problems)} 道 SQL 题通过")
-    n_ex, bad_ex = verify_lessons(tracks, args.quiet)
+    lesson_tracks = [t for t in tracks if args.only.startswith(t.skill_prefix + "-")] or tracks
+    n_ex, bad_ex = verify_lessons(lesson_tracks, args.quiet)
     print(f"课的示例：{n_ex - bad_ex}/{n_ex} 个能在 PGlite 上运行")
     return 1 if failed or bad_ex else 0
 

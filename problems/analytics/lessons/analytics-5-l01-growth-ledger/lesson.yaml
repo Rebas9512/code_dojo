@@ -1,0 +1,29 @@
+id: analytics-5-l01-growth-ledger
+title: 月活的新增、留存、回流与流失
+track: analytics
+skills:
+  - analytics.growth-ledger
+steps:
+  - type: read
+    skill: analytics.growth-ledger
+    md: 三月来了四个人，可能只有一人是第一次来。看增长来源要把每个人在本月、上月和更早的登录放在一起。本月与上月都来的记留存；本月来、上月没来，再查他是否在更早出现过，分成回流和新增。上月来而本月没来记流失；两月都没来就不进入账本。把新增和回流人数相加再减流失，应恰好等于月活的净变化，这个等式也能用来检查分类是否重叠。
+  - type: example
+    skill: analytics.growth-ledger
+    db: readerapp
+    code: |-
+      -- ① 一个人在一个月只占一行
+      WITH months AS (SELECT DISTINCT user_id, DATE_TRUNC('month', logged_at)::date AS m FROM logins)
+      -- ② 同时保留首月和最近一个活跃月
+      SELECT user_id, m, MIN(m) OVER (PARTITION BY user_id) AS first_month,
+             LAG(m) OVER (PARTITION BY user_id ORDER BY m) AS prev_month FROM months ORDER BY user_id, m;
+    md: 找一个上次活跃月与本月不相邻的人，追踪他的首月。
+  - type: quiz
+    skill: analytics.growth-ledger
+    q: 一月来过，二月没来，三月再来。三月该记哪类？
+    options:
+      - new
+      - retained
+      - reactivated
+      - lost
+    answer: 2
+    explain: 这位读者有更早的活跃历史，上个月却缺席。

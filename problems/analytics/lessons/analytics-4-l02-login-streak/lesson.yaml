@@ -1,0 +1,28 @@
+id: analytics-4-l02-login-streak
+title: 连续登录段与并列
+track: analytics
+skills:
+  - analytics.login-streak
+steps:
+  - type: read
+    skill: analytics.login-streak
+    md: 会员挑战按连续登录的自然日发奖。周六刷两次卡仍只有一天，周日再刷就连成两天。先把时间戳压到每人每天一行，按日期从小到大排号。连续两天的日期和行号都增加一，两者相减便得到相同的分段键；漏一天时键就会改变。按人和键汇总即可得到段首、段尾和长度。最长两段若同样长，需要先约定是都发奖，还是把奖记到较早的那一段。
+  - type: example
+    skill: analytics.login-streak
+    db: readerapp
+    code: |-
+      -- ① 一人一天只留一行
+      WITH days AS (SELECT DISTINCT user_id, logged_at::date AS day FROM logins)
+      -- ② 日期减去行号，在一段中保持相同
+      SELECT day, day - ROW_NUMBER() OVER (ORDER BY day)::integer AS segment
+      FROM days WHERE user_id=3 ORDER BY day;
+    md: 观察 3 号读者断开前后的分段键各是什么日期。
+  - type: quiz
+    skill: analytics.login-streak
+    q: 周一来两次、周二没来、周三来一次。最长连续几天？
+    options:
+      - '1'
+      - '2'
+      - '3'
+    answer: 0
+    explain: 周二把两段隔开，同日重复不会延长一段。

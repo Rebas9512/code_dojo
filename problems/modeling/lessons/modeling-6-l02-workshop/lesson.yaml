@@ -1,0 +1,28 @@
+id: modeling-6-l02-workshop
+title: 质量稽核
+track: modeling
+skills:
+- modeling.audit
+steps:
+- type: read
+  skill: modeling.audit
+  md: |-
+    质量报告先定义检查对象和分母。查重复就按业务键分组数记录，查孤儿就从引用方出发寻找没有匹配父行的记录。计算缺失率时，分母包括被检查的全部行，空表的比例需要事先约定。
+
+    例如五行读数里一行缺失、一行真的是零，缺失率为五分之一。若分母用只计非空值的 COUNT(列)，就会把缺失的那行从被检查总数中错误地减掉。
+- type: example
+  skill: modeling.audit
+  db: workshop
+  code: |-
+    CREATE TABLE feed (key int, score int);
+    INSERT INTO feed VALUES (1,NULL),(1,0),(2,8);
+    SELECT key,COUNT(*) AS copies FROM feed GROUP BY key HAVING COUNT(*)>1;
+  md: 把一个重复的键改成 3，想一想报告应返回几行。
+- type: quiz
+  skill: modeling.audit
+  q: 统计缺失值时，真实的零应该计入缺失吗？
+  options:
+  - 应该
+  - 不应该
+  answer: 1
+  explain: 零是已知的测量值。只有符合规则的异常才进入分子，边界值要按题面的定义处理。

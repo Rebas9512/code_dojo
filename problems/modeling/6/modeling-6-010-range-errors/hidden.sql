@@ -1,0 +1,1 @@
+INSERT INTO ratings VALUES (6,-2),(7,5),(8,10);

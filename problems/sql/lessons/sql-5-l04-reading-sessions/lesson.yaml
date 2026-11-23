@@ -1,0 +1,43 @@
+id: sql-5-l04-reading-sessions
+title: 一串操作怎样分成几场阅读
+track: sql
+skills: [sql.sessionization]
+steps:
+  - type: read
+    skill: sql.sessionization
+    md: |
+      一位读者在 09:00、09:30、10:01 各翻了一页。书店约定连续两次操作相隔超过 30 分钟才算重新开始。因此前两次属于同一场，第三次是新一场。换读者时从头算，午夜本身也不会拆开一场。
+
+      先按人、时间、流水号排好。用 LAG 读前一次的时刻，给首条和超过间隔的操作标 1，其他标 0。此时三个标记是 1、0、1。在相同的顺序上逐行求和，得到场次编号 1、1、2，最后就能按人和场次计算起止时间。遇到两条同时刻的操作，用流水号打破并列，让两次计算看到相同的顺序。
+  - type: example
+    skill: sql.sessionization
+    db: bookstore
+    patch: |
+      CREATE TABLE page_turns(event int, reader text, at_time timestamp);
+      INSERT INTO page_turns VALUES
+        (1, 'Ari', '2025-03-01 09:00'), (2, 'Ari', '2025-03-01 09:30'),
+        (3, 'Ari', '2025-03-01 10:01'), (4, 'Bo', '2025-03-01 10:02');
+    code: |
+      -- 先取同一人的前一次时间，逐条标出开始
+      WITH neighbors AS (
+          SELECT event, reader, at_time,
+                 LAG(at_time) OVER (PARTITION BY reader ORDER BY at_time, event) AS prev
+          FROM page_turns
+      ), starts AS (
+          SELECT event, reader, at_time,
+                 CASE WHEN prev IS NULL OR at_time - prev > INTERVAL '30 minutes'
+                      THEN 1 ELSE 0 END AS starts_here
+          FROM neighbors
+      )
+      -- 累计到当前操作，得到该读者的场次号
+      SELECT reader, event, starts_here,
+             SUM(starts_here) OVER (PARTITION BY reader ORDER BY at_time, event
+                                    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS session_no
+      FROM starts ORDER BY reader, at_time, event;
+    md: 把超过 30 分钟改为达到 30 分钟，看看 Ari 从哪条记录起换了编号。
+  - type: quiz
+    skill: sql.sessionization
+    q: 同一人的操作间隔依次是 30、31、0 分钟，超过 30 分钟才开新场。四次操作的场次号是什么？
+    options: ['1, 1, 2, 2', '1, 2, 3, 3', '1, 1, 1, 2']
+    answer: 0
+    explain: 首条算第一场，30 分钟仍在本场，31 分钟开启第二场，同时刻的下一条留在第二场。

@@ -1,0 +1,30 @@
+id: sql-5-106-median-proof-deviation
+title: 交期偏差的中位数
+track: sql
+stage: '5'
+order: 32
+format: write
+difficulty: 66
+skills:
+  requires:
+    - sql.median
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 先给每笔已签收订单算带正负号的天数，再按路线取中点。
+wrong_examples:
+  - why: 提前和延迟的方向颠倒
+    sql: |-
+      SELECT route, PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY promised - actual) AS median_days
+      FROM delivery_notes GROUP BY route;
+  - why: 偶数组只取低中点
+    sql: |-
+      SELECT route, PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY actual - promised) AS median_days
+      FROM delivery_notes GROUP BY route;

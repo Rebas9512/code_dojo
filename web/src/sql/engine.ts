@@ -1,5 +1,5 @@
-import type { PGlite, Transaction } from '@electric-sql/pglite'
-import type { SqlTable } from './compare'
+import type { PGlite, Results, Transaction } from '@electric-sql/pglite'
+import type { CheckValue, SqlCheck, SqlTable } from './compare'
 
 const raw = (value: string) => value
 // 与内容校验器一致：让 PostgreSQL 输出日期和 numeric，避免 JS 日期转换损失精度。
@@ -39,7 +39,7 @@ function singleStatement(sql: string) {
 
 export function checkQuery(sql: string) {
   const shape = singleStatement(sql)
-  if (!/^(select|with)\b/i.test(shape))
+  if (!/^(?:\(\s*)*(select|with)\b/i.test(shape))
     throw new Error('只允许一条 SELECT 或 WITH 查询，不能修改数据或控制事务。')
   return shape
 }
@@ -59,11 +59,11 @@ async function prefixedQuery<T>(tx: Transaction, prefix: string, sql: string) {
   }
 }
 
-export async function inDataset<T>(db: PGlite, setup: string[], run: (tx: Transaction) => Promise<T>, mode?: 'dml') {
+export async function inDataset<T>(db: PGlite, setup: string[], run: (tx: Transaction) => Promise<T>, mode?: 'dml' | 'script') {
   return db.transaction(async tx => {
     await tx.exec("SET LOCAL TIME ZONE 'UTC'; SET LOCAL statement_timeout = '2s'")
     for (const script of setup) await tx.exec(script)
-    if (mode !== 'dml') await tx.exec('SET TRANSACTION READ ONLY')
+    if (!mode) await tx.exec('SET TRANSACTION READ ONLY')
     const result = await run(tx)
     await tx.rollback()
     return result
@@ -95,6 +95,10 @@ export async function queryTable(tx: Transaction, sql: string): Promise<SqlTable
   await prefixedQuery(tx, 'DECLARE dojo_result NO SCROLL CURSOR FOR ', sql)
   const result = await tx.query<unknown[]>('FETCH ALL FROM dojo_result', [], { rowMode: 'array', parsers })
   await tx.exec('CLOSE dojo_result')
+  return resultTable(result)
+}
+
+function resultTable(result: Results<unknown[]>): SqlTable {
   return {
     columns: result.fields.map(f => f.name), types: result.fields.map(f => f.dataTypeID),
     rows: result.rows.map(row => row.map(v => {
@@ -103,6 +107,52 @@ export async function queryTable(tx: Transaction, sql: string): Promise<SqlTable
       return v
     })),
   }
+}
+
+// 保留原文交给 PostgreSQL，只识别会接管外层事务的命令。
+export function checkScript(sql: string) {
+  const control = /^(?:begin|commit|end|abort|rollback|savepoint|release|start\s+transaction|prepare\s+transaction)\b/i
+  let bodyDepth = 0
+  for (const part of structuralSql(sql).split(';')) {
+    const start = part.trimStart()
+    if (!bodyDepth && control.test(start))
+      throw new Error('事务由判题器管理，请移除脚本中的事务控制语句。')
+    // SQL 函数的 BEGIN ATOMIC ... END 内部也可用分号，END 在这里是函数体的结尾。
+    if (bodyDepth || /^create\s+(?:or\s+replace\s+)?(?:function|procedure)\b/i.test(start)) {
+      for (const [word] of start.toUpperCase().matchAll(/\bBEGIN\s+ATOMIC\b|\bCASE\b|\bEND\b/g)) {
+        if (word.startsWith('BEGIN') || (bodyDepth && word === 'CASE')) bodyDepth++
+        else if (bodyDepth && word === 'END') bodyDepth--
+      }
+    }
+  }
+}
+
+export async function lessonTable(tx: Transaction, sql: string) {
+  checkScript(sql)
+  const results = await tx.exec(sql, { rowMode: 'array', parsers })
+  const last = results.at(-1)
+  return last ? resultTable(last as Results<unknown[]>) : { columns: [], types: [], rows: [] }
+}
+
+export async function runScript(tx: Transaction, sql: string, checks: SqlCheck[]) {
+  checkScript(sql)
+  await tx.exec(sql)
+  const values: CheckValue[] = []
+  for (const check of checks) {
+    if ('probe' in check) checkScript(check.probe)
+    await tx.exec('SAVEPOINT dojo_check')
+    try {
+      if ('query' in check) values.push(await queryTable(tx, check.query))
+      else {
+        await tx.query(check.probe)
+        values.push({ outcome: 'ok' })
+      }
+    } catch (error) {
+      values.push({ outcome: 'error', error: (error as Error).message })
+    }
+    await tx.exec('ROLLBACK TO dojo_check; RELEASE dojo_check')
+  }
+  return values
 }
 
 export function explainError(error: unknown) {

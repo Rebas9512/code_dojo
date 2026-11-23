@@ -1,0 +1,11 @@
+WITH neighbors AS (
+    SELECT e.*, LAG(happened_at) OVER ( ORDER BY happened_at, event_id) AS prev_at
+    FROM events e
+), starts AS (
+    SELECT neighbors.*, CASE WHEN prev_at IS NULL OR happened_at - prev_at >= INTERVAL '30 minutes'
+                             THEN 1 ELSE 0 END AS is_start FROM neighbors
+), numbered AS (
+    SELECT starts.*, SUM(is_start) OVER (PARTITION BY user_id ORDER BY happened_at, event_id) AS session_no
+    FROM starts
+)
+SELECT user_id, event_id, session_no FROM numbered ORDER BY user_id, happened_at, event_id;

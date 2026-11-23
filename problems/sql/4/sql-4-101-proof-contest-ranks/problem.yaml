@@ -1,0 +1,30 @@
+id: sql-4-101-proof-contest-ranks
+title: 补全：给每架校样排竞赛名次
+track: sql
+stage: '4'
+order: 41
+format: complete
+difficulty: 55
+skills:
+  requires:
+    - sql.rank
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 竞赛名次要给同分者相同名次，同时保留他们占用的位置数。
+wrong_examples:
+  - why: 名次不跳号
+    sql: |-
+      SELECT sheet, DENSE_RANK() OVER (PARTITION BY rack ORDER BY score DESC NULLS LAST) AS place
+      FROM proof_marks;
+  - why: 未知分占据首位
+    sql: |-
+      SELECT sheet, RANK() OVER (PARTITION BY rack ORDER BY score DESC NULLS FIRST) AS place
+      FROM proof_marks;

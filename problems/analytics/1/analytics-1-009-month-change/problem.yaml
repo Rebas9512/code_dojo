@@ -1,0 +1,31 @@
+id: analytics-1-009-month-change
+title: 补全：本月比上月多了多少人
+track: analytics
+stage: '1'
+unit: 3
+order: 90
+format: complete
+difficulty: 36
+skills:
+  requires:
+    - sql.self-join
+    - sql.left-join
+  introduces: analytics.period-change
+source: original
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: true
+hints:
+  - 占比用部分除以整体。增长率用本期与基期之差除以基期，基期为零时没有可定义的增长率。
+wrong_examples:
+  - why: 差额方向颠倒
+    sql: |-
+      SELECT a.month_start, b.readers_n - a.readers_n AS change
+      FROM monthly a LEFT JOIN monthly b ON b.month_start = a.month_start - INTERVAL '1 month'
+      ORDER BY a.month_start;
+  - why: 没有基期就丢掉本期
+    sql: |-
+      SELECT a.month_start, a.readers_n - b.readers_n AS change
+      FROM monthly a JOIN monthly b ON b.month_start = a.month_start - INTERVAL '1 month'
+      ORDER BY a.month_start;

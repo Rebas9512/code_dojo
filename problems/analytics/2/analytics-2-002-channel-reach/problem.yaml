@@ -1,0 +1,34 @@
+id: analytics-2-002-channel-reach
+title: 各渠道的浏览和加购触达
+track: analytics
+stage: '2'
+unit: 1
+order: 20
+format: write
+difficulty: 38
+skills:
+  requires:
+    - sql.left-join
+    - sql.join-aggregate
+    - analytics.step-reach
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 每步各数做过该动作的人。同一人能进入多列，同一列只算一次。
+wrong_examples:
+  - why: 用事件条数代替触达人数
+    sql: |-
+      SELECT channel, COUNT(e.user_id) FILTER (WHERE e.action = 'view') AS view_users,
+             COUNT(e.user_id) FILTER (WHERE e.action = 'cart') AS cart_users
+      FROM readers r LEFT JOIN events e USING (user_id)
+      GROUP BY channel ORDER BY channel;
+  - why: 把另一种动作计入本步骤
+    sql: |-
+      SELECT channel, COUNT(DISTINCT e.user_id) FILTER (WHERE e.action = 'view') AS view_users,
+             COUNT(DISTINCT e.user_id) FILTER (WHERE e.action = 'search') AS cart_users
+      FROM readers r LEFT JOIN events e USING (user_id)
+      GROUP BY channel ORDER BY channel;

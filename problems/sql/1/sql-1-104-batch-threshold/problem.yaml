@@ -1,0 +1,31 @@
+id: sql-1-104-batch-threshold
+title: 修一修：几批纸合起来够七张
+track: sql
+stage: '1'
+order: 52
+format: fix
+difficulty: 22
+skills:
+  requires:
+    - sql.having
+    - sql.sum-avg
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - WHERE 只能看到单独一批，检查总张数要等到分组以后。
+wrong_examples:
+  - why: 先在 WHERE 丢弃单批不足七张的记录
+    sql: |-
+      SELECT rack, SUM(sheets) AS sheets FROM sheet_lots
+      WHERE sheets >= 7 GROUP BY rack;
+  - why: 漏掉恰好七张
+    sql: |-
+      SELECT rack, SUM(sheets) AS sheets FROM sheet_lots
+      GROUP BY rack HAVING SUM(sheets) > 7;

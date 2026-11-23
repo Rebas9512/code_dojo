@@ -1,0 +1,75 @@
+id: modeling-5-003-split-author
+title: 一位作者只建一份档案
+track: modeling
+stage: '5'
+order: 30
+unit: 1
+format: write
+difficulty: 43
+skills:
+  requires:
+  - sql.distinct
+  - sql.self-join
+  introduces: modeling.one-many
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: 表结构 · authors
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.authors') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 主键列 · authors
+  query: |-
+    SELECT k.column_name FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog, constraint_schema, constraint_name, table_name)
+    WHERE c.table_schema = 'public' AND c.table_name = 'authors' AND c.constraint_type = 'PRIMARY KEY'
+    ORDER BY k.ordinal_position
+  ordered: true
+- label: authors 的记录
+  query: SELECT * FROM authors
+  ordered: false
+- label: 表结构 · notes
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.notes') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 主键列 · notes
+  query: |-
+    SELECT k.column_name FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog, constraint_schema, constraint_name, table_name)
+    WHERE c.table_schema = 'public' AND c.table_name = 'notes' AND c.constraint_type = 'PRIMARY KEY'
+    ORDER BY k.ordinal_position
+  ordered: true
+- label: notes 的记录
+  query: SELECT * FROM notes
+  ordered: false
+- label: 引用关系 · notes
+  query: |-
+    SELECT k.column_name, u.table_name, u.column_name FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog,constraint_schema,constraint_name,table_name)
+    JOIN information_schema.constraint_column_usage u USING (constraint_catalog,constraint_schema,constraint_name)
+    WHERE c.table_schema='public' AND c.constraint_type='FOREIGN KEY' AND c.table_name='notes'
+  ordered: false
+wrong_examples:
+- why: 只挑了一篇笔记
+  sql: |-
+    CREATE TABLE authors (id int PRIMARY KEY,name text);
+    CREATE TABLE notes (id int PRIMARY KEY,author_id int REFERENCES authors(id));
+    INSERT INTO authors SELECT DISTINCT author_id,name FROM raw;
+    INSERT INTO notes SELECT MIN(note_id),author_id FROM raw GROUP BY author_id;
+- why: 子表不检查作者引用
+  sql: |-
+    CREATE TABLE authors (id int PRIMARY KEY,name text);
+    CREATE TABLE notes (id int PRIMARY KEY,author_id int);
+    INSERT INTO authors SELECT DISTINCT author_id,name FROM raw;
+    INSERT INTO notes SELECT note_id,author_id FROM raw;

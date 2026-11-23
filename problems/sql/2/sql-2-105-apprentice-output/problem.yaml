@@ -1,0 +1,32 @@
+id: sql-2-105-apprentice-output
+title: 产量超过师傅的学徒
+track: sql
+stage: '2'
+order: 102
+format: write
+difficulty: 31
+skills:
+  requires:
+    - sql.self-join
+  introduces: null
+source: leetcode-db
+leetcode: employees-earning-more-than-their-managers
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 给同一张表起两个别名，一个角色指向另一个角色的 badge。
+wrong_examples:
+  - why: 产量相同也入选
+    sql: |-
+      SELECT a.badge FROM crew_yields a
+      JOIN crew_yields m ON m.badge = a.mentor
+      WHERE a.daily >= m.daily;
+  - why: 比较师徒的方向相反
+    sql: |-
+      SELECT a.badge FROM crew_yields a
+      JOIN crew_yields m ON m.badge = a.mentor
+      WHERE a.daily < m.daily;

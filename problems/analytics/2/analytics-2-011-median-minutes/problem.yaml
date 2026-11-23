@@ -1,0 +1,50 @@
+id: analytics-2-011-median-minutes
+title: 成交者等了多久
+track: analytics
+stage: '2'
+unit: 3
+order: 110
+format: combine
+difficulty: 41
+skills:
+  requires:
+    - sql.self-join
+    - sql.round-cast
+    - sql.left-join
+    - sql.join-conditions
+    - sql.join-aggregate
+    - analytics.ordered-path
+    - analytics.conversion-window
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: false
+hints:
+  - 先锁定首个浏览到首个后续订单的时间差，再检查截止时刻。中位数只在符合窗口的转化者中计算。
+wrong_examples:
+  - why: 输出了小时数
+    sql: |-
+      WITH views AS (
+          SELECT user_id, MIN(happened_at) AS viewed FROM events WHERE action = 'view' GROUP BY user_id
+      ), orders AS (
+          SELECT p.*, MIN(e.happened_at) AS ordered_at FROM views p LEFT JOIN events e
+            ON e.user_id = p.user_id AND e.action = 'order' AND e.happened_at > p.viewed
+          GROUP BY p.user_id, p.viewed
+      )
+      SELECT ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP
+             (ORDER BY EXTRACT(EPOCH FROM ordered_at - viewed) / 3600)::numeric, 2) AS median_minutes
+      FROM orders WHERE ordered_at <= viewed + INTERVAL '24 hours';
+  - why: 把九十分位等待时长作为中位数
+    sql: |-
+      WITH views AS (
+          SELECT user_id, MIN(happened_at) AS viewed FROM events WHERE action = 'view' GROUP BY user_id
+      ), orders AS (
+          SELECT p.*, MIN(e.happened_at) AS ordered_at FROM views p LEFT JOIN events e
+            ON e.user_id = p.user_id AND e.action = 'order' AND e.happened_at > p.viewed
+          GROUP BY p.user_id, p.viewed
+      )
+      SELECT ROUND(PERCENTILE_CONT(0.9) WITHIN GROUP
+             (ORDER BY EXTRACT(EPOCH FROM ordered_at - viewed) / 60)::numeric, 2) AS median_minutes
+      FROM orders WHERE ordered_at <= viewed + INTERVAL '24 hours';

@@ -1,0 +1,41 @@
+id: modeling-1-010-future-default
+title: 只改变今后装箱的默认数
+track: modeling
+stage: '1'
+order: 100
+unit: 2
+format: fix
+difficulty: 18
+skills:
+  requires:
+  - modeling.alter
+  - modeling.required
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: packs 的记录
+  query: SELECT * FROM packs
+  ordered: false
+- label: 下一条新记录也会取得默认值
+  probe: |-
+    DO $$
+    DECLARE v packs.qty%TYPE;
+    BEGIN
+        INSERT INTO packs(code) VALUES ('probe') RETURNING qty INTO v;
+        IF v IS DISTINCT FROM 6 THEN RAISE EXCEPTION 'unexpected default: %', v; END IF;
+    END $$
+  expect: ok
+wrong_examples:
+- why: 改动了已有箱子
+  sql: |-
+    UPDATE packs SET qty=6;
+    ALTER TABLE packs ALTER COLUMN qty SET DEFAULT 6;
+    INSERT INTO packs(code) VALUES ('blue');
+- why: 给新箱填了错误默认值
+  sql: |-
+    ALTER TABLE packs ALTER COLUMN qty SET DEFAULT 1;
+    INSERT INTO packs(code) VALUES ('blue');

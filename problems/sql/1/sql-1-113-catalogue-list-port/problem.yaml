@@ -1,0 +1,31 @@
+id: sql-1-113-catalogue-list-port
+title: 修一修：移植展签清单的拼接
+track: sql
+stage: '1'
+order: 145
+format: fix
+difficulty: 30
+skills:
+  requires:
+    - sql.select-expr
+    - sql.string-agg
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 写出分隔符后，检查去重和排序是否都在聚合函数的括号里。
+wrong_examples:
+  - why: 翻译时漏掉组内去重
+    sql: |-
+      SELECT bin, STRING_AGG(label, '/' ORDER BY label) AS labels
+      FROM bin_labels GROUP BY bin;
+  - why: 组内排序反了
+    sql: |-
+      SELECT bin, STRING_AGG(DISTINCT label, '/' ORDER BY label DESC) AS labels
+      FROM bin_labels GROUP BY bin;

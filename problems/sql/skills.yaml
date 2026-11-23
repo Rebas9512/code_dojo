@@ -547,14 +547,14 @@ skills:
       若结果要求两份名单依次出现，先加来源序号，最外层 ORDER BY 来源。
 
   - id: sql.dml
-    name: DELETE / UPDATE 语句
+    name: DELETE、UPDATE 与 INSERT … SELECT
     stage: "3"
     prereqs: [sql.exists, sql.and-or]
     card: |
       DELETE 按条件删除整行，UPDATE 按条件修改指定列。以另一行作为证据时，PostgreSQL 可以写 USING。
       `DELETE FROM imports p USING imports q WHERE q.email=p.email AND q.id<p.id;`
-      `FORMAT($sql$DELETE FROM imports WHERE id = %s;$sql$, id)` 将整数编号填进命令，生成可逐行核对的清理单。
-      先用相同匹配条件 SELECT 出待改主键；执行后查剩余表。漏掉限定条件会扩大写入范围。题库以查询核对去留。
+      `INSERT INTO archive (id, email) SELECT id, email FROM imports WHERE id < 10;` 把选中的行追加到目标表。
+      先用相同条件查出待改的行，执行后再查看完整目标表。判断依据包括改动的行和原本应保留的行。
 
   # ===================== 阶段 4：窗口函数 =====================
   - id: sql.window-agg
@@ -692,3 +692,12 @@ skills:
       WITH RECURSIVE 分两部分：锚点给出第一层，递归项读取上一层去找下一层，用 UNION ALL 接起来。
       推荐树从没有推荐人的根出发，根深度为 0。若 child.referrer_id=parent.user_id，则 child.depth=parent.depth+1。
       递归项没有新行时结束。题里保证无环；若数据可能成环，要设计访问记录或明确的停止条件。
+
+  - id: sql.sessionization
+    name: 按空闲间隔切分会话
+    stage: "5"
+    prereqs: [sql.lag-lead, sql.running-total, sql.window-frame, sql.cte, sql.case]
+    card: |
+      先按人和时间排列事件，用 LAG 读到上一次操作的时刻。第一次操作或间隔超过题目阈值时开新会话。
+      给起点标 1，其他事件标 0。按同样的顺序累计标记，得到从 1 起的会话编号。
+      同时刻的事件按唯一流水号定先后。恰好达到阈值是否另开会话，要按题意判断。

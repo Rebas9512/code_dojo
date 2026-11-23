@@ -1,0 +1,33 @@
+id: modeling-4-009-tie-break-event
+title: 同一版本再比较事件号
+track: modeling
+stage: '4'
+order: 90
+unit: 2
+format: write
+difficulty: 41
+skills:
+  requires:
+  - modeling.latest
+  - sql.distinct
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: catalog 的记录
+  query: SELECT * FROM catalog
+  ordered: false
+wrong_examples:
+- why: 同版本取最早事件
+  sql: |-
+    INSERT INTO catalog
+    SELECT DISTINCT ON (id) id,rev,tag FROM feed ORDER BY id,rev DESC,event_id ASC
+    ON CONFLICT(id) DO UPDATE SET rev=excluded.rev,tag=excluded.tag;
+- why: 让事件号优先于版本
+  sql: |-
+    INSERT INTO catalog
+    SELECT DISTINCT ON (id) id,rev,tag FROM feed ORDER BY id,event_id DESC,rev DESC
+    ON CONFLICT(id) DO UPDATE SET rev=excluded.rev,tag=excluded.tag;

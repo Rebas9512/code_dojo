@@ -109,3 +109,24 @@ steps:
       - 先数所有票，最后只检查平均分
     answer: 0
     explain: 星数属于单条记录，票数属于一组记录。先保留五星行，再看组里还剩几行。
+  - type: read
+    skill: sql.group-by
+    md: |
+      报表常常先分组，再按组取一页。读 MySQL 原稿时先圈出列名和字符串：反引号里的 rack 是列名，搬到 PostgreSQL 可以直接写 rack，或用双引号写 "rack"。单引号里的 'rack' 却是文字，每组都会打印同一个词。
+
+      排页时也要看两个数各管什么。MySQL 的 LIMIT 2, 1 跳过两行、取一行；PostgreSQL 写 LIMIT 1 OFFSET 2。先排出稳定的顺序，再从头划掉两行，能直接看出应该留下谁。
+  - type: example
+    skill: sql.group-by
+    db: bookstore
+    code: |
+      -- 先按分类数书，同量时按分类名定先后
+      SELECT "category", COUNT(*) AS titles FROM books
+      GROUP BY category ORDER BY titles DESC, category
+      LIMIT 1 OFFSET 2;
+    md: 去掉最后一行看整张榜，再把结果的第三行和原查询对照。
+  - type: quiz
+    skill: sql.group-by
+    q: 已排好的四个柜台依次为 A、B、C、D。跳过两个、取一个会得到谁？
+    options: [B, C, D]
+    answer: 1
+    explain: OFFSET 2 消耗 A 和 B，LIMIT 1 只留下接下来的 C。

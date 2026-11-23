@@ -1,0 +1,37 @@
+id: modeling-7-003-parcel-day
+title: 履约面试三：比较包裹数和订单数
+track: modeling
+stage: '7'
+order: 30
+unit: 1
+format: write
+difficulty: 59
+skills:
+  requires:
+  - modeling.grain
+  - modeling.view
+  - sql.count-distinct
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: 对象是普通视图
+  query: SELECT table_type FROM information_schema.tables WHERE table_schema='public' AND table_name='day_kpi'
+  ordered: false
+- label: day_kpi 的记录
+  query: SELECT shipped_on,parcels_n,orders_n FROM day_kpi
+  ordered: false
+wrong_examples:
+- why: 对包裹数也按订单去重
+  sql: |-
+    CREATE VIEW day_kpi AS
+    SELECT shipped_on,COUNT(DISTINCT order_id) AS parcels_n,COUNT(DISTINCT order_id) AS orders_n
+    FROM parcels GROUP BY shipped_on;
+- why: 把每日件数当成包裹数
+  sql: |-
+    CREATE VIEW day_kpi AS
+    SELECT shipped_on,SUM(units) AS parcels_n,COUNT(DISTINCT order_id) AS orders_n
+    FROM parcels GROUP BY shipped_on;

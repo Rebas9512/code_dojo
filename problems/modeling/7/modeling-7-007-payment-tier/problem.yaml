@@ -1,0 +1,38 @@
+id: modeling-7-007-payment-tier
+title: 会员面试二：给交易找当时的等级
+track: modeling
+stage: '7'
+order: 70
+unit: 2
+format: write
+difficulty: 63
+skills:
+  requires:
+  - modeling.asof
+  - sql.join-conditions
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: 对象是普通视图
+  query: SELECT table_type FROM information_schema.tables WHERE table_schema='public' AND table_name='assigned'
+  ordered: false
+- label: assigned 的记录
+  query: SELECT id,tier,amount FROM assigned
+  ordered: false
+wrong_examples:
+- why: 旧版本的最后一天被重复计入
+  sql: |-
+    CREATE VIEW assigned AS
+    SELECT p.id,t.tier,p.amount
+    FROM payments p JOIN tiers t ON p.member_id=t.member_id
+     AND p.day>=t.since AND (t.until_day IS NULL OR p.day<=t.until_day);
+- why: 把所有交易归给当前等级
+  sql: |-
+    CREATE VIEW assigned AS
+    SELECT p.id,t.tier,p.amount
+    FROM payments p JOIN tiers t ON p.member_id=t.member_id
+     AND t.is_current;

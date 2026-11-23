@@ -1,0 +1,27 @@
+id: analytics-5-l04-subscription-mrr
+title: 订阅月费与 MRR 变动
+track: analytics
+skills:
+  - analytics.subscription-mrr
+steps:
+  - type: read
+    skill: analytics.subscription-mrr
+    md: 月费十二元的会员从一月续到二月，店里又收了十二元，但可持续的月收入规模依旧是十二元。把订阅动作分成开通、同价续费和取消，再把每条月费放进对应栏。新增月费与流失月费的差才是存量变化；续费额单列用来对账。月末存量从历史变化累计而来。本练习没有升级降级，取消即时生效，因此按月把取消的正数价目从存量中扣一次即可。
+  - type: example
+    skill: analytics.subscription-mrr
+    db: readerapp
+    code: |-
+      -- ① 每种订阅动作单列
+      -- ② 对比账单种类和对应月费
+      SELECT kind, COUNT(*) AS entries, SUM(price) AS monthly_fees
+      FROM memberships GROUP BY kind ORDER BY kind;
+    md: 筛选 renew 后，区分“收了多少月费”和“增加了多少 MRR”。
+  - type: quiz
+    skill: analytics.subscription-mrr
+    q: 起初 MRR 为 24，一笔同价续费 12，一位取消 12。期末 MRR？
+    options:
+      - '12'
+      - '24'
+      - '36'
+    answer: 0
+    explain: 续费维持存量，取消使存量减少 12。

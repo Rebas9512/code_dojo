@@ -1,0 +1,42 @@
+id: modeling-1-002-invoice-types
+title: 让金额精确到分
+track: modeling
+stage: '1'
+order: 20
+unit: 1
+format: complete
+difficulty: 10
+skills:
+  requires: []
+  introduces: modeling.types
+source: original
+mode: script
+datasets:
+- db:workshop
+checks:
+- label: 表结构 · quotes
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.quotes') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: quotes 的记录
+  query: SELECT * FROM quotes
+  ordered: false
+wrong_examples:
+- why: 金额用近似浮点数
+  sql: |-
+    CREATE TABLE quotes (
+        code text,
+        copies integer,
+        fee double precision
+    );
+- why: 报价号被转成整数
+  sql: |-
+    CREATE TABLE quotes (
+        code integer,
+        copies integer,
+        fee numeric(10,2)
+    );

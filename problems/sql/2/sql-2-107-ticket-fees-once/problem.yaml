@@ -1,0 +1,36 @@
+id: sql-2-107-ticket-fees-once
+title: 修一修：一张工单只收一次费
+track: sql
+stage: '2'
+order: 85
+format: fix
+difficulty: 32
+skills:
+  requires:
+    - sql.coalesce
+    - sql.join-aggregate
+    - sql.left-join
+    - sql.sum-avg
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 先确认费用是每张工单一笔。加入零件表后，一张工单可能出现在几行？
+wrong_examples:
+  - why: 连接零件后，同一工单费被重复累加
+    sql: |-
+      SELECT p.press, COALESCE(SUM(f.fee), 0) AS fees
+      FROM presses p LEFT JOIN job_fees f ON f.press = p.press
+      LEFT JOIN job_parts j ON j.job = f.job
+      GROUP BY p.press;
+  - why: 不同工单同价就被去重
+    sql: |-
+      SELECT p.press, COALESCE(SUM(DISTINCT f.fee), 0) AS fees
+      FROM presses p LEFT JOIN job_fees f ON f.press = p.press
+      GROUP BY p.press;

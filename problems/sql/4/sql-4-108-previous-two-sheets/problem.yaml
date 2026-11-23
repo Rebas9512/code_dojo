@@ -1,0 +1,35 @@
+id: sql-4-108-previous-two-sheets
+title: 修一修：只看本单之前的两张
+track: sql
+stage: '4'
+order: 146
+format: fix
+difficulty: 60
+skills:
+  requires:
+    - sql.between
+    - sql.window-frame
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 写下窗口的两个边界：最远是前两张，最近是前一张。
+wrong_examples:
+  - why: 把本单也放进窗口
+    sql: |-
+      SELECT slip, SUM(reading) OVER (
+          PARTITION BY press ORDER BY day NULLS LAST, slip
+          ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+      ) AS prior_total FROM press_readings;
+  - why: 窗口看到全部历史
+    sql: |-
+      SELECT slip, SUM(reading) OVER (
+          PARTITION BY press ORDER BY day NULLS LAST, slip
+          ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
+      ) AS prior_total FROM press_readings;

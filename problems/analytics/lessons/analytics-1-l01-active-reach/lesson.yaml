@@ -1,0 +1,26 @@
+id: analytics-1-l01-active-reach
+title: 活跃人数与粘性
+track: analytics
+skills:
+  - analytics.active-reach
+steps:
+  - type: read
+    skill: analytics.active-reach
+    md: 书店想知道新书上架触达了多少读者。有人反复打开同一本书，每次登录都写一行；负责人关心的是来过几个人。先圈定一段日历，再对窗口内的读者编号去重。周报从周一开始，月报从每月一日开始。如果把每天的人数加起来，多天来过的人会被算好几次。粘性把一天来的人数除以较长窗口来过的人数，两个窗口和分母都要在报告上写清。
+  - type: example
+    skill: analytics.active-reach
+    db: readerapp
+    code: |-
+      -- ① 只看一位读者，比较登录条数与活跃天数
+      SELECT user_id, COUNT(*) AS visits, COUNT(DISTINCT logged_at::date) AS days
+      FROM logins WHERE user_id = 4 GROUP BY user_id;
+    md: 改为查看 5 号读者，两列各是多少？
+  - type: quiz
+    skill: analytics.active-reach
+    q: 一人周一来两次，周二又来一次。这周贡献多少周活？
+    options:
+      - '1'
+      - '2'
+      - '3'
+    answer: 0
+    explain: 整周只出现一个用户编号。

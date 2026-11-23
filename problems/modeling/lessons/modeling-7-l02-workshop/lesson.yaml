@@ -1,0 +1,28 @@
+id: modeling-7-l02-workshop
+title: 会员交易仓库
+track: modeling
+skills:
+- modeling.asof
+steps:
+- type: read
+  skill: modeling.asof
+  md: |-
+    会员升档后的交易归新等级，升档前的交易仍归旧等级。把交易与会员版本按业务键及有效期同时关联。最后按等级汇总时，可以用总笔数和总金额与事实表核对，发现区间重叠或遗漏。
+
+    例如交易恰在升级日发生，旧区间结束日与新区间开始日相同。如果把两端都写成包含，这一笔交易会同时计入两个等级，分组金额加总就会超过原始总额。
+- type: example
+  skill: modeling.asof
+  db: workshop
+  code: |-
+    CREATE TABLE rates (tier text, since date, until_day date);
+    INSERT INTO rates VALUES ('base','2025-01-01','2025-03-01'),('plus','2025-03-01',NULL);
+    SELECT tier FROM rates WHERE since <= DATE '2025-02-14' AND (until_day IS NULL OR DATE '2025-02-14' < until_day);
+  md: 把交易日改到新等级生效当天，检查匹配的行数。
+- type: quiz
+  skill: modeling.asof
+  q: 半开区间在交界日应当匹配几条版本记录？
+  options:
+  - '1'
+  - '2'
+  answer: 0
+  explain: 历史属性取决于交易发生时的版本。始终取当前行会悄悄改变过往指标。

@@ -1,0 +1,29 @@
+id: analytics-2-l02-ordered-path
+title: 按时间推进漏斗
+track: analytics
+skills:
+  - analytics.ordered-path
+steps:
+  - type: read
+    skill: analytics.ordered-path
+    md: 读者先从历史订单买了一本书，下午才点开新的推荐页。产品经理问“浏览之后下单”，早上的订单不能接在下午的浏览之后。先取每人的首个入口时刻，在同一人的事件里找严格晚于它的最早下一步。如果还要付款，就以刚找到的订单时刻继续查。保留尚未走到下步的人，才能在最后同时报告入口人数和完成人数；两步恰好同秒时，按本线约定不能确认先后。
+  - type: example
+    skill: analytics.ordered-path
+    db: readerapp
+    code: |-
+      -- ① 每人先定首个浏览
+      WITH v AS (SELECT user_id, MIN(happened_at) AS t FROM events WHERE action = 'view' GROUP BY user_id)
+      -- ② 从浏览后寻找第一次下单
+      SELECT v.user_id, v.t, MIN(e.happened_at) AS ordered_at FROM v LEFT JOIN events e
+        ON e.user_id = v.user_id AND e.action = 'order' AND e.happened_at > v.t
+      GROUP BY v.user_id, v.t ORDER BY v.user_id;
+    md: 把下一步改成 cart，比较哪些读者更早走到了下一步。
+  - type: quiz
+    skill: analytics.ordered-path
+    q: 顺序是 cart、view、order。严格的 view → cart → order 走到哪步？
+    options:
+      - view
+      - cart
+      - order
+    answer: 0
+    explain: 浏览后没有加购，后面的订单接不上。

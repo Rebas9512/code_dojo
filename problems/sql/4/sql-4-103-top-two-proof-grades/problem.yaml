@@ -1,0 +1,36 @@
+id: sql-4-103-top-two-proof-grades
+title: 补全：保留每架最高的两个分数档
+track: sql
+stage: '4'
+order: 185
+format: complete
+difficulty: 62
+skills:
+  requires:
+    - sql.top-n-per-group
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 要数不同分数的档数。分档和筛选需要分两层做。
+wrong_examples:
+  - why: 只挑最高档
+    sql: |-
+      WITH ranked AS (
+          SELECT sheet, rack, DENSE_RANK() OVER (PARTITION BY rack ORDER BY score DESC) AS tier
+          FROM proof_marks WHERE score IS NOT NULL
+      )
+      SELECT rack, sheet FROM ranked WHERE tier = 1;
+  - why: 按竞赛名次截断
+    sql: |-
+      WITH ranked AS (
+          SELECT sheet, rack, RANK() OVER (PARTITION BY rack ORDER BY score DESC) AS tier
+          FROM proof_marks WHERE score IS NOT NULL
+      )
+      SELECT rack, sheet FROM ranked WHERE tier <= 2;

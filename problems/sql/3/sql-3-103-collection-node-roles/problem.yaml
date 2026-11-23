@@ -1,0 +1,38 @@
+id: sql-3-103-collection-node-roles
+title: 辨认藏品目录里的节点
+track: sql
+stage: '3'
+order: 114
+format: write
+difficulty: 46
+skills:
+  requires:
+    - sql.case
+    - sql.correlated-subquery
+    - sql.exists
+  introduces: null
+source: leetcode-db
+leetcode: tree-node
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 先认根。对其余节点，检查有没有一条记录把当前节点写作自己的父节点。
+wrong_examples:
+  - why: 查节点的父亲而非孩子
+    sql: |-
+      SELECT p.node,
+             CASE WHEN p.parent IS NULL THEN 'root'
+                  WHEN EXISTS (SELECT 1 FROM collection_nodes c WHERE c.node = p.parent) THEN 'branch'
+                  ELSE 'leaf' END AS role
+      FROM collection_nodes p;
+  - why: 把有任一孩子当作当前节点有孩子
+    sql: |-
+      SELECT p.node,
+             CASE WHEN p.parent IS NULL THEN 'root'
+                  WHEN EXISTS (SELECT 1 FROM collection_nodes c WHERE c.parent IS NOT NULL) THEN 'branch'
+                  ELSE 'leaf' END AS role
+      FROM collection_nodes p;

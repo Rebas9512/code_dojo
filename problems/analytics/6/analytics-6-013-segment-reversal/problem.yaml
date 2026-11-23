@@ -1,0 +1,32 @@
+id: analytics-6-013-segment-reversal
+title: 分层都赢，总体是谁赢
+track: analytics
+stage: '6'
+unit: 3
+order: 130
+format: inspect
+difficulty: 62
+skills:
+  requires:
+    - analytics.experiment-effect
+  introduces: null
+source: original
+mode: inspect
+data:
+  - kind: table
+    title: 分层都赢，总体是谁赢
+    file: evidence.csv
+answer:
+  type: short
+  accept:
+    - A
+  misconceptions:
+    B:
+      id: AN63E1
+      name: 把分层胜出当成总体胜出
+      line: 两组的设备人数占比不同。
+    tie:
+      id: AN63E2
+      name: 把每个设备赋予相同权重
+      line: 每组应先加人数与购买者，再相除。
+explain: B 在 web 为 90% 对 80%，在 ios 为 20% 对 10%；整体 A 为 73/100，B 为 27/100。两组流量组成不同。

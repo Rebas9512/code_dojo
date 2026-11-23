@@ -1,0 +1,45 @@
+id: analytics-7-008-renewal-standardized
+title: 续费提醒③ · 固定第一周的套餐权重
+track: analytics
+stage: '7'
+unit: 2
+order: 80
+format: combine
+difficulty: 65
+skills:
+  requires:
+    - sql.round-cast
+    - sql.join-aggregate
+    - analytics.period-change
+    - analytics.renewal-mix
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 整体续费率是各套餐续费率按到期人数加权的平均。固定套餐权重，可以比较构成不变时的变化。
+wrong_examples:
+  - why: 偷偷换回本周构成
+    sql: |-
+      WITH weekly AS (
+          SELECT DATE_TRUNC('week', due_on)::date AS week_start, plan,
+                 COUNT(*) AS due_n, COUNT(*) FILTER (WHERE renewed_on BETWEEN due_on AND due_on+6) AS renewed_n
+          FROM renewal_offers GROUP BY week_start, plan
+      ), baseline AS (
+          SELECT plan, due_n AS weight FROM weekly WHERE week_start=DATE '2025-02-17'
+      )
+      SELECT week_start, ROUND(SUM(w.renewed_n::numeric/w.due_n*w.due_n)/SUM(b.weight), 4) AS fixed_rate
+      FROM weekly w JOIN baseline b USING (plan) GROUP BY week_start ORDER BY week_start;
+  - why: 给两种套餐相同权重
+    sql: |-
+      WITH weekly AS (
+          SELECT DATE_TRUNC('week', due_on)::date AS week_start, plan,
+                 COUNT(*) AS due_n, COUNT(*) FILTER (WHERE renewed_on BETWEEN due_on AND due_on+6) AS renewed_n
+          FROM renewal_offers GROUP BY week_start, plan
+      ), baseline AS (
+          SELECT plan, due_n AS weight FROM weekly WHERE week_start=DATE '2025-02-17'
+      )
+      SELECT week_start, ROUND(AVG(w.renewed_n::numeric/w.due_n), 4) AS fixed_rate
+      FROM weekly w JOIN baseline b USING (plan) GROUP BY week_start ORDER BY week_start;

@@ -1,0 +1,28 @@
+id: analytics-3-l02-cohort-matrix
+title: 注册周与批次矩阵
+track: analytics
+skills:
+  - analytics.cohort-matrix
+steps:
+  - type: read
+    skill: analytics.cohort-matrix
+    md: 编辑想比较不同时期来的读者，便把同一个自然周注册的人排成一行。第一列是注册当周，第二列是紧接着的自然周。周日注册的人周一回来，这已经是下一列，即使只隔一天。先分别把注册日期和登录日期移到所在周的周一，再用两者之差认列。一个人在同一周来很多次只填一个格；同一批次的各列都除以该批次总人数。要比较完整两周，先检查最后一列的周日是否已经过去。
+  - type: example
+    skill: analytics.cohort-matrix
+    db: readerapp
+    code: |-
+      -- ① 找注册周，再看登录周
+      -- ② 周一之间的天数差除以七得到列号
+      SELECT r.user_id, r.joined_on, l.logged_at::date AS visit_day,
+             (DATE_TRUNC('week', l.logged_at)::date - DATE_TRUNC('week', r.joined_on)::date)/7 AS week_no
+      FROM readers r JOIN logins l USING (user_id) WHERE r.user_id=3 ORDER BY l.logged_at;
+    md: 把过滤编号改为 4，找出同一列里重复出现的日期。
+  - type: quiz
+    skill: analytics.cohort-matrix
+    q: 周日注册，紧接着周一登录。按自然周列号应为？
+    options:
+      - '0'
+      - '1'
+      - '7'
+    answer: 1
+    explain: 两个日期属于相邻的两个周一批次。

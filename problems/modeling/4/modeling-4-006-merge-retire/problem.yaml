@@ -1,0 +1,35 @@
+id: modeling-4-006-merge-retire
+title: 停货消息只删除已有货号
+track: modeling
+stage: '4'
+order: 60
+unit: 2
+format: write
+difficulty: 38
+skills:
+  requires:
+  - modeling.merge
+  - sql.join-conditions
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: stock 的记录
+  query: SELECT * FROM stock
+  ordered: false
+wrong_examples:
+- why: 把未知停货消息也插入
+  sql: |-
+    MERGE INTO stock t USING batch s ON t.sku=s.sku
+    WHEN MATCHED AND s.qty=0 THEN DELETE
+    WHEN MATCHED THEN UPDATE SET qty=s.qty
+    WHEN NOT MATCHED THEN INSERT VALUES (s.sku,s.qty);
+- why: 匹配到零只更新不删除
+  sql: |-
+    MERGE INTO stock t USING batch s ON t.sku=s.sku
+
+    WHEN MATCHED THEN UPDATE SET qty=s.qty
+    WHEN NOT MATCHED AND s.qty>0 THEN INSERT VALUES (s.sku,s.qty);

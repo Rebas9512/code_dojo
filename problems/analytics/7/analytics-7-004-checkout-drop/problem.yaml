@@ -1,0 +1,32 @@
+id: analytics-7-004-checkout-drop
+title: 结账改版④ · 先排查哪一步
+track: analytics
+stage: '7'
+unit: 1
+order: 40
+format: inspect
+difficulty: 64
+skills:
+  requires:
+    - analytics.checkout-diagnosis
+  introduces: null
+source: original
+mode: inspect
+data:
+  - kind: table
+    title: 结账改版④ · 先排查哪一步
+    file: evidence.csv
+answer:
+  type: short
+  accept:
+    - cart_order
+  misconceptions:
+    view_cart:
+      id: AN71E1
+      name: 选择了持平的步骤
+      line: 两周进入到加购的比例均为 0.8。
+    visits:
+      id: AN71E2
+      name: 把访问总量当步骤
+      line: 需要比较两列相邻转化。
+explain: 加购率持平，加购后的下单率从 75% 降至 50%，应先排查后一步。

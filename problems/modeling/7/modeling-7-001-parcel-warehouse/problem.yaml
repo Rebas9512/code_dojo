@@ -1,0 +1,75 @@
+id: modeling-7-001-parcel-warehouse
+title: 履约面试一：装入包裹流水
+track: modeling
+stage: '7'
+order: 10
+unit: 1
+format: write
+difficulty: 57
+skills:
+  requires:
+  - sql.distinct
+  - sql.self-join
+  introduces: modeling.grain
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: 表结构 · depots
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.depots') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 主键列 · depots
+  query: |-
+    SELECT k.column_name FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog, constraint_schema, constraint_name, table_name)
+    WHERE c.table_schema = 'public' AND c.table_name = 'depots' AND c.constraint_type = 'PRIMARY KEY'
+    ORDER BY k.ordinal_position
+  ordered: true
+- label: depots 的记录
+  query: SELECT * FROM depots
+  ordered: false
+- label: 表结构 · parcels
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.parcels') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 主键列 · parcels
+  query: |-
+    SELECT k.column_name FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog, constraint_schema, constraint_name, table_name)
+    WHERE c.table_schema = 'public' AND c.table_name = 'parcels' AND c.constraint_type = 'PRIMARY KEY'
+    ORDER BY k.ordinal_position
+  ordered: true
+- label: parcels 的记录
+  query: SELECT * FROM parcels
+  ordered: false
+- label: 引用关系 · parcels
+  query: |-
+    SELECT k.column_name, u.table_name, u.column_name FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog,constraint_schema,constraint_name,table_name)
+    JOIN information_schema.constraint_column_usage u USING (constraint_catalog,constraint_schema,constraint_name)
+    WHERE c.table_schema='public' AND c.constraint_type='FOREIGN KEY' AND c.table_name='parcels'
+  ordered: false
+wrong_examples:
+- why: 一笔订单只留一个包裹
+  sql: |-
+    CREATE TABLE depots (id int PRIMARY KEY,city text);
+    CREATE TABLE parcels (id int PRIMARY KEY,order_id int,depot_id int REFERENCES depots(id),shipped_on date,units int);
+    INSERT INTO depots SELECT DISTINCT depot_id,city FROM dispatch;
+    INSERT INTO parcels SELECT DISTINCT ON(order_id) parcel_id,order_id,depot_id,shipped_on,units FROM dispatch ORDER BY order_id,parcel_id;
+- why: 忘了数据库层的引用关系
+  sql: |-
+    CREATE TABLE depots (id int PRIMARY KEY,city text);
+    CREATE TABLE parcels (id int PRIMARY KEY,order_id int,depot_id int,shipped_on date,units int);
+    INSERT INTO depots SELECT DISTINCT depot_id,city FROM dispatch;
+    INSERT INTO parcels SELECT parcel_id,order_id,depot_id,shipped_on,units FROM dispatch;

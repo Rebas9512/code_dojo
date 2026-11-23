@@ -1,0 +1,32 @@
+id: modeling-4-001-first-registration
+title: 重放注册消息只登记一次
+track: modeling
+stage: '4'
+order: 10
+unit: 1
+format: complete
+difficulty: 33
+skills:
+  requires: []
+  introduces: modeling.ignore
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: members 的记录
+  query: SELECT * FROM members
+  ordered: false
+- label: inbox 的记录
+  query: SELECT * FROM inbox
+  ordered: false
+wrong_examples:
+- why: 覆盖了首登标签
+  sql: |-
+    INSERT INTO members SELECT id,tag FROM inbox
+    ON CONFLICT(id) DO UPDATE SET tag=excluded.tag;
+- why: 只处理老编号
+  sql: |-
+    INSERT INTO members SELECT id,tag FROM inbox WHERE id=1
+    ON CONFLICT(id) DO NOTHING;

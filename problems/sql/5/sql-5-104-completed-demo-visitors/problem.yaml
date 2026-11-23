@@ -1,0 +1,54 @@
+id: sql-5-104-completed-demo-visitors
+title: 修一修：修正付款提前的试用名单
+track: sql
+stage: '5'
+order: 25
+format: fix
+difficulty: 66
+skills:
+  requires:
+    - sql.distinct
+    - sql.funnel
+    - sql.join-aggregate
+    - sql.join-conditions
+    - sql.multi-join
+    - sql.self-join
+    - sql.sum-avg
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 逐步检查每位访客的预订时间是否晚于试用、付款时间是否晚于有效预订。
+wrong_examples:
+  - why: 只要付过就算，忽略付款先后
+    sql: |-
+      WITH sampled AS (
+          SELECT visitor, MIN(tick) AS started FROM demo_steps WHERE action = 'sample' GROUP BY visitor
+      ), reserved AS (
+          SELECT s.visitor, MIN(e.tick) AS booked FROM sampled s
+          JOIN demo_steps e ON e.visitor = s.visitor AND e.tick > s.started
+          WHERE e.action = 'reserve' GROUP BY s.visitor
+      ), paid AS (
+          SELECT DISTINCT r.visitor FROM reserved r
+          JOIN demo_steps e ON e.visitor = r.visitor WHERE e.action = 'pay'
+      )
+      SELECT visitor FROM paid;
+  - why: 一次付款生成一行，重复计人
+    sql: |-
+      WITH sampled AS (
+          SELECT visitor, MIN(tick) AS started FROM demo_steps WHERE action = 'sample' GROUP BY visitor
+      ), reserved AS (
+          SELECT s.visitor, MIN(e.tick) AS booked FROM sampled s
+          JOIN demo_steps e ON e.visitor = s.visitor AND e.tick > s.started
+          WHERE e.action = 'reserve' GROUP BY s.visitor
+      ), paid AS (
+          SELECT r.visitor FROM reserved r
+          JOIN demo_steps e ON e.visitor = r.visitor AND e.tick > r.booked WHERE e.action = 'pay'
+      )
+      SELECT visitor FROM paid;

@@ -1,0 +1,30 @@
+id: analytics-2-004-search-overlap
+title: 搜索和浏览分别触达多少人
+track: analytics
+stage: '2'
+unit: 1
+order: 40
+format: variant
+difficulty: 39
+skills:
+  requires:
+    - analytics.step-reach
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: false
+hints:
+  - 每步各数做过该动作的人。同一人能进入多列，同一列只算一次。
+wrong_examples:
+  - why: 用事件条数代替触达人数
+    sql: |-
+      SELECT COUNT(e.user_id) FILTER (WHERE e.action = 'search') AS search_users,
+             COUNT(e.user_id) FILTER (WHERE e.action = 'view') AS view_users
+      FROM events e;
+  - why: 把另一种动作计入本步骤
+    sql: |-
+      SELECT COUNT(DISTINCT e.user_id) FILTER (WHERE e.action = 'search') AS search_users,
+             COUNT(DISTINCT e.user_id) FILTER (WHERE e.action = 'search') AS view_users
+      FROM events e;

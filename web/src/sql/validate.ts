@@ -1,11 +1,12 @@
-import { checkQuery, explainError, inDataset, queryTable, runStatement, structuralSql } from './engine.ts'
-import { compareTables } from './compare.ts'
+import { checkQuery, checkScript, explainError, inDataset, queryTable, runScript, runStatement, structuralSql } from './engine.ts'
+import { compareCheck, compareTables, type SqlCheck } from './compare.ts'
 
 import type { PGlite } from '@electric-sql/pglite'
 import type { SqlExercise } from './engine.ts'
 
 export interface Validation extends Omit<SqlExercise, 'mode'> {
-  mode?: 'dml' | 'query'
+  mode?: 'dml' | 'query' | 'script'
+  checks?: SqlCheck[]
   datasets: string[][]
   solution?: string
   ordered?: boolean
@@ -17,19 +18,23 @@ export interface Validation extends Omit<SqlExercise, 'mode'> {
 
 export async function validate(db: PGlite, job: Validation) {
   const { datasets, solution = '', ordered = false, wrong = [], starter, preview, requiredTables, check_query } = job
-  const mode = job.mode === 'dml' ? 'dml' : undefined
-  const exercise: SqlExercise = { mode, check_query }
+  const mode = job.mode === 'query' ? undefined : job.mode
+  const exercise: SqlExercise = { mode: mode === 'dml' ? mode : undefined, check_query }
   let context = ''
   try {
     const tables: unknown[] = [], detected = new Set<number>()
     if (mode === 'dml' && !check_query?.trim()) throw new Error('修改类题需要 check_query')
     if (mode !== 'dml' && check_query != null) throw new Error('check_query 只用于修改类题')
+    if (mode === 'script' && !job.checks?.length) throw new Error('脚本题需要非空的 checks')
+    if (mode !== 'script' && job.checks?.length) throw new Error('checks 只用于脚本题')
     const readSql = mode === 'dml' ? check_query : solution
-    if (ordered && !/\border\s+by\b/i.test(checkQuery(readSql!)))
+    if (mode !== 'script' && ordered && !/\border\s+by\b/i.test(checkQuery(readSql!)))
       throw new Error(`ordered 题的${mode === 'dml' ? '检查查询' : '参考解'}缺少 ORDER BY`)
     for (const [i, setup] of datasets.entries()) {
       context = `数据集 ${i + 1}，建表`
-      if (requiredTables) {
+      if (requiredTables && mode === 'script') setup.forEach(checkScript)
+      if (requiredTables && mode !== 'script') {
+        if (!requiredTables.length) throw new Error('数据集需要表名')
         const statements = setup.flatMap(script => structuralSql(script).split(';')).map(s => s.trim()).filter(Boolean)
         if (statements.some(s => !/^(create\s+table|insert\s+into)\b/i.test(s)))
           throw new Error('附加题的数据脚本只能用 CREATE TABLE 和 INSERT INTO')
@@ -54,6 +59,18 @@ export async function validate(db: PGlite, job: Validation) {
           return samples
         }
         context = `数据集 ${i + 1}，参考解`
+        if (mode === 'script') {
+          const checks = job.checks!
+          const expected = await runScript(tx, solution, checks)
+          for (const [j, check] of checks.entries()) {
+            const value = expected[j]
+            if ('query' in check && check.ordered && !/\border\s+by\b/i.test(checkQuery(check.query)))
+              throw new Error(check.label + '：有序检查需要 ORDER BY')
+            if ('outcome' in value && ('query' in check || value.outcome !== check.expect))
+              throw new Error(check.label + '：参考解未通过检查 · ' + (value.error ?? value.outcome))
+          }
+          return { checks: expected }
+        }
         const before = mode === 'dml' ? await queryTable(tx, check_query!) : null
         const { actual: expected } = await runStatement(tx, solution, exercise)
         if (before && !compareTables(before, expected, ordered)) throw new Error('参考解执行前后 check_query 的结果相同')
@@ -61,6 +78,26 @@ export async function validate(db: PGlite, job: Validation) {
         return expected
       }, mode)
       if (Array.isArray(table)) {
+        tables.push(table)
+        continue
+      }
+      if ('checks' in table) {
+        const checks = job.checks!
+        const fails = async (sql: string) => {
+          let actual
+          try {
+            actual = await inDataset(db, setup, tx => runScript(tx, sql, checks), 'script')
+          } catch {
+            // 脚本本身执行失败时，同样不能通过这个数据集。
+            return true
+          }
+          return checks.some((check, j) => compareCheck(check, actual[j], table.checks[j]))
+        }
+        for (const [j, sql] of wrong.entries()) {
+          if (!detected.has(j) && await fails(sql)) detected.add(j)
+        }
+        if (i === 0 && starter !== undefined && !await fails(starter))
+          throw new Error('改错题初始代码在样例上与参考解相同')
         tables.push(table)
         continue
       }
@@ -80,7 +117,7 @@ export async function validate(db: PGlite, job: Validation) {
     }
     context = ''
     for (const j of wrong.keys()) {
-      if (!detected.has(j)) throw new Error(`隐藏数据集没有抓住第 ${j + 1} 段错误写法`)
+      if (!detected.has(j)) throw new Error(`${mode === 'script' ? '' : '隐藏'}数据集没有抓住第 ${j + 1} 段错误写法`)
     }
     return { tables }
   } catch (error) {

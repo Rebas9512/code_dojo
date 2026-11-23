@@ -1,0 +1,36 @@
+id: analytics-6-004-arm-headcount
+title: 每组实际有多少实验读者
+track: analytics
+stage: '6'
+unit: 1
+order: 40
+format: variant
+difficulty: 59
+skills:
+  requires:
+    - sql.sum-avg
+    - sql.cte
+    - analytics.clean-assignment
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 先锁定实验，再按用户核对组别。同组重复只算一人，同时出现在两个组的人从两边都剔除。
+wrong_examples:
+  - why: 把同组重报者也误删
+    sql: |-
+      WITH clean AS (
+          SELECT user_id, MIN(arm) AS arm, MIN(assigned_at) AS entered FROM assignments
+          WHERE experiment='cover' GROUP BY user_id HAVING COUNT(*)=1
+      )
+      SELECT arm, COUNT(*) AS readers_n FROM clean GROUP BY arm ORDER BY arm;
+  - why: 混入别的实验
+    sql: |-
+      WITH clean AS (
+          SELECT user_id, MIN(arm) AS arm, MIN(assigned_at) AS entered FROM assignments
+          GROUP BY user_id HAVING COUNT(DISTINCT arm)=1
+      )
+      SELECT arm, COUNT(*) AS readers_n FROM clean GROUP BY arm ORDER BY arm;

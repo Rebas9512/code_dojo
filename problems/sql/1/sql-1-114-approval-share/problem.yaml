@@ -1,0 +1,31 @@
+id: sql-1-114-approval-share
+title: 修一修：保留通过率的小数
+track: sql
+stage: '1'
+order: 152
+format: fix
+difficulty: 31
+skills:
+  requires:
+    - sql.conditional-agg
+    - sql.round-cast
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 让分子先进入小数运算，除法完成后再舍入。
+wrong_examples:
+  - why: 先整除后舍入
+    sql: |-
+      SELECT desk, ROUND(COUNT(*) FILTER (WHERE pass = 1) / COUNT(*), 2) AS share
+      FROM proof_votes GROUP BY desk;
+  - why: 分母只算通过的票
+    sql: |-
+      SELECT desk, ROUND(1.0 * COUNT(*) FILTER (WHERE pass = 1) / NULLIF(SUM(pass), 0), 2) AS share
+      FROM proof_votes GROUP BY desk;

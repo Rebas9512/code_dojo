@@ -1,0 +1,25 @@
+id: modeling-6-010-range-errors
+title: 找出超出评分刻度的读数
+track: modeling
+stage: '6'
+order: 100
+unit: 2
+format: write
+difficulty: 58
+skills:
+  requires:
+  - modeling.audit
+  - sql.and-or
+  - sql.select-basic
+  - sql.where
+  introduces: null
+source: original
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+ordered: false
+wrong_examples:
+- why: 把上界也判错
+  sql: SELECT id,score FROM ratings WHERE score<1 OR score>=5;
+- why: 漏掉过低读数
+  sql: SELECT id,score FROM ratings WHERE score>5;

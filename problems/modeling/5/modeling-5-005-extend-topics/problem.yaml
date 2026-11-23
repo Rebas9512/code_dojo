@@ -1,0 +1,30 @@
+id: modeling-5-005-extend-topics
+title: 为已有书目追加关联
+track: modeling
+stage: '5'
+order: 50
+unit: 1
+format: write
+difficulty: 45
+skills:
+  requires:
+  - modeling.bridge
+  - modeling.ignore
+  - sql.distinct
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: links 的记录
+  query: SELECT * FROM links
+  ordered: false
+wrong_examples:
+- why: 每本书只保留一个主题
+  sql: INSERT INTO links SELECT book_id,MIN(topic_id) FROM raw GROUP BY book_id ON CONFLICT(book_id,topic_id) DO NOTHING;
+- why: 清空了扫描中没出现的旧关联
+  sql: |-
+    DELETE FROM links;
+    INSERT INTO links SELECT DISTINCT book_id,topic_id FROM raw ON CONFLICT(book_id,topic_id) DO NOTHING;

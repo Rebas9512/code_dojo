@@ -1,0 +1,1 @@
+INSERT INTO links VALUES (9,2);

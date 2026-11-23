@@ -1,0 +1,30 @@
+id: sql-5-107-median-includes-repeats
+title: 修一修：重复的时长也占一个位置
+track: sql
+stage: '5'
+order: 34
+format: fix
+difficulty: 66
+skills:
+  requires:
+    - sql.median
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 每一行代表一次观测。先按值去重会不会改变中间位置？
+wrong_examples:
+  - why: 先把相同时长去重了
+    sql: |-
+      SELECT press, PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY minutes) AS median_minutes
+      FROM (SELECT DISTINCT press, minutes FROM bind_times) AS observations GROUP BY press;
+  - why: 把未知时长按零计入
+    sql: |-
+      SELECT press, PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY COALESCE(minutes, 0)) AS median_minutes
+      FROM bind_times GROUP BY press;

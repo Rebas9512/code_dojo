@@ -1,0 +1,46 @@
+id: analytics-3-008-week-start
+title: 改错：修好周日注册的归属
+track: analytics
+stage: '3'
+unit: 2
+order: 80
+format: fix
+difficulty: 45
+skills:
+  requires:
+    - sql.round-cast
+    - sql.join-aggregate
+    - analytics.cohort-matrix
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 用注册周的周一标记批次，用周一之间的差划分观察周。同一个读者在一格中只出现一次。
+wrong_examples:
+  - why: 批次边界误放到周日
+    sql: |-
+      WITH cohorts AS (
+          SELECT user_id, DATE_TRUNC('week', joined_on + 1)::date - 1 AS cohort FROM readers
+      ), marks AS (
+          SELECT c.cohort, c.user_id,
+                 (DATE_TRUNC('week', l.logged_at)::date - c.cohort) / 7 AS wk
+          FROM cohorts c LEFT JOIN logins l USING (user_id)
+          WHERE c.cohort + 20 <= DATE '2025-03-14'
+      )
+      SELECT cohort, COUNT(DISTINCT user_id) FILTER (WHERE wk=1) AS w1
+      FROM marks GROUP BY cohort ORDER BY cohort;
+  - why: 读了注册当周这一列
+    sql: |-
+      WITH cohorts AS (
+          SELECT user_id, DATE_TRUNC('week', joined_on)::date AS cohort FROM readers
+      ), marks AS (
+          SELECT c.cohort, c.user_id,
+                 (DATE_TRUNC('week', l.logged_at)::date - c.cohort) / 7 AS wk
+          FROM cohorts c LEFT JOIN logins l USING (user_id)
+          WHERE c.cohort + 20 <= DATE '2025-03-14'
+      )
+      SELECT cohort, COUNT(DISTINCT user_id) FILTER (WHERE wk=0) AS w1
+      FROM marks GROUP BY cohort ORDER BY cohort;

@@ -1,0 +1,31 @@
+id: modeling-4-005-merge-stock
+title: 一批盘点分两条写入路径
+track: modeling
+stage: '4'
+order: 50
+unit: 2
+format: write
+difficulty: 37
+skills:
+  requires: []
+  introduces: modeling.merge
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: stock 的记录
+  query: SELECT * FROM stock
+  ordered: false
+wrong_examples:
+- why: 漏掉新增商品的分支
+  sql: |-
+    MERGE INTO stock t USING batch s ON t.sku=s.sku
+    WHEN MATCHED THEN UPDATE SET qty=s.qty
+    ;
+- why: 误将快照作为增量
+  sql: |-
+    MERGE INTO stock t USING batch s ON t.sku=s.sku
+    WHEN MATCHED THEN UPDATE SET qty=t.qty+s.qty
+    WHEN NOT MATCHED THEN INSERT VALUES (s.sku,s.qty);

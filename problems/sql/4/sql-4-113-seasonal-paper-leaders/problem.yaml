@@ -1,0 +1,54 @@
+id: sql-4-113-seasonal-paper-leaders
+title: 每季最受欢迎的纸种
+track: sql
+stage: '4'
+order: 75
+format: combine
+difficulty: 56
+skills:
+  requires:
+    - sql.case
+    - sql.in-list
+    - sql.top-n-per-group
+  introduces: null
+source: leetcode-db
+leetcode: seasonal-sales-analysis
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: true
+hints:
+  - 每季先合计每种纸的包数和收入，再按三个优先条件选出一名。
+wrong_examples:
+  - why: 同包数时忽略收入
+    sql: |-
+      WITH seasons AS (
+          SELECT CASE WHEN month IN (12, 1, 2) THEN 'winter' WHEN month <= 5 THEN 'spring'
+                      WHEN month <= 8 THEN 'summer' ELSE 'fall' END AS season, paper, packs, price
+          FROM paper_sales
+      ), totals AS (
+          SELECT season, paper, SUM(packs) AS packs, SUM(packs * price) AS revenue
+          FROM seasons GROUP BY season, paper
+      ), ranked AS (
+          SELECT season, paper, packs, revenue,
+                 ROW_NUMBER() OVER (PARTITION BY season ORDER BY packs DESC, paper) AS pos
+          FROM totals
+      )
+      SELECT season, paper, packs, revenue FROM ranked WHERE pos = 1 ORDER BY season;
+  - why: 同收入时按名字倒排
+    sql: |-
+      WITH seasons AS (
+          SELECT CASE WHEN month IN (12, 1, 2) THEN 'winter' WHEN month <= 5 THEN 'spring'
+                      WHEN month <= 8 THEN 'summer' ELSE 'fall' END AS season, paper, packs, price
+          FROM paper_sales
+      ), totals AS (
+          SELECT season, paper, SUM(packs) AS packs, SUM(packs * price) AS revenue
+          FROM seasons GROUP BY season, paper
+      ), ranked AS (
+          SELECT season, paper, packs, revenue,
+                 ROW_NUMBER() OVER (PARTITION BY season ORDER BY packs DESC, revenue DESC NULLS LAST, paper DESC) AS pos
+          FROM totals
+      )
+      SELECT season, paper, packs, revenue FROM ranked WHERE pos = 1 ORDER BY season;

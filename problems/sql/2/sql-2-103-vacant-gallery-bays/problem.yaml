@@ -1,0 +1,32 @@
+id: sql-2-103-vacant-gallery-bays
+title: 补全：找出没有展品的展厅
+track: sql
+stage: '2'
+order: 62
+format: complete
+difficulty: 28
+skills:
+  requires:
+    - sql.anti-join
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 未配对时，右侧所有列都为空。选一列在真实记录中一定有值的字段。
+wrong_examples:
+  - why: 把无备注当作无作品
+    sql: |-
+      SELECT g.hall FROM galleries g
+      LEFT JOIN exhibits e ON e.hall = g.hall
+      WHERE e.memo IS NULL;
+  - why: 只留有作品的厅
+    sql: |-
+      SELECT g.hall FROM galleries g
+      LEFT JOIN exhibits e ON e.hall = g.hall
+      WHERE e.work IS NOT NULL;

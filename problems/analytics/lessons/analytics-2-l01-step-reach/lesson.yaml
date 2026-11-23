@@ -1,0 +1,27 @@
+id: analytics-2-l01-step-reach
+title: 每一步触达的人数
+track: analytics
+skills:
+  - analytics.step-reach
+steps:
+  - type: read
+    skill: analytics.step-reach
+    md: 活动编辑想知道多少人看过图书详情、用过购物车或下过单。这是三个独立的触达问题，读者可以出现在多列。比如甲浏览两次、加购一次，乙只下过单，三列人数各为一人。把日志按动作筛开，再在每个筛选结果里数不同编号。拆渠道时也用同一方法，只是把注册渠道先接回读者。只靠这类人数无法判断甲是否先浏览再下单，需要顺序时要回到时间戳。
+  - type: example
+    skill: analytics.step-reach
+    db: readerapp
+    code: |-
+      -- ① 把不同的动作分开
+      -- ② 在动作内查看事件数和人数
+      SELECT action, COUNT(*) AS records, COUNT(DISTINCT user_id) AS readers
+      FROM events GROUP BY action ORDER BY action;
+    md: 只保留 view，比较同一指标按条数和人数得到的值。
+  - type: quiz
+    skill: analytics.step-reach
+    q: 甲看三次，乙看一次再下单。浏览触达人数是多少？
+    options:
+      - '1'
+      - '2'
+      - '4'
+    answer: 1
+    explain: 浏览记录去重后有甲、乙两人。

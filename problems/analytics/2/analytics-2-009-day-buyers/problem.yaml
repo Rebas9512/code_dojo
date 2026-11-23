@@ -1,0 +1,43 @@
+id: analytics-2-009-day-buyers
+title: 补全：24 小时内成交的人数
+track: analytics
+stage: '2'
+unit: 3
+order: 90
+format: complete
+difficulty: 41
+skills:
+  requires:
+    - sql.self-join
+    - sql.left-join
+    - sql.join-conditions
+    - sql.join-aggregate
+  introduces: analytics.conversion-window
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: false
+hints:
+  - 先锁定首个浏览到首个后续订单的时间差，再检查截止时刻。中位数只在符合窗口的转化者中计算。
+wrong_examples:
+  - why: 错把窗口缩成一小时
+    sql: |-
+      WITH views AS (
+          SELECT user_id, MIN(happened_at) AS viewed FROM events WHERE action = 'view' GROUP BY user_id
+      ), orders AS (
+          SELECT p.*, MIN(e.happened_at) AS ordered_at FROM views p LEFT JOIN events e
+            ON e.user_id = p.user_id AND e.action = 'order' AND e.happened_at > p.viewed
+          GROUP BY p.user_id, p.viewed
+      )
+      SELECT COUNT(*) AS buyers FROM orders WHERE ordered_at <= viewed + INTERVAL '1 hour';
+  - why: 漏掉截止时刻
+    sql: |-
+      WITH views AS (
+          SELECT user_id, MIN(happened_at) AS viewed FROM events WHERE action = 'view' GROUP BY user_id
+      ), orders AS (
+          SELECT p.*, MIN(e.happened_at) AS ordered_at FROM views p LEFT JOIN events e
+            ON e.user_id = p.user_id AND e.action = 'order' AND e.happened_at > p.viewed
+          GROUP BY p.user_id, p.viewed
+      )
+      SELECT COUNT(*) AS buyers FROM orders WHERE ordered_at < viewed + INTERVAL '24 hours';

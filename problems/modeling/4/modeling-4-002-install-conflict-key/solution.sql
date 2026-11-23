@@ -1,0 +1,2 @@
+ALTER TABLE codes ADD UNIQUE (code);
+INSERT INTO codes SELECT code FROM incoming ON CONFLICT(code) DO NOTHING;

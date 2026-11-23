@@ -1,0 +1,74 @@
+id: modeling-2-l01-workshop
+title: 列与组合规则
+track: modeling
+skills:
+- modeling.unique
+- modeling.check
+- modeling.composite
+steps:
+- type: read
+  skill: modeling.unique
+  md: |-
+    主键用来定位行，邮箱还可以作为第二个唯一标识。给邮箱加 UNIQUE，数据库会在第二行试图使用同一邮箱时拒绝整条写入。可以用一条应成功和一条应失败的试写来验证。
+
+    例如保留首个邮箱后，再尝试写同邮箱的第二个编号，数据库应报重复。另试一个新邮箱则应该成功。两次试写分别证实规则能拦错，也能放行正常数据。
+- type: example
+  skill: modeling.unique
+  db: workshop
+  code: |-
+    CREATE TABLE contacts (id integer PRIMARY KEY, handle text UNIQUE);
+    INSERT INTO contacts VALUES (1,'ivy');
+    SELECT * FROM contacts;
+  md: 加一条编号不同、handle 相同的插入，读一下报错中的约束名称。
+- type: quiz
+  skill: modeling.unique
+  q: 新编号和旧邮箱的组合会怎样？
+  options:
+  - 被接受
+  - 被拒绝
+  answer: 1
+  explain: 数据库分别检查每个唯一约束。主键没有重复也不能抵消邮箱重复。
+- type: read
+  skill: modeling.check
+  md: |-
+    CHECK 的括号里写一条对本行的判断。插入和更新都要经过它。库存允许零时用大于等于零，不能只测试正常的正数。条件结果为未知时可以通过，所以要求必填还需 NOT NULL。
+
+    先选边界本身，再选刚低于和刚高于边界的两个值进行验证。若条件比较两列日期，就用同一天、一早一晚与顺序颠倒三组日期检查业务含义。
+- type: example
+  skill: modeling.check
+  db: workshop
+  code: |-
+    CREATE TABLE parcels (mass int NOT NULL CHECK (mass > 0));
+    INSERT INTO parcels VALUES (1);
+    SELECT mass FROM parcels;
+  md: 将重量换成 0，再将它换成 NULL，观察两次错误来自哪条规则。
+- type: quiz
+  skill: modeling.check
+  q: 非负整数的最小合法值是多少？
+  options:
+  - '0'
+  - '1'
+  answer: 0
+  explain: 零是已知的库存数量。拒绝负数与拒绝缺失是两条不同的规则。
+- type: read
+  skill: modeling.composite
+  md: |-
+    一个货架能放多种书，同一本书也能分布到多个货架。给每列单独加唯一约束都会拒绝合法库存。把两列放进同一对 PRIMARY KEY 括号，就以有序的一组值标识一行。
+
+    可以用小表格画出 (1,1)、(1,2)、(2,1)。三对座标分别占据三个格子；再次出现第一对时才想要冲突。单看其中一列会误删合法位置。
+- type: example
+  skill: modeling.composite
+  db: workshop
+  code: |-
+    CREATE TABLE layout (rack int, slot int, PRIMARY KEY (rack,slot));
+    INSERT INTO layout VALUES (1,1),(1,2),(2,1);
+    SELECT * FROM layout;
+  md: 尝试补上 (1,1)，与换一个货架的结果比较。
+- type: quiz
+  skill: modeling.composite
+  q: 货架 1 的两个不同槽位能否同时存在？
+  options:
+  - 可以
+  - 不可以
+  answer: 0
+  explain: 只有整组值在两行完全相同时才发生主键冲突。同一个货架号可以出现在多行。

@@ -1,0 +1,39 @@
+id: modeling-3-010-record-real-changes
+title: 只为价格真的变化记回执
+track: modeling
+stage: '3'
+order: 100
+unit: 2
+format: write
+difficulty: 34
+skills:
+  requires:
+  - modeling.returning
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: audit 的记录
+  query: SELECT * FROM audit
+  ordered: false
+- label: prices 的记录
+  query: SELECT * FROM prices
+  ordered: false
+wrong_examples:
+- why: 相同价格也生成回执
+  sql: |-
+    WITH changed AS (
+        UPDATE prices p SET fee=r.fee FROM revisions r
+        WHERE p.sku=r.sku RETURNING p.sku,p.fee
+    )
+    INSERT INTO audit SELECT sku,fee FROM changed;
+- why: 回执误写入价差
+  sql: |-
+    WITH changed AS (
+        UPDATE prices p SET fee=r.fee FROM revisions r
+        WHERE p.sku=r.sku AND p.fee<>r.fee RETURNING p.sku,p.fee
+    )
+    INSERT INTO audit SELECT sku,0 FROM changed;

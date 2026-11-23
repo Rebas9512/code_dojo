@@ -1,0 +1,40 @@
+id: analytics-7-001-checkout-counts
+title: 补全：结账改版① · 交出两周的步骤访问数
+track: analytics
+stage: '7'
+unit: 1
+order: 10
+format: complete
+difficulty: 63
+skills:
+  requires:
+    - sql.round-cast
+  introduces: analytics.checkout-diagnosis
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 同一批访问先数到达各步的次数，再用相邻两步作为分子、分母。比较两周的步骤变化，随后按设备验证。
+wrong_examples:
+  - why: 乱序加购也进入漏斗
+    sql: |-
+      WITH weekly AS (
+          SELECT DATE_TRUNC('week', viewed_at)::date AS week_start,
+                 COUNT(*) AS visits,
+                 COUNT(*) FILTER (WHERE carted_at IS NOT NULL) AS carts,
+                 COUNT(*) FILTER (WHERE carted_at IS NOT NULL AND ordered_at>carted_at) AS orders
+          FROM checkout_visits GROUP BY week_start
+      )
+      SELECT week_start, visits, carts, orders FROM weekly ORDER BY week_start;
+  - why: 未核对下单在加购后面
+    sql: |-
+      WITH weekly AS (
+          SELECT DATE_TRUNC('week', viewed_at)::date AS week_start,
+                 COUNT(*) AS visits,
+                 COUNT(*) FILTER (WHERE carted_at>viewed_at) AS carts,
+                 COUNT(*) FILTER (WHERE carted_at>viewed_at AND ordered_at IS NOT NULL) AS orders
+          FROM checkout_visits GROUP BY week_start
+      )
+      SELECT week_start, visits, carts, orders FROM weekly ORDER BY week_start;

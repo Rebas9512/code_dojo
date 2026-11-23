@@ -1,0 +1,38 @@
+id: sql-2-110-paired-print-kits
+title: 被同一批工坊采用的工具对
+track: sql
+stage: '2'
+order: 155
+format: combine
+difficulty: 35
+skills:
+  requires:
+    - sql.count-distinct
+    - sql.having
+    - sql.join-aggregate
+    - sql.join-conditions
+    - sql.self-join
+  introduces: null
+source: leetcode-db
+leetcode: find-product-recommendation-pairs
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: true
+hints:
+  - 同一工坊的工具互相配对，用一个固定的大小方向消除镜像，再数不同工坊。
+wrong_examples:
+  - why: 把重复领用也计数
+    sql: |-
+      SELECT a.kit AS first_kit, b.kit AS second_kit, COUNT(*) AS shops
+      FROM kit_uses a JOIN kit_uses b ON a.shop = b.shop AND a.kit < b.kit
+      GROUP BY a.kit, b.kit HAVING COUNT(*) >= 3
+      ORDER BY shops DESC, first_kit, second_kit;
+  - why: 将工具和自己配对
+    sql: |-
+      SELECT a.kit AS first_kit, b.kit AS second_kit, COUNT(DISTINCT a.shop) AS shops
+      FROM kit_uses a JOIN kit_uses b ON a.shop = b.shop AND a.kit <= b.kit
+      GROUP BY a.kit, b.kit HAVING COUNT(DISTINCT a.shop) >= 3
+      ORDER BY shops DESC, first_kit, second_kit;

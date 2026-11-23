@@ -1,0 +1,25 @@
+id: modeling-3-001-print-labels
+title: 一次登记三组标签
+track: modeling
+stage: '3'
+order: 10
+unit: 1
+format: write
+difficulty: 25
+skills:
+  requires: []
+  introduces: modeling.values
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: labels 的记录
+  query: SELECT * FROM labels
+  ordered: false
+wrong_examples:
+- why: 漏掉最后一组
+  sql: INSERT INTO labels(code,copies) VALUES ('A',2),('B',4);
+- why: 调换标签份数
+  sql: INSERT INTO labels(code,copies) VALUES ('A',4),('B',2),('C',1);

@@ -1,0 +1,50 @@
+id: modeling-2-004-window-bounds
+title: 让借阅截止日不早于起始日
+track: modeling
+stage: '2'
+order: 40
+unit: 1
+format: write
+difficulty: 20
+skills:
+  requires:
+  - modeling.check
+  - modeling.types
+  introduces: null
+source: original
+mode: script
+datasets:
+- db:workshop
+checks:
+- label: 表结构 · loans
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.loans') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 允许当天借还
+  probe: INSERT INTO loans VALUES ('2025-03-04','2025-03-04')
+  expect: ok
+- label: 截止早于开始被拒绝
+  probe: INSERT INTO loans VALUES ('2025-03-04','2025-03-03')
+  expect: error
+- label: 允许跨日
+  probe: INSERT INTO loans VALUES ('2025-03-04','2025-03-05')
+  expect: ok
+wrong_examples:
+- why: 排除了同日归还
+  sql: |-
+    CREATE TABLE loans (
+        start_on date NOT NULL,
+        due_on date NOT NULL,
+        CHECK (due_on > start_on)
+    );
+- why: 比较了同一列
+  sql: |-
+    CREATE TABLE loans (
+        start_on date NOT NULL,
+        due_on date NOT NULL,
+        CHECK (due_on >= due_on)
+    );

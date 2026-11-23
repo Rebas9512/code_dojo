@@ -1,0 +1,29 @@
+id: analytics-1-003-monthly-readers
+title: 每月来了多少位读者
+track: analytics
+stage: '1'
+unit: 1
+order: 30
+format: variant
+difficulty: 34
+skills:
+  requires:
+    - sql.round-cast
+    - analytics.active-reach
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 一个窗口内数不同的登录者。一天刷三次仍算一个人。粘性的两个窗口要有明确的起止日期。
+wrong_examples:
+  - why: 把登录次数当人数
+    sql: |-
+      SELECT DATE_TRUNC('month', logged_at)::date AS period, COUNT(*) AS active
+      FROM logins GROUP BY period ORDER BY period;
+  - why: 用错时间粒度
+    sql: |-
+      SELECT DATE_TRUNC('week', logged_at)::date AS period, COUNT(DISTINCT user_id) AS active
+      FROM logins GROUP BY period ORDER BY period;

@@ -1,0 +1,32 @@
+id: analytics-7-005-checkout-device
+title: 结账改版⑤ · 先在哪台设备复现
+track: analytics
+stage: '7'
+unit: 1
+order: 50
+format: inspect
+difficulty: 64
+skills:
+  requires:
+    - analytics.checkout-diagnosis
+  introduces: null
+source: original
+mode: inspect
+data:
+  - kind: table
+    title: 结账改版⑤ · 先在哪台设备复现
+    file: evidence.csv
+answer:
+  type: short
+  accept:
+    - ios
+  misconceptions:
+    web:
+      id: AN71E1
+      name: 只看了最后一周的高值
+      line: web 的转化率两周相同。
+    both:
+      id: AN71E2
+      name: 没有区分两种设备
+      line: 只有一种设备在第二周下降。
+explain: ios 从 6/8 降到 2/8，web 保持 6/8。这确定了复现顺序，原因还需要查日志。

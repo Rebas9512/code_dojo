@@ -1,0 +1,29 @@
+id: modeling-5-007-close-version
+title: 先关闭将被替换的维度行
+track: modeling
+stage: '5'
+order: 70
+unit: 2
+format: complete
+difficulty: 47
+skills:
+  requires: []
+  introduces: modeling.history
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: levels 的记录
+  query: SELECT * FROM levels
+  ordered: false
+wrong_examples:
+- why: 改写了已经结束的历史
+  sql: |-
+    UPDATE levels t SET until_day=c.day,current_flag=false FROM changes c
+    WHERE t.id=c.id;
+- why: 只改结束日却仍标为当前
+  sql: |-
+    UPDATE levels t SET until_day=c.day FROM changes c
+    WHERE t.id=c.id AND t.current_flag;

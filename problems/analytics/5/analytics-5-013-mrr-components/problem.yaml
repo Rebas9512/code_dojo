@@ -1,0 +1,41 @@
+id: analytics-5-013-mrr-components
+title: 补全：把月费放进三栏
+track: analytics
+stage: '5'
+unit: 4
+order: 130
+format: complete
+difficulty: 57
+skills:
+  requires:
+    - sql.round-cast
+    - sql.cte
+  introduces: analytics.subscription-mrr
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - MRR 是生效订阅对应的月费存量。开通增加、取消减少、同价续费维持。续费账单可以单列，但不增加存量。
+wrong_examples:
+  - why: 把续费列为新增
+    sql: |-
+      WITH monthly AS (
+          SELECT DATE_TRUNC('month', occurred_on)::date AS month_start,
+                 SUM(CASE WHEN kind='renew' THEN price ELSE 0 END) AS added,
+                 SUM(CASE WHEN kind='renew' THEN price ELSE 0 END) AS renewed,
+                 SUM(CASE WHEN kind='cancel' THEN price ELSE 0 END) AS lost
+          FROM memberships GROUP BY month_start
+      )
+      SELECT month_start, ROUND(added, 2) AS added, ROUND(renewed, 2) AS renewed, ROUND(lost, 2) AS lost FROM monthly ORDER BY month_start;
+  - why: 把续费金额放进流失栏
+    sql: |-
+      WITH monthly AS (
+          SELECT DATE_TRUNC('month', occurred_on)::date AS month_start,
+                 SUM(CASE WHEN kind='start' THEN price ELSE 0 END) AS added,
+                 SUM(CASE WHEN kind='renew' THEN price ELSE 0 END) AS renewed,
+                 SUM(CASE WHEN kind='renew' THEN price ELSE 0 END) AS lost
+          FROM memberships GROUP BY month_start
+      )
+      SELECT month_start, ROUND(added, 2) AS added, ROUND(renewed, 2) AS renewed, ROUND(lost, 2) AS lost FROM monthly ORDER BY month_start;

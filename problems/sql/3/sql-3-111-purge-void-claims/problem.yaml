@@ -1,0 +1,33 @@
+id: sql-3-111-purge-void-claims
+title: 修一修：按作废清单删除领用单
+track: sql
+stage: '3'
+order: 214
+format: fix
+difficulty: 52
+skills:
+  requires:
+    - sql.dml
+    - sql.exists
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+mode: dml
+check_query: SELECT claim, sheets FROM paper_claims ORDER BY claim
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: true
+hints:
+  - 子查询要能指出哪一张作废单与正在检查的这张领用单对应。
+wrong_examples:
+  - why: 删掉清单之外的记录
+    sql: |-
+      DELETE FROM paper_claims p
+      WHERE NOT EXISTS (SELECT 1 FROM void_slips v WHERE v.claim = p.claim);
+  - why: 子查询漏掉与当前单据的关联
+    sql: |-
+      DELETE FROM paper_claims p
+      WHERE EXISTS (SELECT 1 FROM void_slips v WHERE v.claim IS NOT NULL);

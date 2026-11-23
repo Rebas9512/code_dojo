@@ -100,3 +100,21 @@ steps:
       - 两侧都删
     answer: 0
     explain: FROM 后是目标表；USING 提供用于判断的伙伴。
+  - type: read
+    skill: sql.dml
+    md: |
+      复核一份归档操作时，先读源表，再读目标表。INSERT INTO archive (slip, sheets) SELECT slip, sheets FROM queue WHERE verdict = 'pass' 会把筛出的每行追加到归档表。SELECT 两列的次序对应目标括号里的两列，归档表原有的行依然在。UPDATE 保留行数，同一条语句里的 CASE 可以根据每行原有的标记决定新值。DELETE 则移除满足条件的行；看完修改后的整表，才能同时发现误删和漏删。
+  - type: example
+    skill: sql.dml
+    db: bookstore
+    patch: |
+      CREATE TABLE queue(slip int, sheets int, verdict text);
+      INSERT INTO queue VALUES (21, 8, 'pass'), (22, 5, 'hold');
+      CREATE TABLE archive(slip int, sheets int);
+      INSERT INTO archive VALUES (9, 4);
+      INSERT INTO archive (slip, sheets)
+      SELECT slip, sheets FROM queue WHERE verdict = 'pass';
+    code: |
+      -- 准备数据时已执行归档；读取最终的两列
+      SELECT slip, sheets FROM archive ORDER BY slip;
+    md: 对照旧档 9、本次通过的 21 和待审的 22，再将查询改成读取 queue，比较源表与归档表。

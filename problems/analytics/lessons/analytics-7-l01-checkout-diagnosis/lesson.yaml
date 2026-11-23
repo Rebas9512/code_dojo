@@ -1,0 +1,28 @@
+id: analytics-7-l01-checkout-diagnosis
+title: 案例一 · 结账改版后少了哪一步
+track: analytics
+skills:
+  - analytics.checkout-diagnosis
+steps:
+  - type: read
+    skill: analytics.checkout-diagnosis
+    md: 书店换了结账界面，第二周从详情页走到下单的人变少。先约定用一次进入页面作为一次机会，并按进入时间归周。这能避免跨周完成的访问被放到两个分母中。用同一批访问追踪有效加购和有效下单，再看浏览到加购、加购到下单的比例哪一个变了。最后分设备复算，找出下降集中在哪里。这样的分解能指明排查顺序；若要判断界面改动是否导致下降，还需要对照或独立证据。
+  - type: example
+    skill: analytics.checkout-diagnosis
+    db: readerapp
+    code: |-
+      -- ① 按进入时刻归周
+      -- ② 对比上报加购和有效加购
+      SELECT DATE_TRUNC('week', viewed_at)::date AS week_start, COUNT(carted_at) AS reported,
+             COUNT(*) FILTER (WHERE carted_at>viewed_at) AS valid
+      FROM checkout_visits GROUP BY week_start ORDER BY week_start;
+    md: 把大于改为小于，找出每周有几次先上报了加购。
+  - type: quiz
+    skill: analytics.checkout-diagnosis
+    q: 20 次进入，16 次有效加购，8 次有效下单。加购到下单的比例？
+    options:
+      - '0.4'
+      - '0.5'
+      - '0.8'
+    answer: 1
+    explain: 此步骤的机会是 16 次有效加购，成功了 8 次。

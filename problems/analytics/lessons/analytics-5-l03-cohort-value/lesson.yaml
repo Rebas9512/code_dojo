@@ -1,0 +1,28 @@
+id: analytics-5-l03-cohort-value
+title: 批次累计价值与复购
+track: analytics
+skills:
+  - analytics.cohort-value
+steps:
+  - type: read
+    skill: analytics.cohort-value
+    md: 一月初和一月底注册的人若都只看一月收入，得到的消费机会不同。比较用户价值时，从每个人自己的注册日数起，例如从第零天到第六天都算入首周。用整批读者的累计净收入除以整批人数，没买过书的人也在分母里。比较到第三十天时，要等每人都经历完这段时间。想追问复购，可在同一套明细里按发生时间给正向付款编号，找到每个人的第二笔；退款仍计入净收入，却不算一次购买。
+  - type: example
+    skill: analytics.cohort-value
+    db: readerapp
+    code: |-
+      -- ① 同一交易对齐到读者自己的注册日
+      -- ② 比较相同年龄上的净收入
+      SELECT p.paid_at::date - r.joined_on AS age_days, SUM(p.amount) AS net
+      FROM readers r JOIN payments p USING (user_id)
+      GROUP BY age_days ORDER BY age_days;
+    md: 限定 age_days 为 0，单独看注册当天的金额。
+  - type: quiz
+    skill: analytics.cohort-value
+    q: 两人注册，首周一人净付 18，另一人没有交易。首周累计人均价值？
+    options:
+      - '0'
+      - '9'
+      - '18'
+    answer: 1
+    explain: 18 元分到同一批的两个人。

@@ -1,0 +1,46 @@
+id: modeling
+name: 建模与写数据
+summary: 从设计表和约束开始，练习增量载入、历史维度和仓库指标。
+order: 11
+language: sql
+runtime: pglite
+status: active
+requires:
+- sql
+skill_prefix: modeling
+stages:
+- id: '1'
+  name: 建表与类型
+  units:
+    1: 表和字段
+    2: 键与结构演进
+- id: '2'
+  name: 约束
+  units:
+    1: 列与组合规则
+    2: 表间的引用
+- id: '3'
+  name: 写数据
+  units:
+    1: 批量写入
+    2: 关联修改与回执
+- id: '4'
+  name: 合并与增量载入
+  units:
+    1: 冲突处理
+    2: 有版本的增量
+- id: '5'
+  name: 建模
+  units:
+    1: 依赖与关系
+    2: 事实、维度与历史
+- id: '6'
+  name: 视图、索引和数据质量
+  units:
+    1: 访问与计划
+    2: 质量稽核
+- id: '7'
+  name: 综合
+  units:
+    1: 履约仓库
+    2: 会员交易仓库

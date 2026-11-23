@@ -1,0 +1,34 @@
+id: sql-5-101-day-after-card-issue
+title: 领卡次日回来的人数
+track: sql
+stage: '5'
+order: 12
+format: write
+difficulty: 65
+skills:
+  requires:
+    - sql.join-aggregate
+    - sql.join-conditions
+    - sql.retention
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 从领卡名单出发，把次日当作匹配条件，对两侧的卡号分别去重。
+wrong_examples:
+  - why: 按刷卡次数计回访
+    sql: |-
+      SELECT c.issued, COUNT(DISTINCT c.card) AS issued_cards, COUNT(t.card) AS returned
+      FROM card_issues c LEFT JOIN card_taps t ON t.card = c.card AND t.day = c.issued + 1
+      GROUP BY c.issued;
+  - why: 把次日之后也算返回
+    sql: |-
+      SELECT c.issued, COUNT(DISTINCT c.card) AS issued_cards, COUNT(DISTINCT t.card) AS returned
+      FROM card_issues c LEFT JOIN card_taps t ON t.card = c.card AND t.day >= c.issued + 1
+      GROUP BY c.issued;

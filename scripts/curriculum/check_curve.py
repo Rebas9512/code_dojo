@@ -800,6 +800,7 @@ SQL_RULES: list[tuple[str, str, str]] = [
     (r"\bHAVING\b", "sql.having", "HAVING"),
     (r"\b(COUNT|SUM|AVG)\(DISTINCT\b", "sql.count-distinct", "聚合里的 DISTINCT"),
     (r"\b(SUM|COUNT|AVG|MAX|MIN)\(CASE\b|\bFILTER\(WHERE\b", "sql.conditional-agg", "条件聚合"),
+    (r"\bBOOL_OR\(", "sql.conditional-agg", "组内是否有一行满足条件"),
     (r"\b(STRING_AGG|ARRAY_AGG)\(", "sql.string-agg", "STRING_AGG"),
     (r"\b(LEFT|RIGHT|FULL)( OUTER)? JOIN\b", "sql.left-join", "外连接"),
     (r"\bCROSS JOIN\b", "sql.cross-join", "CROSS JOIN"),
@@ -1107,6 +1108,9 @@ def load_problems(track: Track, rep: Report) -> list[dict]:
             if meta.get("mode") == "dml":
                 if not isinstance(meta.get("check_query"), str) or not meta["check_query"].strip():
                     rep.err(f"{pid}：dml 模式必须有非空的 check_query")
+            elif meta.get("mode") == "script":
+                if not meta.get("checks") or meta.get("check_query") is not None:
+                    rep.err(f"{pid}：script 模式使用非空的 checks")
             elif meta.get("mode") is not None or meta.get("check_query") is not None:
                 rep.err(f"{pid}：SQL 查询题省略 mode 和 check_query")
         if not (d / "statement.md").exists():
@@ -1127,7 +1131,12 @@ def load_problems(track: Track, rep: Report) -> list[dict]:
         wrong = meta.get("wrong_examples")
         if wrong is not None:
             key = "code" if track.language == "python" else "sql"
-            if not isinstance(wrong, list) or not all(isinstance(w, dict) and w.get("why") and w.get(key) for w in wrong):
+            if meta.get("format") == "inspect" and isinstance(wrong, list):
+                valid = all(isinstance(w, dict) and w.get("why") and
+                            (w.get(key) or isinstance(w.get("answer"), (str, int))) for w in wrong)
+                if not valid:
+                    rep.err(f"{pid}：典型误答需要 why 和 answer")
+            elif not isinstance(wrong, list) or not all(isinstance(w, dict) and w.get("why") and w.get(key) for w in wrong):
                 rep.err(f"{pid}：wrong_examples 每一项都要有 why 和 {key}")
         out.append(meta)
     stages = list(track.stages)

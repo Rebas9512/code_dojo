@@ -1,0 +1,47 @@
+id: sql-5-115-label-reading-sessions
+title: 补全：给阅读操作标上场次
+track: sql
+stage: '5'
+order: 111
+format: complete
+difficulty: 71
+skills:
+  requires:
+    - sql.conditional-agg
+    - sql.date-funcs
+  introduces: sql.sessionization
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 首场和超过阈值的事件都要贡献一个新起点。
+wrong_examples:
+  - why: 恰好半小时也另开一场
+    sql: |-
+      WITH neighbors AS (
+          SELECT event, reader, at_time, LAG(at_time) OVER (PARTITION BY reader ORDER BY at_time, event) AS prev
+          FROM desk_actions WHERE at_time IS NOT NULL
+      ), numbered AS (
+          SELECT event, reader, at_time,
+                 SUM(CASE WHEN prev IS NULL OR at_time - prev >= INTERVAL '30 minutes' THEN 1 ELSE 0 END)
+                 OVER (PARTITION BY reader ORDER BY at_time, event ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS session_no
+          FROM neighbors
+      )
+      SELECT event, session_no FROM numbered;
+  - why: 累计时漏掉读者分区
+    sql: |-
+      WITH neighbors AS (
+          SELECT event, reader, at_time, LAG(at_time) OVER (PARTITION BY reader ORDER BY at_time, event) AS prev
+          FROM desk_actions WHERE at_time IS NOT NULL
+      ), numbered AS (
+          SELECT event, reader, at_time,
+                 SUM(CASE WHEN prev IS NULL OR at_time - prev > INTERVAL '30 minutes' THEN 1 ELSE 0 END)
+                 OVER (ORDER BY at_time, event ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS session_no
+          FROM neighbors
+      )
+      SELECT event, session_no FROM numbered;

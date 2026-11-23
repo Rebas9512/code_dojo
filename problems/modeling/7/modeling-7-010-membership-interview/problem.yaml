@@ -1,0 +1,116 @@
+id: modeling-7-010-membership-interview
+title: 会员面试：历史模型与两条收入指标
+track: modeling
+stage: '7'
+order: 100
+unit: 2
+format: combine
+difficulty: 66
+skills:
+  requires:
+  - modeling.asof
+  - modeling.star
+  - sql.count-distinct
+  - sql.derived-table
+  - sql.join-aggregate
+  - sql.join-conditions
+  - sql.lag-lead
+  - sql.self-join
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: 表结构 · tiers
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.tiers') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 主键列 · tiers
+  query: |-
+    SELECT k.column_name FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog, constraint_schema, constraint_name, table_name)
+    WHERE c.table_schema = 'public' AND c.table_name = 'tiers' AND c.constraint_type = 'PRIMARY KEY'
+    ORDER BY k.ordinal_position
+  ordered: true
+- label: tiers 的记录
+  query: SELECT * FROM tiers
+  ordered: false
+- label: 表结构 · payments
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.payments') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 主键列 · payments
+  query: |-
+    SELECT k.column_name FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog, constraint_schema, constraint_name, table_name)
+    WHERE c.table_schema = 'public' AND c.table_name = 'payments' AND c.constraint_type = 'PRIMARY KEY'
+    ORDER BY k.ordinal_position
+  ordered: true
+- label: payments 的记录
+  query: SELECT * FROM payments
+  ordered: false
+- label: 普通视图 · tier_kpi
+  query: SELECT table_type FROM information_schema.tables WHERE table_schema='public' AND table_name='tier_kpi'
+  ordered: false
+- label: 指标 · tier_kpi
+  query: SELECT tier,payments_n,gross FROM tier_kpi
+  ordered: false
+- label: 普通视图 · daily_kpi
+  query: SELECT table_type FROM information_schema.tables WHERE table_schema='public' AND table_name='daily_kpi'
+  ordered: false
+- label: 指标 · daily_kpi
+  query: SELECT day,buyers,gross FROM daily_kpi
+  ordered: false
+wrong_examples:
+- why: 始终按当前等级看历史交易
+  sql: |-
+    CREATE TABLE tiers (member_id int,since date,tier text,until_day date, is_current boolean, PRIMARY KEY(member_id,since));
+    INSERT INTO tiers
+    SELECT member_id,start_on,tier,next_day,next_day IS NULL
+    FROM (SELECT u.*,LEAD(start_on) OVER (PARTITION BY member_id ORDER BY start_on) AS next_day FROM upgrades u) v;
+    CREATE TABLE payments (id int PRIMARY KEY,member_id int,day date,amount numeric(9,2));
+    INSERT INTO payments SELECT id,member_id,day,amount FROM paylog;
+    CREATE VIEW tier_kpi AS
+    SELECT t.tier,COUNT(*) AS payments_n,SUM(p.amount) AS gross
+    FROM payments p JOIN tiers t ON p.member_id=t.member_id
+     AND t.is_current GROUP BY t.tier;
+    CREATE VIEW daily_kpi AS
+    SELECT day,COUNT(DISTINCT member_id) AS buyers,SUM(amount) AS gross FROM payments GROUP BY day;
+- why: 把支付次数当成付费人数
+  sql: |-
+    CREATE TABLE tiers (member_id int,since date,tier text,until_day date, is_current boolean, PRIMARY KEY(member_id,since));
+    INSERT INTO tiers
+    SELECT member_id,start_on,tier,next_day,next_day IS NULL
+    FROM (SELECT u.*,LEAD(start_on) OVER (PARTITION BY member_id ORDER BY start_on) AS next_day FROM upgrades u) v;
+    CREATE TABLE payments (id int PRIMARY KEY,member_id int,day date,amount numeric(9,2));
+    INSERT INTO payments SELECT id,member_id,day,amount FROM paylog;
+    CREATE VIEW tier_kpi AS
+    SELECT t.tier,COUNT(*) AS payments_n,SUM(p.amount) AS gross
+    FROM payments p JOIN tiers t ON p.member_id=t.member_id
+     AND p.day>=t.since AND (t.until_day IS NULL OR p.day<t.until_day) GROUP BY t.tier;
+    CREATE VIEW daily_kpi AS
+    SELECT day,COUNT(*) AS buyers,SUM(amount) AS gross FROM payments GROUP BY day;
+- why: 等级区间包含了结束日
+  sql: |-
+    CREATE TABLE tiers (member_id int,since date,tier text,until_day date, is_current boolean, PRIMARY KEY(member_id,since));
+    INSERT INTO tiers
+    SELECT member_id,start_on,tier,next_day,next_day IS NULL
+    FROM (SELECT u.*,LEAD(start_on) OVER (PARTITION BY member_id ORDER BY start_on) AS next_day FROM upgrades u) v;
+    CREATE TABLE payments (id int PRIMARY KEY,member_id int,day date,amount numeric(9,2));
+    INSERT INTO payments SELECT id,member_id,day,amount FROM paylog;
+    CREATE VIEW tier_kpi AS
+    SELECT t.tier,COUNT(*) AS payments_n,SUM(p.amount) AS gross
+    FROM payments p JOIN tiers t ON p.member_id=t.member_id
+     AND p.day>=t.since AND (t.until_day IS NULL OR p.day<=t.until_day) GROUP BY t.tier;
+    CREATE VIEW daily_kpi AS
+    SELECT day,COUNT(DISTINCT member_id) AS buyers,SUM(amount) AS gross FROM payments GROUP BY day;

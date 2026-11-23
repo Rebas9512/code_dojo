@@ -1,0 +1,177 @@
+track: analytics
+skills:
+  - id: analytics.active-reach
+    name: 活跃人数与粘性
+    stage: '1'
+    group: 1
+    prereqs:
+      - sql.count-distinct
+      - sql.date-funcs
+      - sql.nullif
+    card: 一个窗口内数不同的登录者。一天刷三次仍算一个人。粘性的两个窗口要有明确的起止日期。
+  - id: analytics.calendar-average
+    name: 完整日历与移动平均
+    stage: '1'
+    group: 2
+    prereqs:
+      - analytics.active-reach
+      - sql.generate-series
+      - sql.window-frame
+    card: 让日历放在 LEFT JOIN 左边。每天一行之后，今天和前六行才覆盖七个自然日。
+  - id: analytics.period-change
+    name: 占比与跨期比较
+    stage: '1'
+    group: 3
+    prereqs:
+      - analytics.active-reach
+      - sql.lag-lead
+      - sql.window-agg
+    card: 占比用部分除以整体。增长率用本期与基期之差除以基期，基期为零时没有可定义的增长率。
+  - id: analytics.step-reach
+    name: 每一步触达的人数
+    stage: '2'
+    group: 1
+    prereqs:
+      - analytics.active-reach
+      - sql.conditional-agg
+    card: 每步各数做过该动作的人。同一人能进入多列，同一列只算一次。
+  - id: analytics.ordered-path
+    name: 按时间推进漏斗
+    stage: '2'
+    group: 2
+    prereqs:
+      - analytics.step-reach
+      - sql.funnel
+    card: 选最早的入口，然后只在严格晚于入口的动作中选下一步。每一步拿到的时刻都属于同一个人。
+  - id: analytics.conversion-window
+    name: 限时转化与等待时长
+    stage: '2'
+    group: 3
+    prereqs:
+      - analytics.ordered-path
+      - sql.median
+    card: 先锁定首个浏览到首个后续订单的时间差，再检查截止时刻。中位数只在符合窗口的转化者中计算。
+  - id: analytics.fixed-return
+    name: 固定日与滚动留存
+    stage: '3'
+    group: 1
+    prereqs:
+      - analytics.active-reach
+      - sql.retention
+    card: 注册日是第 0 天。固定日只看第 N 天，滚动口径看从第 N 天到观察截止日的任一天。
+  - id: analytics.cohort-matrix
+    name: 注册周与批次矩阵
+    stage: '3'
+    group: 2
+    prereqs:
+      - analytics.fixed-return
+      - sql.pivot
+      - sql.date-funcs
+    card: 用注册周的周一标记批次，用周一之间的差划分观察周。同一个读者在一格中只出现一次。
+  - id: analytics.churn-risk
+    name: 流失快照与风险人群
+    stage: '3'
+    group: 3
+    prereqs:
+      - analytics.fixed-return
+      - sql.anti-join
+    card: 快照按截止日向前找最后登录。区间流失率先固定上期活跃名单，再数本期完全没有出现的人。
+  - id: analytics.session-boundary
+    name: 三十分钟切分会话
+    stage: '4'
+    group: 1
+    prereqs:
+      - sql.lag-lead
+      - sql.running-total
+    card: 每人单独按时间、事件编号排序。首条或距上条至少三十分钟就开启新会话，起点标记的累计和是会话号。
+  - id: analytics.login-streak
+    name: 连续登录段与并列
+    stage: '4'
+    group: 2
+    prereqs:
+      - analytics.active-reach
+      - sql.gaps-islands
+      - sql.rank
+    card: 先取每人每天一行，再用日期减连续编号定段。最长可以并列，按题面保留或选择。
+  - id: analytics.event-spacing
+    name: 首末行为与购买间隔
+    stage: '4'
+    group: 3
+    prereqs:
+      - sql.row-number
+      - sql.lag-lead
+    card: 端点带着原行的动作或交易编号。计算间隔前先选中业务事件，再在每人自己的序列中取相邻两笔。
+  - id: analytics.growth-ledger
+    name: 月活的新增、留存、回流与流失
+    stage: '5'
+    group: 1
+    prereqs:
+      - analytics.churn-risk
+      - sql.conditional-agg
+    card: 本月活跃的人依次分为首次活跃、与上月连续活跃、早于上月活跃后回流。流失单列在上月名单。
+  - id: analytics.revenue-per-user
+    name: 活跃人均收入与付费人均收入
+    stage: '5'
+    group: 2
+    prereqs:
+      - analytics.active-reach
+      - sql.join-aggregate
+      - sql.nullif
+    card: ARPU 用全部当期活跃人数，ARPPU 用其中有正向收款的人数。净收入要扣除退款，付费资格与净额正负分开判断。
+  - id: analytics.cohort-value
+    name: 批次累计价值与复购
+    stage: '5'
+    group: 3
+    prereqs:
+      - analytics.fixed-return
+      - analytics.revenue-per-user
+      - analytics.event-spacing
+    card: 从注册日开始对齐个人年龄；累计净收入除以整批人数。复购按第二笔正向付款判断。
+  - id: analytics.subscription-mrr
+    name: 订阅月费与 MRR 变动
+    stage: '5'
+    group: 4
+    prereqs:
+      - analytics.period-change
+      - sql.conditional-agg
+    card: MRR 是生效订阅对应的月费存量。开通增加、取消减少、同价续费维持。续费账单可以单列，但不增加存量。
+  - id: analytics.clean-assignment
+    name: 实验分组与污染
+    stage: '6'
+    group: 1
+    prereqs:
+      - sql.having
+      - sql.count-distinct
+    card: 先锁定实验，再按用户核对组别。同组重复只算一人，同时出现在两个组的人从两边都剔除。
+  - id: analytics.split-balance
+    name: 分流比例与卡方检查
+    stage: '6'
+    group: 2
+    prereqs:
+      - analytics.clean-assignment
+      - analytics.period-change
+    card: 期望人数等于总人数乘计划份额。卡方统计量为各组 (实际−期望)²/期望 之和，用来量化分流偏离。
+  - id: analytics.experiment-effect
+    name: 实验转化、提升与两比例检验
+    stage: '6'
+    group: 3
+    prereqs:
+      - analytics.split-balance
+      - analytics.conversion-window
+    card: 每人最多转化一次。相对提升=(pB−pA)/pA。两比例 z 检验用总成功数除以总人数得到合并比例 p，再用差值除以标准误。
+  - id: analytics.checkout-diagnosis
+    name: 案例一 · 结账改版后少了哪一步
+    stage: '7'
+    group: 1
+    prereqs:
+      - analytics.ordered-path
+      - analytics.period-change
+    card: 同一批访问先数到达各步的次数，再用相邻两步作为分子、分母。比较两周的步骤变化，随后按设备验证。
+  - id: analytics.renewal-mix
+    name: 案例二 · 续费下降与套餐构成
+    stage: '7'
+    group: 2
+    prereqs:
+      - analytics.cohort-matrix
+      - analytics.experiment-effect
+    card: 整体续费率是各套餐续费率按到期人数加权的平均。固定套餐权重，可以比较构成不变时的变化。

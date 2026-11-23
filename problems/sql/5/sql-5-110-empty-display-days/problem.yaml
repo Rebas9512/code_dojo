@@ -1,0 +1,40 @@
+id: sql-5-110-empty-display-days
+title: 找出展期内没有出票的日子
+track: sql
+stage: '5'
+order: 53
+format: write
+difficulty: 67
+skills:
+  requires:
+    - sql.anti-join
+    - sql.cte
+    - sql.generate-series
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 先从首日生成包括末日在内的位移，再从完整日历找没有出票的一天。
+wrong_examples:
+  - why: 生成时遗漏最后一天
+    sql: |-
+      WITH calendar AS (
+          SELECT first_day + n AS day FROM display_period,
+               generate_series(0, last_day - first_day - 1) AS offsets(n)
+      )
+      SELECT c.day FROM calendar c LEFT JOIN show_tickets t ON t.day = c.day
+      WHERE t.ticket IS NULL;
+  - why: 列出有票日
+    sql: |-
+      WITH calendar AS (
+          SELECT first_day + n AS day FROM display_period,
+               generate_series(0, last_day - first_day) AS offsets(n)
+      )
+      SELECT c.day FROM calendar c LEFT JOIN show_tickets t ON t.day = c.day
+      WHERE t.ticket IS NOT NULL;

@@ -90,3 +90,13 @@ steps:
       - "8"
     answer: 2
     explain: 清单由两个名册决定，每位学员都配两门课，共 4 × 2 行。
+  - type: read
+    skill: sql.join-conditions
+    md: |
+      隔日复检时，先把两份记录的角色写在纸上：p 是前一天，n 是新一天。MySQL 原稿 n.day = DATE_ADD(p.day, INTERVAL 1 DAY) 描述的是新日期等于旧日期加一天。PostgreSQL 的 date 可以直接加整数，写作 n.day = p.day + 1。还要让两条记录来自同一台机器。试着用 1 月 31 日、2 月 1 日、2 月 3 日画三格，只有前两格能配成一对。
+  - type: quiz
+    skill: sql.join-conditions
+    q: 同一台印机在 2 月 28 日与 3 月 2 日各测一次。2025 年这两条记录能配成隔日复检吗？
+    options: [能，因为记录相邻, 不能，中间相隔了一个未测的日历日]
+    answer: 1
+    explain: 给 2 月 28 日加一天得到 3 月 1 日，即使这天没有记录，它也占一个日历日。

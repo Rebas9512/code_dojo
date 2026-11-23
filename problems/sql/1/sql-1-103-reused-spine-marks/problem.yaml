@@ -1,0 +1,30 @@
+id: sql-1-103-reused-spine-marks
+title: 重复登记的书脊标记
+track: sql
+stage: '1'
+order: 42
+format: write
+difficulty: 20
+skills:
+  requires:
+    - sql.having
+  introduces: null
+source: leetcode-db
+leetcode: duplicate-emails
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 同一标记的登记应进入同一组，只输出组名。
+wrong_examples:
+  - why: 把重复理解为恰好两次
+    sql: |-
+      SELECT mark FROM spine_log
+      GROUP BY mark HAVING COUNT(*) = 2;
+  - why: 只去重，未检查次数
+    sql: |-
+      SELECT mark FROM spine_log
+      GROUP BY mark;

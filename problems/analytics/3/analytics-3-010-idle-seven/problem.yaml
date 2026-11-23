@@ -1,0 +1,34 @@
+id: analytics-3-010-idle-seven
+title: 补全：连续 7 天没有登录的读者
+track: analytics
+stage: '3'
+unit: 3
+order: 100
+format: complete
+difficulty: 46
+skills:
+  requires:
+    - sql.round-cast
+  introduces: analytics.churn-risk
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 快照按截止日向前找最后登录。区间流失率先固定上期活跃名单，再数本期完全没有出现的人。
+wrong_examples:
+  - why: 把首次登录当作最近登录
+    sql: |-
+      WITH last_seen AS (
+          SELECT user_id, MIN(logged_at::date) AS last_day FROM logins
+          WHERE logged_at::date <= DATE '2025-02-28' GROUP BY user_id
+      )
+      SELECT user_id, last_day FROM last_seen WHERE DATE '2025-02-28' - last_day >= 7 ORDER BY user_id;
+  - why: 偷看截止日之后的回流
+    sql: |-
+      WITH last_seen AS (
+          SELECT user_id, MAX(logged_at::date) AS last_day FROM logins
+          GROUP BY user_id
+      )
+      SELECT user_id, last_day FROM last_seen WHERE DATE '2025-02-28' - last_day >= 7 ORDER BY user_id;

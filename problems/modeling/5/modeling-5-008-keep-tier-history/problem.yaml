@@ -1,0 +1,33 @@
+id: modeling-5-008-keep-tier-history
+title: 关闭旧等级并写入新版本
+track: modeling
+stage: '5'
+order: 80
+unit: 2
+format: fix
+difficulty: 48
+skills:
+  requires:
+  - modeling.history
+  - sql.self-join
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: levels 的记录
+  query: SELECT * FROM levels
+  ordered: false
+wrong_examples:
+- why: 直接新增导致两个当前版本
+  sql: |-
+    INSERT INTO levels(id,tier,since,until_day,current_flag)
+    SELECT id,tier,day,NULL,true FROM changes;
+- why: 只关旧行，不建立新版本
+  sql: |-
+    UPDATE levels t SET until_day=c.day,current_flag=false FROM changes c
+    WHERE t.id=c.id AND t.current_flag;
+    INSERT INTO levels(id,tier,since,until_day,current_flag)
+    SELECT id,tier,day,NULL,true FROM changes WHERE false;

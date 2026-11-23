@@ -1,0 +1,32 @@
+id: analytics-4-l01-session-boundary
+title: 三十分钟切分会话
+track: analytics
+skills:
+  - analytics.session-boundary
+steps:
+  - type: read
+    skill: analytics.session-boundary
+    md: 同一位读者深夜浏览、十分钟后跨过午夜加购，通常是一次访问。本组用相邻操作间隔定义会话，达到三十分钟就重新计一次。要先按人分区，再沿时间轴拿前一个时刻；不分区会拿到别人的上一条记录。把每段第一条标为一，其余标为零，在每人的时间线上累加，段号从一开始。时长用末条减首条，因此只有一次点击的会话时长为零。同秒事件按编号排，给每步固定位置。
+  - type: example
+    skill: analytics.session-boundary
+    db: readerapp
+    code: |-
+      -- ① 让每个人的上条事件跟到本行
+      WITH timeline AS (
+          SELECT event_id, user_id, happened_at,
+                 LAG(happened_at) OVER (PARTITION BY user_id ORDER BY happened_at, event_id) AS prev_at
+          FROM events WHERE user_id IN (1, 2)
+      )
+      -- ② 看上一时刻与起点标记，留意跨过午夜的访问
+      SELECT user_id, happened_at, prev_at,
+             CASE WHEN prev_at IS NULL OR happened_at-prev_at >= INTERVAL '30 minutes'
+                  THEN 1 ELSE 0 END AS starts_here FROM timeline ORDER BY happened_at, event_id;
+    md: 去掉 PARTITION BY user_id，看看 2 号读者第一行的上一时刻和起点标记。
+  - type: quiz
+    skill: analytics.session-boundary
+    q: 23:55 和次日 00:25 是同一人的相邻操作，满三十分钟另开。第二条属于第几段？
+    options:
+      - '1'
+      - '2'
+    answer: 1
+    explain: 间隔正好三十分钟，已达到另开的边界。

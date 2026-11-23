@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { PGlite } from '@electric-sql/pglite'
-import { compareStates, compareTables } from '../src/sql/compare.ts'
-import { checkQuery, explainError, inDataset, queryTable, runStatement } from '../src/sql/engine.ts'
+import { compareCheck, compareStates, compareTables } from '../src/sql/compare.ts'
+import { checkScript, lessonTable, runScript, checkQuery, explainError, inDataset, queryTable, runStatement } from '../src/sql/engine.ts'
 
 const table = (rows, types = [23], columns = types.map(() => '列')) => ({ rows, types, columns })
 
@@ -98,5 +98,36 @@ test('修改语句读最终状态、报告影响行数，每次从原表开始',
     const broken = 'WITH w AS (SELECT 1 + ) DELETE FROM t'
     await assert.rejects(run(broken), e => explainError(e).includes(`第 ${broken.indexOf(')') + 1} 个字符`))
     assert.deepEqual((await run('/* ; */ UPDATE t SET n=3 WHERE n=2; -- ;')).actual.rows, [[3], [5]])
+  } finally { await db.close() }
+})
+
+test('多语句示例显示末表，脚本检查分别回滚并定位失败项', async () => {
+  const db = await PGlite.create()
+  const sql = "CREATE TABLE t(email text UNIQUE); INSERT INTO t VALUES ('a')"
+  const checks = [{ label: '重复', probe: "INSERT INTO t VALUES ('a')", expect: 'error' },
+    { label: '新增', probe: "INSERT INTO t VALUES ('b')", expect: 'ok' },
+    { label: '名单', query: 'SELECT email FROM t' }]
+  const run = script => inDataset(db, [], tx => runScript(tx, script, checks), 'script')
+  try {
+    const a = table([[1], [2]]), b = table([[2], [1]])
+    assert.equal(compareCheck(checks[2], a, b), null)
+    assert.match(compareCheck({ ...checks[2], ordered: true }, a, b).message, /顺序/)
+    const expected = await run(sql)
+    assert.deepEqual(expected[2].rows, [['a']])
+    const actual = await run(sql.replace(' UNIQUE', ''))
+    assert.deepEqual(checks.map((c, i) => !!compareCheck(c, actual[i], expected[i])), [true, false, false])
+    const missing = await run('CREATE TABLE other(n int)')
+    assert.match(missing[2].error, /does not exist/)
+    assert.ok(compareCheck(checks[2], missing[2], expected[2]))
+    const example = () => inDataset(db, [], tx => lessonTable(tx, sql + '; SELECT * FROM t'), 'script')
+    assert.deepEqual(await example(), await example())
+    assert.deepEqual((await example()).rows, [['a']])
+    for (const command of ['BEGIN', 'COMMIT', 'END', 'ROLLBACK', 'SAVEPOINT x', 'START TRANSACTION', 'ABORT'])
+      assert.throws(() => checkScript(sql + '; /* 注释 */ ' + command), /事务控制/)
+    const fn = 'CREATE FUNCTION f(n int) RETURNS int LANGUAGE SQL BEGIN ATOMIC SELECT CASE WHEN n>0 THEN 1 ELSE 0 END; END;'
+    const scalar = await inDataset(db, [], tx => lessonTable(tx, fn + 'SELECT f(2)'), 'script')
+    assert.deepEqual(scalar.rows, [[1]])
+    assert.throws(() => checkScript(fn + 'COMMIT'), /事务控制/)
+    checkScript("SELECT '; COMMIT', $$; BEGIN$$; -- ROLLBACK\nSELECT 1")
   } finally { await db.close() }
 })

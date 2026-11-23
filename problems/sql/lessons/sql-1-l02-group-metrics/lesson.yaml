@@ -111,3 +111,17 @@ steps:
       - 分母用 NULLIF(销量, 0)
     answer: 2
     explain: NULL 分母会传递成 NULL 比例，同时组和书号都保留下来。
+  - type: read
+    skill: sql.string-agg
+    md: |
+      展箱里依次有 Zed、Arc、Arc 三张标签，清单只想印 Arc/Zed。读 MySQL 的 GROUP_CONCAT 时，把原稿分成四部分：被拼接的列、是否去重、分隔符和组内顺序。在 PostgreSQL 写成 STRING_AGG(DISTINCT label, '/' ORDER BY label)。去重和排序都在括号内完成；查询最末的 ORDER BY 只能改变展箱之间的顺序。
+  - type: example
+    skill: sql.string-agg
+    db: bookstore
+    patch: |
+      CREATE TABLE label_demo(bin text, label text);
+      INSERT INTO label_demo VALUES ('E','Zed'), ('E','Arc'), ('E','Arc');
+    code: |
+      SELECT bin, STRING_AGG(DISTINCT label, '/' ORDER BY label) AS labels
+      FROM label_demo GROUP BY bin;
+    md: 去掉 DISTINCT 再运行，数一数清单里有几次 Arc。

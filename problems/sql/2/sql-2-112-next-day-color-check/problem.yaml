@@ -1,0 +1,33 @@
+id: sql-2-112-next-day-color-check
+title: 修一修：移植隔日复检的日期加法
+track: sql
+stage: '2'
+order: 137
+format: fix
+difficulty: 35
+skills:
+  requires:
+    - sql.join-conditions
+    - sql.self-join
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 旧记录的日期加一天要等于新记录的日期，机器编号也要相同。
+wrong_examples:
+  - why: 把加一天写成减一天
+    sql: |-
+      SELECT n.press, n.day FROM ink_checks n
+      JOIN ink_checks p ON n.press = p.press AND n.day = p.day - 1
+      WHERE n.shade > p.shade;
+  - why: 只要更早便配对
+    sql: |-
+      SELECT n.press, n.day FROM ink_checks n
+      JOIN ink_checks p ON n.press = p.press AND n.day > p.day
+      WHERE n.shade > p.shade;

@@ -1,0 +1,40 @@
+id: sql-3-102-lower-than-peer
+title: 比同级其他报价均值低
+track: sql
+stage: '3'
+order: 102
+format: write
+difficulty: 46
+skills:
+  requires:
+    - sql.and-or
+    - sql.correlated-subquery
+    - sql.derived-table
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 算参考均值时，核对纸级相同、报价编号不同这两个条件。
+wrong_examples:
+  - why: 把本单也放入参考均值
+    sql: |-
+      SELECT quote, peer_avg FROM (
+          SELECT p.quote, p.price,
+                 (SELECT AVG(q.price) FROM paper_quotes q
+                  WHERE q.grade = p.grade) AS peer_avg
+          FROM paper_quotes p
+      ) AS compared WHERE price < peer_avg;
+  - why: 拿其他纸级作参照
+    sql: |-
+      SELECT quote, peer_avg FROM (
+          SELECT p.quote, p.price,
+                 (SELECT AVG(q.price) FROM paper_quotes q
+                  WHERE q.grade <> p.grade AND q.quote <> p.quote) AS peer_avg
+          FROM paper_quotes p
+      ) AS compared WHERE price < peer_avg;

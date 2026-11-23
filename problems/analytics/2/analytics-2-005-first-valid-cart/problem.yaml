@@ -1,0 +1,43 @@
+id: analytics-2-005-first-valid-cart
+title: 补全：每人的首次有效加购
+track: analytics
+stage: '2'
+unit: 2
+order: 50
+format: complete
+difficulty: 39
+skills:
+  requires:
+    - sql.self-join
+    - sql.left-join
+    - sql.join-conditions
+    - sql.join-aggregate
+  introduces: analytics.ordered-path
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 选最早的入口，然后只在严格晚于入口的动作中选下一步。每一步拿到的时刻都属于同一个人。
+wrong_examples:
+  - why: 混入同秒加购
+    sql: |-
+      WITH views AS (
+          SELECT user_id, MIN(happened_at) AS viewed FROM events WHERE action = 'view' GROUP BY user_id
+      ), carts AS (
+          SELECT p.*, MIN(e.happened_at) AS carted FROM views p LEFT JOIN events e
+            ON e.user_id = p.user_id AND e.action = 'cart' AND e.happened_at >= p.viewed
+          GROUP BY p.user_id, p.viewed
+      )
+      SELECT user_id, viewed, carted FROM carts ORDER BY user_id;
+  - why: 把下单当成了加购
+    sql: |-
+      WITH views AS (
+          SELECT user_id, MIN(happened_at) AS viewed FROM events WHERE action = 'view' GROUP BY user_id
+      ), carts AS (
+          SELECT p.*, MIN(e.happened_at) AS carted FROM views p LEFT JOIN events e
+            ON e.user_id = p.user_id AND e.action = 'order' AND e.happened_at > p.viewed
+          GROUP BY p.user_id, p.viewed
+      )
+      SELECT user_id, viewed, carted FROM carts ORDER BY user_id;

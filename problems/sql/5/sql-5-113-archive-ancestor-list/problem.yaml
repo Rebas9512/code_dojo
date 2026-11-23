@@ -1,0 +1,39 @@
+id: sql-5-113-archive-ancestor-list
+title: 逐层找出库房的上级
+track: sql
+stage: '5'
+order: 64
+format: write
+difficulty: 68
+skills:
+  requires:
+    - sql.recursive-cte
+    - sql.self-join
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 先列起点，然后让每一轮找到上一轮的父级；最后去掉起点本身。
+wrong_examples:
+  - why: 起点也算自己的上级
+    sql: |-
+      WITH RECURSIVE chain AS (
+          SELECT unit, parent, 0 AS distance FROM archive_units WHERE unit = 13
+          UNION ALL
+          SELECT u.unit, u.parent, c.distance + 1 FROM archive_units u JOIN chain c ON u.unit = c.parent
+      )
+      SELECT unit, distance FROM chain WHERE distance >= 0;
+  - why: 只查直属上级
+    sql: |-
+      WITH RECURSIVE chain AS (
+          SELECT unit, parent, 0 AS distance FROM archive_units WHERE unit = 13
+          UNION ALL
+          SELECT u.unit, u.parent, c.distance + 1 FROM archive_units u JOIN chain c ON u.unit = c.parent
+      )
+      SELECT unit, distance FROM chain WHERE distance = 1;

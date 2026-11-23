@@ -1,0 +1,32 @@
+id: modeling-4-007-latest-per-key
+title: 同一键先取本批最新快照
+track: modeling
+stage: '4'
+order: 70
+unit: 2
+format: write
+difficulty: 39
+skills:
+  requires:
+  - sql.distinct
+  introduces: modeling.latest
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: catalog 的记录
+  query: SELECT * FROM catalog
+  ordered: false
+wrong_examples:
+- why: 保留最旧版本
+  sql: |-
+    INSERT INTO catalog
+    SELECT DISTINCT ON (id) id,rev,tag FROM feed ORDER BY id,rev ASC
+    ON CONFLICT(id) DO UPDATE SET rev=excluded.rev,tag=excluded.tag;
+- why: 没有先按键去重
+  sql: |-
+    INSERT INTO catalog
+    SELECT id,rev,tag FROM feed ORDER BY id,rev DESC
+    ON CONFLICT(id) DO UPDATE SET rev=excluded.rev,tag=excluded.tag;

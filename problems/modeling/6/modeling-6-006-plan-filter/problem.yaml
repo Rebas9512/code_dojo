@@ -1,0 +1,42 @@
+id: modeling-6-006-plan-filter
+title: 区分定位条件与事后过滤
+track: modeling
+stage: '6'
+order: 60
+unit: 1
+format: inspect
+difficulty: 54
+skills:
+  requires:
+  - modeling.plan
+  introduces: null
+source: original
+mode: inspect
+data:
+- kind: table
+  title: 计划节点
+  content: |-
+    node,index_name,index_cond,filter
+    Index Scan,jobs_site,site_id = 4,done = false
+answer:
+  type: choice
+  options:
+  - site_id
+  - jobs_site
+  - done
+  correct: 2
+  misconceptions:
+    '0':
+      id: Model0
+      name: site_id
+      line: site_id 用于索引定位。
+    '1':
+      id: Model1
+      name: jobs_site
+      line: jobs_site 是索引名，并非字段。
+explain: Filter 栏中的 done 表示取到行以后还要判断是否完成。站点条件出现在 Index Cond 栏。
+wrong_examples:
+- why: site_id 用于索引定位。
+  answer: '0'
+- why: jobs_site 是索引名，并非字段。
+  answer: '1'

@@ -1,0 +1,34 @@
+id: sql-1-110-last-press-signal
+title: 修一修：找出年内最后一次报时
+track: sql
+stage: '1'
+order: 92
+format: fix
+difficulty: 25
+skills:
+  requires:
+    - sql.and-or
+    - sql.group-by
+    - sql.sum-avg
+  introduces: null
+source: leetcode-db
+leetcode: the-latest-login-in-2020
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 用下一年第一天的零点标记上界，想想比较符要不要包含它。
+wrong_examples:
+  - why: 把末日零点当作年度终点
+    sql: |-
+      SELECT press, MAX(observed) AS last_signal FROM press_signals
+      WHERE observed >= DATE '2025-01-01' AND observed <= DATE '2025-12-31'
+      GROUP BY press;
+  - why: 收进次年零点
+    sql: |-
+      SELECT press, MAX(observed) AS last_signal FROM press_signals
+      WHERE observed >= DATE '2025-01-01' AND observed <= DATE '2026-01-01'
+      GROUP BY press;

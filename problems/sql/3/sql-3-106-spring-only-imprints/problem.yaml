@@ -1,0 +1,36 @@
+id: sql-3-106-spring-only-imprints
+title: 只在春季售出的版本
+track: sql
+stage: '3'
+order: 118
+format: variant
+difficulty: 47
+skills:
+  requires:
+    - sql.and-or
+    - sql.correlated-subquery
+    - sql.exists
+    - sql.self-join
+  introduces: null
+source: leetcode-db
+leetcode: sales-analysis-iii
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 分别验证确有发货记录，以及找不到在春季之外的发货记录。
+wrong_examples:
+  - why: 把完全没发过货的版本也收进来
+    sql: |-
+      SELECT e.edition, e.label FROM editions e
+      WHERE NOT EXISTS (SELECT 1 FROM dispatches d WHERE d.edition = e.edition
+                        AND (d.day < DATE '2025-03-01' OR d.day > DATE '2025-05-31'));
+  - why: 最后一天也被排除
+    sql: |-
+      SELECT e.edition, e.label FROM editions e
+      WHERE EXISTS (SELECT 1 FROM dispatches d WHERE d.edition = e.edition)
+        AND NOT EXISTS (SELECT 1 FROM dispatches d WHERE d.edition = e.edition
+                        AND (d.day < DATE '2025-03-01' OR d.day >= DATE '2025-05-31'));

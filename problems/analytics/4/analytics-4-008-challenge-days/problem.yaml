@@ -1,0 +1,44 @@
+id: analytics-4-008-challenge-days
+title: 三日挑战有哪些达标段
+track: analytics
+stage: '4'
+unit: 2
+order: 80
+format: combine
+difficulty: 50
+skills:
+  requires:
+    - sql.round-cast
+    - sql.cte
+    - analytics.login-streak
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 先取每人每天一行，再用日期减连续编号定段。最长可以并列，按题面保留或选择。
+wrong_examples:
+  - why: 同日重复登录把段号推移
+    sql: |-
+      WITH days AS (
+          SELECT user_id, logged_at::date AS day FROM logins
+      ), labeled AS (
+          SELECT user_id, day, day - ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY day)::integer AS segment FROM days
+      ), runs AS (
+          SELECT user_id, MIN(day) AS first_day, MAX(day) AS last_day, COUNT(*) AS days_n
+          FROM labeled GROUP BY user_id, segment
+      )
+      SELECT user_id, first_day, days_n FROM runs WHERE days_n >= 3 ORDER BY user_id, first_day;
+  - why: 串用其他人的日期编号
+    sql: |-
+      WITH days AS (
+          SELECT DISTINCT user_id, logged_at::date AS day FROM logins
+      ), labeled AS (
+          SELECT user_id, day, day - ROW_NUMBER() OVER (ORDER BY day, user_id)::integer AS segment FROM days
+      ), runs AS (
+          SELECT user_id, MIN(day) AS first_day, MAX(day) AS last_day, COUNT(*) AS days_n
+          FROM labeled GROUP BY user_id, segment
+      )
+      SELECT user_id, first_day, days_n FROM runs WHERE days_n >= 3 ORDER BY user_id, first_day;

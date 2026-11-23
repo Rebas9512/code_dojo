@@ -1,0 +1,27 @@
+id: analytics-6-l01-clean-assignment
+title: 实验分组与污染
+track: analytics
+skills:
+  - analytics.clean-assignment
+steps:
+  - type: read
+    skill: analytics.clean-assignment
+    md: 书封实验让一半读者看到旧封面，另一半看到新封面。网络重试可能重复上报相同分组，这仍是一名读者。如果同一人收到了两种封面，便很难把他的购买归给其中一组，本组约定将他完全排除。先选实验名称，再按读者检查不同组别的个数。同一人在另一个实验拿到不同字母没有关系。合格读者的入组时刻取本实验首次分组，以便随后排除入组前的购买。
+  - type: example
+    skill: analytics.clean-assignment
+    db: readerapp
+    code: |-
+      -- ① 限定书封实验
+      -- ② 对照上报次数和不同组别数
+      SELECT user_id, COUNT(*) AS records, COUNT(DISTINCT arm) AS arms
+      FROM assignments WHERE experiment='cover' GROUP BY user_id HAVING COUNT(*)>1 ORDER BY user_id;
+    md: 把 HAVING 改成仅保留不同组数大于一，看看谁真正跨组。
+  - type: quiz
+    skill: analytics.clean-assignment
+    q: 同一实验里甲报 A、A，乙报 A、B。清洗后余几人？
+    options:
+      - '0'
+      - '1'
+      - '2'
+    answer: 1
+    explain: 甲只在一组，乙从两组都剔除。

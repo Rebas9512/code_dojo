@@ -1,0 +1,76 @@
+id: modeling-5-l01-workshop
+title: 依赖与关系
+track: modeling
+skills:
+- modeling.dependency
+- modeling.one-many
+- modeling.bridge
+steps:
+- type: read
+  skill: modeling.dependency
+  md: |-
+    记录里反复出现同一个仓库的地址，说明地址描述的是仓库，而非某笔发货。看见重复先问哪一个键确定了这个事实。把事实存到对应实体的表中，修改地址时就只需要找到一个仓库。
+
+    例如某仓只有一个当前地址，三份出库单都抄了旧地址。搬家时漏改其中一份，即使每个单号都没有重复，仍会对同一仓库读到互相冲突的地址。
+- type: example
+  skill: modeling.dependency
+  db: workshop
+  code: |-
+    CREATE TABLE loads (id int, depot text, city text);
+    INSERT INTO loads VALUES (1,'N','York'),(2,'N','York');
+    SELECT depot, COUNT(*) AS copies FROM loads GROUP BY depot;
+  md: 假设第二条记录改成 Rome，检查两个地址能否同时描述同一仓库。
+- type: quiz
+  skill: modeling.dependency
+  q: 一个仓库搬家后只改了一条发货单，会出现什么？
+  options:
+  - 同键两种地址
+  - 发货编号重复
+  answer: 0
+  explain: 更新异常来自同一事实被存放在多处，记录的主键仍可能完全唯一。
+- type: read
+  skill: modeling.one-many
+  md: |-
+    一名作者写多份日报，每份日报只有一名作者。建立作者表时一名作者占一行，再让日报存作者编号。载入时先收集不重复的父实体，随后载入子行。读完整日报时再沿外键连接。
+
+    拆表后可以沿着子表指向父表的编号重新拼回原始明细。若两名作者恰好同名，仍应按作者编号建立两份档案，以免日报被归到错误的人。
+- type: example
+  skill: modeling.one-many
+  db: workshop
+  code: |-
+    CREATE TABLE writers (id int PRIMARY KEY, name text);
+    CREATE TABLE notes (id int PRIMARY KEY, writer_id int REFERENCES writers);
+    INSERT INTO writers VALUES (7,'Ada');
+    INSERT INTO notes VALUES (1,7),(2,7);
+    SELECT n.id,w.name FROM notes n JOIN writers w ON n.writer_id=w.id;
+  md: 让同一名作者再写一篇日报，看看需要给哪个表加行。
+- type: quiz
+  skill: modeling.one-many
+  q: 第三篇日报属于已有作者，作者表新增几行？
+  options:
+  - '0'
+  - '1'
+  answer: 0
+  explain: 父实体的行数按作者计数。子表每份日报一行，多行可以引用相同的父键。
+- type: read
+  skill: modeling.bridge
+  md: |-
+    一本书可能属于多个书单，一个书单也能收多本书。每次收录是一条关系，在独立表里用两个外键各指一端，并让这对键唯一。逗号分隔的字符串需要拆字才能查询，也无法逐项检查引用。
+
+    例如两个书单都收录同一本书，只需保存两对编号。删除其中一对只意味着从那个书单撤下图书，图书自身及其在另一个书单里的关联都应保留。
+- type: example
+  skill: modeling.bridge
+  db: workshop
+  code: |-
+    CREATE TABLE picks (list_id int, book_id int, PRIMARY KEY(list_id,book_id));
+    INSERT INTO picks VALUES (1,7),(1,8),(2,7);
+    SELECT list_id,COUNT(*) FROM picks GROUP BY list_id;
+  md: 再把图书 8 放入书单 2，写出需要增加的那一行。
+- type: quiz
+  skill: modeling.bridge
+  q: 同一本书放入两个书单，中间表应有几行？
+  options:
+  - '1'
+  - '2'
+  answer: 1
+  explain: 中间表的一行代表一次关联。同一个实体可以通过不同的关联出现在多行。

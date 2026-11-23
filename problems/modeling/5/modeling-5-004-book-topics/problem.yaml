@@ -1,0 +1,55 @@
+id: modeling-5-004-book-topics
+title: 拆出图书和主题之间的关系
+track: modeling
+stage: '5'
+order: 40
+unit: 1
+format: write
+difficulty: 44
+skills:
+  requires:
+  - sql.distinct
+  introduces: modeling.bridge
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: 表结构 · links
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.links') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: 主键列 · links
+  query: |-
+    SELECT k.column_name FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog, constraint_schema, constraint_name, table_name)
+    WHERE c.table_schema = 'public' AND c.table_name = 'links' AND c.constraint_type = 'PRIMARY KEY'
+    ORDER BY k.ordinal_position
+  ordered: true
+- label: links 的记录
+  query: SELECT * FROM links
+  ordered: false
+- label: 引用关系 · links
+  query: |-
+    SELECT k.column_name, u.table_name, u.column_name FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog,constraint_schema,constraint_name,table_name)
+    JOIN information_schema.constraint_column_usage u USING (constraint_catalog,constraint_schema,constraint_name)
+    WHERE c.table_schema='public' AND c.constraint_type='FOREIGN KEY' AND c.table_name='links'
+  ordered: false
+- label: 未知图书无法关联
+  probe: INSERT INTO links VALUES (77,1)
+  expect: error
+wrong_examples:
+- why: 把某本书的所有主题挤进一个字段
+  sql: |-
+    CREATE TABLE links (book_id int REFERENCES books(id), topic_id text, PRIMARY KEY(book_id));
+    INSERT INTO links SELECT book_id,string_agg(topic_id::text,',') FROM raw GROUP BY book_id;
+- why: 漏掉一个方向的外键
+  sql: |-
+    CREATE TABLE links (book_id int REFERENCES books(id), topic_id int, PRIMARY KEY(book_id,topic_id));
+    INSERT INTO links SELECT DISTINCT book_id,topic_id FROM raw;

@@ -1,0 +1,27 @@
+id: analytics-5-l02-revenue-per-user
+title: 活跃人均收入与付费人均收入
+track: analytics
+skills:
+  - analytics.revenue-per-user
+steps:
+  - type: read
+    skill: analytics.revenue-per-user
+    md: 两位读者都来过，一位买书花了十二元，另一位只看书。按活跃人均收入是六元，按付费人均收入是十二元。退款要从收入里扣，但付过款又全退的读者仍然发生过购买。本组先定当期登录名单，再为每人汇总同期的有符号流水，并单独标记是否有过正向流水。没有交易的人净额是零。一组有活跃者却没有付费者时，人均付费收入的分母是零，结果留空。
+  - type: example
+    skill: analytics.revenue-per-user
+    db: readerapp
+    code: |-
+      -- ① 分开记录净额和正向收款次数
+      -- ② 看看净额能否代替是否付过款
+      SELECT user_id, SUM(amount) AS net, COUNT(*) FILTER (WHERE amount>0) AS charges
+      FROM payments GROUP BY user_id ORDER BY user_id;
+    md: 只保留退款行再汇总，观察总额的符号。
+  - type: quiz
+    skill: analytics.revenue-per-user
+    q: 三人活跃，甲付 12，乙付 6 后退 6，丙未买。按付费者的人均净收入？
+    options:
+      - '4'
+      - '6'
+      - '12'
+    answer: 1
+    explain: 净收入为 12，甲和乙都曾付费，分母为 2。

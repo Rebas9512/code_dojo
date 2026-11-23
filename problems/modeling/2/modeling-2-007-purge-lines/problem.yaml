@@ -1,0 +1,50 @@
+id: modeling-2-007-purge-lines
+title: 撤销发货批次时清理明细
+track: modeling
+stage: '2'
+order: 70
+unit: 2
+format: write
+difficulty: 23
+skills:
+  requires:
+  - sql.where
+  introduces: modeling.on-delete
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: 表结构 · lines
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.lines') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: lines 的记录
+  query: SELECT * FROM lines
+  ordered: false
+- label: depots 的记录
+  query: SELECT * FROM depots
+  ordered: false
+- label: 拒绝指向未知仓库
+  probe: INSERT INTO lines VALUES (99,999)
+  expect: error
+- label: 外键删除策略
+  query: SELECT delete_rule FROM information_schema.referential_constraints r JOIN information_schema.table_constraints
+    t USING (constraint_schema,constraint_name) WHERE t.table_name='lines'
+  ordered: false
+wrong_examples:
+- why: 删除时选错策略
+  sql: |-
+    CREATE TABLE lines (id int PRIMARY KEY, batch_id int REFERENCES depots(id) ON DELETE SET NULL);
+    INSERT INTO lines VALUES (11,4),(12,8);
+    DELETE FROM depots WHERE id=4;
+- why: 删错父行
+  sql: |-
+    CREATE TABLE lines (id int PRIMARY KEY, batch_id int REFERENCES depots(id) ON DELETE CASCADE);
+    INSERT INTO lines VALUES (11,4),(12,8);
+    DELETE FROM depots WHERE id=8;

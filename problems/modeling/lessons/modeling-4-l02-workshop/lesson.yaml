@@ -1,0 +1,54 @@
+id: modeling-4-l02-workshop
+title: 有版本的增量
+track: modeling
+skills:
+- modeling.merge
+- modeling.latest
+steps:
+- type: read
+  skill: modeling.merge
+  md: |-
+    MERGE 的 ON 写源行与目标行的身份关系。匹配和未匹配分别进入 WHEN MATCHED 和 WHEN NOT MATCHED，可以各自选择更新、删除或插入。把键写在 ON，业务动作的条件放到对应的 WHEN。
+
+    例如目标只有编号 1，来源同时发来 1 和 2。拿两者顺着 ON 条件各走一次，写下最后应该有的两行，便能看出是否漏了未匹配分支。
+- type: example
+  skill: modeling.merge
+  db: workshop
+  code: |-
+    CREATE TABLE stock (id int PRIMARY KEY,n int);
+    INSERT INTO stock VALUES (1,8);
+    MERGE INTO stock t USING (VALUES (1,5),(2,9)) s(id,n) ON t.id=s.id
+    WHEN MATCHED THEN UPDATE SET n=s.n
+    WHEN NOT MATCHED THEN INSERT VALUES (s.id,s.n);
+    SELECT * FROM stock;
+  md: 把第二个来源键改成 3，观察插入分支。
+- type: quiz
+  skill: modeling.merge
+  q: 目标没有来源键时执行哪一支？
+  options:
+  - WHEN MATCHED
+  - WHEN NOT MATCHED
+  answer: 1
+  explain: 匹配取决于键在目标中是否存在。没有出现在本批来源里的目标键通常继续保留。
+- type: read
+  skill: modeling.latest
+  md: |-
+    一批变更中同一业务键可能出现多次。先在每个键内部按版本从新到旧排序，只让第一行进入合并。版本相同要按题意再比较事件号。合并时还要比较目标版本，防止晚到的旧消息把状态倒退。
+
+    例如同一个键先收到版本 4 又收到版本 2，最后出现的消息并非最新。选中版本 4 以后，状态文字也要来自版本 4 的同一行，不能独立取最大文字。
+- type: example
+  skill: modeling.latest
+  db: workshop
+  code: |-
+    CREATE TABLE feed (id int, rev int, value text);
+    INSERT INTO feed VALUES (1,2,'new'),(1,1,'old'),(2,1,'red');
+    SELECT DISTINCT ON (id) id,rev,value FROM feed ORDER BY id,rev DESC;
+  md: 调换两条来源记录的书写顺序，观察最高版本。
+- type: quiz
+  skill: modeling.latest
+  q: 先按键再按版本升序取第一行，会取到哪个版本？
+  options:
+  - 最新
+  - 最早
+  answer: 1
+  explain: 排序定义了胜者。插入顺序没有业务时间含义，跨批次还需检查目标中已保存的版本。

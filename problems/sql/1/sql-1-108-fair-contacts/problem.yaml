@@ -1,0 +1,31 @@
+id: sql-1-108-fair-contacts
+title: 书展每天接触了多少人
+track: sql
+stage: '1'
+order: 75
+format: write
+difficulty: 23
+skills:
+  requires:
+    - sql.count-distinct
+    - sql.select-expr
+  introduces: null
+source: leetcode-db
+leetcode: daily-leads-and-partners
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 用日子和展厅做一个分组，组内对两种身份分别去重。
+wrong_examples:
+  - why: 把接触次数当来宾数
+    sql: |-
+      SELECT day, hall, COUNT(*) AS guests, COUNT(DISTINCT agent) AS agents
+      FROM fair_notes GROUP BY day, hall;
+  - why: 第二列也数来宾
+    sql: |-
+      SELECT day, hall, COUNT(DISTINCT guest) AS guests, COUNT(DISTINCT guest) AS agents
+      FROM fair_notes GROUP BY day, hall;

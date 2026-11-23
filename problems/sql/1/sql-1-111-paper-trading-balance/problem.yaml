@@ -1,0 +1,31 @@
+id: sql-1-111-paper-trading-balance
+title: 每种纸张赚了多少
+track: sql
+stage: '1'
+order: 101
+format: write
+difficulty: 25
+skills:
+  requires:
+    - sql.conditional-agg
+    - sql.sum-avg
+  introduces: null
+source: leetcode-db
+leetcode: capital-gainloss
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 用一列带符号的金额表示每笔买卖，再按纸种求和。
+wrong_examples:
+  - why: 购买也算收入
+    sql: |-
+      SELECT paper, SUM(CASE WHEN side = 'sell' THEN coins ELSE coins END) AS gain
+      FROM paper_trades GROUP BY paper;
+  - why: 只看收入
+    sql: |-
+      SELECT paper, SUM(CASE WHEN side = 'sell' THEN coins ELSE 0 END) AS gain
+      FROM paper_trades GROUP BY paper;

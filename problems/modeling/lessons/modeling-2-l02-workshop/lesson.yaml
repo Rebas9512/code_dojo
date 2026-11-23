@@ -1,0 +1,56 @@
+id: modeling-2-l02-workshop
+title: 表间的引用
+track: modeling
+skills:
+- modeling.foreign
+- modeling.on-delete
+steps:
+- type: read
+  skill: modeling.foreign
+  md: |-
+    每份预约属于一个已登记的房间。先让房间编号成为主键，再在预约表的房间列写 REFERENCES。数据库从子行出发到父表查编号，所以许多预约都可以指向同一间房。
+
+    例如房间 4 已经存在，可以让两笔预约都写房间 4。若房间 9 还没登记，预约中的 9 就找不到对应记录，需要先登记房间再预约。
+- type: example
+  skill: modeling.foreign
+  db: workshop
+  code: |-
+    CREATE TABLE rooms (id int PRIMARY KEY);
+    CREATE TABLE bookings (room int REFERENCES rooms(id));
+    INSERT INTO rooms VALUES (4);
+    INSERT INTO bookings VALUES (4),(4);
+    SELECT * FROM bookings;
+  md: 把第二条预约改成房间 9，看看数据库为什么拒绝它。
+- type: quiz
+  skill: modeling.foreign
+  q: 已有房间但还没有预约，是否合法？
+  options:
+  - 合法
+  - 不合法
+  answer: 0
+  explain: 外键检查每个已填写的引用，不会要求每个父行都必须已经被某个子行引用。
+- type: read
+  skill: modeling.on-delete
+  md: |-
+    删除一张发货单时明细也随之失去意义，可以在明细的外键上选 ON DELETE CASCADE。员工记录若需要留档，部门删除后只清除部门引用，可用 ON DELETE SET NULL，引用列必须允许空。
+
+    核对删除策略时，应实际删除一条已有子记录的父行，再分别查看父表和子表。仅测试删除语句有无报错，无法确认子记录是消失还是留下了空引用。
+- type: example
+  skill: modeling.on-delete
+  db: workshop
+  code: |-
+    CREATE TABLE teams (id int PRIMARY KEY);
+    CREATE TABLE staff (team int REFERENCES teams ON DELETE SET NULL);
+    INSERT INTO teams VALUES (3);
+    INSERT INTO staff VALUES (3);
+    DELETE FROM teams WHERE id=3;
+    SELECT * FROM staff;
+  md: 把 SET NULL 换成 CASCADE，比较最后的员工行数。
+- type: quiz
+  skill: modeling.on-delete
+  q: 保留员工、清空部门应选哪项？
+  options:
+  - CASCADE
+  - SET NULL
+  answer: 1
+  explain: 两种策略都维护引用一致性，但删除子行和保留子行代表不同的业务含义。

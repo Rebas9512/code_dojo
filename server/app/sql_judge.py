@@ -51,17 +51,23 @@ def run_node(**job: Any) -> list:
     return result["tables"]
 
 
-def verify_sql_files(directory: Path, meta: dict, datasets: list[list[str]]) -> list:
+def validation_job(directory: Path, meta: dict, datasets: list[list[str]]) -> dict:
     """两个题库脚本共用固定题的判定规则，内容侧只需 PyYAML 和 Node。"""
     wrong = [w["sql"] for w in meta.get("wrong_examples") or []]
-    if meta.get("mode") == "dml" and not wrong:
-        raise ValueError("修改类题至少要有一段 wrong_examples")
+    if meta.get("mode") in ("dml", "script") and not wrong:
+        raise ValueError("写数据的题至少要有一段 wrong_examples")
     if not datasets:
         raise ValueError("SQL 题必须至少有一个数据集")
     starter = {"starter": (directory / "starter.sql").read_text(encoding="utf-8")} if meta["format"] == "fix" else {}
-    return run_node(datasets=datasets, solution=(directory / "solution.sql").read_text(encoding="utf-8"),
-                    ordered=meta.get("ordered", False), wrong=wrong, mode=meta.get("mode"),
-                    check_query=meta.get("check_query"), **starter)
+    return {
+        "datasets": datasets, "solution": (directory / "solution.sql").read_text(encoding="utf-8"),
+        "ordered": meta.get("ordered", False), "wrong": wrong, "mode": meta.get("mode"),
+        "check_query": meta.get("check_query"), "checks": meta.get("checks"), **starter,
+    }
+
+
+def verify_sql_files(directory: Path, meta: dict, datasets: list[list[str]]) -> list:
+    return run_node(**validation_job(directory, meta, datasets))
 
 
 def sql_cases(p: Problem, data_dir: Path, *, all_cases: bool) -> dict:
@@ -72,6 +78,8 @@ def sql_cases(p: Problem, data_dir: Path, *, all_cases: bool) -> dict:
     cache.mkdir(parents=True, exist_ok=True)
     cases, missing = [], {}
     exercise = {"mode": "dml", "check_query": p.meta.check_query} if p.meta.mode == "dml" else {}
+    if p.meta.mode == "script":
+        exercise = {"mode": "script", "checks": [c.model_dump() for c in p.meta.checks]}
     options = {**exercise, "ordered": p.meta.ordered} if exercise else {}
     for i, spec in enumerate(p.meta.datasets if all_cases else p.meta.datasets[:1]):
         setup = dataset(p, spec)

@@ -1,0 +1,31 @@
+id: sql-1-109-bench-minutes
+title: 累计每班的上机分钟
+track: sql
+stage: '1'
+order: 39
+format: write
+difficulty: 20
+skills:
+  requires:
+    - sql.group-by
+    - sql.sum-avg
+  introduces: null
+source: leetcode-db
+leetcode: find-total-time-spent-by-each-employee
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 先从每一行算出一段的分钟数，再把段长按人按天相加。
+wrong_examples:
+  - why: 把两次上机之间的空档算进去
+    sql: |-
+      SELECT worker, day, MAX(leave_min) - MIN(enter_min) AS minutes
+      FROM bench_slots GROUP BY worker, day;
+  - why: 只取最长的一段
+    sql: |-
+      SELECT worker, day, MAX(leave_min - enter_min) AS minutes
+      FROM bench_slots GROUP BY worker, day;

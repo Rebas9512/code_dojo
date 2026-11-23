@@ -1,0 +1,46 @@
+id: analytics-2-012-expired-readers
+title: 过期才下单的读者
+track: analytics
+stage: '2'
+unit: 3
+order: 120
+format: variant
+difficulty: 42
+skills:
+  requires:
+    - sql.self-join
+    - sql.left-join
+    - sql.join-conditions
+    - sql.join-aggregate
+    - analytics.conversion-window
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 先锁定首个浏览到首个后续订单的时间差，再检查截止时刻。中位数只在符合窗口的转化者中计算。
+wrong_examples:
+  - why: 把刚好到期者列为过期
+    sql: |-
+      WITH views AS (
+          SELECT user_id, MIN(happened_at) AS viewed FROM events WHERE action = 'view' GROUP BY user_id
+      ), orders AS (
+          SELECT p.*, MIN(e.happened_at) AS ordered_at FROM views p LEFT JOIN events e
+            ON e.user_id = p.user_id AND e.action = 'order' AND e.happened_at > p.viewed
+          GROUP BY p.user_id, p.viewed
+      )
+      SELECT user_id, viewed, ordered_at FROM orders
+      WHERE ordered_at >= viewed + INTERVAL '24 hours' ORDER BY user_id;
+  - why: 把截止时间推迟一天
+    sql: |-
+      WITH views AS (
+          SELECT user_id, MIN(happened_at) AS viewed FROM events WHERE action = 'view' GROUP BY user_id
+      ), orders AS (
+          SELECT p.*, MIN(e.happened_at) AS ordered_at FROM views p LEFT JOIN events e
+            ON e.user_id = p.user_id AND e.action = 'order' AND e.happened_at > p.viewed
+          GROUP BY p.user_id, p.viewed
+      )
+      SELECT user_id, viewed, ordered_at FROM orders
+      WHERE ordered_at > viewed + INTERVAL '48 hours' ORDER BY user_id;

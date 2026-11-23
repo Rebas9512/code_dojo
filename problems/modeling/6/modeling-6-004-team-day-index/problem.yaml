@@ -1,0 +1,35 @@
+id: modeling-6-004-team-day-index
+title: 为站点内日期范围建索引
+track: modeling
+stage: '6'
+order: 40
+unit: 1
+format: write
+difficulty: 52
+skills:
+  requires:
+  - modeling.index
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+checks:
+- label: 索引类型和键顺序
+  query: |-
+    SELECT am.amname, i.indisunique, n, (i.indoption[n-1] & 1) AS descending, pg_get_indexdef(i.indexrelid,n,true) AS key
+    FROM pg_index i JOIN pg_class c ON c.oid=i.indexrelid JOIN pg_am am ON am.oid=c.relam
+    CROSS JOIN LATERAL generate_series(1,i.indnkeyatts) n
+    WHERE i.indrelid='public.visits'::regclass AND c.relname='visits_team_day_idx' AND i.indpred IS NULL ORDER BY n
+  ordered: true
+- label: visits 的记录
+  query: SELECT * FROM visits
+  ordered: false
+wrong_examples:
+- why: 颠倒复合键顺序
+  sql: CREATE INDEX visits_team_day_idx ON visits (day,team);
+- why: 遗漏日期键
+  sql: CREATE INDEX visits_team_day_idx ON visits (team);
+- why: 站点内日期按降序排列
+  sql: |
+    CREATE INDEX visits_team_day_idx ON visits (team,day DESC);

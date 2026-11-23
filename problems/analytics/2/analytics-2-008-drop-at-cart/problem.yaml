@@ -1,0 +1,53 @@
+id: analytics-2-008-drop-at-cart
+title: 哪些读者停在购物车
+track: analytics
+stage: '2'
+unit: 2
+order: 80
+format: variant
+difficulty: 40
+skills:
+  requires:
+    - sql.self-join
+    - sql.multi-join
+    - sql.join-conditions
+    - sql.join-aggregate
+    - sql.anti-join
+    - analytics.ordered-path
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 选最早的入口，然后只在严格晚于入口的动作中选下一步。每一步拿到的时刻都属于同一个人。
+wrong_examples:
+  - why: 选出了已经下单的人
+    sql: |-
+      WITH views AS (
+          SELECT user_id, MIN(happened_at) AS viewed FROM events WHERE action = 'view' GROUP BY user_id
+      ), carts AS (
+          SELECT p.*, MIN(e.happened_at) AS carted FROM views p LEFT JOIN events e
+            ON e.user_id = p.user_id AND e.action = 'cart' AND e.happened_at > p.viewed
+          GROUP BY p.user_id, p.viewed
+      ), orders AS (
+          SELECT p.*, MIN(e.happened_at) AS ordered_at FROM carts p LEFT JOIN events e
+            ON e.user_id = p.user_id AND e.action = 'order' AND e.happened_at > p.carted
+          GROUP BY p.user_id, p.viewed, p.carted
+      )
+      SELECT user_id FROM orders WHERE carted IS NOT NULL AND ordered_at IS NOT NULL ORDER BY user_id;
+  - why: 把下单当成了加购
+    sql: |-
+      WITH views AS (
+          SELECT user_id, MIN(happened_at) AS viewed FROM events WHERE action = 'view' GROUP BY user_id
+      ), carts AS (
+          SELECT p.*, MIN(e.happened_at) AS carted FROM views p LEFT JOIN events e
+            ON e.user_id = p.user_id AND e.action = 'order' AND e.happened_at > p.viewed
+          GROUP BY p.user_id, p.viewed
+      ), orders AS (
+          SELECT p.*, MIN(e.happened_at) AS ordered_at FROM carts p LEFT JOIN events e
+            ON e.user_id = p.user_id AND e.action = 'order' AND e.happened_at > p.carted
+          GROUP BY p.user_id, p.viewed, p.carted
+      )
+      SELECT user_id FROM orders WHERE carted IS NOT NULL AND ordered_at IS NULL ORDER BY user_id;

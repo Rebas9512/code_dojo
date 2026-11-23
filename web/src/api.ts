@@ -1,5 +1,4 @@
-import type { SqlTable, Difference } from './sql/compare'
-import type { SqlExercise } from './sql/engine'
+import type { SqlTable, Difference, SqlCheck, CheckValue } from './sql/compare'
 
 // 和后端 server/app/main.py 对应的类型与请求
 
@@ -88,7 +87,7 @@ export interface TrackInfo {
   next: PracticeLink | null
 }
 export type Format = 'predict' | 'complete' | 'fix' | 'write' | 'variant' | 'combine' | 'inspect'
-export type Mode = 'function' | 'class' | 'stdio' | 'predict' | 'inspect' | 'dml' | null
+export type Mode = 'function' | 'class' | 'stdio' | 'predict' | 'inspect' | 'dml' | 'script' | null
 export type Status = 'solved' | 'assisted' | 'attempted' | null
 
 export interface SkillRef {
@@ -216,6 +215,10 @@ export interface Skill {
 export type CaseStatus = 'passed' | 'wrong_answer' | 'runtime_error' | 'timeout' | 'skipped'
 export type Verdict = 'accepted' | 'compile_error' | 'constraint_error' | 'system_error' | CaseStatus
 
+type SqlDataset<T> = { setup: string[]; hidden: boolean; expected: T }
+type SqlPlan = { mode: 'script'; checks: SqlCheck[]; datasets: SqlDataset<{ checks: CheckValue[] }>[] } |
+  { mode?: 'dml'; check_query?: string; ordered: boolean; tolerance: number; datasets: SqlDataset<SqlTable>[] }
+
 export interface FullCaseResult {
   affected_rows?: number
   difference?: Difference
@@ -333,7 +336,7 @@ export const api = {
   skills: (track: Track) => request<Skill[]>(`/api/tracks/${track}/skills`),
   problem: (id: string) => request<ProblemDetail>(`/api/problems/${encodeURIComponent(id)}`),
   sqlCases: (id: string, scope: 'sample' | 'all') =>
-    request<SqlExercise & { ordered: boolean; tolerance: number; datasets: { setup: string[]; hidden: boolean; expected: SqlTable }[] }>(
+    request<SqlPlan>(
       `/api/problems/${encodeURIComponent(id)}/sql-cases?scope=${scope}`),
   run: (id: string, body: JudgeRequest) =>
     request<JudgeResult>(`/api/problems/${encodeURIComponent(id)}/run`, { method: 'POST', body: JSON.stringify(body) }),

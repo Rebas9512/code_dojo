@@ -1,0 +1,31 @@
+id: sql-3-105-no-red-ink
+title: 修一修：没订过红墨的工匠
+track: sql
+stage: '3'
+order: 115
+format: fix
+difficulty: 46
+skills:
+  requires:
+    - sql.and-or
+    - sql.exists
+  introduces: null
+source: leetcode-db
+leetcode: sales-person
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 尝试寻找一条能证明当前工匠订过红墨的记录，再对这个存在性判断取反。
+wrong_examples:
+  - why: 排除名单含 NULL，NOT IN 得不到真值
+    sql: |-
+      SELECT m.name FROM makers m
+      WHERE m.maker NOT IN (SELECT i.maker FROM ink_orders i WHERE i.pigment = 'red');
+  - why: 把任何订单都当红墨单
+    sql: |-
+      SELECT m.name FROM makers m
+      WHERE NOT EXISTS (SELECT 1 FROM ink_orders i WHERE i.maker = m.maker);

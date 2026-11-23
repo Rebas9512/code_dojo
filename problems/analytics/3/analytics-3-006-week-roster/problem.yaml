@@ -1,0 +1,28 @@
+id: analytics-3-006-week-roster
+title: 补全：按周一归入批次
+track: analytics
+stage: '3'
+unit: 2
+order: 60
+format: complete
+difficulty: 45
+skills:
+  requires:
+    - sql.round-cast
+  introduces: analytics.cohort-matrix
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 用注册周的周一标记批次，用周一之间的差划分观察周。同一个读者在一格中只出现一次。
+wrong_examples:
+  - why: 把周日当作一周开头
+    sql: |-
+      SELECT DATE_TRUNC('week', joined_on + 1)::date - 1 AS cohort, COUNT(*) AS readers_n
+      FROM readers GROUP BY cohort ORDER BY cohort;
+  - why: 把有注册的天数当注册人数
+    sql: |-
+      SELECT DATE_TRUNC('week', joined_on)::date AS cohort, COUNT(DISTINCT joined_on) AS readers_n
+      FROM readers GROUP BY cohort ORDER BY cohort;

@@ -1,0 +1,38 @@
+id: analytics-7-006-renewal-overall
+title: 补全：续费提醒① · 先看总率
+track: analytics
+stage: '7'
+unit: 2
+order: 60
+format: complete
+difficulty: 65
+skills:
+  requires:
+    - sql.round-cast
+  introduces: analytics.renewal-mix
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 整体续费率是各套餐续费率按到期人数加权的平均。固定套餐权重，可以比较构成不变时的变化。
+wrong_examples:
+  - why: 把迟到的续费也算成功
+    sql: |-
+      WITH weekly AS (
+          SELECT DATE_TRUNC('week', due_on)::date AS week_start,
+                 COUNT(*) AS due_n, COUNT(*) FILTER (WHERE renewed_on >= due_on) AS renewed_n
+          FROM renewal_offers GROUP BY week_start
+      )
+      SELECT week_start, due_n, renewed_n, ROUND(renewed_n::numeric/due_n, 4) AS rate
+      FROM weekly ORDER BY week_start;
+  - why: 只用最终有续费记录的人作分母
+    sql: |-
+      WITH weekly AS (
+          SELECT DATE_TRUNC('week', due_on)::date AS week_start,
+                 COUNT(renewed_on) AS due_n, COUNT(*) FILTER (WHERE renewed_on BETWEEN due_on AND due_on+6) AS renewed_n
+          FROM renewal_offers GROUP BY week_start
+      )
+      SELECT week_start, due_n, renewed_n, ROUND(renewed_n::numeric/due_n, 4) AS rate
+      FROM weekly ORDER BY week_start;

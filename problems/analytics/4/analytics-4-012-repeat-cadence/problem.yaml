@@ -1,0 +1,34 @@
+id: analytics-4-012-repeat-cadence
+title: 每人的平均复购间隔
+track: analytics
+stage: '4'
+unit: 3
+order: 120
+format: combine
+difficulty: 52
+skills:
+  requires:
+    - sql.round-cast
+    - sql.cte
+    - analytics.event-spacing
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 端点带着原行的动作或交易编号。计算间隔前先选中业务事件，再在每人自己的序列中取相邻两笔。
+wrong_examples:
+  - why: 让退款也参与相邻配对
+    sql: "WITH purchases AS (\n    SELECT user_id, payment_id, paid_at,\n           LAG(paid_at) OVER (PARTITION BY user_id\
+      \ ORDER BY paid_at, payment_id) AS previous_at\n    FROM payments \n)\nSELECT user_id, ROUND(AVG(paid_at::date - previous_at::date),\
+      \ 2) AS mean_days FROM purchases WHERE previous_at IS NOT NULL GROUP BY user_id ORDER BY user_id;"
+  - why: 把不同读者的购买接在了一起
+    sql: |-
+      WITH purchases AS (
+          SELECT user_id, payment_id, paid_at,
+                 LAG(paid_at) OVER (ORDER BY paid_at, payment_id) AS previous_at
+          FROM payments WHERE amount>0
+      )
+      SELECT user_id, ROUND(AVG(paid_at::date - previous_at::date), 2) AS mean_days FROM purchases WHERE previous_at IS NOT NULL GROUP BY user_id ORDER BY user_id;

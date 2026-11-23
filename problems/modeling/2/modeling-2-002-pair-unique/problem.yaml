@@ -1,0 +1,54 @@
+id: modeling-2-002-pair-unique
+title: 同一馆内的标签不能重名
+track: modeling
+stage: '2'
+order: 20
+unit: 1
+format: write
+difficulty: 18
+skills:
+  requires:
+  - modeling.unique
+  introduces: null
+source: original
+mode: script
+datasets:
+- db:workshop
+checks:
+- label: 表结构 · tags
+  query: |-
+    SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS type,
+           a.attnotnull AS required, a.attidentity AS identity_kind
+    FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid
+    WHERE c.oid = to_regclass('public.tags') AND c.relkind = 'r' AND a.attnum > 0 AND NOT a.attisdropped
+    ORDER BY a.attnum
+  ordered: true
+- label: tags 的记录
+  query: SELECT * FROM tags
+  ordered: false
+- label: 重复组合被拒绝
+  probe: INSERT INTO tags VALUES ('east','new')
+  expect: error
+- label: 同馆可有多个名称
+  probe: INSERT INTO tags VALUES ('east','old')
+  expect: ok
+- label: 跨馆允许同名
+  probe: INSERT INTO tags VALUES ('west','new')
+  expect: ok
+wrong_examples:
+- why: 只让名称全局唯一
+  sql: |-
+    CREATE TABLE tags (
+        branch text NOT NULL,
+        name text NOT NULL,
+        UNIQUE(name)
+    );
+    INSERT INTO tags VALUES ('east','new');
+- why: 限制每个馆只能有一条标签
+  sql: |-
+    CREATE TABLE tags (
+        branch text NOT NULL,
+        name text NOT NULL,
+        UNIQUE(branch)
+    );
+    INSERT INTO tags VALUES ('east','new');

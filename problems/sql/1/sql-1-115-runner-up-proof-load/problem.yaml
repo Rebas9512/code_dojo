@@ -1,0 +1,32 @@
+id: sql-1-115-runner-up-proof-load
+title: 修一修：移植分页找出第三忙的台位
+track: sql
+stage: '1'
+order: 62
+format: fix
+difficulty: 22
+skills:
+  requires:
+    - sql.group-by
+    - sql.limit
+    - sql.sum-avg
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 先画掉已跳过的两行，再数要取几行；分别把两个数放进对应子句。
+wrong_examples:
+  - why: 把跳过行数与返回行数写反
+    sql: |-
+      SELECT bench, SUM(sheets) AS total FROM load_slips
+      GROUP BY bench ORDER BY total DESC, bench LIMIT 2 OFFSET 1;
+  - why: 偏移只跳过第一名
+    sql: |-
+      SELECT bench, SUM(sheets) AS total FROM load_slips
+      GROUP BY bench ORDER BY total DESC, bench LIMIT 1 OFFSET 1;

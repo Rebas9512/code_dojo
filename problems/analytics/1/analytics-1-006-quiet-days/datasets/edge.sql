@@ -1,0 +1,2 @@
+DELETE FROM logins WHERE logged_at::date = DATE '2025-01-09';
+INSERT INTO logins VALUES (9001, 1, '2025-01-08 12:00'), (9002, 1, '2025-01-08 12:00');

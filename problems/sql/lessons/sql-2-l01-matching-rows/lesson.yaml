@@ -84,3 +84,13 @@ steps:
       - 左侧书号 IS NULL
     answer: 0
     explain: 真实评分一定有星数。只有没配上右表的补位行会在这一列留下 NULL。
+  - type: read
+    skill: sql.left-join
+    md: |
+      一份名册要显示所有员工的分机。先从名册 LEFT JOIN 分机表，没分到工位的人也有一行，号码位置为 NULL。MySQL 的 IFNULL(dial, 'unrouted') 在 PostgreSQL 写作 COALESCE(dial, 'unrouted')。函数从左到右取第一个非空值。如果把常量放在左边，已分配的号码也会被遮住。先拿一位已有号码的人和一位还没号码的人各验一次。
+  - type: quiz
+    skill: sql.left-join
+    q: 已有分机 X8 时，COALESCE('unrouted', dial) 返回什么？
+    options: [X8, unrouted, 'NULL']
+    answer: 1
+    explain: 第一个参数已经有值，函数直接返回 unrouted。

@@ -1,0 +1,44 @@
+id: sql-4-109-kiln-inspection-streaks
+title: 补全：定位连续巡窑日
+track: sql
+stage: '4'
+order: 161
+format: complete
+difficulty: 61
+skills:
+  requires:
+    - sql.cte
+    - sql.gaps-islands
+    - sql.round-cast
+  introduces: null
+source: original
+leetcode: null
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 先按窑和日去重；连续日中，日期与行号同时加一。
+wrong_examples:
+  - why: 重复记录也编号
+    sql: |-
+      WITH days AS (
+          SELECT kiln, day FROM kiln_checks WHERE day IS NOT NULL
+      ), tagged AS (
+          SELECT kiln, day, day - (ROW_NUMBER() OVER (PARTITION BY kiln ORDER BY day))::int AS block
+          FROM days
+      )
+      SELECT kiln, MIN(day) AS first_day, MAX(day) AS last_day, COUNT(*) AS days
+      FROM tagged GROUP BY kiln, block;
+  - why: 把各台窑的日期一起编号
+    sql: |-
+      WITH days AS (
+          SELECT DISTINCT kiln, day FROM kiln_checks WHERE day IS NOT NULL
+      ), tagged AS (
+          SELECT kiln, day, day - (ROW_NUMBER() OVER (ORDER BY day, kiln))::int AS block
+          FROM days
+      )
+      SELECT kiln, MIN(day) AS first_day, MAX(day) AS last_day, COUNT(*) AS days
+      FROM tagged GROUP BY kiln, block;

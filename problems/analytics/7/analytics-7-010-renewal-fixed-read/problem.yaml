@@ -1,0 +1,32 @@
+id: analytics-7-010-renewal-fixed-read
+title: 续费提醒⑤ · 固定构成后的结论
+track: analytics
+stage: '7'
+unit: 2
+order: 100
+format: inspect
+difficulty: 66
+skills:
+  requires:
+    - analytics.renewal-mix
+  introduces: null
+source: original
+mode: inspect
+data:
+  - kind: table
+    title: 续费提醒⑤ · 固定构成后的结论
+    file: evidence.csv
+answer:
+  type: short
+  accept:
+    - flat
+  misconceptions:
+    fall:
+      id: AN72E1
+      name: 读了实际总率一列
+      line: 题目固定了套餐权重，应看 fixed_rate。
+    rise:
+      id: AN72E2
+      name: 反向读取固定权重结果
+      line: 对照 fixed_rate 两行的值。
+explain: 固定构成后，两周均为 0.6875。样例中整体下降可由套餐构成变化解释。

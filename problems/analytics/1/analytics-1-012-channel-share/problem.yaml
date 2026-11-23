@@ -1,0 +1,30 @@
+id: analytics-1-012-channel-share
+title: 新增读者来自哪些渠道
+track: analytics
+stage: '1'
+unit: 3
+order: 120
+format: variant
+difficulty: 37
+skills:
+  requires:
+    - sql.round-cast
+    - sql.cte
+    - analytics.period-change
+  introduces: null
+source: original
+datasets:
+  - db:readerapp
+  - db:readerapp + datasets/edge.sql
+ordered: true
+hints:
+  - 占比用部分除以整体。增长率用本期与基期之差除以基期，基期为零时没有可定义的增长率。
+wrong_examples:
+  - why: 把最大组当总人数
+    sql: |-
+      WITH sizes AS (SELECT channel, COUNT(*) AS n FROM readers GROUP BY channel)
+      SELECT channel, n, ROUND(n / MAX(n) OVER (), 4) AS share FROM sizes ORDER BY channel;
+  - why: 分母只看自己这组
+    sql: |-
+      WITH sizes AS (SELECT channel, COUNT(*) AS n FROM readers GROUP BY channel)
+      SELECT channel, n, ROUND(n / SUM(n) OVER (PARTITION BY channel), 4) AS share FROM sizes ORDER BY channel;

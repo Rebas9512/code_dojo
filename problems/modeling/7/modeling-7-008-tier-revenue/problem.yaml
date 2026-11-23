@@ -1,0 +1,39 @@
+id: modeling-7-008-tier-revenue
+title: 会员面试三：按成交时的等级汇总
+track: modeling
+stage: '7'
+order: 80
+unit: 2
+format: write
+difficulty: 64
+skills:
+  requires:
+  - modeling.asof
+  - sql.join-aggregate
+  - sql.join-conditions
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: 对象是普通视图
+  query: SELECT table_type FROM information_schema.tables WHERE table_schema='public' AND table_name='tier_kpi'
+  ordered: false
+- label: tier_kpi 的记录
+  query: SELECT tier,payments_n,gross FROM tier_kpi
+  ordered: false
+wrong_examples:
+- why: 相同金额只累计一次
+  sql: |-
+    CREATE VIEW tier_kpi AS
+    SELECT t.tier,COUNT(*) AS payments_n,SUM(DISTINCT p.amount) AS gross
+    FROM payments p JOIN tiers t ON p.member_id=t.member_id
+     AND p.day>=t.since AND (t.until_day IS NULL OR p.day<t.until_day) GROUP BY t.tier;
+- why: 交易当天归属了前后两个等级
+  sql: |-
+    CREATE VIEW tier_kpi AS
+    SELECT t.tier,COUNT(*) AS payments_n,SUM(p.amount) AS gross
+    FROM payments p JOIN tiers t ON p.member_id=t.member_id
+     AND p.day>=t.since AND (t.until_day IS NULL OR p.day<=t.until_day) GROUP BY t.tier;

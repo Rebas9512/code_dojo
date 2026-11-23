@@ -1,4 +1,6 @@
-# 题目格式规范 v1.8
+# 题目格式规范 v1.9
+
+> v1.9 支持 SQL 多语句脚本、逐项查询和探针、课内多语句示例，以及看数据作答题的典型误答。
 
 > v1.8 支持在 problem.yaml 中用可选的正整数 `week` 指定阶段内的练习周次。
 
@@ -137,6 +139,8 @@ explain: |
 | values | JSON 数组，如 `[7, "7", 7.0, true, null]` | 每一项单独等宽显示，保留原文的类型写法 |
 
 短答案的 `accept` 写成非空字符串列表。平台按 `normalize` 指定的顺序处理学生答案和可接受答案，默认去首尾空白（strip）、全角 ASCII 及全角空格转半角（fullwidth）、忽略大小写（casefold）。可写 `normalize: []` 精确比较。规范化后每个可接受答案都必须非空且唯一。
+
+看数据作答题可用 `wrong_examples: [{why: 误解原因, answer: "0"}]` 记录典型误答。学习曲线检查会按本题规则核对这些答案确实判错。
 
 单选把 `answer` 换成下面的结构。至少两个选项，`correct` 和误解映射的键都从 0 数。页面上的数字键从 1 数。
 
@@ -313,6 +317,23 @@ ordered: true
 学生、`solution.sql` 和每个 `wrong_examples[].sql` 各写一条 `DELETE`、`UPDATE` 或 `INSERT`，可用 `WITH` 引出这条语句。每次从该数据集的初始状态执行一份答案，再用题目提供的单条只读 `check_query` 读取最终状态，随后回滚。检查查询应包含所有需要保留的行和列，`ordered: true` 时用 `ORDER BY` 确定行序。
 
 参考解必须在每个数据集上改变检查结果，删除后的表可以为空。至少给一段能运行的典型错误写法，每段都要在至少一个隐藏数据集上产生不同的最终状态。SQL 附加题遵循同一规则。结果面板显示两张表，以及 PostgreSQL 对学生主语句报告的影响行数。判分依据是最终状态。
+
+### SQL 脚本题
+
+```yaml
+mode: script
+checks:
+  - label: 载入后的会员表
+    query: SELECT id, email FROM members ORDER BY id
+    ordered: true
+  - label: 重复邮箱会被拒绝
+    probe: INSERT INTO members(email) VALUES ('a@x.com')
+    expect: error
+```
+
+脚本题至少有一项检查。每个数据集从初始库开始，在同一个事务内执行整份答案和各项检查，结束时回滚。答案可含建表、写入、视图、索引等多条语句。事务由判题器管理，答案和课内脚本中使用 BEGIN、COMMIT、ROLLBACK、SAVEPOINT 或同类事务控制命令会收到中文提示。
+
+每项有中文 `label`。`query` 为一条只读查询，按本项的 `ordered`（默认 false）与同一数据集上参考脚本的结果比对，允许空表。`probe` 为一条试写语句，`expect: ok` 要求数据库接受，`expect: error` 要求数据库拒绝。每项在独立保存点中执行并撤销，探针写入的行不会进入后续检查。PostgreSQL 序列取号可能留空号，检查自增列时以唯一、递增为准。每个参考脚本必须通过全部探针，每份典型错误脚本至少在一个数据集上判错。附加题沿用相同判定。课的 SQL 示例可以先建表、写数据，再以一条查询展示结果，再次运行会重新建库。
 
 ## 谁检查什么
 

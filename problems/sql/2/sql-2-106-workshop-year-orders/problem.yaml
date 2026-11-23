@@ -1,0 +1,38 @@
+id: sql-2-106-workshop-year-orders
+title: 修一修：保留全年零订单的工坊
+track: sql
+stage: '2'
+order: 135
+format: fix
+difficulty: 32
+skills:
+  requires:
+    - sql.join-aggregate
+    - sql.join-conditions
+    - sql.left-join
+  introduces: null
+source: leetcode-db
+leetcode: market-analysis-i
+milestones: []
+datasets:
+  - datasets/sample.sql
+  - datasets/sample.sql + datasets/more.sql
+  - datasets/sample.sql + datasets/edge.sql
+ordered: false
+hints:
+  - 将年份写成匹配订单的条件，让没有年内记录的左侧工坊也留下。
+wrong_examples:
+  - why: 把右表日期筛选移到 WHERE
+    sql: |-
+      SELECT w.shop, w.opened, COUNT(o.ticket) AS tickets
+      FROM workshops w LEFT JOIN print_orders o
+        ON w.shop = o.shop
+      WHERE o.placed >= DATE '2025-01-01' AND o.placed < DATE '2026-01-01'
+      GROUP BY w.shop, w.opened;
+  - why: 无匹配也数为一单
+    sql: |-
+      SELECT w.shop, w.opened, COUNT(*) AS tickets
+      FROM workshops w LEFT JOIN print_orders o
+        ON w.shop = o.shop
+       AND o.placed >= DATE '2025-01-01' AND o.placed < DATE '2026-01-01'
+      GROUP BY w.shop, w.opened;

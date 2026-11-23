@@ -1,0 +1,35 @@
+id: modeling-7-009-daily-buyers
+title: 会员面试四：计算日付费人数
+track: modeling
+stage: '7'
+order: 90
+unit: 2
+format: write
+difficulty: 65
+skills:
+  requires:
+  - modeling.asof
+  - modeling.grain
+  - sql.count-distinct
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: 对象是普通视图
+  query: SELECT table_type FROM information_schema.tables WHERE table_schema='public' AND table_name='daily_kpi'
+  ordered: false
+- label: daily_kpi 的记录
+  query: SELECT day,buyers,gross FROM daily_kpi
+  ordered: false
+wrong_examples:
+- why: 多次支付重复计人
+  sql: |-
+    CREATE VIEW daily_kpi AS
+    SELECT day,COUNT(*) AS buyers,SUM(amount) AS gross FROM payments GROUP BY day;
+- why: 误用均值作总额
+  sql: |-
+    CREATE VIEW daily_kpi AS
+    SELECT day,COUNT(DISTINCT member_id) AS buyers,AVG(amount) AS gross FROM payments GROUP BY day;

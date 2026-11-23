@@ -5,7 +5,7 @@
 
 ## 这个项目是什么
 - **目标**：长时间没手写代码，手很生。做一个类似 LeetCode 的网页，从 beginner 开始一步步把手写能力练回来，同时覆盖求职常用的标准题单。
-- **学习线**：10 条线全部开放，共 1320 题。认识数据（20）是 Python 基础（238）与 SQL（142）的共同起点。其余为算法与数据结构（403）、数学（80）、数据处理（100）、张量（90）、机器学习（87）、训练（80）、手搓 LLM（80）。
+- **学习线**：12 条线全部开放，共 1554 题。认识数据（20）是 Python 基础（238）与 SQL（216）的共同起点。SQL 之后可学产品分析 SQL（90）和建模与写数据（70）。其余为算法与数据结构（403）、数学（80）、数据处理（100）、张量（90）、机器学习（87）、训练（80）、手搓 LLM（80）。
 - **使用方式**：每台机器运行自己的本机网页，代码和题库共用一个私有仓库，个人学习记录可用另一个私有仓库同步。助教使用个人订阅。也可以在自己的服务器启用登录后远程访问。
 - **当前成果**：地图和知识点页展示技能掌握度，今日计划安排到期复习和新题，手感统计按周展示练习趋势。Python 可用本机解释器或 Docker 判题，SQL 在浏览器中判题，两者都支持可运行的课、AI 助教和附加题。
 
@@ -23,13 +23,14 @@ code-dojo/
 │   ├── teaching-design.md 教学设计和具名误解目录
 │   ├── reports/          调研报告
 │   └── research_notes/   调研的原始笔记（一个调研一个文件夹）
-├── web/                  前端：登录、学习地图、练习工作区、今日计划、手感统计；SQL 查询与修改语句在 PGlite Worker 中判题
+├── web/                  前端：登录、学习地图、练习工作区、今日计划、手感统计；SQL 查询、单条修改与多语句脚本在 PGlite Worker 中判题
 ├── codex/                派给 codex 的任务：brief.md（标准做法）、PLAN.md（排期和文件归属）、tasks/、runs/（运行记录，不进 git）
 ├── deploy/               单端口启动脚本、环境变量、systemd 与 Cloudflare Tunnel 模板
 ├── judge/python/         本地和两个 Docker 镜像共用的 Python 判题程序、普通 Python 镜像定义
 ├── judge/ds/             数据科学判题镜像（numpy + pandas + CPU 版 torch，从 Python 镜像复制 harness）
 ├── server/               后端：FastAPI（uv）；Python 判题（本地或 Docker）、题库、掌握度、复习日程与 AI 服务
 ├── problems/             固定题库（文件，git 管理）
+│   ├── modeling/         建模与写数据：技能、课、分阶段脚本题与稽核题
 │   ├── <track>/track.yaml     名称、顺序、语言、运行环境、前置线、阶段和单元名
 │   ├── <track>/skills.yaml    本线技能、前置技能、知识卡
 │   ├── <track>/lessons/       按技能编排的课
@@ -111,7 +112,7 @@ cd web && npm run build                                # 类型检查 + 打包
 - `server/app/result_preview.py` 在判题结束后生成摘要。样例的单个输入、期望、实际等字段超过约 2 KB 时保存前缀和总字符数，隐藏用例使用更短的预览。SQLite 保存这份摘要。SQL 的即时结果面板使用 Worker 的表格预览，Python 和数据题显示服务器返回的摘要。
 - `judge/python/harness.py` 在工作目录读 `job.json`，逐个执行用例，以 `@@CODE_DOJO_RESULT@@` 前缀输出一行 JSON。checker 需要检查学生源码时，从当前工作目录读取 UTF-8 的 `user.py`。工作线程使用 256 MiB 栈和 20 万层递归上限。主线程负责计时，超时后保留已完成的用例，把剩余用例标为跳过。
 - `server/app/judge.py` 选择判题后端，`local_judge.py` 用 uv 准备专用解释器并管理子进程。题库、课和技能索引由 `tracks.py` 和 `problems.py` 加载，文件修改后自动重载。`db.py` 保存提交和 AI 对话，`main.py` 提供相应 API。
-- `server/app/sql_judge.py` 展开 SQL 数据集、缓存期望表并调用 `sql_runner.mjs`。开发后端、`scripts/verify_bank.py` 和内容侧 `verify_sql.py` 的修改类题都用这个 Node 入口。浏览器的入口在 `web/src/sql/client.ts` 和 `worker.ts`，两个环境共用 `engine.ts` 和 `compare.ts`。
+- `server/app/sql_judge.py` 展开 SQL 数据集、缓存期望表并调用 `sql_runner.mjs`。开发后端和 `scripts/verify_bank.py` 使用这个 Node 入口，内容侧 `verify_sql.py` 通过 `pglite_runner.mjs` 批量执行相同的修改题与脚本题验证逻辑。浏览器的入口在 `web/src/sql/client.ts` 和 `worker.ts`，两个环境共用 `engine.ts` 和 `compare.ts`。
 - `server/app/inspect_data.py` 是题库加载、内容检查和 AI 附加题共用的数据块与答案校验。前端 `components/InspectData.tsx` 显示五种题面数据和课里的 CSV 编辑视图。
 - `server/app/ai/`：`provider.py` 调 `claude -p`（走 Claude 订阅；测试用 `FakeProvider`）；`tutor.py` 是助教——提示词设定、上下文组装（题面、参考解、带行号的当前代码、最近一次判题、对话历史）、修改建议的定位检查。
 - `web/src/pages/` 的学习地图、题目列表、知识点、今日计划、统计和登录页共用深浅两套 VS Code Modern 色板。界面使用本地 TeX Gyre Heros 和按需加载的 Noto Sans SC 分片，代码和数值使用 JetBrains Mono。字体和图标的署名及许可证随前端发布到 `/licenses/`。
@@ -187,7 +188,8 @@ SQL 题按"用到的最高概念"归阶段，不照搬 SQL 50 的分节。阶段
 ├─ Python 基础 ┬─ 算法与数据结构
 │              ├─ 数学（用代码学）──┐
 │              └─ 数据处理（wrangle）┴─ 张量与 PyTorch ─ 机器学习手写 ─ 训练 ─ 手搓 LLM
-└─ SQL
+└─ SQL ┬─ 产品分析 SQL
+       └─ 建模与写数据
 ```
 
 机器学习手写还直接以数学为前置。数据处理线用 `sql_twin` 关联 SQL 题，便于对照练习同一查询的 pandas 和 SQL 写法。
@@ -198,6 +200,8 @@ SQL 题按"用到的最高概念"归阶段，不照搬 SQL 50 的分节。阶段
 | Python 基础 | 0A / 0B | Python 沙箱 | 自编 |
 | 算法与数据结构 | 现在的阶段 1–5（NeetCode 250 + 面试混合） | Python 沙箱 | NeetCode 250 |
 | SQL | 现在的阶段 0–5 | 浏览器 PGlite | SQL 50 + 自编 |
+| 产品分析 SQL（`analytics`） | 产品指标、留存、实验分析 | 浏览器 PGlite | 自编 |
+| 建模与写数据（`modeling`） | 建表、约束、写入、增量载入、维度建模、质量检查、履约和会员面试 | 浏览器 PGlite / 看数据作答 | 自编 |
 | 数学（用代码学） | 向量和点积、矩阵乘法、函数和图像、导数（数值求导）、链式法则、梯度、指数和对数、概率和期望、均值和方差、softmax | Python 沙箱 | 自编 |
 | 数据处理（`wrangle`） | NumPy：数组、形状、下标和切片、布尔掩码、广播、向量化（不许写循环）、聚合和 axis → pandas：Series / DataFrame、筛选、排序、缺失值、groupby、merge、pivot、时间列、pandas 版 SQL 题 | 数据科学沙箱 | numpy-100（MIT）、LeetCode Introduction to Pandas / 30 Days of Pandas（只参考题目）、自编 |
 | 张量与 PyTorch | 张量和 dtype、view / reshape / permute、广播、索引 / gather / 掩码、einsum、autograd 基础、nn.Module | 数据科学沙箱 | Tensor Puzzles（MIT）、TorchLeet（MIT） |
@@ -242,8 +246,9 @@ SQL 题按"用到的最高概念"归阶段，不照搬 SQL 50 的分节。阶段
   - 阶段 0 也支持"读输入、打印输出"模式。
   - 报错：traceback 行号对回用户代码。
 - **SQL（PGlite = 浏览器里的 PostgreSQL，Web Worker）**
-  - SQL 做题页按需加载一个 Worker 和内存数据库。每份答案在独立事务里建表、填数据，执行后回滚。查询题与课示例允许单条只读 SELECT 或 WITH 查询。修改题允许单条 DELETE、UPDATE 或 INSERT（可带 WITH），执行后用题目指定的只读 `check_query` 读取最终状态。执行时限为 2 秒。
-  - `GET /api/problems/{id}/sql-cases?scope=sample|all` 返回建表脚本、期望列名、类型和行，修改题另返回 `mode: dml` 和 `check_query`。桌面端优先读取随版本发布的期望表，动态数据集由浏览器校验。开发服务器用 Node PGlite 跑参考解，在 `CODE_DOJO_DATA/sql-cache/` 按内容的 SHA-256 缓存。修改题的缓存键含模式、检查查询、排序要求、参考解和数据脚本。固定题的参考解留在服务器。个人站点允许提交时将隐藏数据集的建表与数据脚本、期望结果发到浏览器。
+  - SQL 做题页按需加载一个 Worker 和内存数据库。每份答案在独立事务里建表、填数据，执行后回滚。查询题允许单条只读 SELECT 或 WITH 查询。修改题允许单条 DELETE、UPDATE 或 INSERT（可带 WITH），执行后用题目指定的只读 `check_query` 读取最终状态。脚本题执行整段 DDL、DML 后依次检查。课示例可执行多条语句，显示末条语句的结果。执行时限为 2 秒。
+  - `GET /api/problems/{id}/sql-cases?scope=sample|all` 返回建表脚本、期望列名、类型和行，修改题另返回 `mode: dml` 和 `check_query`。桌面端优先读取随版本发布的期望表，动态数据集由浏览器校验。开发服务器用 Node PGlite 跑参考解，在 `CODE_DOJO_DATA/sql-cache/` 按内容的 SHA-256 缓存。修改题的缓存键含模式、检查查询、排序要求、参考解和数据脚本。脚本题返回 checks 和各项期望，缓存键包含整份检查定义。固定题的参考解留在服务器。个人站点允许提交时将隐藏数据集的建表与数据脚本、期望结果发到浏览器。
+  - 脚本题的每一项 query 与参考脚本生成的结果表比对，每个 probe 验证一次试写应成功或失败。逐项使用保存点并撤销，最后回滚整个数据集。脚本内的事务控制命令会得到中文提示。结果面板逐项显示标签和判定，失败项展开两侧结果和数据库错误。固定脚本题与脚本附加题均要求所有参考检查通过，且每份典型错误写法在至少一个数据集上判错。
   - 修改题在结果面板并排显示“修改后的表”和“期望的表”，按数据集显示影响行数。行数不同时，较大表的预览中会标出缺失或多出的行。当前作答可切换查看各数据集的表格，历史记录保存紧凑摘要。
   - 固定修改题与 SQL 附加题共用验证规则。参考解必须在每个数据集上改变检查查询的结果，每段典型错误写法至少要在一个隐藏数据集上产生错误的最终状态。
   - 运行只比样例，提交比较全部数据集。比较列数、行数和单元格值，数字用相对和绝对容差 1e-6，NULL 等于 NULL，日期按 ISO 文本比较。只在 ordered 题比较行序，列名供显示。结果表各显示前 50 行，并指出首处差异。

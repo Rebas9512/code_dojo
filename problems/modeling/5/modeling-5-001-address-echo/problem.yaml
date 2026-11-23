@@ -1,0 +1,43 @@
+id: modeling-5-001-address-echo
+title: 找出反复存放的属性
+track: modeling
+stage: '5'
+order: 10
+unit: 1
+format: inspect
+difficulty: 41
+skills:
+  requires: []
+  introduces: modeling.dependency
+source: original
+mode: inspect
+data:
+- kind: table
+  title: 出库明细
+  content: |-
+    dispatch_id,depot_id,address
+    101,D2,Lake
+    102,D2,Lake
+    103,D7,Hill
+answer:
+  type: choice
+  options:
+  - dispatch_id
+  - depot_id
+  - address
+  correct: 2
+  misconceptions:
+    '0':
+      id: Model0
+      name: dispatch_id
+      line: 出库单编号标识独立业务，不随仓库搬家改变。
+    '1':
+      id: Model1
+      name: depot_id
+      line: 搬家改变地址，仓库的身份仍是原编号。
+explain: 地址由仓库编号决定，D2 的同一地址随两份出库单保存了两次。
+wrong_examples:
+- why: 出库单编号标识独立业务，不随仓库搬家改变。
+  answer: '0'
+- why: 搬家改变地址，仓库的身份仍是原编号。
+  answer: '1'

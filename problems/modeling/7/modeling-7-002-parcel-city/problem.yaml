@@ -1,0 +1,38 @@
+id: modeling-7-002-parcel-city
+title: 履约面试二：按城市数订单
+track: modeling
+stage: '7'
+order: 20
+unit: 1
+format: write
+difficulty: 58
+skills:
+  requires:
+  - modeling.grain
+  - modeling.view
+  - sql.count-distinct
+  - sql.join-aggregate
+  introduces: null
+source: original
+mode: script
+datasets:
+- sample.sql
+- sample.sql + hidden.sql
+checks:
+- label: 对象是普通视图
+  query: SELECT table_type FROM information_schema.tables WHERE table_schema='public' AND table_name='city_kpi'
+  ordered: false
+- label: city_kpi 的记录
+  query: SELECT city,orders_n,units_n FROM city_kpi
+  ordered: false
+wrong_examples:
+- why: 把包裹数当成订单数
+  sql: |-
+    CREATE VIEW city_kpi AS
+    SELECT d.city,COUNT(*) AS orders_n,SUM(p.units) AS units_n
+    FROM parcels p JOIN depots d ON p.depot_id=d.id GROUP BY d.city;
+- why: 把最大包裹当成总件数
+  sql: |-
+    CREATE VIEW city_kpi AS
+    SELECT d.city,COUNT(DISTINCT p.order_id) AS orders_n,MAX(p.units) AS units_n
+    FROM parcels p JOIN depots d ON p.depot_id=d.id GROUP BY d.city;
