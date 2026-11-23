@@ -1,0 +1,2 @@
+# uv.lock 的 SHA-256 写进安装包和更新包两边比对；Windows 检出不能改成 CRLF，否则随包依赖认不出来。
+server/uv.lock -text

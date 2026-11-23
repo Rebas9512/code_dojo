@@ -93,6 +93,10 @@ class Updates:
                 shutil.rmtree(path, ignore_errors=True)
 
     def libraries(self, manifest: dict) -> Path:
+        # 和安装包同一份依赖锁时直接用随包依赖，不复制（Windows 上复制两千多个文件要被 Defender 逐个扫描）。
+        # 换了依赖不同的新安装包又恰好离线时，旧更新包会缺依赖起不来；联网更新一次即可，不为此常驻一份副本。
+        if manifest["lock_sha256"] == (self.bundle / "lock.sha256").read_text().strip():
+            return self.bundle / "libraries"
         return self.root / "dependencies" / manifest["lock_sha256"]
 
     def prepare_dependencies(self, stage: Path, manifest: dict) -> None:
@@ -104,15 +108,11 @@ class Updates:
         target.parent.mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=target.parent) as tmp:
             libraries = Path(tmp) / "libraries"
-            if manifest["lock_sha256"] == (self.bundle / "lock.sha256").read_text().strip():
-                # 解压新版安装包会替换内置依赖；本地旧题库仍须能离线启动。
-                shutil.copytree(self.bundle / "libraries", libraries)
-            else:
-                subprocess.run([sys.executable, "-I", "-B", "-m", "pip", "--isolated", "install",
-                                "--no-cache-dir", "--require-hashes", "--only-binary=:all:",
-                                "--target", str(libraries), "-r", str(stage / "requirements.txt")],
-                               check=True, timeout=600, stdout=subprocess.DEVNULL,
-                               env=os.environ | {"TMPDIR": tmp, "TEMP": tmp, "TMP": tmp})
+            subprocess.run([sys.executable, "-I", "-B", "-m", "pip", "--isolated", "install",
+                            "--no-cache-dir", "--require-hashes", "--only-binary=:all:",
+                            "--target", str(libraries), "-r", str(stage / "requirements.txt")],
+                           check=True, timeout=600, stdout=subprocess.DEVNULL,
+                           env=os.environ | {"TMPDIR": tmp, "TEMP": tmp, "TMP": tmp})
             libraries.rename(target)
 
     def check(self, progress=lambda message: None) -> Result:
