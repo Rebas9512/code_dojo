@@ -12,12 +12,14 @@
 ## 目录
 ```
 code-dojo/
+├── README.md             仓库首页：英文展示页（个人自用说明、功能和截图），开发文档是本文件
 ├── dojo.py、dojo、dojo.ps1  本机启动、环境诊断和旧记录导入
 ├── desktop/              Electron 主进程、受限 preload、本地启动页与打包配置
-├── bootstrap/            JSONL 控制协议、令牌、更新包校验与本机服务启动
+├── bootstrap/            JSONL 控制协议、令牌、更新包下载与切换、本机服务启动
 ├── .github/workflows/    测试（推送跑 Linux，手动触发跑三系统）、更新包发布、桌面安装包发布
 ├── docs/
 │   ├── README.md         本文件
+│   ├── images/           仓库首页 README 用的截图（演示数据）
 │   ├── problem-format.md 题目 / 技能 / 课 / track 的文件格式（合同）
 │   ├── curriculum.md     学习曲线设计、各线题单规划
 │   ├── teaching-design.md 教学设计和具名误解目录
@@ -43,7 +45,7 @@ code-dojo/
 
 ## 桌面应用
 
-桌面版 1.1.2 在同一个 Electron 窗口里完成解锁、进地图和做题。Linux x86-64 提供 AppImage 与备用 tar.gz，Apple Silicon macOS 提供 .app zip，Windows x64 提供便携 zip。安装包内有 Chromium、CPython 3.14、pip、锁定的后端依赖及启动器。Linux 的 AppImage 可以交给 AppImageLauncher Lite 集成到菜单，也可以使用 `--appimage-extract-and-run` 启动。AppImage 的 `AppRun` 是一个只用 shell 内建的包装脚本，一律带 `--no-sandbox` 启动 Electron。Ubuntu 23.10 起默认禁止普通程序建用户命名空间，AppImage 里的 `chrome-sandbox` 又不可能归 root，不带这个参数就会直接退出。网页仍然是 sandbox + contextIsolation 的隔离页面，冒烟测试确认这个参数还在。Windows 和 macOS 照常启用 Chromium 沙箱。[首次安装和令牌设置](../deploy/README.md#在一台新电脑上用)
+桌面版 1.2.0 在同一个 Electron 窗口里完成解锁、进地图和做题。Linux x86-64 提供 AppImage 与备用 tar.gz，Apple Silicon macOS 提供 .app zip，Windows x64 提供便携 zip。安装包内有 Chromium、CPython 3.14、pip、锁定的后端依赖及启动器。Linux 的 AppImage 可以交给 AppImageLauncher Lite 集成到菜单，也可以使用 `--appimage-extract-and-run` 启动。AppImage 的 `AppRun` 是一个只用 shell 内建的包装脚本，一律带 `--no-sandbox` 启动 Electron。Ubuntu 23.10 起默认禁止普通程序建用户命名空间，AppImage 里的 `chrome-sandbox` 又不可能归 root，不带这个参数就会直接退出。网页仍然是 sandbox + contextIsolation 的隔离页面，冒烟测试确认这个参数还在。Windows 和 macOS 照常启用 Chromium 沙箱。[首次安装和令牌设置](../deploy/README.md#在一台新电脑上用)
 
 Electron 主进程建好窗口后，同时载入随包启动页和启动 `python -m bootstrap serve --protocol jsonl`，之后通过标准输入输出驱动它。启动器依次查本机凭据、能读取两个仓库的 GitHub CLI 登录、包内加密令牌，最后提供手动填写。输入的密码与令牌经本地启动页和标准输入传递。连续输错五次需等待 30 秒。首次解锁后优先存入系统钥匙串，备用位置是受保护的本机文件。
 
