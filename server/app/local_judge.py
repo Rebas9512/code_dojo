@@ -1,4 +1,4 @@
-"""本机专用的 uv 判题环境与子进程生命周期。"""
+"""本机和桌面安装包的判题环境与子进程生命周期。"""
 
 from __future__ import annotations
 
@@ -40,16 +40,27 @@ class LocalEnvironments:
         if runtime == "python":
             return self.root / "python-3.14"
         versions = "-".join(package.split("==")[1] for package in DS_PACKAGES)
-        return self.root / f"ds-3.14-{versions}"
+        suffix = "-desktop" if os.environ.get("CODE_DOJO_DESKTOP_PYTHON") else ""
+        return self.root / f"ds-3.14-{versions}{suffix}"
+
+    def _ready(self, directory: Path) -> bool:
+        try:
+            return (directory / ".ready").read_text(encoding="utf-8") == os.environ.get("CODE_DOJO_DESKTOP_PYTHON", "")
+        except FileNotFoundError:
+            return False
 
     def interpreter(self, runtime: str) -> Path:
+        bundled = os.environ.get("CODE_DOJO_DESKTOP_PYTHON")
+        if bundled and runtime == "python":
+            return Path(bundled)
         directory = self._directory(runtime)
         python = directory / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
         ready = directory / ".ready"
-        if ready.is_file() and python.is_file():
+        marker = bundled or ""
+        if python.is_file() and self._ready(directory):
             return python
         uv = shutil.which("uv")
-        if not uv:
+        if not bundled and not uv:
             raise PreparationError(UV_HELP)
         with self._locks[runtime]:
             if runtime == "ds":
@@ -59,18 +70,26 @@ class LocalEnvironments:
                 # 服务和 verify_bank 可能同时首次安装；退出或崩溃后 SQLite 自动释放锁。
                 with closing(sqlite3.connect(self.root / (runtime + ".lock"), timeout=1800)) as lock:
                     lock.execute("BEGIN IMMEDIATE")
-                    if ready.is_file() and python.is_file():
+                    if python.is_file() and self._ready(directory):
                         return python
-                    # uv venv 会复用 uv 管理的 3.14，缺少时自动执行 Python 下载与安装。
-                    self._run_uv([uv, "venv", "--managed-python", "--python", "3.14", "--clear", str(directory)])
-                    if runtime == "ds":
-                        self._run_uv([uv, "pip", "install", "--compile-bytecode", "--python", str(python),
-                                      "--torch-backend", "cpu", *DS_PACKAGES])
-                    ready.touch()
+                    if bundled:
+                        self._run_uv([bundled, "-I", "-m", "venv", "--clear", str(directory)])
+                        install = [str(python), "-I", "-m", "pip", "--isolated", "install",
+                                   "--no-cache-dir", "--only-binary=:all:"]
+                        self._run_uv([*install, *DS_PACKAGES[:2]])
+                        cpu = [] if sys.platform == "darwin" else ["--extra-index-url", "https://download.pytorch.org/whl/cpu"]
+                        self._run_uv([*install, *cpu, DS_PACKAGES[2]])
+                    else:
+                        self._run_uv([uv, "venv", "--managed-python", "--python", "3.14", "--clear", str(directory)])
+                        if runtime == "ds":
+                            self._run_uv([uv, "pip", "install", "--compile-bytecode", "--python", str(python),
+                                          "--torch-backend", "cpu", *DS_PACKAGES])
+                    ready.write_text(marker, encoding="utf-8")
             except (OSError, sqlite3.Error, subprocess.SubprocessError) as exc:
                 reason = getattr(exc, "stderr", None) or str(exc)
                 label = "数据科学" if runtime == "ds" else "Python"
-                raise PreparationError(f"准备{label}判题环境失败，请检查网络、磁盘空间及 uv 版本后重试。\n{reason[-1800:]}") from exc
+                check = "网络和磁盘空间" if bundled else "网络、磁盘空间及 uv 版本"
+                raise PreparationError(f"准备{label}判题环境失败，请检查{check}后重试。\n{reason[-1800:]}") from exc
             finally:
                 if runtime == "ds":
                     self.preparing_ds.clear()
@@ -79,7 +98,7 @@ class LocalEnvironments:
     def ds_state(self) -> str:
         if self.preparing_ds.is_set():
             return "preparing"
-        return "ready" if (self._directory("ds") / ".ready").is_file() else "unprepared"
+        return "ready" if self._ready(self._directory("ds")) else "unprepared"
 
     def _run_uv(self, args: list[str]) -> None:
         subprocess.run(args, cwd=self.root, capture_output=True, encoding="utf-8",

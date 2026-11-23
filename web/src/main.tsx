@@ -13,3 +13,5 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 )
+
+if (document.querySelector('meta[name="code-dojo-desktop"]')) void import('./sql/desktop')

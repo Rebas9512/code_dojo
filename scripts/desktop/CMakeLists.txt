@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.15)
+project(code-dojo C)
+add_executable(code-dojo WIN32 windows.c)
+target_compile_definitions(code-dojo PRIVATE UNICODE _UNICODE)
+target_compile_options(code-dojo PRIVATE /utf-8)
+set_property(TARGET code-dojo PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")

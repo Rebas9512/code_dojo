@@ -2,6 +2,15 @@
 
 每台机器可用本地模式从浏览器练习。下方第 1–5 节是可选的服务器部署，适合想从浏览器远程访问同一台常开电脑的情况。
 
+## 在一台新电脑上用
+
+1. **下载安装包。** 登录有仓库访问权的 GitHub 账号，打开最新的 `app-v*` Release。在 Assets 中选平台。Linux x86-64 解压 tar.gz，运行目录里的 `./code-dojo`。Apple Silicon Mac 解压 zip，将 `code-dojo.app` 移到“应用程序”。安装包未签名，首次请右键点“打开”，再确认“打开”。如果系统仍拦截，可在“系统设置 → 隐私与安全性”确认打开。Windows x64 先完整解压 zip，再双击 `code-dojo.exe`。保留解压后的整个目录。[下载安装包](https://github.com/Rebas9512/code_dojo/releases/latest)
+2. **创建令牌。** 在 GitHub 头像菜单中依次打开 Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token。选择仓库所有者和有效期。在 Repository access 选择 Only select repositories，只选 `Rebas9512/code_dojo`，将 Repository permissions → Contents 设为 Read-only。生成并复制令牌。重复一次，只选 `Rebas9512/code_dojo_sync`，将 Contents 设为 Read and write。一个 fine-grained 令牌对其选中的仓库共用权限，分别创建可将代码仓库保持只读。[GitHub 令牌创建页](https://github.com/settings/personal-access-tokens/new) · [GitHub 权限说明](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
+3. **第一次打开。** 在控制窗口的两个密码框分别粘贴令牌并点“保存”。首次完成下载后默认浏览器打开学习地图。令牌优先存系统钥匙串，备用位置是用户数据目录的 `github-tokens.json`。Linux 和 macOS 的备用文件权限为 600；磁盘不支持权限保护时，窗口提示令牌仅用于本次运行。以后在“设置 → 令牌与 AI 助教”可更新令牌。第一次通过一道题后，在第二台电脑使用同一进度仓库即可接续。关闭窗口前保持联网，断网时待推送记录留在本机。
+4. **可选，启用 AI。** 按官方说明安装 Claude Code，在终端运行 `claude` 并按提示登录个人订阅。确认命令在 PATH 中可用，或将 `CODE_DOJO_CLAUDE_BIN` 设为其绝对路径，再重新打开桌面应用。窗口的“设置”提供安装入口。[Claude Code 安装说明](https://code.claude.com/docs/en/setup)
+
+使用自己的仓库时，在打开应用前设置 `CODE_DOJO_REPO` 和 `CODE_DOJO_SYNC_REPO`，值可写成 `账户/仓库名`。进度仓库需私有，有 main 分支且可读写，初始提交只有 README 即可。`CODE_DOJO_DATA` 可指定本机数据目录。Linux 默认使用 `~/.local/share/code-dojo`，macOS 使用 `~/Library/Application Support/code-dojo`，Windows 使用 `%APPDATA%\code-dojo`。每台电脑各用自己的目录。应用退出后可以移动或替换安装目录，学习记录保存在数据目录。
+
 ## 本地模式和同步仓库怎么建
 
 1. 安装 Git、uv 和 Node.js 22.13+（含 npm）。克隆私有代码仓库，进入项目目录，Linux 或 macOS 运行 `./dojo`，Windows PowerShell 运行 `.\dojo.ps1`。浏览器自动打开本机网页。三个系统的通用入口是 `uv run dojo.py`，环境诊断用 `uv run dojo.py doctor`。

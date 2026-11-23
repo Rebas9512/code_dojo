@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import os
 import threading
 from contextlib import asynccontextmanager
 from dataclasses import replace
@@ -52,6 +53,9 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(title="code-dojo", lifespan=lifespan, openapi_url=None if settings.auth_enabled else "/openapi.json")
+if os.environ.get("CODE_DOJO_DESKTOP_PYTHON"):
+    from .desktop_sql import router as desktop_sql
+    app.include_router(desktop_sql)
 install_auth(app, settings)
 store = Store(settings.data_dir / "code_dojo.db")
 progress_sync = ProgressSync(store, settings.sync_repo)

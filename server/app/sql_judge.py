@@ -32,6 +32,9 @@ def dataset(p: Problem, spec: str) -> list[str]:
 
 
 def run_node(**job: Any) -> list:
+    if os.environ.get("CODE_DOJO_DESKTOP_PYTHON"):
+        from .desktop_sql import execute
+        return execute(job)
     env = {key: os.environ[key] for key in ("PATH", "SystemRoot", "TEMP", "TMP") if key in os.environ}
     try:
         proc = subprocess.run(
@@ -75,6 +78,10 @@ def sql_cases(p: Problem, data_dir: Path, *, all_cases: bool) -> dict:
         key_parts = [solution, setup, options] if options else [solution, setup]
         key = hashlib.sha256(json.dumps(key_parts).encode()).hexdigest()
         path = cache / f"{key}.json"
+        if bundled := os.environ.get("CODE_DOJO_SQL_CACHE"):
+            prepared = Path(bundled) / path.name
+            if prepared.is_file():
+                path = prepared
         case = {"setup": setup, "hidden": i > 0}
         cases.append(case)
         if path.exists():

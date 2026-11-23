@@ -1,0 +1,56 @@
+name: 发布桌面更新包
+'on':
+  workflow_run:
+    workflows: [跨平台判题]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-payload
+  cancel-in-progress: false
+
+jobs:
+  publish-payload:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      SHA: ${{ github.event.workflow_run.head_sha }}
+      VERSION: ${{ github.event.workflow_run.run_number }}.${{ github.run_number }}.${{ github.run_attempt }}
+      CODE_DOJO_AI_PROVIDER: 'off'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.SHA }}
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - working-directory: web
+        run: npm ci && npm run build
+      - working-directory: scripts/curriculum
+        run: npm ci
+      - run: uv run --project server --locked --python 3.14 python scripts/desktop/build.py --output dist payload --sha "$SHA" --version "$VERSION"
+      - name: 发布版本并更新固定下载入口
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          tag="payload-v$VERSION"
+          gh release create "$tag" dist/payload.zip dist/manifest.json --target "$SHA" --title "$tag" --notes "$SHA" --latest=false
+          # 按原始 CI 序号排序，慢跑完的旧提交不能把固定入口倒退。
+          gh api --paginate "repos/$GH_REPO/releases?per_page=100" --jq '.[].tag_name' |
+            grep -E '^payload-v[0-9]+\.[0-9]+\.[0-9]+$' | sort -Vr > "$RUNNER_TEMP/payload-tags"
+          if [[ "$(head -n 1 "$RUNNER_TEMP/payload-tags")" == "$tag" ]]; then
+            if ! gh release view payload-latest >/dev/null 2>&1; then
+              gh release create payload-latest --target "$SHA" --title '桌面更新包' --notes '桌面应用自动读取此入口。' --latest=false
+            fi
+            gh release upload payload-latest dist/payload.zip --clobber
+            gh release upload payload-latest dist/manifest.json --clobber
+          fi
+          tail -n +6 "$RUNNER_TEMP/payload-tags" |
+            while read -r old; do gh release delete "$old" --cleanup-tag --yes; done

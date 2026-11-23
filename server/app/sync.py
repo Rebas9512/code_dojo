@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import itertools
 import json
 import logging
@@ -13,7 +14,9 @@ import subprocess
 import tempfile
 import threading
 from contextlib import contextmanager
+from contextvars import ContextVar
 from datetime import datetime
+from http.client import HTTPException
 from pathlib import Path
 from uuid import UUID
 
@@ -23,6 +26,7 @@ from .events import encode
 LOG = logging.getLogger(__name__)
 MONTH = re.compile(r"\d{4}-(?:0[1-9]|1[0-2])\.jsonl")
 INTERVAL = 600
+_git_auth = ContextVar("sync_git_auth", default=None)
 
 
 class SyncError(Exception):
@@ -48,6 +52,13 @@ def checkout_lock(directory: Path):
 
 def git(directory: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess:
     env = os.environ | {"GIT_TERMINAL_PROMPT": "0", "GCM_INTERACTIVE": "never", "LC_ALL": "C"}
+    if auth := _git_auth.get():
+        repo, token = auth
+        index = int(env.get("GIT_CONFIG_COUNT", 0))
+        basic = base64.b64encode(f"x-access-token:{token}".encode()).decode()
+        env.update({f"GIT_CONFIG_KEY_{index}": f"http.{repo}.extraHeader",
+                    f"GIT_CONFIG_VALUE_{index}": "Authorization: Basic " + basic,
+                    "GIT_CONFIG_COUNT": str(index + 1)})
     # 从 IDE 等环境启动时，外层仓库的工作树或索引不能重定向进度提交。
     for name in ("GIT_DIR", "GIT_WORK_TREE", "GIT_COMMON_DIR", "GIT_INDEX_FILE", "GIT_OBJECT_DIRECTORY",
                  "GIT_ALTERNATE_OBJECT_DIRECTORIES", "GIT_NAMESPACE"):
@@ -125,6 +136,7 @@ class ProgressSync:
         self.repo = str(Path(repo).resolve()) if repo and Path(repo).is_dir() else repo
         self.root = store.path.parent / "sync"
         self.error = ""
+        self.github = None
         self._lock = threading.Lock()
         self._wake = threading.Event()
         self._stop = threading.Event()
@@ -233,9 +245,17 @@ class ProgressSync:
             with self._lock:
                 try:
                     with checkout_lock(self.root.parent):
-                        self._exchange()
+                        if self.github and not shutil.which("git"):
+                            from .github_sync import exchange
+                            exchange(self.github, self.store)
+                        else:
+                            auth = _git_auth.set((self.repo, self.github.token) if self.github else None)
+                            try:
+                                self._exchange()
+                            finally:
+                                _git_auth.reset(auth)
                     self.error = ""
-                except (SyncError, ValueError, KeyError, TypeError, sqlite3.Error, OSError, subprocess.TimeoutExpired) as exc:
+                except (SyncError, ValueError, KeyError, TypeError, sqlite3.Error, OSError, HTTPException, subprocess.TimeoutExpired) as exc:
                     if isinstance(exc, SyncError):
                         self.error = str(exc)
                     elif isinstance(exc, subprocess.TimeoutExpired):
