@@ -1,0 +1,18 @@
+id: llm-3-013-count-block
+title: 一个无偏置块有多少参数
+track: llm
+stage: '3'
+order: 130
+unit: 2
+format: predict
+mode: predict
+difficulty: 45
+skills:
+  requires:
+    - llm.block
+  introduces: null
+source: original
+wrong_examples:
+  - why: 漏数两次归一化的缩放与偏移。
+    code: |
+      print('512')

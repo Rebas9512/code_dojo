@@ -1,0 +1,26 @@
+id: llm-4-011-rank-k
+title: 保留 k 个原词表编号
+track: llm
+stage: '4'
+order: 110
+unit: 3
+format: complete
+mode: function
+difficulty: 51
+skills:
+  requires:
+    - llm.top-k
+  introduces: null
+source: original
+wrong_examples:
+  - why: 把降序改成升序会留下最低分词。
+    code: |
+      import torch
+
+
+      def rank_k(scores, k):
+          order = torch.argsort(torch.tensor(scores), descending=False, stable=True)
+          return order[:k].tolist()
+entry: rank_k
+signature: 'def rank_k(scores, k):'
+compare: exact

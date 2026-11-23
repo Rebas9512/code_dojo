@@ -1,0 +1,20 @@
+id: llm-2-014-split-shape
+title: 每个头各有多长
+track: llm
+stage: '2'
+order: 140
+unit: 3
+format: predict
+mode: predict
+difficulty: 38
+skills:
+  requires:
+    - llm.causal
+    - tensor.axes
+    - tensor.reshape
+  introduces: llm.heads
+source: original
+wrong_examples:
+  - why: 第二次调换的是头与时间，头宽仍在末尾。
+    code: |
+      print('(2, 3, 4, 2)\n(2, 4, 2, 3)')

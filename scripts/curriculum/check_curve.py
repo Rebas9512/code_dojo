@@ -128,6 +128,8 @@ PY_NODE_SKILLS: dict[str, str | None] = {
 
 # 内置函数调用
 PY_CALLS: dict[str, str | None] = {
+    "bytes": "llm.utf8",
+    "norm": None, "branch": None, "norm1": None, "norm2": None, "attention": None, "mlp": None,  # 题目传入的可调用层
     "model": None, "layer": None,  # 题目传入或示例创建的可调用模型
     "guess": "algo.binary-search",        # 猜数题提供的三向比较函数
     "lower_bound": "algo.binary-search",  # 手写查找第一个达标位置的辅助函数
@@ -162,6 +164,8 @@ _STR_METHODS = [
 ]
 # 接收者类型未知时按方法名映射（取最先教的那个技能）
 PY_METHODS_DEFAULT: dict[str, str | None] = {
+    "encode": "llm.utf8", "decode": "llm.utf8", "from_pretrained": "llm.embedding",
+    "project": None, "finish": None,  # 缓存题提供的投影与读出接口
     "manual_seed": "train.shuffle",  # 生成器实例的抽签起点
     "SGD": "train.loop", "zero_grad": "train.loop", "step": "train.loop", "loss": "train.loop",
     "CrossEntropyLoss": "train.ce", "Adam": "train.adam", "StepLR": "train.schedule",
@@ -227,6 +231,7 @@ PY_METHODS_BY_TYPE: dict[str, dict[str, str | None]] = {
 }
 # import：模块或 模块.名字
 PY_IMPORTS: dict[str, str | None] = {
+    "torch.nn.functional.gelu": "llm.mlp", "torch.nn.Embedding.from_pretrained": "llm.embedding",
     "torch.utils.data.Dataset": "train.dataset", "torch.utils.data.DataLoader": "train.batch",
     "torch.nn.utils.rnn.pad_sequence": "train.pad", "io.BytesIO": "train.checkpoint",
     "torch.save": "train.checkpoint", "torch.load": "train.checkpoint",

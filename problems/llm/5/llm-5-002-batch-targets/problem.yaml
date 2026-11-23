@@ -1,0 +1,23 @@
+id: llm-5-002-batch-targets
+title: 把整批窗口平移一格
+track: llm
+stage: '5'
+order: 20
+unit: 1
+format: complete
+mode: function
+difficulty: 50
+skills:
+  requires:
+    - llm.train-lm
+    - py.list-comp
+  introduces: null
+source: original
+wrong_examples:
+  - why: 截掉最后一格得到的是输入，不是目标。
+    code: |
+      def next_targets(windows):
+          return [row[:-1] for row in windows]
+entry: next_targets
+signature: 'def next_targets(windows):'
+compare: exact

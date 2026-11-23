@@ -1,0 +1,35 @@
+id: llm-2-012-repair-mask
+title: 修复偷看后文的注意力
+track: llm
+stage: '2'
+order: 120
+unit: 2
+format: fix
+mode: function
+difficulty: 36
+skills:
+  requires:
+    - llm.causal
+    - py.type-convert
+  introduces: null
+source: original
+wrong_examples:
+  - why: 遮住了过去，反而保留了未来。
+    code: |
+      import torch
+
+
+      def causal_weights(scores):
+          scores = torch.tensor(scores, dtype=torch.float32)
+          length = scores.shape[-1]
+          future = torch.tril(torch.ones(length, length, dtype=torch.bool), diagonal=-1)
+          return torch.softmax(scores.masked_fill(future, float("-inf")), dim=-1)
+entry: causal_weights
+signature: 'def causal_weights(scores):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06
+constraints:
+  forbid_calls:
+    - torch.nn.functional.scaled_dot_product_attention
+    - torch.nn.MultiheadAttention

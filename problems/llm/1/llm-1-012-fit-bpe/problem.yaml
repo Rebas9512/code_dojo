@@ -1,0 +1,58 @@
+id: llm-1-012-fit-bpe
+title: 记录每一轮学到的合并
+track: llm
+stage: '1'
+order: 120
+unit: 2
+format: write
+mode: function
+difficulty: 28
+skills:
+  requires:
+    - llm.fit-bpe
+    - py.bool-ops
+    - py.break-continue
+    - py.helper-func
+    - py.list-append
+    - py.slice
+    - py.while
+    - py.zip
+  introduces: null
+source: original
+wrong_examples:
+  - why: 语料不随规则更新，下一轮会重复学到同一对。
+    code: |
+      def merge_once(ids, pair, fresh):
+          result = []
+          i = 0
+          while i < len(ids):
+              if ids[i:i + 2] == pair:
+                  result.append(fresh)
+                  i += 2
+              else:
+                  result.append(ids[i])
+                  i += 1
+          return result
+
+
+      def winner(ids):
+          counts = {}
+          for pair in zip(ids, ids[1:]):
+              counts[pair] = counts.get(pair, 0) + 1
+          if not counts:
+              return []
+          return list(min(counts, key=lambda p: (-counts[p], p)))
+
+
+      def fit_bpe(ids, k):
+          rules = []
+          for step in range(k):
+              pair = winner(ids)
+              if not pair:
+                  break
+              rules.append(pair)
+              merge_once(ids, pair, 256 + step)
+          return rules
+entry: fit_bpe
+signature: 'def fit_bpe(ids, k):'
+compare: exact

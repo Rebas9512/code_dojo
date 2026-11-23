@@ -1,0 +1,28 @@
+id: llm-2-003-batch-embedding
+title: 给整批句子换成向量
+track: llm
+stage: '2'
+order: 30
+unit: 1
+format: write
+mode: function
+difficulty: 27
+skills:
+  requires:
+    - llm.embedding
+  introduces: null
+source: original
+wrong_examples:
+  - why: 只取第一句会丢失批次轴。
+    code: |
+      import torch
+
+
+      def embed_batch(weight, ids):
+          layer = torch.nn.Embedding.from_pretrained(torch.tensor(weight, dtype=torch.float32))
+          return layer(torch.tensor(ids[0]))
+entry: embed_batch
+signature: 'def embed_batch(weight, ids):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06

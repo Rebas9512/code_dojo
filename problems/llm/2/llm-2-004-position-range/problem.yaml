@@ -1,0 +1,19 @@
+id: llm-2-004-position-range
+title: 续读时第一个位置
+track: llm
+stage: '2'
+order: 40
+unit: 1
+format: predict
+mode: predict
+difficulty: 28
+skills:
+  requires:
+    - llm.embedding
+    - tensor.broadcast
+  introduces: llm.position
+source: original
+wrong_examples:
+  - why: 续读时重新从零编号。
+    code: |
+      print('[0, 1]')

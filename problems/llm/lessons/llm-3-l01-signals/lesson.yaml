@@ -1,0 +1,58 @@
+id: llm-3-l01-signals
+title: 归一化与残差
+track: llm
+skills:
+  - llm.norm
+  - llm.residual
+steps:
+  - type: read
+    skill: llm.norm
+    md: |-
+      一个词的特征有时整体偏大，有时相差很远。LayerNorm 在每个词内部先减去均值，再除以标准差，使后续层看到的数值尺度较稳定。归一化后，每个特征还可用自己的系数缩放、平移。
+
+      一行 [2,6] 均值 4，偏差为 [−2,2]，平方平均为 4。两格都属于这一整行，所以分母用 2。给方差加上很小的 eps 再开方，可以处理所有数相同的一行。
+
+      **容易混淆的地方**　默认的样本方差会除以 n−1；与 nn.LayerNorm 对拍要用总体方差。
+  - type: example
+    skill: llm.norm
+    code: |
+      import torch
+      # ① 把每个数减去行内均值
+      x = torch.tensor([2., 6.])
+      delta = x - torch.mean(x)
+      # ② 平方后按整行平均
+      print(torch.mean(delta * delta).item())  # 输出 4.0
+    md: 把两个值都换成 6，看看为什么分母要加保护。
+  - type: quiz
+    skill: llm.norm
+    q: '[1,3] 这一行的总体方差是多少？'
+    options:
+      - '1.0'
+      - '2.0'
+    answer: 0
+    explain: 平方偏差都是 1，求平均还是 1。
+  - type: read
+    skill: llm.residual
+    md: |-
+      一个网络层有时只需要修正输入的一小部分。残差连接把输入原样送到出口，再加上子层算出的改变量。这样子层输出为零时，信号仍然能穿过整个块。
+
+      输入是 [4,2]，子层建议调整 [−1,3]，出口就得到 [3,5]。串联两次调整时，第二个分支读的是第一次相加后的结果；每条旁路都要记住它自己的入口。
+
+      **容易混淆的地方**　把子层输出直接传走会丢掉原输入；两项应形状相同并逐格相加。
+  - type: example
+    skill: llm.residual
+    code: |
+      import torch
+      # ① 保留进入分支的词向量
+      x = torch.tensor([4, 2])
+      # ② 加上分支的修正量
+      print((x + torch.tensor([-1, 3])).tolist())  # 输出 [3, 5]
+    md: 把修正量都设为零，什么信息会保留下来？
+  - type: quiz
+    skill: llm.residual
+    q: 连续两次残差，第二次应加回什么？
+    options:
+      - 最初的输入
+      - 第二个分支自己的输入
+    answer: 1
+    explain: 每次旁路保留这一段的入口。

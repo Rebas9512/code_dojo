@@ -1,0 +1,3 @@
+def pre_branch(x, norm, branch):
+    update = ...
+    return x + update

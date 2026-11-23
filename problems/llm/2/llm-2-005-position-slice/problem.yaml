@@ -1,0 +1,28 @@
+id: llm-2-005-position-slice
+title: 取本段的位置表
+track: llm
+stage: '2'
+order: 50
+unit: 1
+format: complete
+mode: function
+difficulty: 29
+skills:
+  requires:
+    - llm.position
+  introduces: null
+source: original
+wrong_examples:
+  - why: 把长度误当成结束下标会截短后缀。
+    code: |
+      import torch
+
+
+      def position_slice(pos, start, length):
+          table = torch.tensor(pos, dtype=torch.float32)
+          return table[start:length]
+entry: position_slice
+signature: 'def position_slice(pos, start, length):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06

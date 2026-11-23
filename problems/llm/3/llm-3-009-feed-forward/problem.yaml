@@ -1,0 +1,31 @@
+id: llm-3-009-feed-forward
+title: 写两层逐词变换
+track: llm
+stage: '3'
+order: 90
+unit: 2
+format: write
+mode: function
+difficulty: 41
+skills:
+  requires:
+    - llm.mlp
+    - py.list-comp
+  introduces: null
+source: original
+wrong_examples:
+  - why: 把激活移到第二次投影之后会改变非线性作用的对象。
+    code: |
+      import torch
+      import torch.nn.functional as F
+
+
+      def feed_forward(x, up, down):
+          x, up, down = [torch.tensor(a, dtype=torch.float32) for a in (x, up, down)]
+          expanded = F.linear(x, up)
+          return F.gelu(F.linear(expanded, down))
+entry: feed_forward
+signature: 'def feed_forward(x, up, down):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06

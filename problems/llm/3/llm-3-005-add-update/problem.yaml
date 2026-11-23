@@ -1,0 +1,29 @@
+id: llm-3-005-add-update
+title: 把改变量送回原位置
+track: llm
+stage: '3'
+order: 50
+unit: 1
+format: complete
+mode: function
+difficulty: 37
+skills:
+  requires:
+    - llm.residual
+  introduces: null
+source: original
+wrong_examples:
+  - why: 只返回分支，原始信号完全消失。
+    code: |
+      import torch
+
+
+      def add_update(values, update):
+          x = torch.tensor(values, dtype=torch.float32)
+          delta = torch.tensor(update, dtype=torch.float32)
+          return delta
+entry: add_update
+signature: 'def add_update(values, update):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06

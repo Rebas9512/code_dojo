@@ -1,0 +1,26 @@
+id: llm-4-005-greedy-id
+title: 取最后一行最高分的编号
+track: llm
+stage: '4'
+order: 50
+unit: 2
+format: complete
+mode: function
+difficulty: 45
+skills:
+  requires:
+    - llm.greedy
+  introduces: null
+source: original
+wrong_examples:
+  - why: 返回最大分而非其下标。
+    code: |
+      import torch
+
+
+      def greedy_id(scores):
+          last = torch.tensor(scores)[-1]
+          return torch.max(last).item()
+entry: greedy_id
+signature: 'def greedy_id(scores):'
+compare: exact

@@ -1,0 +1,36 @@
+id: llm-4-l01-forward
+title: 组装语言模型
+track: llm
+skills:
+  - llm.gpt
+steps:
+  - type: read
+    skill: llm.gpt
+    md: |-
+      语言模型读入一批 token 编号，为每个位置预测后继。输出层给词表里的每个词一个原始分数，叫 logit。保存模型时可以把每一层学到的表放进 state_dict，前向只需按名字取回这些表。
+
+      两句各三个词、词表大小为 5，最后得到 (2,3,5)。先叠加词和位置嵌入，再经过因果块，最后一次 LayerNorm 后用输出权重给每个词打分。只有采样时才需要取概率。
+
+      **容易混淆的地方**　查词表和读出分数的权重都可能是 (V,C)，部件同形也不能互换；本线的两张表独立保存。
+  - type: example
+    skill: llm.gpt
+    code: |
+      import torch
+      # ① 建一个极小模型的输出层，把已知权重存入字典
+      torch.manual_seed(0)
+      layer = torch.nn.Linear(2, 3, bias=False)
+      with torch.no_grad():
+          layer.weight.copy_(torch.tensor([[1., 0.], [0., 1.], [1., 1.]]))
+      state = layer.state_dict()
+      # ② 按名字读回权重，让每一行给同一位置打分
+      x = torch.tensor([[2., 1.]])
+      print((x @ state["weight"].T).tolist())  # 输出 [[2.0, 1.0, 3.0]]
+    md: 把第三个候选的权重变成 [0,0]，哪一个 logit 会改变？
+  - type: quiz
+    skill: llm.gpt
+    q: 输入 (2,7)，词表 32 项，完整 logits 的形状是？
+    options:
+      - (2, 32)
+      - (2, 7, 32)
+    answer: 1
+    explain: 每个词位置都应为全部 32 项打分。

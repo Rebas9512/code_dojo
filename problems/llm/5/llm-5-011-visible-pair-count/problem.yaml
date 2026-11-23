@@ -1,0 +1,31 @@
+id: llm-5-011-visible-pair-count
+title: 数出真正可见的查询与键
+track: llm
+stage: '5'
+order: 110
+unit: 2
+format: write
+mode: function
+difficulty: 59
+skills:
+  requires:
+    - llm.cache-cost
+    - py.floordiv-mod
+    - py.ternary
+  introduces: null
+source: original
+wrong_examples:
+  - why: 缓存后把新查询视为只看自己，漏算历史键。
+    code: |
+      def visible_pairs(prompt_len, steps):
+          full = 0
+          cached = 0
+          for i in range(steps):
+              length = prompt_len + i
+              triangle = length * (length + 1) // 2
+              full += triangle
+              cached += triangle if i == 0 else 1
+          return [full, cached]
+entry: visible_pairs
+signature: 'def visible_pairs(prompt_len, steps):'
+compare: exact

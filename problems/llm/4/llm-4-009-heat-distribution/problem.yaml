@@ -1,0 +1,28 @@
+id: llm-4-009-heat-distribution
+title: 返回每句的下一词分布
+track: llm
+stage: '4'
+order: 90
+unit: 2
+format: write
+mode: function
+difficulty: 49
+skills:
+  requires:
+    - llm.temperature
+  introduces: null
+source: original
+wrong_examples:
+  - why: 乘温度时，高温的分布反而更尖锐。
+    code: |
+      import torch
+
+
+      def distributions(scores, temperature):
+          z = torch.tensor(scores, dtype=torch.float32)
+          return torch.softmax(z * temperature, dim=-1)
+entry: distributions
+signature: 'def distributions(scores, temperature):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06

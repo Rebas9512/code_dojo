@@ -1,0 +1,26 @@
+id: llm-5-010-count-projections
+title: 给投影工作记两本账
+track: llm
+stage: '5'
+order: 100
+unit: 2
+format: complete
+mode: function
+difficulty: 58
+skills:
+  requires:
+    - llm.cache-cost
+  introduces: null
+source: original
+wrong_examples:
+  - why: 把最后生成的词也重新投影，多算一次。
+    code: |
+      def projection_counts(prompt_len, steps):
+          if steps == 0:
+              return [0, 0]
+          full = sum(range(prompt_len, prompt_len + steps))
+          cached = prompt_len + steps
+          return [full, cached]
+entry: projection_counts
+signature: 'def projection_counts(prompt_len, steps):'
+compare: exact

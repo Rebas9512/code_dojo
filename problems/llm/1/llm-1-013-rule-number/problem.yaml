@@ -1,0 +1,20 @@
+id: llm-1-013-rule-number
+title: 缺席的规则还占编号吗
+track: llm
+stage: '1'
+order: 130
+unit: 3
+format: predict
+mode: predict
+difficulty: 29
+skills:
+  requires:
+    - llm.fit-bpe
+    - py.enumerate
+    - py.if-else
+  introduces: llm.apply-bpe
+source: original
+wrong_examples:
+  - why: 把本次第一次命中的规则当成词表的第一行。
+    code: |
+      print('256')

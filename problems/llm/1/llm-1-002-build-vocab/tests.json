@@ -1,0 +1,49 @@
+{
+  "examples": [
+    {
+      "args": [
+        "cocoa"
+      ],
+      "expected": [
+        "a",
+        "c",
+        "o"
+      ]
+    },
+    {
+      "args": [
+        "bee"
+      ],
+      "expected": [
+        "b",
+        "e"
+      ]
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        ""
+      ],
+      "expected": []
+    },
+    {
+      "args": [
+        "z"
+      ],
+      "expected": [
+        "z"
+      ]
+    },
+    {
+      "args": [
+        "level"
+      ],
+      "expected": [
+        "e",
+        "l",
+        "v"
+      ]
+    }
+  ]
+}

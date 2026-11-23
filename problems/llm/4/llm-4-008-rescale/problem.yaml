@@ -1,0 +1,28 @@
+id: llm-4-008-rescale
+title: 写出温度变换后的分数
+track: llm
+stage: '4'
+order: 80
+unit: 2
+format: complete
+mode: function
+difficulty: 48
+skills:
+  requires:
+    - llm.temperature
+  introduces: null
+source: original
+wrong_examples:
+  - why: 乘以温度会放大高温时的分差。
+    code: |
+      import torch
+
+
+      def rescale(scores, temperature):
+          z = torch.tensor(scores, dtype=torch.float32)
+          return z * temperature
+entry: rescale
+signature: 'def rescale(scores, temperature):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06

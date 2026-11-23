@@ -1,0 +1,38 @@
+id: llm-2-013-causal-mix
+title: 只汇集已读的值
+track: llm
+stage: '2'
+order: 130
+unit: 2
+format: write
+mode: function
+difficulty: 37
+skills:
+  requires:
+    - llm.causal
+    - llm.attention
+    - py.list-comp
+    - py.type-convert
+  introduces: null
+source: original
+wrong_examples:
+  - why: 没有遮住未来，开头的输出会依赖句尾。
+    code: |
+      import torch
+
+
+      def causal_mix(q, k, v):
+          q, k, v = [torch.tensor(a, dtype=torch.float32) for a in (q, k, v)]
+          scores = q @ k.T / q.shape[-1] ** 0.5
+          future = torch.triu(torch.ones_like(scores, dtype=torch.bool), diagonal=1)
+          scores = scores.clone()
+          return torch.softmax(scores, dim=-1) @ v
+entry: causal_mix
+signature: 'def causal_mix(q, k, v):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06
+constraints:
+  forbid_calls:
+    - torch.nn.functional.scaled_dot_product_attention
+    - torch.nn.MultiheadAttention

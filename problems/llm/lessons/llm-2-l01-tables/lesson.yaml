@@ -1,0 +1,58 @@
+id: llm-2-l01-tables
+title: 两张嵌入表
+track: llm
+skills:
+  - llm.embedding
+  - llm.position
+steps:
+  - type: read
+    skill: llm.embedding
+    md: |-
+      给编号 1 和 2 做加法，结果不能说明两个词的关系。模型为每个编号准备一行可以学习的数，用这行向量描述这个词。所有行叠起来就是嵌入表，nn.Embedding 做的事与按行索引相同。
+
+      若表有三行，每行两个数，那么 [2,0,2] 会取第三行、第一行、第三行，得到三行两列。输入多一个批次轴时，查到的每行仍留在原位置。
+
+      **容易混淆的地方**　同一编号反复出现就反复查同一行；不能给编号排序或去重。
+  - type: example
+    skill: llm.embedding
+    code: |
+      import torch
+      # ① 固定编号与向量的对应关系
+      layer = torch.nn.Embedding.from_pretrained(torch.tensor([[4., 8.], [1., 3.]]))
+      # ② 同一行可以被多次取出
+      print(layer(torch.tensor([1, 1])).tolist())  # 输出 [[1.0, 3.0], [1.0, 3.0]]
+    md: 把第二个 1 改成 0，观察哪行变了。
+  - type: quiz
+    skill: llm.embedding
+    q: 两批各有三个编号，表宽为 4，查表结果形状？
+    options:
+      - (2, 3, 4)
+      - (4, 2, 3)
+    answer: 0
+    explain: 每个输入编号的位置都添上四个分量。
+  - type: read
+    skill: llm.position
+    md: |-
+      两个相同的词查到同一行，模型还需要知道它们各自在句子里的位置。再建一张按位置编号的表，给每个词向量加上所在位置的向量。批里的每句话可以共用位置表。
+
+      若词向量是 [1,2]，位置 0、1 的向量为 [0,1]、[3,0]，两个相同的词就变成 [1,3]、[4,2]。从长文本中间接着读时，起点用已经读过的 token 数。
+
+      **容易混淆的地方**　要取 start 到 start+T 之前的全部 T 行；用批数截取会漏掉后面的词。
+  - type: example
+    skill: llm.position
+    code: |
+      import torch
+      # ① 两个词使用同一行词向量
+      words = torch.tensor([[1, 2], [1, 2]])
+      # ② 逐位置叠加
+      print((words + torch.tensor([[0, 1], [3, 0]])).tolist())  # 输出 [[1, 3], [4, 2]]
+    md: 把两个位置向量互换，观察两行输出。
+  - type: quiz
+    skill: llm.position
+    q: 已经处理 3 个 token，接下来的两个位置编号是？
+    options:
+      - '[0, 1]'
+      - '[3, 4]'
+      - '[4, 5]'
+    answer: 1
+    explain: 位置从零起，已经占用的是 0、1、2。

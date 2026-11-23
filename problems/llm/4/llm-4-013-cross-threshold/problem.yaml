@@ -1,0 +1,21 @@
+id: llm-4-013-cross-threshold
+title: 哪一项跨过门槛
+track: llm
+stage: '4'
+order: 130
+unit: 3
+format: predict
+mode: predict
+difficulty: 53
+skills:
+  requires:
+    - llm.top-k
+    - py.break-continue
+    - py.enumerate
+    - py.list-append
+  introduces: llm.top-p
+source: original
+wrong_examples:
+  - why: 丢掉了使累计概率首次达到阈值的那一项。
+    code: |
+      print('[0]')

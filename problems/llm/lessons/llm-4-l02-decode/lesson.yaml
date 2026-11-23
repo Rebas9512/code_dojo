@@ -1,0 +1,58 @@
+id: llm-4-l02-decode
+title: 从分数选词
+track: llm
+skills:
+  - llm.greedy
+  - llm.temperature
+steps:
+  - type: read
+    skill: llm.greedy
+    md: |-
+      一次前向会产生多行分数。要续写当前句子，只需读最后一个位置，因为这行回答的是最后一个词之后会出现什么。贪心策略每次选该行分数最高的编号，然后把它接在句尾。
+
+      若两行分数分别为 [9,0,1] 与 [0,4,3]，最后一行最大值位于下标 1，下一词就是 1。可直接比较 logits，softmax 不会改变它们从大到小的次序。
+
+      **容易混淆的地方**　最大分数本身不能当作 token；若最高分相同，本课取编号最小者。
+  - type: example
+    skill: llm.greedy
+    code: |
+      import torch
+      # ① 只取最后一个词预测的分数
+      last = torch.tensor([[9, 0, 1], [0, 4, 3]])[-1]
+      # ② 找到最高分所在的词表行号
+      print(torch.argmax(last).item())  # 输出 1
+    md: 把最后一行第三项改成 5，看返回的是分数还是编号。
+  - type: quiz
+    skill: llm.greedy
+    q: '[-3,-1,-1] 的贪心编号是多少？'
+    options:
+      - '-1'
+      - '1'
+      - '2'
+    answer: 1
+    explain: 最大分有两个，取第一次出现的编号 1。
+  - type: read
+    skill: llm.temperature
+    md: |-
+      总选最高分会让生成缺少变化。若按概率抽取，低分词也有机会出现。温度 T 在转成概率之前调节分数的间距：每个 logit 除以同一个正数 T，再做 softmax。
+
+      分数 [0,2] 在 T=2 时变成 [0,1]，差距缩小；在 T=0.5 时变成 [0,4]，抽到高分的概率更大。温度为 1 就保留原本的概率分布。
+
+      **容易混淆的地方**　乘温度会把冷热效果颠倒。温度趋近于零会让概率集中，代码里不能直接用 0 作除数。
+  - type: example
+    skill: llm.temperature
+    code: |
+      import torch
+      # ① 同一行分数用两种温度
+      z = torch.tensor([0., 2.])
+      # ② 比较高分词的概率
+      print(bool(torch.softmax(z / 2, -1)[1] < torch.softmax(z, -1)[1]))  # 输出 True
+    md: 把除数 2 换成 0.5，再看比较结果。
+  - type: quiz
+    skill: llm.temperature
+    q: 温度从 1 调到 2 后，概率怎样变化？
+    options:
+      - 高低分的差距缩小
+      - 高低分的差距扩大
+    answer: 0
+    explain: 除以更大的正数使分数更接近。

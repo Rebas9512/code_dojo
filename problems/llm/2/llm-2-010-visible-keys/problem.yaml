@@ -1,0 +1,19 @@
+id: llm-2-010-visible-keys
+title: 第二个词能看见谁
+track: llm
+stage: '2'
+order: 100
+unit: 2
+format: predict
+mode: predict
+difficulty: 34
+skills:
+  requires:
+    - llm.attention
+    - tensor.mask
+  introduces: llm.causal
+source: original
+wrong_examples:
+  - why: 把允许访问的格子标成了禁止。
+    code: |
+      print('[True, True, False, False]')

@@ -1,0 +1,57 @@
+id: llm-1-l01-alphabet
+title: 字符与字节
+track: llm
+skills:
+  - llm.alphabet
+  - llm.utf8
+steps:
+  - type: read
+    skill: llm.alphabet
+    md: |-
+      模型只能读数字。给每个不同的字符分配一个固定编号，就得到字符词表。编码把文字换成编号，解码沿相反方向查回字符，这样同一串文字可以来回传递。
+
+      在 cab 中，按字符排序得到 abc，编号从 0 起。cab 对应 [2, 0, 1]；反过来读 0、2 就得到 ac。先固定整张表，再处理新的文字。
+
+      **容易混淆的地方**　重复字符共用编号。建表时去重，编码时每次出现都要保留。
+  - type: example
+    skill: llm.alphabet
+    code: |
+      # ① 给不同字符排序并编号
+      letters = sorted(set("peep"))
+      # ② 查两次相同的字符
+      print([letters.index(c) for c in "pee"])  # 输出 [1, 0, 0]
+    md: 把 pee 改成 pep，看哪个位置的编号改变。
+  - type: quiz
+    skill: llm.alphabet
+    q: 按排序建表，dad 的字符 d 编几号？
+    options:
+      - '0'
+      - '1'
+      - '2'
+    answer: 1
+    explain: 去重排序得到 a、d，d 的下标是 1。
+  - type: read
+    skill: llm.utf8
+    md: |-
+      文本文件在磁盘上保存的是字节，每个字节是 0 到 255 的数。字符有自己的 Unicode 码点，UTF-8 规定如何把码点写成一个或多个字节。字节词表只需预留 256 个编号，就能表示所有合法文本。
+
+      ord("é") 是 233，chr(233) 能找回这个字符；UTF-8 为它写下 195、169 两个字节。把整串字节一起解码，才能拼回完整字符。
+
+      **容易混淆的地方**　按字符数截取字节可能切在一个字符中间。
+  - type: example
+    skill: llm.utf8
+    code: |
+      # ① 读一个字符的码点
+      print(ord("é"))  # 输出 233
+      # ② 看描述同一字符的两个字节
+      print(list(chr(233).encode("utf-8")))  # 输出 [195, 169]
+    md: 把 233 换成 65，观察字节数。
+  - type: quiz
+    skill: llm.utf8
+    q: '"café" 用 UTF-8 保存占几个字节？'
+    options:
+      - '4'
+      - '5'
+      - '8'
+    answer: 1
+    explain: 前三个字母各一个字节，é 占两个。

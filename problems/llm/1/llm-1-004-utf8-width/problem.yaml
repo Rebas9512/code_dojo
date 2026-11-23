@@ -1,0 +1,20 @@
+id: llm-1-004-utf8-width
+title: 一个字符占几格
+track: llm
+stage: '1'
+order: 40
+unit: 1
+format: predict
+mode: predict
+difficulty: 20
+skills:
+  requires:
+    - data.text-formats
+    - py.ord-chr
+    - llm.alphabet
+  introduces: llm.utf8
+source: original
+wrong_examples:
+  - why: 把字符数当作 UTF-8 字节数。
+    code: |
+      print('5 5')

@@ -1,0 +1,40 @@
+id: llm-2-009-mix-values
+title: 按相似度取回消息
+track: llm
+stage: '2'
+order: 90
+unit: 2
+format: write
+mode: function
+difficulty: 33
+skills:
+  requires:
+    - llm.attention
+    - py.helper-func
+  introduces: null
+source: original
+wrong_examples:
+  - why: 跳过 √d 缩放会让较大的点积得到过多权重。
+    code: |
+      import torch
+
+
+      def attention_weights(q, k):
+          q = torch.tensor(q, dtype=torch.float32)
+          k = torch.tensor(k, dtype=torch.float32)
+          scores = q @ k.T
+          return torch.softmax(scores, dim=-1)
+
+
+      def attend(q, k, v):
+          values = torch.tensor(v, dtype=torch.float32)
+          return attention_weights(q, k) @ values
+entry: attend
+signature: 'def attend(q, k, v):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06
+constraints:
+  forbid_calls:
+    - torch.nn.functional.scaled_dot_product_attention
+    - torch.nn.MultiheadAttention

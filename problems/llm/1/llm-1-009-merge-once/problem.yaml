@@ -1,0 +1,35 @@
+id: llm-1-009-merge-once
+title: 消耗一对，留下尾巴
+track: llm
+stage: '1'
+order: 90
+unit: 2
+format: write
+mode: function
+difficulty: 25
+skills:
+  requires:
+    - llm.pair
+    - py.if-else
+    - py.list-append
+    - py.slice
+    - py.while
+  introduces: null
+source: original
+wrong_examples:
+  - why: 替换后只走一格，会重复消耗已经配对的右邻居。
+    code: |
+      def merge_once(ids, pair, fresh):
+          result = []
+          i = 0
+          while i < len(ids):
+              if ids[i:i + 2] == pair:
+                  result.append(fresh)
+                  i += 1
+              else:
+                  result.append(ids[i])
+                  i += 1
+          return result
+entry: merge_once
+signature: 'def merge_once(ids, pair, fresh):'
+compare: exact

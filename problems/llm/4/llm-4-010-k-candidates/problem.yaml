@@ -1,0 +1,19 @@
+id: llm-4-010-k-candidates
+title: 并列时谁留下
+track: llm
+stage: '4'
+order: 100
+unit: 3
+format: predict
+mode: predict
+difficulty: 50
+skills:
+  requires:
+    - llm.temperature
+    - train.shuffle
+  introduces: llm.top-k
+source: original
+wrong_examples:
+  - why: 同分时跳过了较小编号。
+    code: |
+      print('[1, 2]')

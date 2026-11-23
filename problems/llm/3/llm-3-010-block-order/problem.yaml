@@ -1,0 +1,21 @@
+id: llm-3-010-block-order
+title: 第二个分支读到了谁
+track: llm
+stage: '3'
+order: 100
+unit: 2
+format: predict
+mode: predict
+difficulty: 42
+skills:
+  requires:
+    - llm.norm
+    - llm.residual
+    - llm.mlp
+    - llm.heads
+  introduces: llm.block
+source: original
+wrong_examples:
+  - why: 第二分支重复使用了第一次的归一化结果。
+    code: |
+      print('[1.0, 5.0]\n[0.0, 6.0]')

@@ -1,0 +1,29 @@
+id: llm-3-006-two-skips
+title: 沿两条旁路追踪信号
+track: llm
+stage: '3'
+order: 60
+unit: 1
+format: write
+mode: function
+difficulty: 38
+skills:
+  requires:
+    - llm.residual
+  introduces: null
+source: original
+wrong_examples:
+  - why: 第二条旁路仍从最初输入取值，跳过第一次更新。
+    code: |
+      import torch
+
+
+      def two_skips(values, a, b):
+          x = torch.tensor(values, dtype=torch.float32)
+          middle = x + a * x
+          return x + b * middle
+entry: two_skips
+signature: 'def two_skips(values, a, b):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06

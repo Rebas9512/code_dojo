@@ -1,0 +1,34 @@
+id: llm-2-008-key-weights
+title: 让每个查询分配一份权重
+track: llm
+stage: '2'
+order: 80
+unit: 2
+format: complete
+mode: function
+difficulty: 32
+skills:
+  requires:
+    - llm.attention
+  introduces: null
+source: original
+wrong_examples:
+  - why: 沿查询轴归一化，每一行就未必合计为 1。
+    code: |
+      import torch
+
+
+      def attention_weights(q, k):
+          q = torch.tensor(q, dtype=torch.float32)
+          k = torch.tensor(k, dtype=torch.float32)
+          scores = q @ k.T / k.shape[-1] ** 0.5
+          return torch.softmax(scores, dim=0)
+entry: attention_weights
+signature: 'def attention_weights(q, k):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06
+constraints:
+  forbid_calls:
+    - torch.nn.functional.scaled_dot_product_attention
+    - torch.nn.MultiheadAttention

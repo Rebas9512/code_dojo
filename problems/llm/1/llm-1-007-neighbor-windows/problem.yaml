@@ -1,0 +1,21 @@
+id: llm-1-007-neighbor-windows
+title: 哪两个窗口重叠
+track: llm
+stage: '1'
+order: 70
+unit: 2
+format: predict
+mode: predict
+difficulty: 23
+skills:
+  requires:
+    - llm.utf8
+    - py.dict-get
+    - py.slice
+    - py.zip
+  introduces: llm.pair
+source: original
+wrong_examples:
+  - why: 每次跳两格会漏掉中间的窗口。
+    code: |
+      print('[(2, 3), (2, 3)]')

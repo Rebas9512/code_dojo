@@ -1,0 +1,62 @@
+{
+  "examples": [
+    {
+      "args": [
+        "tap",
+        "pat",
+        "encode"
+      ],
+      "expected": [
+        2,
+        1,
+        0
+      ]
+    },
+    {
+      "args": [
+        "tap",
+        [
+          0,
+          2
+        ],
+        "decode"
+      ],
+      "expected": "tp"
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        "ba",
+        "abba",
+        "encode"
+      ],
+      "expected": [
+        1,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "args": [
+        "cab",
+        [
+          2,
+          2,
+          0
+        ],
+        "decode"
+      ],
+      "expected": "bbc"
+    },
+    {
+      "args": [
+        "x",
+        [],
+        "decode"
+      ],
+      "expected": ""
+    }
+  ]
+}

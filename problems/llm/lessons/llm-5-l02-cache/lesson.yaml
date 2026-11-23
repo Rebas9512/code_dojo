@@ -1,0 +1,59 @@
+id: llm-5-l02-cache
+title: 复用历史键值
+track: llm
+skills:
+  - llm.kv
+  - llm.cache-cost
+steps:
+  - type: read
+    skill: llm.kv
+    md: |-
+      逐词生成时，因果掩码使旧位置看不见后来加入的词，旧键 K 和值 V 因而能保留。新查询只需与历史以及自己的键打分，再用权重读取对应的值。这份逐层保存的记录叫 KV cache。
+
+      形状 (B,H,3,D) 的缓存加入一个新词，沿时间轴 2 拼成 (B,H,4,D)。新词的绝对位置是 3。若一次补入两个词，第一个新查询仍不能看到第二个新键。
+
+      **容易混淆的地方**　沿头轴拼接会改变头数；对带历史的短查询直接套从 0 起的三角掩码，又会漏掉一部分已经读过的位置。
+  - type: example
+    skill: llm.kv
+    code: |
+      import torch
+      # ① 两个头各保存三个旧位置
+      past = torch.zeros(1, 2, 3, 4)
+      # ② 每头追加同一时刻的新键
+      print(tuple(torch.cat([past, torch.ones(1, 2, 1, 4)], dim=2).shape))  # 输出 (1, 2, 4, 4)
+    md: 把新段的长度 1 改成 2，哪条轴会增长？
+  - type: quiz
+    skill: llm.kv
+    q: 历史已有 4 格，新增两词，第一条新查询能看几格键？
+    options:
+      - '1'
+      - '4'
+      - '5'
+      - '6'
+    answer: 2
+    explain: 它可以看见四个历史键和自己的键。
+  - type: read
+    skill: llm.cache-cost
+    md: |-
+      同一个词在没有缓存时会被重复投影。要估算节省的工作，先说明数什么：一格输入做一次投影，和一条查询对一个键算一次分数，是两种不同单位。生成一个新词需要一次前向。
+
+      提示长 3，要生成 3 次。重算投影 3+4+5=12 格，缓存只投影 3+1+1=5 格。最后一个刚生成的词还没作为输入。即便使用缓存，第五个位置的查询仍需读取五个键。
+
+      **容易混淆的地方**　缓存可复用旧键值，但新词仍要读历史。计算得分对时还要约定按所有密集格还是只数因果可见格。
+  - type: example
+    skill: llm.cache-cost
+    code: |
+      # ① 每轮实际送去投影的词数
+      full, cached = [3, 4, 5], [3, 1, 1]
+      # ② 比较总格数
+      print(sum(full), sum(cached), sum(full) - sum(cached))  # 输出 12 5 7
+    md: 多生成一步，分别给两列新增一个数。
+  - type: quiz
+    skill: llm.cache-cost
+    q: 提示长 4，只生成 1 个词，缓存少投影几格？
+    options:
+      - '0'
+      - '1'
+      - '4'
+    answer: 0
+    explain: 两种做法都必须先读完整提示。

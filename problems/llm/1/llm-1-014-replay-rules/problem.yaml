@@ -1,0 +1,42 @@
+id: llm-1-014-replay-rules
+title: 在新编号列上回放词表
+track: llm
+stage: '1'
+order: 140
+unit: 3
+format: complete
+mode: function
+difficulty: 30
+skills:
+  requires:
+    - llm.apply-bpe
+    - py.enumerate
+    - py.helper-func
+    - py.list-append
+    - py.slice
+    - py.while
+  introduces: null
+source: original
+wrong_examples:
+  - why: 所有合并都使用 256 会混淆不同词条。
+    code: |
+      def merge_once(ids, pair, fresh):
+          result = []
+          i = 0
+          while i < len(ids):
+              if ids[i:i + 2] == pair:
+                  result.append(fresh)
+                  i += 2
+              else:
+                  result.append(ids[i])
+                  i += 1
+          return result
+
+
+      def apply_rules(ids, rules):
+          for rank, pair in enumerate(rules):
+              ids = merge_once(ids, pair, 256)
+          return ids
+entry: apply_rules
+signature: 'def apply_rules(ids, rules):'
+compare: exact

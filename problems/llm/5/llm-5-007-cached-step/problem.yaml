@@ -1,0 +1,42 @@
+id: llm-5-007-cached-step
+title: 让一段新词读取已有缓存
+track: llm
+stage: '5'
+order: 70
+unit: 2
+format: write
+mode: function
+difficulty: 55
+skills:
+  requires:
+    - llm.kv
+    - llm.heads
+    - llm.causal
+    - llm.position
+    - py.none
+  introduces: null
+source: original
+wrong_examples:
+  - why: 把新查询的位置重新从 0 开始，已有历史时会屏蔽有效键。
+    code: |
+      import torch
+
+
+      def cached_step(model, ids, start, cache):
+          x, q, k, v = model.project(ids, start)
+          if cache is not None:
+              old_k, old_v = cache
+              k = torch.cat([old_k, k], dim=2)
+              v = torch.cat([old_v, v], dim=2)
+          scores = q @ k.transpose(-2, -1) / q.shape[-1] ** 0.5
+          query_pos = torch.arange(ids.shape[1])
+          future = torch.arange(k.shape[2])[None, :] > query_pos[:, None]
+          weights = torch.softmax(scores.masked_fill(future, float("-inf")), dim=-1)
+          return model.finish(x, weights @ v), (k, v)
+entry: cached_step
+signature: 'def cached_step(model, ids, start, cache):'
+compare: checker
+constraints:
+  forbid_calls:
+    - torch.nn.functional.scaled_dot_product_attention
+    - torch.nn.MultiheadAttention

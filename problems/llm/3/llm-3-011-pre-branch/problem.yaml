@@ -1,0 +1,23 @@
+id: llm-3-011-pre-branch
+title: 接好一个归一化分支
+track: llm
+stage: '3'
+order: 110
+unit: 2
+format: complete
+mode: function
+difficulty: 43
+skills:
+  requires:
+    - llm.block
+  introduces: null
+source: original
+wrong_examples:
+  - why: 把归一化后的向量加回，会丢失旁路上的原始尺度。
+    code: |
+      def pre_branch(x, norm, branch):
+          update = branch(norm(x))
+          return norm(x) + update
+entry: pre_branch
+signature: 'def pre_branch(x, norm, branch):'
+compare: checker

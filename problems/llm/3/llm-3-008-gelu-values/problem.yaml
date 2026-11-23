@@ -1,0 +1,29 @@
+id: llm-3-008-gelu-values
+title: 让负信号通过一部分
+track: llm
+stage: '3'
+order: 80
+unit: 2
+format: complete
+mode: function
+difficulty: 40
+skills:
+  requires:
+    - llm.mlp
+  introduces: null
+source: original
+wrong_examples:
+  - why: ReLU 会把负数一律截断。
+    code: |
+      import torch
+      import torch.nn.functional as F
+
+
+      def activate(values):
+          x = torch.tensor(values, dtype=torch.float32)
+          return F.relu(x)
+entry: activate
+signature: 'def activate(values):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06

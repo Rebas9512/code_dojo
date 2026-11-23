@@ -1,0 +1,34 @@
+id: llm-4-012-sample-k
+title: 用固定抽签序列做 top-k 采样
+track: llm
+stage: '4'
+order: 120
+unit: 3
+format: write
+mode: function
+difficulty: 52
+skills:
+  requires:
+    - llm.top-k
+    - py.list-comp
+  introduces: null
+source: original
+wrong_examples:
+  - why: 每次都用最大值，丢掉了被保留的其他词的抽中机会。
+    code: |
+      import torch
+
+
+      def draw(probabilities, count, seed):
+          generator = torch.Generator().manual_seed(seed)
+          return [torch.argmax(probabilities).item() for _ in range(count)]
+
+
+      def sample_k(scores, k, count, seed):
+          z = torch.tensor(scores, dtype=torch.float64)
+          order = torch.argsort(z, descending=True, stable=True)
+          z[order[k:]] = float("-inf")
+          return draw(torch.softmax(z, dim=0), count, seed)
+entry: sample_k
+signature: 'def sample_k(scores, k, count, seed):'
+compare: checker

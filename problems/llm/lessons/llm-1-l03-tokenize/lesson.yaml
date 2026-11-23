@@ -1,0 +1,66 @@
+id: llm-1-l03-tokenize
+title: 应用词表与边界
+track: llm
+skills:
+  - llm.apply-bpe
+  - llm.special
+steps:
+  - type: read
+    skill: llm.apply-bpe
+    md: |-
+      一张训练好的合并表可以带到新文本上。每条规则对应一个固定的新编号。编码时要让同一段文字在同一词表下永远变成相同的编号，不能按新文本的词频重新训练。
+
+      表中先有 (1,2)→256，再有 (256,3)→257。输入 [1,2,3] 先变成 [256,3]，再变成 [257]。某条规则没有出现时也要保留它的编号名额。
+
+      **容易混淆的地方**　按表的先后次序逐条替换；倒序会错过由较早规则造出的新邻居。
+  - type: example
+    skill: llm.apply-bpe
+    code: |
+      # ① 按训练时的行号依次取出规则
+      ids = [1, 2, 3, 1, 2]
+      for rank, pair in enumerate([[1, 2], [256, 3]]):
+          merged, i = [], 0
+          # ② 命中就消耗两格，其余编号照抄
+          while i < len(ids):
+              if ids[i:i + 2] == pair:
+                  merged.append(256 + rank)
+                  i += 2
+              else:
+                  merged.append(ids[i])
+                  i += 1
+          ids = merged
+      print(ids)  # 输出 [257, 256]
+    md: 把第三个编号 3 改成 4，看看第二条规则还会命中几次。
+  - type: quiz
+    skill: llm.apply-bpe
+    q: 第 0 条规则没匹配，第 1 条生成的编号是多少？
+    options:
+      - '256'
+      - '257'
+    answer: 1
+    explain: 编号由训练时的行号决定。
+  - type: read
+    skill: llm.special
+    md: |-
+      文本里的普通字母描述内容，特殊 token 还能标出文档边界。双方先约好拼写和一个超出普通词表的编号，编码器就在读到整段标记时发出这个编号。
+
+      若 `<end>` 保留为 1000，a`<end>`b 的中间只有一个 token。先按完整标记切段，各段分别用字节词表编码；相邻的两个标记要留下两个边界。
+
+      **容易混淆的地方**　部分拼写如 <en 并未构成标记，应作为普通文字保留。
+  - type: example
+    skill: llm.special
+    code: |
+      # ① 切开相邻的文档结束标记
+      parts = "a<end><end>b".split("<end>")
+      # ② 中间的空段也有意义
+      print(parts)  # 输出 ['a', '', 'b']
+    md: 删掉一个 `<end>`，再数切口。
+  - type: quiz
+    skill: llm.special
+    q: 连续两个 `<end>` 应贡献几个特殊编号？
+    options:
+      - '0'
+      - '1'
+      - '2'
+    answer: 2
+    explain: 每个完整标记各贡献一个编号。

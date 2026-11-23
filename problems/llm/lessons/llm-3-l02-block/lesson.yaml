@@ -1,0 +1,64 @@
+id: llm-3-l02-block
+title: 前馈层与完整块
+track: llm
+skills:
+  - llm.mlp
+  - llm.block
+steps:
+  - type: read
+    skill: llm.mlp
+    md: |-
+      注意力把不同位置的信息混在一起，前馈层则让每个词内部的特征相互组合。先用一个线性层扩宽，再经过非线性函数 GELU，最后用另一个线性层收回原宽。每个词使用相同的两张表。
+
+      输入宽 2，中间宽 4，输出宽 2，一句三个词会依次得到 (3,4) 和 (3,2)。GELU(x)=x·Φ(x)，其中 Φ 是标准正态分布累计概率。x 为 −1 时还能通过约 −0.159。
+
+      **容易混淆的地方**　用 ReLU 代替 GELU 会把负数全部截成零，和固定权重的目标模型不同。
+  - type: example
+    skill: llm.mlp
+    code: |
+      import torch
+      import torch.nn.functional as F
+      # ① 取零和一个负值
+      x = torch.tensor([0., -1.])
+      # ② 观察精确 GELU 在负数处是否还有输出
+      print((F.gelu(x) < 0).tolist())  # 输出 [False, True]
+    md: 把 −1 改成 1，再看符号。
+  - type: quiz
+    skill: llm.mlp
+    q: 哪个维度在前馈层的两次投影中先增再减？
+    options:
+      - 词数
+      - 特征宽度
+      - 批数
+    answer: 1
+    explain: 同一套映射独立地用于每个位置。
+  - type: read
+    skill: llm.block
+    md: |-
+      一个 Transformer 块轮流交换两种信息：注意力从其他词取内容，前馈层在一个词里面重组特征。pre-norm 表示每个分支先把入口归一化，原输入则沿旁路保留。
+
+      记入口为 x。注意力产生改量 a 后，先得到 y=x+a，再把归一化的 y 送入前馈层。若 x=2，两条分支依次交回 3 和 −1，出口就是 4。两次归一化各有自己的参数。
+
+      **容易混淆的地方**　把归一化放到残差相加之后是另一种运算顺序，即便所有形状都对，数值也会变。
+  - type: example
+    skill: llm.block
+    code: |
+      import torch
+      # ① 用恒等的注意力分支追踪第一条旁路
+      x = torch.tensor([[1., 3.]])
+      first = torch.nn.LayerNorm(2)
+      y = x + first(x)
+      # ② 让前馈分支返回零；第二条旁路应保留 y
+      second = torch.nn.LayerNorm(2)
+      z = y + 0 * second(y)
+      print(torch.equal(y, z))  # 输出 True
+      print(torch.equal(x, z))  # 输出 False
+    md: 把第一条分支的贡献也乘 0，观察两个比较结果。
+  - type: quiz
+    skill: llm.block
+    q: 第二次归一化读哪个张量？
+    options:
+      - 原始 x
+      - 第一条残差相加后的 y
+    answer: 1
+    explain: 第二条分支应读到注意力已经写回的内容。

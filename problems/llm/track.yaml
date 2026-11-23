@@ -4,17 +4,36 @@ summary: 从分词和注意力开始，逐步写出能训练和采样的小型 G
 order: 9
 language: python
 runtime: ds
-status: planned
-requires: [train]
+status: active
+requires:
+  - train
 skill_prefix: llm
 stages:
-  - id: "1"
+  - id: '1'
     name: 分词
-  - id: "2"
+    units:
+      1: 字符与字节
+      2: 学习合并规则
+      3: 应用词表与边界
+  - id: '2'
     name: 嵌入和注意力
-  - id: "3"
+    units:
+      1: 两张嵌入表
+      2: 每个位置看哪里
+      3: 拆头与合头
+  - id: '3'
     name: Transformer 块
-  - id: "4"
+    units:
+      1: 归一化与残差
+      2: 前馈层与完整块
+  - id: '4'
     name: GPT 前向和采样
-  - id: "5"
+    units:
+      1: 组装语言模型
+      2: 从分数选词
+      3: 筛选候选与停止
+  - id: '5'
     name: 训练和 KV cache
+    units:
+      1: 用短文本训练
+      2: 复用历史键值

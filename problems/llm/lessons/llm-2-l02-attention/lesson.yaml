@@ -1,0 +1,61 @@
+id: llm-2-l02-attention
+title: 每个位置看哪里
+track: llm
+skills:
+  - llm.attention
+  - llm.causal
+steps:
+  - type: read
+    skill: llm.attention
+    md: |-
+      一个位置需要从其他位置收集消息。查询 Q 表示想找什么，键 K 表示每处能匹配什么，值 V 是实际传来的内容。每个查询分别给所有键打分，再按分数给值分配权重。
+
+      一个查询遇到两个同样匹配的键，两项权重各半。若值为 2 和 8，输出就是 5。键有 d 个分量时，点积常随宽度变大，先除以 √d，再沿键轴做 softmax，可避免权重过分集中。
+
+      **容易混淆的地方**　每行概率之和为 1；沿查询轴归一化会让不同查询互相争份额。
+  - type: example
+    skill: llm.attention
+    code: |
+      import torch
+      # ① 一个查询分别给两个键打分，按键宽缩放
+      q = torch.tensor([[1., 1.]])
+      keys = torch.tensor([[2., 0.], [0., 2.]])
+      scores = q @ keys.T / keys.shape[1] ** 0.5
+      # ② 每个查询沿自己的键轴分配权重，再取值
+      weights = torch.softmax(scores, dim=-1)
+      print(weights.tolist())  # 输出 [[0.5, 0.5]]
+      print((weights @ torch.tensor([[2.], [8.]])).item())  # 输出 5.0
+    md: 把第二个键的 2 改成 0，哪个值获得的权重更大？
+  - type: quiz
+    skill: llm.attention
+    q: 一个查询匹配三个键，softmax 后什么加起来是 1？
+    options:
+      - 该查询对三个键的权重
+      - 三个查询对同一键的权重
+    answer: 0
+    explain: 一个查询分配的是它自己的一份总权重。
+  - type: read
+    skill: llm.causal
+    md: |-
+      语言模型用读过的词猜下一个词。把整句一次送入训练时，每个位置只能看自己和左边。可见的格子构成下三角；在算概率前把未来列的分数填成负无穷，它们的概率就恰好为零。
+
+      三个位置的第 1 行（从 0 数）可看列 0、1。若原分数都是 0，该行的权重就是 [0.5,0.5,0]。对角线保留，首行至少可以看自己。
+
+      **容易混淆的地方**　填 0 仍会得到正概率。上三角是要遮住的部分，方向反过来会泄露未来。
+  - type: example
+    skill: llm.causal
+    code: |
+      import torch
+      # ① 第 1 行只遮住未来一格
+      row = torch.zeros(3).masked_fill(torch.tensor([False, False, True]), float("-inf"))
+      # ② 在允许的格子之间分配权重
+      print(torch.softmax(row, dim=-1).tolist())  # 输出 [0.5, 0.5, 0.0]
+    md: 把中间的 False 换成 True，再看被保留的位置。
+  - type: quiz
+    skill: llm.causal
+    q: 从 0 数，第 2 行可以看哪些列？
+    options:
+      - 0、1、2
+      - 2 及以后的列
+    answer: 0
+    explain: 查询位置 2 已经读到自己和两个更早的词。

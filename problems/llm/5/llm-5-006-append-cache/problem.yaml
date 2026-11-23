@@ -1,0 +1,29 @@
+id: llm-5-006-append-cache
+title: 给每个头追加新键
+track: llm
+stage: '5'
+order: 60
+unit: 2
+format: complete
+mode: function
+difficulty: 54
+skills:
+  requires:
+    - llm.kv
+  introduces: null
+source: original
+wrong_examples:
+  - why: 沿头轴拼接会改变头数，且新旧段长度不同时无法拼接。
+    code: |
+      import torch
+
+
+      def append_cache(past, fresh):
+          old = torch.tensor(past, dtype=torch.float32)
+          new = torch.tensor(fresh, dtype=torch.float32)
+          return torch.cat([old, new], dim=1)
+entry: append_cache
+signature: 'def append_cache(past, fresh):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06

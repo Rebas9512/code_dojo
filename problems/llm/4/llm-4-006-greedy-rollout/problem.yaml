@@ -1,0 +1,27 @@
+id: llm-4-006-greedy-rollout
+title: 把新编号送回模型
+track: llm
+stage: '4'
+order: 60
+unit: 2
+format: write
+mode: function
+difficulty: 46
+skills:
+  requires:
+    - llm.greedy
+    - py.list-append
+  introduces: null
+source: original
+wrong_examples:
+  - why: 每轮都读提示末词，后来的预测收不到刚生成的编号。
+    code: |
+      def greedy_rollout(table, prompt, steps):
+          tokens = list(prompt)
+          for _ in range(steps):
+              row = table[prompt[-1]]
+              tokens.append(row.index(max(row)))
+          return tokens
+entry: greedy_rollout
+signature: 'def greedy_rollout(table, prompt, steps):'
+compare: exact

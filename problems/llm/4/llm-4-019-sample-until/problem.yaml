@@ -1,0 +1,48 @@
+id: llm-4-019-sample-until
+title: 把候选筛选接到生成循环
+track: llm
+stage: '4'
+order: 190
+unit: 3
+format: combine
+mode: function
+difficulty: 59
+skills:
+  requires:
+    - llm.stop
+    - llm.temperature
+    - llm.top-k
+    - llm.top-p
+    - py.break-continue
+    - py.enumerate
+    - py.list-append
+  introduces: null
+source: original
+wrong_examples:
+  - why: 每步重置种子，连续抽签无法复现同一生成器走过的序列。
+    code: |
+      import torch
+
+
+      def sample_until(table, prompt, temperature, k, p, eos, limit, seed):
+          tokens = list(prompt)
+          rng = torch.Generator().manual_seed(seed)
+          for _ in range(limit):
+              if tokens[-1] == eos:
+                  break
+              z = torch.tensor(table[tokens[-1]], dtype=torch.float64) / temperature
+              order = torch.argsort(z, descending=True, stable=True)
+              z[order[k:]] = float("-inf")
+              probs = torch.softmax(z, dim=0)
+              mass = 0.0
+              for rank, index in enumerate(order[:k]):
+                  mass += probs[index].item()
+                  if mass >= p:
+                      z[order[rank + 1:]] = float("-inf")
+                      break
+              token = torch.multinomial(torch.softmax(z, dim=0), 1, generator=torch.Generator().manual_seed(seed)).item()
+              tokens.append(token)
+          return tokens
+entry: sample_until
+signature: 'def sample_until(table, prompt, temperature, k, p, eos, limit, seed):'
+compare: checker

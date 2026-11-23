@@ -1,0 +1,31 @@
+id: llm-1-011-choose-merge
+title: 选出下一轮的新词
+track: llm
+stage: '1'
+order: 110
+unit: 2
+format: complete
+mode: function
+difficulty: 27
+skills:
+  requires:
+    - llm.fit-bpe
+    - py.bool-ops
+    - py.early-return
+    - py.slice
+    - py.zip
+  introduces: null
+source: original
+wrong_examples:
+  - why: 只比较编号会让出现一次的对盖过更频繁的对。
+    code: |
+      def winner(ids):
+          counts = {}
+          for pair in zip(ids, ids[1:]):
+              counts[pair] = counts.get(pair, 0) + 1
+          if not counts:
+              return []
+          return list(min(counts, key=lambda p: p))
+entry: winner
+signature: 'def winner(ids):'
+compare: exact

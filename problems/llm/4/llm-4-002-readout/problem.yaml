@@ -1,0 +1,29 @@
+id: llm-4-002-readout
+title: 把每个词的状态读成分数
+track: llm
+stage: '4'
+order: 20
+unit: 1
+format: complete
+mode: function
+difficulty: 42
+skills:
+  requires:
+    - llm.gpt
+  introduces: null
+source: original
+wrong_examples:
+  - why: 过早做 softmax，输出值就变成概率。
+    code: |
+      import torch
+
+
+      def logits(hidden, readout):
+          x = torch.tensor(hidden, dtype=torch.float32)
+          w = torch.tensor(readout, dtype=torch.float32)
+          return torch.softmax(x @ w.T, dim=-1)
+entry: logits
+signature: 'def logits(hidden, readout):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06

@@ -1,0 +1,52 @@
+id: llm-1-018-bounded-bpe
+title: 让合并停在文档边界
+track: llm
+stage: '1'
+order: 180
+unit: 3
+format: write
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - llm.special
+    - llm.apply-bpe
+    - py.enumerate
+    - py.helper-func
+    - py.slice
+    - py.split-join
+    - py.while
+  introduces: null
+source: original
+wrong_examples:
+  - why: 保留标记却跳过普通段上的合并会丢失学过的词条。
+    code: |
+      def merge_once(ids, pair, fresh):
+          result = []
+          i = 0
+          while i < len(ids):
+              if ids[i:i + 2] == pair:
+                  result.append(fresh)
+                  i += 2
+              else:
+                  result.append(ids[i])
+                  i += 1
+          return result
+
+
+      def apply_rules(ids, rules):
+          for rank, pair in enumerate(rules):
+              ids = merge_once(ids, pair, 256 + rank)
+          return ids
+
+
+      def bounded_bpe(text, rules):
+          result = []
+          for i, part in enumerate(text.split("<end>")):
+              if i:
+                  result.append(1000)
+              result.extend(list(part.encode("utf-8")))
+          return result
+entry: bounded_bpe
+signature: 'def bounded_bpe(text, rules):'
+compare: exact

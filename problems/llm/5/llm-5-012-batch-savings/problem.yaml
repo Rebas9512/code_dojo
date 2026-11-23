@@ -1,0 +1,40 @@
+id: llm-5-012-batch-savings
+title: 汇总多条提示各省多少
+track: llm
+stage: '5'
+order: 120
+unit: 2
+format: variant
+mode: function
+difficulty: 60
+skills:
+  requires:
+    - llm.cache-cost
+    - llm.kv
+    - py.floordiv-mod
+    - py.ternary
+  introduces: null
+source: original
+wrong_examples:
+  - why: 只保留最后一项的节省量，多个生成任务的总账会少算。
+    code: |
+      def visible_pairs(prompt_len, steps):
+          full = 0
+          cached = 0
+          for i in range(steps):
+              length = prompt_len + i
+              triangle = length * (length + 1) // 2
+              full += triangle
+              cached += triangle if i == 0 else length
+          return [full, cached]
+
+
+      def batch_savings(jobs):
+          saved = 0
+          for length, steps in jobs:
+              full, cached = visible_pairs(length, steps)
+              saved = full - cached
+          return saved
+entry: batch_savings
+signature: 'def batch_savings(jobs):'
+compare: exact

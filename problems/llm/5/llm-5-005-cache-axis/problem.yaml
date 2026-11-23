@@ -1,0 +1,22 @@
+id: llm-5-005-cache-axis
+title: 缓存长在哪条轴
+track: llm
+stage: '5'
+order: 50
+unit: 2
+format: predict
+mode: predict
+difficulty: 53
+skills:
+  requires:
+    - llm.gpt
+    - llm.heads
+    - llm.causal
+    - llm.greedy
+    - llm.position
+  introduces: llm.kv
+source: original
+wrong_examples:
+  - why: 沿头轴拼接会造成头数翻倍。
+    code: |
+      print('(2, 6, 2, 4)')

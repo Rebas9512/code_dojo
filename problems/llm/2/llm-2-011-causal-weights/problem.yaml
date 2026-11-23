@@ -1,0 +1,35 @@
+id: llm-2-011-causal-weights
+title: 在求概率前遮住未来
+track: llm
+stage: '2'
+order: 110
+unit: 2
+format: complete
+mode: function
+difficulty: 35
+skills:
+  requires:
+    - llm.causal
+    - py.type-convert
+  introduces: null
+source: original
+wrong_examples:
+  - why: 填 0 后，未来位置仍能分到概率。
+    code: |
+      import torch
+
+
+      def causal_weights(scores):
+          scores = torch.tensor(scores, dtype=torch.float32)
+          length = scores.shape[-1]
+          future = torch.triu(torch.ones(length, length, dtype=torch.bool), diagonal=1)
+          return torch.softmax(scores.masked_fill(future, 0.0), dim=-1)
+entry: causal_weights
+signature: 'def causal_weights(scores):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06
+constraints:
+  forbid_calls:
+    - torch.nn.functional.scaled_dot_product_attention
+    - torch.nn.MultiheadAttention

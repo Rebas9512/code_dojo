@@ -1,0 +1,30 @@
+id: llm-1-017-mark-bytes
+title: 保留文档结束标记
+track: llm
+stage: '1'
+order: 170
+unit: 3
+format: complete
+mode: function
+difficulty: 33
+skills:
+  requires:
+    - llm.special
+    - py.enumerate
+    - py.if-else
+    - py.split-join
+  introduces: null
+source: original
+wrong_examples:
+  - why: 只在非空段前加标记会丢失尾部或连续的边界。
+    code: |
+      def mark_bytes(text):
+          result = []
+          for i, part in enumerate(text.split("<end>")):
+              if i and part:
+                  result.append(1000)
+              result.extend(part.encode("utf-8"))
+          return result
+entry: mark_bytes
+signature: 'def mark_bytes(text):'
+compare: exact

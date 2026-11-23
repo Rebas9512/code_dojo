@@ -1,0 +1,44 @@
+id: llm-5-l01-fit
+title: 用短文本训练
+track: llm
+skills:
+  - llm.train-lm
+steps:
+  - type: read
+    skill: llm.train-lm
+    md: |-
+      训练语言模型要为每个位置准备一个正确的下一词。一段长 T+1 的文本能提供 T 对输入与目标。输入取前 T 个词，目标向后错开一格。模型在同一批位置上得到多个学习信号。
+
+      文本 abca 编成 [0,1,2,0]，输入 [0,1,2]，目标 [1,2,0]。对 logits 的词表轴算交叉熵，再用优化器更新。反复读同一小批次几十步，可用实际记录的损失检查循环是否有效。
+
+      **容易混淆的地方**　把输入复制成标签是在训练复述当前词；能预测后继才符合这次任务。
+  - type: example
+    skill: llm.train-lm
+    code: |
+      import torch
+      import torch.nn.functional as F
+      # ① 把 abcab 编成相邻的输入与目标
+      torch.manual_seed(0)
+      ids = torch.tensor([0, 1, 2, 0, 1])
+      x, y = ids[:-1], ids[1:]
+      # ② 用一张小分数表演示真实的二十四次梯度更新
+      model = torch.nn.Embedding(3, 3)
+      optimizer = torch.optim.SGD(model.parameters(), lr=0.5)
+      losses = []
+      for _ in range(24):
+          optimizer.zero_grad()
+          loss = F.cross_entropy(model(x), y)
+          losses.append(loss.item())
+          loss.backward()
+          optimizer.step()
+      print(losses[-1] < losses[0])  # 输出 True
+    md: 把学习率改成 0，再观察最后一步与第一步的损失关系。
+  - type: quiz
+    skill: llm.train-lm
+    q: 四个相邻编号最多提供几对单步目标？
+    options:
+      - '3'
+      - '4'
+      - '5'
+    answer: 0
+    explain: 末尾只有答案的位置，没有再下一个目标。

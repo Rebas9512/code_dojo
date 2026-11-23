@@ -1,0 +1,62 @@
+{
+  "examples": [
+    {
+      "args": [
+        2,
+        1,
+        [
+          2,
+          1
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        7,
+        2,
+        [
+          3,
+          2
+        ]
+      ],
+      "expected": true
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        0,
+        1,
+        [
+          1
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        8,
+        3,
+        [
+          1,
+          2,
+          1,
+          3
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        33,
+        2,
+        [
+          8,
+          8
+        ]
+      ],
+      "expected": true
+    }
+  ]
+}

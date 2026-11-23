@@ -1,0 +1,21 @@
+id: llm-1-001-char-order
+title: 重复的字母共用哪个编号
+track: llm
+stage: '1'
+order: 10
+unit: 1
+format: predict
+mode: predict
+difficulty: 17
+skills:
+  requires:
+    - py.dict-basics
+    - py.sorted
+    - py.list-comp
+    - py.set-basics
+  introduces: llm.alphabet
+source: original
+wrong_examples:
+  - why: 用首次出现顺序代替了题定的排序。
+    code: |
+      print('[1, 2, 0]')

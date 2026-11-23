@@ -1,0 +1,18 @@
+id: llm-3-004-skip-path
+title: 分支静音后还剩什么
+track: llm
+stage: '3'
+order: 40
+unit: 1
+format: predict
+mode: predict
+difficulty: 36
+skills:
+  requires:
+    - tensor.broadcast
+  introduces: llm.residual
+source: original
+wrong_examples:
+  - why: 只看分支结果，忘记旁路。
+    code: |
+      print('[0, 0]')

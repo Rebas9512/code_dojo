@@ -1,0 +1,20 @@
+id: llm-4-016-new-token-budget
+title: 预算包括提示吗
+track: llm
+stage: '4'
+order: 160
+unit: 3
+format: predict
+mode: predict
+difficulty: 56
+skills:
+  requires:
+    - llm.greedy
+    - llm.special
+    - py.list-append
+  introduces: llm.stop
+source: original
+wrong_examples:
+  - why: 把两个新词误读为总长最多为二。
+    code: |
+      print('[7, 5]')

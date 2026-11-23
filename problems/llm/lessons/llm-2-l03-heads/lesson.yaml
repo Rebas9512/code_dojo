@@ -1,0 +1,32 @@
+id: llm-2-l03-heads
+title: 拆头与合头
+track: llm
+skills:
+  - llm.heads
+steps:
+  - type: read
+    skill: llm.heads
+    md: |-
+      一个词向量可分给多个注意力头。每个头只处理自己那段特征，独自比较各个时间位置。用 B 表示批数、T 表示词数，把宽度 C 拆成 H 个头，每头 D=C/H 个分量。
+
+      两个词各含四个数，分两头时，先把每个词的四格切成两对，得到 (B,T,H,D)，再换轴成 (B,H,T,D)。合头按相反顺序操作。
+
+      **容易混淆的地方**　直接 view 成目标形状也能数对格子，却可能让第一个头拿走同一个词的全部特征。
+  - type: example
+    skill: llm.heads
+    code: |
+      import torch
+      # ① 每个词内部先分两头
+      x = torch.arange(8).reshape(1, 2, 2, 2)
+      # ② 把头移到时间之前，读取第一个头
+      print(x.transpose(1, 2)[0, 0].tolist())  # 输出 [[0, 1], [4, 5]]
+    md: 把头下标 0 改成 1，追踪它拿走哪些格。
+  - type: quiz
+    skill: llm.heads
+    q: 形状 (2,5,12) 拆成 3 头后是？
+    options:
+      - (2, 3, 5, 4)
+      - (2, 5, 3, 4)
+      - (2, 3, 4, 5)
+    answer: 0
+    explain: 每个头都有完整的五个时间位置，头宽为 4。

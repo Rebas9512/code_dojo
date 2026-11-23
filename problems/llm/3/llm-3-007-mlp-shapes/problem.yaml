@@ -1,0 +1,19 @@
+id: llm-3-007-mlp-shapes
+title: 扩宽发生在哪一轴
+track: llm
+stage: '3'
+order: 70
+unit: 2
+format: predict
+mode: predict
+difficulty: 39
+skills:
+  requires:
+    - ml.mlp-forward
+    - tensor.linear
+  introduces: llm.mlp
+source: original
+wrong_examples:
+  - why: 扩宽了句长，词的数量本应保持。
+    code: |
+      print('(2, 6, 4)\n(2, 3, 4)')

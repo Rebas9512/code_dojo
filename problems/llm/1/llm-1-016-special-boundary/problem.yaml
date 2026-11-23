@@ -1,0 +1,19 @@
+id: llm-1-016-special-boundary
+title: 边界之间有几个空段
+track: llm
+stage: '1'
+order: 160
+unit: 3
+format: predict
+mode: predict
+difficulty: 32
+skills:
+  requires:
+    - llm.apply-bpe
+    - py.split-join
+  introduces: llm.special
+source: original
+wrong_examples:
+  - why: 忽略了首尾两个空段。
+    code: |
+      print('1 a')

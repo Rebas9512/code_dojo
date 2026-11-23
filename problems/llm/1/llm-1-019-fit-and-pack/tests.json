@@ -1,0 +1,74 @@
+{
+  "examples": [
+    {
+      "args": [
+        "abab",
+        "abab<end>ab",
+        2
+      ],
+      "expected": [
+        257,
+        1000,
+        256
+      ]
+    },
+    {
+      "args": [
+        "aba",
+        "ba",
+        1
+      ],
+      "expected": [
+        98,
+        97
+      ]
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        "caf\u00e9",
+        "\u00e9<end>",
+        4
+      ],
+      "expected": [
+        258,
+        1000
+      ]
+    },
+    {
+      "args": [
+        "",
+        "<end><end>",
+        4
+      ],
+      "expected": [
+        1000,
+        1000
+      ]
+    },
+    {
+      "args": [
+        "aaaa",
+        "aaa",
+        2
+      ],
+      "expected": [
+        256,
+        97
+      ]
+    },
+    {
+      "args": [
+        "aaa",
+        "a<end>a",
+        0
+      ],
+      "expected": [
+        97,
+        1000,
+        97
+      ]
+    }
+  ]
+}

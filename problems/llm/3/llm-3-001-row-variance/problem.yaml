@@ -1,0 +1,19 @@
+id: llm-3-001-row-variance
+title: 一个词用什么分母
+track: llm
+stage: '3'
+order: 10
+unit: 1
+format: predict
+mode: predict
+difficulty: 33
+skills:
+  requires:
+    - tensor.reduce
+    - math.spread
+  introduces: llm.norm
+source: original
+wrong_examples:
+  - why: 用了估计样本方差的 n−1 分母。
+    code: |
+      print('[8.0, 0.0]')

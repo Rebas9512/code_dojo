@@ -1,0 +1,31 @@
+id: llm-5-003-training-windows
+title: 把英文短文排成监督样本
+track: llm
+stage: '5'
+order: 30
+unit: 1
+format: write
+mode: function
+difficulty: 51
+skills:
+  requires:
+    - llm.train-lm
+    - llm.alphabet
+    - py.dict-set-comp
+    - py.enumerate
+  introduces: null
+source: original
+wrong_examples:
+  - why: 按窗口宽度跳跃会漏掉重叠样本。
+    code: |
+      def training_windows(text, width):
+          vocab = {c: i for i, c in enumerate(sorted(set(text)))}
+          ids = [vocab[c] for c in text]
+          samples = []
+          for start in range(0, len(ids) - width, width):
+              end = start + width
+              samples.append([ids[start:end], ids[start + 1:end + 1]])
+          return samples
+entry: training_windows
+signature: 'def training_windows(text, width):'
+compare: exact

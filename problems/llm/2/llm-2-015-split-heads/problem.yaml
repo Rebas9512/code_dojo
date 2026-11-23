@@ -1,0 +1,35 @@
+id: llm-2-015-split-heads
+title: 把每个词的特征分给各头
+track: llm
+stage: '2'
+order: 150
+unit: 3
+format: complete
+mode: function
+difficulty: 39
+skills:
+  requires:
+    - llm.heads
+    - py.floordiv-mod
+  introduces: null
+source: original
+wrong_examples:
+  - why: 直接挪动形状标签不能让同一头跨词取数。
+    code: |
+      import torch
+
+
+      def split_heads(values, heads):
+          x = torch.tensor(values, dtype=torch.float32)
+          batch, length, width = x.shape
+          groups = x.reshape(batch, length, heads, width // heads)
+          return x.reshape(batch, heads, length, width // heads)
+entry: split_heads
+signature: 'def split_heads(values, heads):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06
+constraints:
+  forbid_calls:
+    - torch.nn.functional.scaled_dot_product_attention
+    - torch.nn.MultiheadAttention

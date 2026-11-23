@@ -1,0 +1,33 @@
+id: llm-4-014-nucleus
+title: 取达到门槛的最短前缀
+track: llm
+stage: '4'
+order: 140
+unit: 3
+format: complete
+mode: function
+difficulty: 54
+skills:
+  requires:
+    - llm.top-p
+    - py.break-continue
+    - py.list-append
+    - py.sort-key
+  introduces: null
+source: original
+wrong_examples:
+  - why: 恰好到达阈值还继续，会多保留一个词。
+    code: |
+      def nucleus(probs, p):
+          order = sorted(range(len(probs)), key=lambda i: (-probs[i], i))
+          mass = 0.0
+          kept = []
+          for i in order:
+              kept.append(i)
+              mass += probs[i]
+              if mass > p:
+                  break
+          return kept
+entry: nucleus
+signature: 'def nucleus(probs, p):'
+compare: exact

@@ -1,0 +1,31 @@
+id: llm-4-018-bounded-greedy
+title: 写有两个出口的生成循环
+track: llm
+stage: '4'
+order: 180
+unit: 3
+format: write
+mode: function
+difficulty: 58
+skills:
+  requires:
+    - llm.stop
+    - llm.greedy
+    - py.break-continue
+    - py.list-append
+  introduces: null
+source: original
+wrong_examples:
+  - why: 把预算当成最大总长，长提示会少生成。
+    code: |
+      def generate(table, prompt, eos, limit):
+          out = list(prompt)
+          for _ in range(max(0, limit - len(prompt))):
+              if out[-1] == eos:
+                  break
+              scores: list = table[out[-1]]
+              out.append(scores.index(max(scores)))
+          return out
+entry: generate
+signature: 'def generate(table, prompt, eos, limit):'
+compare: exact

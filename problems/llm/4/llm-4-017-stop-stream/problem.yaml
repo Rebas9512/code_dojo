@@ -1,0 +1,31 @@
+id: llm-4-017-stop-stream
+title: 在结束词处截断
+track: llm
+stage: '4'
+order: 170
+unit: 3
+format: complete
+mode: function
+difficulty: 57
+skills:
+  requires:
+    - llm.stop
+    - py.break-continue
+    - py.list-append
+  introduces: null
+source: original
+wrong_examples:
+  - why: 忽略 EOS 会把后续候选一起加进来。
+    code: |
+      def stop_stream(prompt, stream, eos, limit):
+          result = list(prompt)
+          if result[-1] == eos:
+              return result
+          for token in stream[:limit]:
+              result.append(token)
+              if False:
+                  break
+          return result
+entry: stop_stream
+signature: 'def stop_stream(prompt, stream, eos, limit):'
+compare: exact

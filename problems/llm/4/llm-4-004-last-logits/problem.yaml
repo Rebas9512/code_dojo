@@ -1,0 +1,19 @@
+id: llm-4-004-last-logits
+title: 从哪一行挑下一词
+track: llm
+stage: '4'
+order: 40
+unit: 2
+format: predict
+mode: predict
+difficulty: 44
+skills:
+  requires:
+    - llm.gpt
+    - tensor.rank
+  introduces: llm.greedy
+source: original
+wrong_examples:
+  - why: 第一行预测的是句子中间的位置。
+    code: |
+      print('0')

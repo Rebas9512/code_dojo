@@ -1,0 +1,35 @@
+id: llm-3-002-norm-rows
+title: 让每个词单独归一化
+track: llm
+stage: '3'
+order: 20
+unit: 1
+format: complete
+mode: function
+difficulty: 34
+skills:
+  requires:
+    - llm.norm
+  introduces: null
+source: original
+wrong_examples:
+  - why: 用所有词的平均平方偏差会让各行互相影响。
+    code: |
+      import torch
+
+
+      def standardize(x, eps):
+          x = torch.tensor(x, dtype=torch.float32)
+          delta = x - torch.mean(x, dim=-1, keepdim=True)
+          variance = torch.mean(delta * delta)
+          return delta / torch.sqrt(variance + eps)
+entry: standardize
+signature: 'def standardize(x, eps):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06
+constraints:
+  forbid_calls:
+    - torch.nn.LayerNorm
+    - torch.nn.functional.layer_norm
+    - torch.layer_norm

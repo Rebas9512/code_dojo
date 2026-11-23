@@ -1,0 +1,20 @@
+id: llm-2-001-lookup-shape
+title: 查表后新增哪一轴
+track: llm
+stage: '2'
+order: 10
+unit: 1
+format: predict
+mode: predict
+difficulty: 25
+skills:
+  requires:
+    - llm.alphabet
+    - tensor.slice
+    - tensor.route
+  introduces: llm.embedding
+source: original
+wrong_examples:
+  - why: 把词表总行数当成了每个词的向量宽度。
+    code: |
+      print('(2, 3, 8)')

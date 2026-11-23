@@ -1,0 +1,61 @@
+id: llm-1-l02-merges
+title: 学习合并规则
+track: llm
+skills:
+  - llm.pair
+  - llm.fit-bpe
+steps:
+  - type: read
+    skill: llm.pair
+    md: |-
+      BPE 用一个新编号代替常常挨在一起的两个编号。先让窗口每次向右挪一格，数清所有相邻对。确定要合并哪一对后，再从左往右扫描一次。
+
+      在 [7,7,7] 里，第一二格、第二三格都是 (7,7)，因此出现两次。若用 256 代替它们，第一二格消耗后只剩第三格，结果是 [256,7]。
+
+      **容易混淆的地方**　计数时窗口可以重叠，替换时一格只能被使用一次。
+  - type: example
+    skill: llm.pair
+    code: |
+      # ① 让相邻窗口每次右移一格
+      ids = [7, 7, 7]
+      pairs = list(zip(ids, ids[1:]))
+      # ② 数窗口，观察共享的中间格
+      print(pairs.count((7, 7)))  # 输出 2
+    md: 把末尾再加一个 7，窗口数如何变化？
+  - type: quiz
+    skill: llm.pair
+    q: 四个 7 全部按 (7,7) 合并后有几个 token？
+    options:
+      - '1'
+      - '2'
+      - '3'
+    answer: 1
+    explain: 两次互不重叠的替换共消耗四格。
+  - type: read
+    skill: llm.fit-bpe
+    md: |-
+      训练分词器就是从语料中选出值得缩短的相邻对。每轮先重新计数，选最频繁的一对，分配尚未用过的编号，再替换所有互不重叠的出现。
+
+      用字节 1、2 表示交替出现的两类字符：[1,2,1,2] 先合并 (1,2)，变成 [256,256]；第二轮才能发现 (256,256)。同频时本课统一选字典序最小的一对，即先比左编号再比右编号。
+
+      **容易混淆的地方**　第一轮的频次表在替换后就过期了。
+  - type: example
+    skill: llm.fit-bpe
+    code: |
+      # ① 数清当前语料里的全部相邻对
+      ids = [1, 2, 1, 2]
+      counts = {}
+      for pair in zip(ids, ids[1:]):
+          counts[pair] = counts.get(pair, 0) + 1
+      # ② 同频时取较小编号；将获胜的对记在表首
+      pair = min(counts, key=lambda p: (-counts[p], p))
+      print(pair, counts[pair])  # 输出 (1, 2) 2
+    md: 把最后一个 2 改成 1。在三个并列候选中，哪一对成为第一条规则？
+  - type: quiz
+    skill: llm.fit-bpe
+    q: (2,9) 和 (2,3) 各出现两次，本课先学哪对？
+    options:
+      - (2, 9)
+      - (2, 3)
+    answer: 1
+    explain: 左编号相同，右编号较小的一对优先。

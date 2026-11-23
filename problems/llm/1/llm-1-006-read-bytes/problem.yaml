@@ -1,0 +1,22 @@
+id: llm-1-006-read-bytes
+title: 从字节恢复单词
+track: llm
+stage: '1'
+order: 60
+unit: 1
+format: write
+mode: function
+difficulty: 22
+skills:
+  requires:
+    - llm.utf8
+  introduces: null
+source: original
+wrong_examples:
+  - why: 逐个 chr 会把多字节字符拆开。
+    code: |
+      def from_bytes(ids):
+          return "".join(chr(i) for i in ids)
+entry: from_bytes
+signature: 'def from_bytes(ids):'
+compare: exact

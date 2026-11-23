@@ -1,0 +1,49 @@
+id: llm-4-015-sample-p
+title: 用固定抽签序列做 top-p 采样
+track: llm
+stage: '4'
+order: 150
+unit: 3
+format: write
+mode: function
+difficulty: 55
+skills:
+  requires:
+    - llm.top-p
+    - py.break-continue
+    - py.list-comp
+    - py.sort-key
+  introduces: null
+source: original
+wrong_examples:
+  - why: 累计恰好达标时仍保留下一项，采样可能出现范围外编号。
+    code: |
+      import torch
+
+
+      def draw(probabilities, count, seed):
+          generator = torch.Generator().manual_seed(seed)
+          return [torch.multinomial(probabilities, 1, generator=generator).item() for _ in range(count)]
+
+
+      def nucleus(probs, p):
+          order = sorted(range(len(probs)), key=lambda i: (-probs[i], i))
+          mass = 0.0
+          kept = []
+          for i in order:
+              kept.append(i)
+              mass += probs[i]
+              if mass > p:
+                  break
+          return kept
+
+
+      def sample_p(scores, p, count, seed):
+          z = torch.tensor(scores, dtype=torch.float64)
+          keep = nucleus(torch.softmax(z, dim=0).tolist(), p)
+          filtered = torch.full_like(z, float("-inf"))
+          filtered[keep] = z[keep]
+          return draw(torch.softmax(filtered, dim=0), count, seed)
+entry: sample_p
+signature: 'def sample_p(scores, p, count, seed):'
+compare: checker

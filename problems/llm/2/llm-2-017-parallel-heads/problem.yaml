@@ -1,0 +1,42 @@
+id: llm-2-017-parallel-heads
+title: 分头读历史，再拼回每个词
+track: llm
+stage: '2'
+order: 170
+unit: 3
+format: write
+mode: function
+difficulty: 41
+skills:
+  requires:
+    - llm.heads
+    - llm.causal
+    - py.floordiv-mod
+    - py.list-comp
+    - py.type-convert
+  introduces: null
+source: original
+wrong_examples:
+  - why: 合头前没有先恢复时间轴，词与头的格子交错。
+    code: |
+      import torch
+
+
+      def multi_mix(q, k, v, heads):
+          batch, length, width = torch.tensor(q).shape
+          depth = width // heads
+          q, k, v = [torch.tensor(a, dtype=torch.float32).reshape(
+              batch, length, heads, depth).transpose(1, 2) for a in (q, k, v)]
+          scores = q @ k.transpose(-2, -1) / depth ** 0.5
+          future = torch.triu(torch.ones(length, length, dtype=torch.bool), diagonal=1)
+          mixed = torch.softmax(scores.masked_fill(future, float("-inf")), dim=-1) @ v
+          return mixed.reshape(batch, length, width)
+entry: multi_mix
+signature: 'def multi_mix(q, k, v, heads):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06
+constraints:
+  forbid_calls:
+    - torch.nn.functional.scaled_dot_product_attention
+    - torch.nn.MultiheadAttention

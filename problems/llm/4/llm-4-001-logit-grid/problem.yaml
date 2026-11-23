@@ -1,0 +1,20 @@
+id: llm-4-001-logit-grid
+title: 输出层留下几行分数
+track: llm
+stage: '4'
+order: 10
+unit: 1
+format: predict
+mode: predict
+difficulty: 41
+skills:
+  requires:
+    - llm.block
+    - llm.position
+    - tensor.state
+  introduces: llm.gpt
+source: original
+wrong_examples:
+  - why: 返回了隐藏状态形状，漏掉词表投影。
+    code: |
+      print('(2, 4, 6)')

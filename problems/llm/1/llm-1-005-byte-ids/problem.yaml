@@ -1,0 +1,22 @@
+id: llm-1-005-byte-ids
+title: 写出文件里的字节编号
+track: llm
+stage: '1'
+order: 50
+unit: 1
+format: complete
+mode: function
+difficulty: 21
+skills:
+  requires:
+    - llm.utf8
+  introduces: null
+source: original
+wrong_examples:
+  - why: 逐个取码点会漏掉多字节编码。
+    code: |
+      def byte_ids(text):
+          return [ord(c) for c in text]
+entry: byte_ids
+signature: 'def byte_ids(text):'
+compare: exact

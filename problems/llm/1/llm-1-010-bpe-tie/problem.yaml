@@ -1,0 +1,19 @@
+id: llm-1-010-bpe-tie
+title: 同频时谁先入表
+track: llm
+stage: '1'
+order: 100
+unit: 2
+format: predict
+mode: predict
+difficulty: 26
+skills:
+  requires:
+    - llm.pair
+    - py.sort-key
+  introduces: llm.fit-bpe
+source: original
+wrong_examples:
+  - why: 把同频的首见对当成字典序最小的一对。
+    code: |
+      print('(4, 0)')

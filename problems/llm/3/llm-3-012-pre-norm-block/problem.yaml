@@ -1,0 +1,31 @@
+id: llm-3-012-pre-norm-block
+title: 装配一整个 pre-norm 块
+track: llm
+stage: '3'
+order: 120
+unit: 2
+format: write
+mode: function
+difficulty: 44
+skills:
+  requires:
+    - llm.block
+    - llm.residual
+    - llm.norm
+    - llm.mlp
+    - llm.heads
+  introduces: null
+source: original
+wrong_examples:
+  - why: 前馈层读了原始词向量，收不到注意力带回的信息。
+    code: |
+      def block(x, norm1, attention, norm2, mlp):
+          middle = x + attention(norm1(x))
+          return middle + mlp(norm2(x))
+entry: block
+signature: 'def block(x, norm1, attention, norm2, mlp):'
+compare: checker
+constraints:
+  forbid_calls:
+    - torch.nn.functional.scaled_dot_product_attention
+    - torch.nn.MultiheadAttention

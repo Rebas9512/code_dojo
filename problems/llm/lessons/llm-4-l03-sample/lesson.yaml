@@ -1,0 +1,99 @@
+id: llm-4-l03-sample
+title: 筛选候选与停止
+track: llm
+skills:
+  - llm.top-k
+  - llm.top-p
+  - llm.stop
+steps:
+  - type: read
+    skill: llm.top-k
+    md: |-
+      只有少数词与上下文搭配，给所有词抽签可能抽到很不合适的词。top-k 先按分数从高到低排队，只保留前 k 个，再在它们之间按概率抽取编号。
+
+      若三个词得分 [1,4,2] 且 k=2，留下编号 1、2，编号 0 的概率为零。抽样用独立的 generator 保存随机状态；连续抽两次要让它往前走两步。
+
+      **容易混淆的地方**　排序位置不等于词表编号。并列时本线按原编号升序排；抽样使用原词表顺序的概率向量。
+  - type: example
+    skill: llm.top-k
+    code: |
+      import torch
+      # ① 从三个词中选两项，回到原编号顺序分配概率
+      z = torch.tensor([1., 4., 2.], dtype=torch.float64)
+      order = torch.argsort(z, descending=True, stable=True)
+      z[order[2:]] = float("-inf")
+      p = torch.softmax(z, dim=0)
+      # ② 连续从同一个生成器抽取，检查是否只抽到保留的词
+      rng = torch.Generator().manual_seed(7)
+      draws = [torch.multinomial(p, 1, generator=rng).item() for _ in range(8)]
+      print(order[:2].tolist())  # 输出 [1, 2]
+      print(all(i in [1, 2] for i in draws))  # 输出 True
+    md: 改动种子，再加一行 print(draws)；哪些编号始终不会出现？
+  - type: quiz
+    skill: llm.top-k
+    q: k=1 时连续三抽会怎样？
+    options:
+      - 三次都是最高分词
+      - 三次必须不同
+    answer: 0
+    explain: 仅余一个候选，有放回抽样仍只能选它。
+  - type: read
+    skill: llm.top-p
+    md: |-
+      固定 k 规定了留下几个词，却没有保证这些词能解释多少概率。top-p 先按概率从大到小排，从第一项起一直取到累计概率达到 p 为止。分布很尖时，一个词就可能足够。
+
+      概率 [0.5,0.3,0.2]、p=0.7。第一项只有 0.5，加第二项才到 0.8，所以保留前两项。若 p=0.5，第一项恰达门槛，后面的都可舍去。
+
+      **容易混淆的地方**　决定是否取当前项，要看加入它之前的累计值是否还小于 p。筛后重新归一化，再在原词表顺序上抽样。
+  - type: example
+    skill: llm.top-p
+    code: |
+      # ① 把原词表下标按概率降序排好
+      probs = [0.3, 0.5, 0.2]
+      order = sorted(range(len(probs)), key=lambda i: (-probs[i], i))
+      # ② 包含第一个使累计概率达标的词
+      kept, mass = [], 0.0
+      for i in order:
+          kept.append(i)
+          mass += probs[i]
+          if mass >= 0.7:
+              break
+      print(kept)  # 输出 [1, 0]
+    md: 把阈值改成 0.5，观察最后保留几个词。
+  - type: quiz
+    skill: llm.top-p
+    q: '[0.6,0.3,0.1]、p=0.8 会留几项？'
+    options:
+      - '1'
+      - '2'
+      - '3'
+    answer: 1
+    explain: 第二项将累计概率从 0.6 推到 0.9，它必须保留。
+  - type: read
+    skill: llm.stop
+    md: |-
+      生成循环需要两个出口。结束符 EOS 是词表中约好的“到这里结束”；最大新词数则让一直没产生 EOS 的模型也能停下来。每次接上一个词，就要立刻检查它是否为 EOS。
+
+      提示有三个词，预算是两个新词。即使提示已长于预算，仍可生成两次；若第一抽就是 EOS，就只添加这一个。本线返回的完整序列包含这个结束符，提示已经以 EOS 结尾时直接返回。
+
+      **容易混淆的地方**　限制的是新增数量。按总长度截断会意外吃掉提示，看到 EOS 后再调用一次模型又会多算一步。
+  - type: example
+    skill: llm.stop
+    code: |
+      # ① 从原始提示起步
+      out = [8, 2]
+      # ② 每写入一个新词就检查
+      for token in [4, 9, 7]:
+          out.append(token)
+          if token == 9:
+              break
+      print(out)  # 输出 [8, 2, 4, 9]
+    md: 把 EOS 从 9 改成 4，哪些编号会留下？
+  - type: quiz
+    skill: llm.stop
+    q: 预算为零时应返回什么？
+    options:
+      - 空列表
+      - 原提示
+    answer: 1
+    explain: 预算只限制新增编号。

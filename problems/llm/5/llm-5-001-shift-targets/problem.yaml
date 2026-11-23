@@ -1,0 +1,21 @@
+id: llm-5-001-shift-targets
+title: 每个位置预测哪一个词
+track: llm
+stage: '5'
+order: 10
+unit: 1
+format: predict
+mode: predict
+difficulty: 49
+skills:
+  requires:
+    - llm.gpt
+    - train.ce
+    - train.loop
+    - llm.alphabet
+  introduces: llm.train-lm
+source: original
+wrong_examples:
+  - why: 把当前词原样复制到标签里。
+    code: |
+      print('[2, 0, 2, 1]\n[2, 0, 2, 1]')

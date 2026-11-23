@@ -1,0 +1,30 @@
+id: llm-2-006-positioned-tokens
+title: 让同一个词带上位置
+track: llm
+stage: '2'
+order: 60
+unit: 1
+format: write
+mode: function
+difficulty: 30
+skills:
+  requires:
+    - llm.position
+    - llm.embedding
+  introduces: null
+source: original
+wrong_examples:
+  - why: 多词句只加了第一个位置向量，广播后各词失去位置差别。
+    code: |
+      import torch
+
+
+      def positioned(weight, pos, ids, start):
+          vectors = torch.tensor(weight, dtype=torch.float32)[torch.tensor(ids)]
+          positions = torch.tensor(pos, dtype=torch.float32)
+          return vectors + positions[start:start + 1]
+entry: positioned
+signature: 'def positioned(weight, pos, ids, start):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06

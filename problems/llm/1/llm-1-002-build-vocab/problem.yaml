@@ -1,0 +1,24 @@
+id: llm-1-002-build-vocab
+title: 给字母安排固定座位
+track: llm
+stage: '1'
+order: 20
+unit: 1
+format: complete
+mode: function
+difficulty: 18
+skills:
+  requires:
+    - llm.alphabet
+    - py.set-basics
+  introduces: null
+source: original
+wrong_examples:
+  - why: 只排序会让重复字母占用多个编号。
+    code: |
+      def vocabulary(text):
+          letters = set(text)
+          return sorted(text)
+entry: vocabulary
+signature: 'def vocabulary(text):'
+compare: exact

@@ -1,0 +1,40 @@
+id: llm-3-003-affine-norm
+title: 还原带权重的 LayerNorm
+track: llm
+stage: '3'
+order: 30
+unit: 1
+format: write
+mode: function
+difficulty: 35
+skills:
+  requires:
+    - llm.norm
+    - py.helper-func
+  introduces: null
+source: original
+wrong_examples:
+  - why: 用样本方差导致两格输入时缩小过度，单格时甚至无定义。
+    code: |
+      import torch
+
+
+      def standardize(x, eps):
+          x = torch.tensor(x, dtype=torch.float32)
+          delta = x - torch.mean(x, dim=-1, keepdim=True)
+          variance = torch.var(x, dim=-1, correction=1, keepdim=True)
+          return delta / torch.sqrt(variance + eps)
+
+
+      def affine_norm(x, gamma, beta, eps):
+          return standardize(x, eps) * torch.tensor(gamma) + torch.tensor(beta)
+entry: affine_norm
+signature: 'def affine_norm(x, gamma, beta, eps):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06
+constraints:
+  forbid_calls:
+    - torch.nn.LayerNorm
+    - torch.nn.functional.layer_norm
+    - torch.layer_norm

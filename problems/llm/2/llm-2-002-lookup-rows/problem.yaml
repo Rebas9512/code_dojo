@@ -1,0 +1,28 @@
+id: llm-2-002-lookup-rows
+title: 按单词顺序取行
+track: llm
+stage: '2'
+order: 20
+unit: 1
+format: complete
+mode: function
+difficulty: 26
+skills:
+  requires:
+    - llm.embedding
+  introduces: null
+source: original
+wrong_examples:
+  - why: 排序后再查表会改变位置。
+    code: |
+      import torch
+
+
+      def lookup(weight, ids):
+          table = torch.tensor(weight, dtype=torch.float32)
+          return table[sorted(ids)]
+entry: lookup
+signature: 'def lookup(weight, ids):'
+compare: allclose
+rtol: 1.0e-05
+atol: 1.0e-06

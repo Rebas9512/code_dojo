@@ -1,0 +1,36 @@
+id: llm-5-004-train-tiny-gpt
+title: 让短文本的下一词损失下降
+track: llm
+stage: '5'
+order: 40
+unit: 1
+format: write
+mode: function
+difficulty: 52
+skills:
+  requires:
+    - llm.train-lm
+    - llm.gpt
+    - train.evaluate
+  introduces: null
+source: original
+wrong_examples:
+  - why: 让模型拟合当前输入，得到的梯度与下一词目标不同。
+    code: |
+      import torch
+
+
+      def train_lm(model, data, optimizer, steps):
+          x, targets = data.train
+          model.train()
+          for _ in range(steps):
+              optimizer.zero_grad()
+              logits = model(x)
+              data.loss(logits, x).backward()
+              optimizer.step()
+          model.eval()
+          with data.evaluating(), torch.no_grad():
+              model(data.valid[0])
+entry: train_lm
+signature: 'def train_lm(model, data, optimizer, steps):'
+compare: checker

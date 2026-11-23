@@ -1,0 +1,30 @@
+id: llm-1-003-char-codec
+title: 用同一张表收发文字
+track: llm
+stage: '1'
+order: 30
+unit: 1
+format: write
+mode: function
+difficulty: 19
+skills:
+  requires:
+    - llm.alphabet
+    - py.dict-set-comp
+    - py.early-return
+    - py.enumerate
+    - py.genexp
+    - py.split-join
+  introduces: null
+source: original
+wrong_examples:
+  - why: 重排已经给定的词表会改变通信双方约好的编号。
+    code: |
+      def codec(letters, value, mode):
+          if mode == "decode":
+              return "".join(letters[i] for i in value)
+          lookup = {c: i for i, c in enumerate(sorted(letters))}
+          return [lookup[c] for c in value]
+entry: codec
+signature: 'def codec(letters, value, mode):'
+compare: exact

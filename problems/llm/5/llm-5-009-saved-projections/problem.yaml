@@ -1,0 +1,19 @@
+id: llm-5-009-saved-projections
+title: 四轮一共少投影几格
+track: llm
+stage: '5'
+order: 90
+unit: 2
+format: predict
+mode: predict
+difficulty: 57
+skills:
+  requires:
+    - llm.kv
+    - py.accumulator
+  introduces: llm.cache-cost
+source: original
+wrong_examples:
+  - why: 把最后生成但未重新输入的词也计入缓存工作。
+    code: |
+      print('14 6 8')
