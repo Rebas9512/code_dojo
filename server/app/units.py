@@ -2,6 +2,7 @@
 
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
+from itertools import dropwhile, islice
 from typing import Any
 
 from .mastery import Progress
@@ -72,6 +73,37 @@ def progress_frontier(stages: dict[str, list[Unit]], status: dict[str, str]) -> 
             if problem.id not in status and not problem.meta.optional:
                 return {"id": problem.id, "title": problem.meta.title}
     return None
+
+
+def resume_track(visible: list[Track], last_active: dict[str, str], open_ids: set[str],
+                 unlocked: set[str]) -> Track | None:
+    """与地图的「继续」一致：只在还有下一题（open_ids）的线里挑最近练过的，同一时刻保留地图靠前的线；
+    都没练过就取地图上第一条已解锁的线。做完的线（比如两个标签共用的认识数据）不会挡住后面的线。"""
+    candidates = [t for t in visible if t.status == "active" and t.id in open_ids]
+    active = [t for t in candidates if t.id in last_active]
+    if active:
+        return max(active, key=lambda t: last_active[t.id])
+    return next((t for t in candidates if t.id in unlocked), None)
+
+
+def plan_session(stages: dict[str, list[Unit]], status: dict[str, str], reviews: list[dict], size: int) -> list[dict]:
+    """热身只取已有题面，同一变式也只占一个位置。新题从地图前沿一直向后。"""
+    items = []
+    picked = set()
+    for item in sorted(reviews, key=lambda r: r["due"]):
+        if not item["generate"] and item["id"] not in picked:
+            items.append(item)
+            picked.add(item["id"])
+            if len(items) == min(2, size):
+                break
+    frontier = progress_frontier(stages, status)
+    if frontier and len(items) < size:
+        ordered = (p for units in stages.values() for unit in units for p in unit.problems)
+        rest = dropwhile(lambda p: p.id != frontier["id"], ordered)
+        new = ({"id": p.id, "title": p.meta.title} for p in rest
+               if not p.meta.optional and p.id not in status and p.id not in picked)
+        items.extend(islice(new, size - len(items)))
+    return items
 
 
 def introduction_status(ordered: list[Problem], statuses: dict[str, dict[str, str]]) -> dict[str, str]:

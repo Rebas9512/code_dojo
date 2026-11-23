@@ -39,3 +39,26 @@
 .stats-mastery summary span { margin-inline-start: 16px; color: var(--muted); font-family: var(--font-code); font-variant-numeric: tabular-nums; }
 
 .study-page time, .study-page input { font-family: var(--font-code); }
+
+.session-start, .session-resume {
+  position: relative; display: inline-flex; align-items: stretch; flex: none;
+  border: 1px solid var(--line); border-radius: 3px; font-size: 13px; white-space: nowrap;
+}
+.session-start > button, .session-resume { padding: 5px 10px; font: inherit; text-decoration: none; }
+.session-start summary { border-left: 1px solid var(--line); list-style: none; padding: 4px 8px; cursor: pointer; }
+.session-start summary::-webkit-details-marker { display: none; }
+.session-start :is(button, summary):hover, .session-resume:hover { background: var(--hover); }
+.session-options, .session-message {
+  position: absolute; top: calc(100% + 4px); right: 0; z-index: 6;
+  padding: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--text);
+}
+.session-options { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 10px 15px; min-width: 155px; }
+.session-options select { color: var(--text); background: var(--bg); border: 1px solid var(--line); font: inherit; }
+.session-summary dl { display: flex; flex-wrap: wrap; gap: 14px 32px; margin: 0; padding: 22px 0; }
+.session-summary dt, .session-summary li span { color: var(--muted); font-size: 13px; }
+.session-summary dd { margin: 4px 0 0; font: 20px var(--font-code); }
+.session-summary ol { padding: 10px 0; margin: 0; border-block: 1px solid var(--line); }
+.session-summary li { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.session-summary li span { white-space: nowrap; }
+.session-summary li .tone-pass { color: var(--pass); }
+.session-summary nav { display: flex; gap: 20px; align-items: center; margin-top: 24px; font-size: 14px; }

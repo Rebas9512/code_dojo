@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { practicePath, type MapUnit, type TrackInfo } from '../api'
 import { ProblemStatus } from '../components/ProblemStatus'
+import { SessionStart } from './SessionPage'
 import { readPref, writePref } from '../theme'
 import { useTracks } from '../tracks'
 import { unitAnchor } from './unitAnchor'
@@ -212,9 +213,9 @@ export function MapPage() {
             }
           }}>{tabNames[key]}</button>)}
       </div>
-      {resume?.frontier && <Link className="map-resume" to={practicePath(resume.frontier)} title={resumeLabel + ' →'}>
+      <div className="map-actions">{resume?.frontier && <Link className="map-resume" to={practicePath(resume.frontier)} title={resumeLabel + ' →'}>
         <span>{resumeLabel}</span> <span aria-hidden="true">→</span>
-      </Link>}
+      </Link>}<SessionStart key={tab} tab={tab} /></div>
       <div className="map-legend"><span><i className="legend-next" />下一步</span><span><i className="legend-assist" />AI 协助</span></div>
     </header>
     <TabTree key={tab} tracks={tracks} tab={tab} map={map} />

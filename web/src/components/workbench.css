@@ -164,3 +164,24 @@
 @media (width < 900px) {
   .workbench .chat-access { display: inline-grid; margin-left: auto; margin-right: 4px; }
 }
+
+.shell:has(.is-focused) .wb-titlebar, .is-focused .breadcrumbs { display: none; }
+.wb-desk:has(.session-bar) { grid-template-rows: auto minmax(0, 1fr) var(--panel-h); }
+.session-bar {
+  min-width: 0; display: flex; align-items: center; gap: 12px; padding: 0 12px;
+  height: 29px; overflow-x: auto; white-space: nowrap; scrollbar-width: none;
+  border-bottom: 1px solid var(--line); color: var(--muted); font-size: 12px;
+}
+.session-bar > * { flex-shrink: 0; }
+.session-position { font: 11px var(--font-code); }
+.session-position > span { color: var(--accent); letter-spacing: 1px; }
+.session-bar progress { appearance: none; width: clamp(35px, 9vw, 130px); height: 2px; border: 0; background: var(--line); }
+.session-bar progress::-webkit-progress-bar { background: var(--line); }
+.session-bar progress::-webkit-progress-value { background: var(--muted); }
+.session-bar progress::-moz-progress-bar { background: var(--muted); }
+.session-bar button, .session-bar a { font: inherit; color: inherit; text-decoration: none; padding: 2px; }
+.session-bar button:hover, .session-bar a:hover { color: var(--text); text-decoration: underline; }
+.session-bar .session-accepted { color: var(--pass); }
+@media (width < 600px) {
+  .session-bar { gap: 7px; padding-inline: 6px; }
+}

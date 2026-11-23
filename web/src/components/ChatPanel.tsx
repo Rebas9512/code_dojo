@@ -12,6 +12,7 @@ export interface ApplyResult {
 interface Props {
   aiOn: boolean
   close: () => void
+  onReply: () => void
   /** 原题 id：原题和它的附加题共用这一段对话 */
   problemId: string
   /** 学生正在看的题（原题或附加题 x-12），助教按它组织上下文 */
@@ -66,7 +67,7 @@ function EditsView({ msg, result }: { msg: ChatMessage; result?: ApplyResult }) 
   )
 }
 
-export function ChatPanel({ aiOn, close, problemId, currentId, review, choice, getCode, getAnswer, onEdits, lastFailed, onExtras }: Props) {
+export function ChatPanel({ aiOn, close, onReply, problemId, currentId, review, choice, getCode, getAnswer, onEdits, lastFailed, onExtras }: Props) {
   const [agents, setAgents] = useState<Agent[]>([])
   const [selected, setSelected] = useState('')
   useEffect(() => {
@@ -116,6 +117,7 @@ export function ChatPanel({ aiOn, close, problemId, currentId, review, choice, g
     try {
       const r = await api.chatSend(problemId, { ...review, message, code: getCode(), answer: getAnswer(), current: currentId })
       const reply = r.assistant
+      onReply()
       if (r.new_extra || r.deleted_extras.length > 0) onExtras(r.new_extra, r.deleted_extras)
       if (reply.edits.length > 0 && activeId.current === currentId) {
         // 共享编辑框：助教的修改直接写进去

@@ -18,9 +18,11 @@ export interface Branch {
 export function mapTree(tracks: TrackInfo[], tab: MapTab) {
   const visible = tracks.filter((t) => t.language === tab || t.language === 'none')
   const branches = new Map<string, Branch>()
+  // 「继续」只在还有下一题的线里挑最近练过的；做完的线（比如两个标签共用的认识数据）不挡住后面的线。
+  // 都没练过就取地图上第一条已解锁、还有题的线。和后端 units.resume_track 同一规则。
   let latest: TrackInfo | undefined
   for (const track of visible) {
-    if (track.status === 'active' && track.last_active && track.last_active > (latest?.last_active ?? '')) {
+    if (track.status === 'active' && track.frontier && track.last_active && track.last_active > (latest?.last_active ?? '')) {
       latest = track
     }
     const stations = track.stages.flatMap((stage) => {
@@ -45,5 +47,6 @@ export function mapTree(tracks: TrackInfo[], tab: MapTab) {
     s.unit.next.source === s.track.next.source)
   const next = upcoming.filter(s => s.unit.next?.due).sort((a, b) =>
     a.unit.next!.due!.localeCompare(b.unit.next!.due!))[0] ?? upcoming[0]
-  return { roots, stations, next, resumeTrack: latest ?? roots[0]?.track }
+  const firstOpen = visible.find(t => t.status === 'active' && t.frontier && t.requires_done)
+  return { roots, stations, next, resumeTrack: latest ?? firstOpen }
 }

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { prefetchProblem, type ProblemDetail, type TrackProblem } from '../api'
 import { FORMAT_NAME } from '../labels'
 import { readPref, writePref } from '../theme'
+import { enableFocus } from '../practiceSession'
 import { ProblemStatus } from './ProblemStatus'
 import '@vscode/codicons/dist/codicon.css'
 import './workbench.css'
@@ -35,6 +36,8 @@ export function useWorkbenchLayout() {
   const [files, setFiles] = useFlag('dojo-files', true)
   const [chat, setChat] = useFlag('dojo-chat', true)
   const [panel, setPanel] = useFlag('dojo-panel', false)
+  const [focus, setFocus] = useState(() => readPref('dojo-focus', '0') === '1')
+  const [focusChat, setFocusChat] = useState(false)
   const [drawer, setDrawer] = useState(() => readPref('dojo-drawer', ''))
   useEffect(() => writePref('dojo-drawer', drawer), [drawer])
   const sidebar = useSize('dojo-files-width', 224, 150, 480)
@@ -42,12 +45,17 @@ export function useWorkbenchLayout() {
   const bottom = useSize('dojo-panel-height', 236, 92, 650)
   const split = useSize('dojo-editor-split', 46, 22, 78)
   const vertical = useSize('dojo-mobile-split', 48, 20, 75)
-  const filesOpen = narrow ? drawer === 'files' : files
-  const chatOpen = narrow ? drawer === 'chat' : chat
+  const filesOpen = !focus && (narrow ? drawer === 'files' : files)
+  const chatOpen = focus ? focusChat : narrow ? drawer === 'chat' : chat
   return { narrow, filesOpen, chatOpen, panel, setPanel, sidebar, tutor, bottom, split: narrow ? vertical : split,
+    focus, toggleFocus: () => {
+      enableFocus(!focus)
+      setFocus(!focus)
+      setFocusChat(false)
+    },
     toggleFiles: () => narrow ? setDrawer(filesOpen ? '' : 'files') : setFiles(!files),
-    toggleChat: () => narrow ? setDrawer(chatOpen ? '' : 'chat') : setChat(!chat),
-    closeDrawer: () => setDrawer(''),
+    toggleChat: () => focus ? setFocusChat(!focusChat) : narrow ? setDrawer(chatOpen ? '' : 'chat') : setChat(!chat),
+    closeDrawer: () => focus ? setFocusChat(false) : setDrawer(''),
     style: { '--files-w': filesOpen ? `min(${sidebar.value}px, 20vw)` : '0px',
       '--chat-w': chatOpen ? `min(${tutor.value}px, 25vw)` : '0px',
       '--split': (narrow ? vertical.value : split.value) + '%',

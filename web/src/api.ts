@@ -336,6 +336,7 @@ export const api = {
   }),
   logout: () => request('/api/auth/logout', { method: 'POST', body: '{}' }),
   today: () => request<TodayPlan>('/api/today'),
+  sessionPlan: (tab: 'python' | 'sql', size: number) => request<PracticeLink[]>(`/api/session-plan?tab=${tab}&size=${size}`),
   stats: () => request<{ weeks: Week[] }>('/api/stats'),
   dailyLimit: (daily_limit: number) => request('/api/today/settings', {
     method: 'PUT', body: JSON.stringify({ daily_limit }),

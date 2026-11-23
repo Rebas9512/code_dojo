@@ -29,6 +29,7 @@ import { variantRequest } from '../pages/PlanPages'
 import { FORMAT_NAME } from '../labels'
 import { readPref, writePref, type Theme } from '../theme'
 import { useTracks } from '../tracks'
+import { playPassSound, recordHelp, recordSubmission, sessionItemPath, usePracticeSession, visitItem, type PracticeSession } from '../practiceSession'
 import { DsPreparation } from './DsPreparation'
 import { ChatPanel, type ApplyResult } from './ChatPanel'
 import type { CodeEditorHandle } from './CodeEditor'
@@ -39,6 +40,7 @@ import { Picker, usePickerShortcut, type PickerItem } from './Picker'
 import { STATUS_NAME } from './ProblemStatus'
 import { DesktopBridge } from './DesktopBridge'
 import { SyncStatus } from './SyncStatus'
+import { SessionBar } from './SessionBar'
 import { Explorer, Icon, Separator, useWorkbenchLayout, type WorkbenchLayout } from './WorkbenchLayout'
 import { WorkbenchPanel, diagnostics, type Attempt, type ExampleOutput, type PanelOutput, type PanelTab } from './WorkbenchPanel'
 
@@ -62,20 +64,6 @@ function replaceOnce(text: string, old: string, next: string, singleLine: boolea
   return text.slice(0, at) + next + text.slice(at + old.length)
 }
 
-function useElapsed(resetKey: string) {
-  const start = useRef(Date.now())
-  const [now, setNow] = useState(Date.now())
-  useEffect(() => {
-    start.current = Date.now()
-    setNow(Date.now())
-    const t = setInterval(() => setNow(Date.now()), 1000)
-    return () => clearInterval(t)
-  }, [resetKey])
-  const ms = Math.max(0, now - start.current)
-  const label = `${Math.floor(ms / 60000)}:${String(Math.floor((ms / 1000) % 60)).padStart(2, '0')}`
-  return { ms, label }
-}
-
 // ---------------------------------------------------------------------------
 // 当前这道题：编辑框 + 判题 + 计时。切换题目（原题 / 附加题）时整体换掉，各题草稿分开保存。
 // ---------------------------------------------------------------------------
@@ -87,6 +75,7 @@ interface ActiveHandle {
 }
 
 interface ActiveProps {
+  session: PracticeSession | null
   review: ReviewContext
   waiting: boolean
   generating: boolean
@@ -111,7 +100,7 @@ interface ActiveProps {
 }
 
 const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProblem(
-  { id, parent, review, waiting, generating, onExtra, theme, nav, bare, setBare, layout, unit, backend, tabs, left, onShowLesson, onResult, onDetail },
+  { id, parent, review, session, waiting, generating, onExtra, theme, nav, bare, setBare, layout, unit, backend, tabs, left, onShowLesson, onResult, onDetail },
   ref,
 ) {
   const navigate = useNavigate()
@@ -152,7 +141,21 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   const editorRef = useRef<CodeEditorHandle>(null)
   const latest = useRef({ code: '', answer: '' })
   latest.current = { code, answer }
-  const elapsed = useElapsed(id)
+  const [started] = useState(Date.now)
+  const [autoAt, setAutoAt] = useState<number | null>(null)
+  const [sound, setSound] = useState(() => readPref('dojo-sound', '0') === '1')
+  const toggleSound = () => { writePref('dojo-sound', sound ? '0' : '1'); setSound(!sound) }
+  const index = session && !session.ended && !waiting ? session.items.findIndex(item => item.id === id) : -1
+  const item = session?.items[index]
+  const openSessionId = item?.status === 'open' ? session?.id : undefined
+  useEffect(() => {
+    if (openSessionId) visitItem(openSessionId, index)
+  }, [openSessionId, index])
+  useEffect(() => {
+    if (item?.status === 'open' && item.source && !item.reviewClosed && (item.source !== review.review_source || item.due !== review.review_due)) {
+      void navigate(sessionItemPath(item), { replace: true })
+    }
+  }, [item, review, navigate])
   const draftKey = `dojo-draft:${id}`
   const isReview = !!review.review_source
   const next = !isReview || finished ? parent.continue_with : null
@@ -190,7 +193,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
       .finally(() => { if (current) setPreparing(false) })
     return () => { current = false }
   }, [isSqlAnswer])
-  const judgeable = !!p && !preparing && !waiting && !finished && !loadingHelp
+  const judgeable = !!p && !preparing && !waiting && !finished && !(isReview && item?.reviewClosed) && !loadingHelp
   const canRun = inScratch ? hasScratch && !preparing && !waiting && !scratchBusy : judgeable && !busy && !isInspect
 
   const switchFile = (scratch: boolean) => {
@@ -276,15 +279,20 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
       setResult(null)
       setRequestError(null)
       try {
-        const body: JudgeRequest = isPredict || isInspect
-          ? { answer, elapsed_ms: elapsed.ms, hints_used: hintsShown, ai_lines: aiLines }
-          : { code, elapsed_ms: elapsed.ms, hints_used: hintsShown, ai_lines: aiLines }
+        const body: JudgeRequest = { ...(isPredict || isInspect ? { answer } : { code }),
+          elapsed_ms: Math.max(0, Date.now() - started), hints_used: hintsShown, ai_lines: aiLines }
         Object.assign(body, review)
         if (isSqlAnswer) body.sql_result = await (await import('../sql/client')).grade(p.id, code, kind)
         const r = kind === 'run' ? await api.run(p.id, body) : await api.submit(p.id, body)
         // 当前 SQL 作答展示 Worker 返回的表格，历史提交继续使用服务端摘要。
         setResult({ r: body.sql_result ? { ...r, cases: body.sql_result.cases } : r, kind, source: code })
         if (kind === 'submit') {
+          const passed = r.verdict === 'accepted'
+          if (session && item?.status === 'open') {
+            const updated = recordSubmission(session.id, index, passed)
+            if (passed && updated) setAutoAt(Date.now() + 1500)
+          }
+          if (passed) playPassSound()
           if (isReview) setFinished(true)
           void revalidate()
           if (id !== parent.id) setP(await api.problem(id))
@@ -300,7 +308,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
         setBusy(null)
       }
     },
-    [p, judgeable, busy, id, parent.id, review, isReview, isSqlAnswer, isPredict, isInspect, answer, code, elapsed.ms, hintsShown, aiLines, onResult, revalidate, setPanel],
+    [p, judgeable, busy, id, parent.id, review, isReview, isSqlAnswer, isPredict, isInspect, answer, code, started, session, item, index, hintsShown, aiLines, onResult, revalidate, setPanel],
   )
 
   async function runCurrent() {
@@ -395,6 +403,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
         setHintsShown(n)
         writePref(hintKey, String(n))
       }
+      if (session && item) recordHelp(session.id, index, 'hints', full)
     } catch (err) {
       setRequestError((err as Error).message)
     } finally { setLoadingHelp(false) }
@@ -498,22 +507,26 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
     { id: 'submit', title: '提交', shortcut: 'Ctrl+Shift+Enter', disabled: !judgeable || !!busy || (isInspect && !answer.trim()), run: () => judge('submit') },
     ...(hasScratch ? [{ id: 'scratch', title: '切换答案 / 草稿', shortcut: 'Alt+S', run: () => switchFile(!inScratch) }] : []),
     { id: 'bare', title: '切换裸写模式', shortcut: 'Alt+B', disabled: inspectAnswerActive, run: () => setBare(b => !b) },
+    { id: 'focus', title: layout.focus ? '退出专注模式' : '开启专注模式', shortcut: 'Alt+Z', run: layout.toggleFocus },
+    { id: 'sound', title: '开关通过提示音', run: toggleSound },
     { id: 'chat', title: '开关助教', shortcut: 'Ctrl+Alt+I', run: layout.toggleChat },
     { id: 'reset', title: isInspect ? '清空答案' : '重置代码', run: resetCode },
     { id: 'lesson', title: '打开课', shortcut: 'Alt+L', run: onShowLesson },
     { id: 'panel', title: '开关底部面板', shortcut: 'Ctrl+J', run: togglePanel },
-    { id: 'files', title: '开关本单元题目列表', shortcut: 'Ctrl+B', run: layout.toggleFiles },
+    { id: 'files', title: '开关本单元题目列表', shortcut: 'Ctrl+B', disabled: layout.focus, run: layout.toggleFiles },
     { id: 'prev', title: '上一题', disabled: !prevPath, run: () => prevPath && navigate(prevPath) },
     { id: 'next', title: '下一题', disabled: !nextPath, run: () => nextPath && navigate(nextPath) },
     { id: 'map', title: '返回地图', run: () => navigate(isSql ? '/?tab=sql' : '/') },
   ]
   return <>
     <div className="wb-desk">
+      {session && item && <SessionBar session={session} index={index} autoAt={autoAt} setAutoAt={setAutoAt}
+        busy={!!busy || loadingHelp} review={isReview} />}
       <div className="editor-groups">
         <section className="wb-reading">
           <div className="editor-tabs reading-tabs">
-            <button className="icon-btn" title="本单元题目列表（Ctrl+B）" aria-pressed={layout.filesOpen}
-              onClick={layout.toggleFiles}><Icon name="layout-sidebar-left" /></button>{tabs}
+            {!layout.focus && <button className="icon-btn" title="本单元题目列表（Ctrl+B）" aria-pressed={layout.filesOpen}
+              onClick={layout.toggleFiles}><Icon name="layout-sidebar-left" /></button>}{tabs}
             <button className="icon-btn chat-access" title="打开助教" aria-pressed={layout.chatOpen}
               onClick={layout.toggleChat}><Icon name="comment-discussion" /></button>
           </div>
@@ -535,6 +548,8 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
               onClick={runCurrent}><Icon name="play" />{(inScratch ? scratchBusy : busy === 'run') ? '运行中' : '运行'}</button>}
             <button className="submit-action" disabled={!judgeable || !!busy || (isInspect && !answer.trim())}
               onClick={() => judge('submit')} title="提交（Ctrl+Shift+Enter）">{busy === 'submit' ? '判题中' : '提交'}</button>
+            <button className="icon-btn" title="开关通过提示音" aria-label="开关通过提示音" aria-pressed={sound}
+              onClick={toggleSound}><Icon name={sound ? 'unmute' : 'mute'} /></button>
             <button className="icon-btn" title="命令面板（Ctrl+Shift+P）" onClick={() => setCommandsOpen(true)}><Icon name="ellipsis" /></button>
           </div>
           <div className="breadcrumbs" title={crumbs}>{crumbs}</div>
@@ -589,24 +604,35 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
     </div>
     <footer className="wb-status">
       <div className="status-items">
-        <Link to={'/t/' + track.id} title={track.name + ' · ' + nav.stage}><Icon name="source-control" />{track.name} · {nav.stage}</Link>
-        <button title="查看问题" onClick={showIssues}><Icon name="error" />{problems.length}</button>
-        <span>{backend}</span>
-        {isReview && <Link to="/today">{finished ? '本轮已结束 · 今日计划' : '复习 · 今日计划'}</Link>}
+        {!layout.focus && <>
+          <Link to={'/t/' + track.id} title={track.name + ' · ' + nav.stage}><Icon name="source-control" />{track.name} · {nav.stage}</Link>
+          <button title="查看问题" onClick={showIssues}><Icon name="error" />{problems.length}</button>
+          <span>{backend}</span>
+          {isReview && <Link to="/today">{finished ? '本轮已结束 · 今日计划' : '复习 · 今日计划'}</Link>}
+        </>}
         <span className="bar-spacer" />
-        <span title="本题用时"><Icon name="clock" />{elapsed.label}</span>
-        {!inspectAnswerActive || textAnswer ? <span>行 {cursor.line}，列 {cursor.col}</span> : null}
+        {!layout.focus && <>
+          <span aria-label="本题用时" onMouseEnter={e => {
+            e.currentTarget.title = `本题用时 ${Math.floor((Date.now() - started) / 60000)} 分钟`
+          }}><Icon name="clock" /></span>
+          {(!inspectAnswerActive || textAnswer) && <span>行 {cursor.line}，列 {cursor.col}</span>}
+        </>}
         <span>{inspectAnswerActive ? '数据' : isSql ? 'SQL' : 'Python'}</span>
         {!inspectAnswerActive && <button aria-pressed={bare} onClick={() => setBare(b => !b)} title="切换裸写（Alt+B）"><Icon name={bare ? 'check' : 'dash'} />裸写</button>}
-        <button aria-pressed={layout.chatOpen} onClick={layout.toggleChat} title="开关助教（Ctrl+Alt+I）"><Icon name="comment-discussion" />助教</button>
-        <button onClick={togglePanel} title="开关底部面板（Ctrl+J）" aria-pressed={layout.panel}><Icon name="layout-panel" /></button>
-        <SyncStatus />
-        <button title="重置代码或答案" onClick={resetCode}><Icon name="discard" /></button>
-        <button title={'上一题 · ' + (nav.prev?.title ?? '')} disabled={!prevPath} onClick={() => prevPath && navigate(prevPath)}><Icon name="chevron-left" /></button>
-        <button title={'下一题 · ' + ((isReview ? next : parent.next)?.title ?? '')} disabled={!nextPath} onClick={() => nextPath && navigate(nextPath)}><Icon name="chevron-right" /></button>
-        {next && practicePath(next) !== nextPath && <Link to={practicePath(next)} title={'继续 · ' + next.title + '（Alt+→）'}>继续 →</Link>}
+        <button aria-pressed={layout.focus} onClick={layout.toggleFocus} title="开关专注模式（Alt+Z）"><Icon name="screen-full" />{layout.focus ? '退出专注' : '专注'}</button>
+        {!layout.focus && <>
+          <button aria-pressed={layout.chatOpen} onClick={layout.toggleChat} title="开关助教（Ctrl+Alt+I）"><Icon name="comment-discussion" />助教</button>
+          <button onClick={togglePanel} title="开关底部面板（Ctrl+J）" aria-pressed={layout.panel}><Icon name="layout-panel" /></button>
+        </>}
+        <SyncStatus silent={layout.focus} />
+        {!layout.focus && <>
+          <button title="重置代码或答案" onClick={resetCode}><Icon name="discard" /></button>
+          <button title={'上一题 · ' + (nav.prev?.title ?? '')} disabled={!prevPath} onClick={() => prevPath && navigate(prevPath)}><Icon name="chevron-left" /></button>
+          <button title={'下一题 · ' + ((isReview ? next : parent.next)?.title ?? '')} disabled={!nextPath} onClick={() => nextPath && navigate(nextPath)}><Icon name="chevron-right" /></button>
+          {next && practicePath(next) !== nextPath && <Link to={practicePath(next)} title={'继续 · ' + next.title + '（Alt+→）'}>继续 →</Link>}
+        </>}
       </div>
-      <div className="desktop-slot"><DesktopBridge /></div>
+      {!layout.focus && <div className="desktop-slot"><DesktopBridge /></div>}
     </footer>
     {commandsOpen && <Picker label="搜索命令" items={commands} close={() => setCommandsOpen(false)} />}
   </>
@@ -628,6 +654,7 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
   const unitRows = rows.filter(p => p.stage === parent.stage && p.unit === unitId)
   const due = new Set(reviews.map(item => item.source || item.id))
   const layout = useWorkbenchLayout()
+  const session = usePracticeSession()
   const backend = track.runtime === 'pglite' || track.runtime === 'none' ? '本地' :
     status.judge_backends[track.runtime] === 'docker' ? 'Docker' : '本地'
   const id = parent.id
@@ -648,6 +675,11 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
   const autoOpen = useRef<Set<string>>(new Set()) // 出好后要自动切过去的附加题
   const active = useRef<ActiveHandle>(null)
+  const recordAi = () => {
+    if (!session || session.ended) return
+    const index = session.items.findIndex(p => p.id === activeId)
+    if (index >= 0) recordHelp(session.id, index, 'ai')
+  }
 
   useEffect(() => {
     api
@@ -672,7 +704,8 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
     function key(e: KeyboardEvent) {
       if (e.isComposing || document.querySelector('dialog[open]')) return
       const mod = e.ctrlKey || e.metaKey
-      if (mod && !e.shiftKey && !e.altKey && e.code === 'KeyB') layout.toggleFiles()
+      if (e.altKey && !mod && !e.shiftKey && e.code === 'KeyZ') layout.toggleFocus()
+      else if (mod && !e.shiftKey && !e.altKey && e.code === 'KeyB' && !layout.focus) layout.toggleFiles()
       else if (mod && !e.shiftKey && !e.altKey && e.code === 'KeyJ') layout.setPanel(!layout.panel)
       else if (e.altKey && !e.shiftKey && e.code === 'KeyI') layout.toggleChat()
       else if (e.key === 'Escape' && layout.narrow && (layout.filesOpen || layout.chatOpen)) layout.closeDrawer()
@@ -711,6 +744,7 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
     setExtraError(null)
     try {
       const e = await api.createExtra(anchor, req, skill, review)
+      recordAi()
       if (anchor !== id) {
         navigate(practicePath({ id: e.id, parent: anchor, title: '' }))
         return
@@ -860,7 +894,7 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
       让助教出一道同套路的</button></div>
 
   return (
-    <main className="workbench" style={layout.style}>
+    <main className={'workbench' + (layout.focus ? ' is-focused' : '')} style={layout.style}>
       {layout.narrow && (layout.filesOpen || layout.chatOpen) &&
         <button className="drawer-shade" aria-label="收起抽屉" onClick={layout.closeDrawer} />}
       {layout.filesOpen && <Explorer rows={unitRows} unit={unit?.name || parent.stage} layout={layout} parent={parent} due={due} />}
@@ -870,6 +904,7 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
         id={activeId}
         parent={parent}
         review={review}
+        session={session}
         generating={generating}
         waiting={variant || (!!requestedExtra && (tab === requestedExtra || !!review.review_source) && activeId !== requestedExtra) || (!!review.review_source && !!tabExtra && tabExtra.status !== 'ready')}
         onExtra={addExtra}
@@ -886,7 +921,7 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
       />
       <div className="wb-chat" hidden={!layout.chatOpen}>
         {!layout.narrow && layout.chatOpen && <Separator label="调整助教宽度" side="right" size={layout.tutor} />}
-        <ChatPanel aiOn={status.ai !== 'off'} close={layout.toggleChat}
+        <ChatPanel aiOn={status.ai !== 'off'} close={layout.toggleChat} onReply={recordAi}
           review={review}
           problemId={id}
           currentId={activeId}

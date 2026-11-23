@@ -111,3 +111,41 @@ def test_progress_frontier(status, expected):
     stages = {"0A": [unit("0A", "1", ["选修一", "a", "b", "c"]), unit("0A", "2", ["选修二", "d"])],
               "0B": [unit("0B", "1", ["e", "选修三"])]}
     assert progress_frontier(stages, status) == ({"id": expected, "title": f"题 {expected}"} if expected else None)
+
+
+def test_plan_session_warmup_and_frontier():
+    from app.units import plan_session
+
+    path = Path(__file__).parent / "fixtures/problems/python/track.yaml"
+    track = load_track(path)
+
+    def problem(pid):
+        meta = ProblemMeta(id=pid, title=pid, track="python", stage="0A", order=1,
+                           format="write", difficulty=1, skills=SkillRef(), optional=pid == "optional")
+        return Problem(meta, track, path.parent, "", "")
+
+    def review(pid, day, **kw):
+        return {"id": pid, "title": pid, "source": "练过的题", "due": f"2026-11-{day}",
+                "generate": False} | kw
+
+    stages = {"0A": [Unit("1", "", problems=[problem(p) for p in ["before", "done", "optional", "new"]]),
+                     Unit("2", "", problems=[problem("variant"), problem("last")])]}
+    due = [review("late", 19), review("variant", 17), review("old", 13), review("pending", 12, generate=True)]
+    result = plan_session(stages, {"done": "attempted"}, due, 8)
+    assert result == [due[2], due[1], {"id": "new", "title": "new"}, {"id": "last", "title": "last"}]
+    assert plan_session(stages, {}, [], 3) == [{"id": p, "title": p} for p in ["before", "done", "new"]]
+    assert plan_session(stages, {"last": "solved", "variant": "attempted"}, due, 3) == [due[2], due[1]]
+
+
+def test_resume_session_track():
+    from app.units import resume_track
+
+    fixtures = Path(__file__).parent / "fixtures/problems"
+    visible = [load_track(fixtures / tid / "track.yaml") for tid in ["python", "data", "algo"]]
+    every = {"python", "data", "algo"}
+    assert resume_track(visible, {}, every, {"data"}).id == "data"
+    assert resume_track(visible, {"sql": "4", "python": "1", "algo": "3"}, every, every).id == "algo"
+    # 最近练的线已经做完（两个标签共用的认识数据）：接到还有题、已解锁的线，不返回做完的线
+    assert resume_track(visible, {"data": "9"}, {"python", "algo"}, {"python"}).id == "python"
+    assert resume_track(visible, {"data": "9", "algo": "2"}, {"python", "algo"}, {"python", "algo"}).id == "algo"
+    assert resume_track(visible, {"data": "9"}, set(), {"python"}) is None

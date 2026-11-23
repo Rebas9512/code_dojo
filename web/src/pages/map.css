@@ -30,6 +30,7 @@
 }
 .map-resume > span:first-child { overflow: hidden; text-overflow: ellipsis; }
 .map-resume:hover { background: color-mix(in srgb, var(--action) 90%, black); }
+.map-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; min-width: 0; }
 .map-legend { flex: none; gap: 18px; color: var(--muted); font-size: 12px; }
 .map-legend > span { gap: 8px; }
 .legend-next, .legend-assist {
@@ -224,7 +225,7 @@
 @media (max-width: 560px) {
   .learning-map { --indent: 10px; --junction: 21px; padding-top: 25px; }
   .map-bar { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; }
-  .map-resume { grid-column: 1 / -1; grid-row: 2; justify-self: start; margin: 0 0 10px; }
+  .map-actions { grid-column: 1 / -1; grid-row: 2; justify-self: start; max-width: 100%; margin: 0 0 10px; }
   .map-legend { grid-column: 2; grid-row: 1; justify-self: end; gap: 12px; font-size: 11px; }
   .map-legend > span { gap: 6px; }
   .track-line { display: block; min-height: 0; padding: 8px 0 12px; }

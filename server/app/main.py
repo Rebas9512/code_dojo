@@ -13,7 +13,7 @@ from datetime import date
 from collections import Counter, defaultdict
 from typing import Any, Literal
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
 
@@ -31,7 +31,7 @@ from .problems import ExtraProblem, Problem, ProblemBank, build_extra, shared_db
 from .sql_judge import sql_cases
 from .sync import ProgressSync
 from .tracks import Track
-from .units import group_units, introduction_status, progress_frontier, stage_progress
+from .units import group_units, introduction_status, plan_session, progress_frontier, resume_track, stage_progress
 
 settings = load_settings()
 bank = ProblemBank(settings.problems_dir)
@@ -297,6 +297,24 @@ def today_plan() -> dict:
             "first_count": len(state.recent), "reviews": [state.review_item(r) for r in state.queue],
             "tracks": [{"id": t.id, "name": t.name, "next": state.next_new(
                 [p.id for p in ordered if p.meta.track == t.id])} for t in bank.tracks.values() if t.status == "active"]}
+
+
+@app.get("/api/session-plan")
+def session_plan(tab: Literal["python", "sql"], size: int = Query(5, ge=1, le=8)) -> list[dict]:
+    state = learning()
+    visible = [t for t in bank.tracks.values() if t.language in (tab, "none")]
+    ids = {t.id for t in visible}
+    reviews = [state.review_item(r) for r in state.queue if state.exercises[r["problem_id"]].track in ids]
+    stages = {t.id: group_units(t, bank.skills[t.id], bank.ordered(t.id)) for t in visible}
+    status = {tid: store.status_by_problem(tid) for tid in bank.tracks}
+    open_ids = {tid for tid in stages if progress_frontier(stages[tid], status[tid])}
+    done = {tid for tid in bank.tracks if (ps := bank.ordered(tid))
+            and all(status[tid].get(p.id) in ("solved", "assisted") for p in ps)}
+    unlocked = {t.id for t in visible if all(r in done for r in t.requires)}
+    track = resume_track(visible, store.last_active_by_track(), open_ids, unlocked)
+    if not track:
+        return []
+    return plan_session(stages[track.id], status[track.id], reviews, size)
 
 
 class PlanSettings(BaseModel):

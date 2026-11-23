@@ -197,3 +197,21 @@ def test_prerequisite_extra_checks_recognizable_skills():
         check_practice_scope(spec, "python", {"py.var-arith"})
     with pytest.raises(ValueError, match="sql.where"):
         check_practice_scope({"solution":"SELECT n FROM t WHERE n > 3"}, "sql", {"sql.select-basic"})
+
+
+def test_session_uses_visible_reviews_and_one_frontier(site, monkeypatch):
+    from app import db
+    client, store = site
+    url = "/api/session-plan"
+    assert [p["id"] for p in client.get(url, params={"tab": "sql", "size": 8}).json()] == [A, B]
+    old = stamp(-2)
+    with monkeypatch.context() as clock:
+        clock.setattr(db, "now", lambda: old)
+        send(client, A, {"answer": 1}).raise_for_status()
+    store.add_submission(problem_id=ADD, track="python", kind="submit", code="",
+                         result={"verdict": "wrong_answer"}, elapsed_ms=500, hints_used=0)
+    review, = client.get("/api/today").json()["reviews"]
+    sql = client.get(url, params={"tab": "sql"}).json()
+    assert sql[0] == review and [p["id"] for p in sql[1:]] == [B]
+    python = client.get(url, params={"tab": "python", "size": 3}).json()
+    assert python[0] == review and [p["id"] for p in python[1:]] == ["py-0a-004-fill-return"]

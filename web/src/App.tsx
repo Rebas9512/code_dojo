@@ -7,6 +7,7 @@ import { api, invalidate, loadWorkspace, trackRows, type WorkspaceData } from '.
 import { TodayPage, StatsPage } from './pages/PlanPages'
 import { LoginPage, loginLoader } from './pages/LoginPage'
 import { MapPage } from './pages/MapPage'
+import { SessionPage } from './pages/SessionPage'
 import { TrackPage } from './pages/TrackPage'
 import { readPref, writePref, useTheme } from './theme'
 import { useTracks } from './tracks'
@@ -110,6 +111,7 @@ const router = createBrowserRouter([{
   hydrateFallbackElement: <main />,
   children: [
     { index: true, element: <MapPage /> },
+    { path: 'session', element: <SessionPage /> },
     { path: 'today', loader: api.today, element: <TodayPage />, errorElement: <RouteError /> },
     { path: 'stats', loader: api.stats, element: <StatsPage />, errorElement: <RouteError /> },
     { path: 'sql', element: <Navigate to="/t/sql" replace /> },
