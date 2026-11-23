@@ -29,6 +29,13 @@ TARGETS = {
     ("Windows", "amd64"): ("x86_64-pc-windows-msvc", "98bbe6a0d798bcbad142e96e5930a330e4dc407638e898b515c51eb73a27580d"),
 }
 
+APPIMAGETOOL_SHA256 = "ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0"
+TYPE2_RUNTIME_SHA256 = "2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d"
+
+
+def download(url: str, path: Path) -> None:
+    subprocess.run(["curl", "--fail", "--location", "--retry", "3", "--output", str(path), url], check=True)
+
 
 def requirements(output: Path) -> None:
     subprocess.run(["uv", "export", "--locked", "--no-dev", "--no-emit-project", "--no-header",
@@ -90,6 +97,46 @@ def shell_launcher(path: Path, app: bool) -> None:
     path.chmod(0o755)
 
 
+def appimage(bundle: Path, output: Path) -> None:
+    work = bundle.parent
+    (bundle / "AppRun").symlink_to("code-dojo")
+    shutil.copy(Path(__file__).with_name("code-dojo.desktop"), bundle)
+    shutil.copy(ROOT / "web/public/code-dojo.svg", bundle)
+    (bundle / ".DirIcon").symlink_to("code-dojo.png")
+    for size, ext in (("256x256", "png"), ("scalable", "svg")):
+        icons = bundle / "usr/share/icons/hicolor" / size / "apps"
+        icons.mkdir(parents=True)
+        icon = bundle / f"code-dojo.{ext}"
+        installed = icons / icon.name
+        icon.rename(installed)
+        icon.symlink_to(installed.relative_to(bundle))
+
+    tool = work / "appimagetool-x86_64.AppImage"
+    runtime = work / "runtime-x86_64"
+    # 打包工具默认会另取最新的挂载运行时；两份上游二进制都固定且分别校验。
+    for repo, tag, path, checksum in (
+        ("appimagetool", "1.9.1", tool, APPIMAGETOOL_SHA256),
+        ("type2-runtime", "20251108", runtime, TYPE2_RUNTIME_SHA256),
+    ):
+        download(f"https://github.com/AppImage/{repo}/releases/download/{tag}/{path.name}", path)
+        if digest(path) != checksum:
+            raise ValueError(f"{path.name} 的 SHA-256 不符")
+    tool.chmod(0o755)
+    # Lite 2.2 的菜单库只读 gzip/xz。官方工具随附的 mksquashfs 只支持 zstd，
+    # 用无需 FUSE 的方式解开工具，再让原版 CLI 从 PATH 找到系统的压缩器。
+    if not shutil.which("mksquashfs"):
+        raise RuntimeError("构建 Linux AppImage 需要 squashfs-tools 提供的 mksquashfs")
+    env = os.environ | {"ARCH": "x86_64", "VERSION": VERSION, "TMPDIR": str(work)}
+    subprocess.run([str(tool), "--appimage-extract-and-run", "--version"], cwd=work, check=True,
+                   env=env | {"NO_CLEANUP": "1"})
+    cli, = work.glob("appimage_extracted_*/usr/bin/appimagetool")
+    env["PATH"] += os.pathsep + str(cli.parent)
+    image = work / f"code-dojo-{VERSION}-x86_64.AppImage"
+    subprocess.run([str(cli), "--runtime-file", str(runtime), "--comp", "gzip",
+                    str(bundle), str(image)], cwd=work, check=True, env=env)
+    image.replace(output / image.name)
+
+
 def installer(args, work: Path) -> None:
     sealed = os.environ.pop("CODE_DOJO_SEALED_TOKENS", "")
     system = platform.system()
@@ -102,8 +149,7 @@ def installer(args, work: Path) -> None:
     if not source:
         source = work / "runtime.tar.gz"
         name = f"cpython-{PYTHON}%2B{PBS}-{target}-install_only.tar.gz"
-        subprocess.run(["curl", "--fail", "--location", "--retry", "3", "--output", str(source),
-                        f"https://github.com/astral-sh/python-build-standalone/releases/download/{PBS}/{name}"], check=True)
+        download(f"https://github.com/astral-sh/python-build-standalone/releases/download/{PBS}/{name}", source)
     if digest(source) != expected:
         raise ValueError("独立 Python 解释器哈希不符")
     with tarfile.open(source) as tar:
@@ -147,12 +193,14 @@ def installer(args, work: Path) -> None:
                         str(args.output / (title + ".zip"))], check=True)
     else:
         shell_launcher(outer / "code-dojo", False)
+        shutil.copy(Path(__file__).with_name("code-dojo.png"), outer)
         with tarfile.open(args.output / (title + ".tar.gz"), "w:gz", compresslevel=5) as tar:
             def permissions(entry):
                 # 构建目录可能位于不保存 Unix 权限的共享盘。
                 entry.mode = 0o755 if entry.isdir() or "/bin/" in entry.name or entry.name == "code-dojo/code-dojo" else 0o644
                 return entry
             tar.add(outer, arcname=outer.name, filter=permissions)
+        appimage(outer, args.output)
 
 
 if __name__ == "__main__":

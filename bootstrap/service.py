@@ -6,11 +6,26 @@ import os
 import shutil
 import socket
 import sys
+import tempfile
 import threading
 from pathlib import Path
 
 from .github import GitHub
 from .update import atomic_json
+
+
+def judge_python(data: Path) -> str:
+    bundle = Path(__file__).resolve().parents[1]
+    if not (bundle / "AppRun").is_file():
+        return sys.executable
+    # venv 保存解释器的绝对路径。窗口持有实例锁时，将固定链接指向本次挂载。
+    desktop = data / "desktop"
+    link = desktop / f"python-{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+    with tempfile.TemporaryDirectory(dir=desktop) as tmp:
+        pending = Path(tmp) / "python"
+        pending.symlink_to(bundle / "python", target_is_directory=True)
+        pending.replace(link)
+    return str(link / "bin/python3")
 
 
 def serve() -> None:
@@ -21,9 +36,16 @@ def serve() -> None:
     sys.path[:0] = [str(payload / "server"), from_bootstrap["libraries"]]
     os.environ.update(CODE_DOJO_DATA=str(data), CODE_DOJO_PROBLEMS=str(payload / "problems"),
                       CODE_DOJO_WEB_DIST=str(payload / "web/dist"), CODE_DOJO_SQL_CACHE=str(payload / "sql-cache"),
-                      CODE_DOJO_JUDGE="local", CODE_DOJO_AUTH="off", CODE_DOJO_DESKTOP_PYTHON=sys.executable,
+                      CODE_DOJO_JUDGE="local", CODE_DOJO_AUTH="off", CODE_DOJO_DESKTOP_PYTHON=judge_python(data),
                       CODE_DOJO_JUDGE_ENVS=str(data / "judge-envs"),
                       CODE_DOJO_SYNC_REPO=f"https://github.com/{from_bootstrap['repo']}.git" if from_bootstrap["token"] else "")
+    # venv 的 ensurepip 子进程也从只读安装包导入标准库。
+    os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+    os.environ.setdefault("CODE_DOJO_JUDGE_TMP", str(data / "judge-tmp"))
+    os.environ.setdefault("CODE_DOJO_AI_WORKDIR", str(data / "desktop/ai"))
+    tmp = data / "desktop/tmp"
+    tmp.mkdir(exist_ok=True)
+    os.environ.update(TMPDIR=str(tmp), TEMP=str(tmp), TMP=str(tmp))
     if not shutil.which(os.environ.get("CODE_DOJO_CLAUDE_BIN", "claude")):
         os.environ["CODE_DOJO_AI_PROVIDER"] = "off"
     import uvicorn

@@ -73,8 +73,8 @@ class LocalEnvironments:
                     if python.is_file() and self._ready(directory):
                         return python
                     if bundled:
-                        self._run_uv([bundled, "-I", "-m", "venv", "--clear", str(directory)])
-                        install = [str(python), "-I", "-m", "pip", "--isolated", "install",
+                        self._run_uv([bundled, "-I", "-B", "-m", "venv", "--clear", str(directory)])
+                        install = [str(python), "-I", "-B", "-m", "pip", "--isolated", "install",
                                    "--no-cache-dir", "--only-binary=:all:"]
                         self._run_uv([*install, *DS_PACKAGES[:2]])
                         cpu = [] if sys.platform == "darwin" else ["--extra-index-url", "https://download.pytorch.org/whl/cpu"]

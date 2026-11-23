@@ -21,6 +21,8 @@
 
 **并行**：这次只有你一个任务。
 
+启动器版本保持 `1.0.1`（`bootstrap/__init__.py`）。这个版本还没发布，主控会在你交付后打 `app-v1.0.1` 标签，AppImage 跟着这个版本一起发。令牌的加密结果已经由主控存成 Actions 密钥 `CODE_DOJO_SEALED_TOKENS`，CI 构建 AppImage 时照样放进去。
+
 ## 要做的事
 
 1. **AppImage 产物**：`code-dojo-<版本>-x86_64.AppImage`。tar.gz 保留，作为备用。

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=code-dojo
+Comment=在本机练习手写代码并记录学习进度。
+Exec=code-dojo
+Icon=code-dojo
+Terminal=false
+Categories=Education;Development;
+StartupWMClass=Code-dojo

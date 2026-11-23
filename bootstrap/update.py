@@ -108,10 +108,11 @@ class Updates:
                 # 解压新版安装包会替换内置依赖；本地旧题库仍须能离线启动。
                 shutil.copytree(self.bundle / "libraries", libraries)
             else:
-                subprocess.run([sys.executable, "-I", "-m", "pip", "--isolated", "install",
+                subprocess.run([sys.executable, "-I", "-B", "-m", "pip", "--isolated", "install",
                                 "--no-cache-dir", "--require-hashes", "--only-binary=:all:",
                                 "--target", str(libraries), "-r", str(stage / "requirements.txt")],
-                               check=True, timeout=600, stdout=subprocess.DEVNULL)
+                               check=True, timeout=600, stdout=subprocess.DEVNULL,
+                               env=os.environ | {"TMPDIR": tmp, "TEMP": tmp, "TMP": tmp})
             libraries.rename(target)
 
     def check(self) -> Result:

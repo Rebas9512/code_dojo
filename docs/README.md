@@ -36,12 +36,12 @@ code-dojo/
 │   ├── sql/                  SQL 题与 _db/ 下的共享练习库
 │   ├── data/                 认识数据，看数据作答
 │   └── math/、wrangle/、tensor/、ml/、train/、llm/   进阶线题库与配置
-└── scripts/              题库校验；desktop/ 加密发布令牌、构建独立安装包和含 SQL 期望表的更新包
+└── scripts/              题库校验；desktop/ 加密发布令牌、构建独立安装包（含 Linux AppImage）和含 SQL 期望表的更新包
 ```
 
 ## 桌面应用
 
-新电脑可从私有代码仓库的 Releases 下载对应安装包。Linux x86-64 使用 tar.gz，Apple Silicon macOS 使用内含 .app 的 zip，Windows x64 使用内含可双击 exe 的 zip。安装包内有 python-build-standalone 的 CPython 3.14 install_only、Tk、pip、按 `server/uv.lock` 锁定的后端依赖和启动器。使用端只需系统图形桌面和浏览器。[首次安装和令牌设置](../deploy/README.md#在一台新电脑上用)
+新电脑可从私有代码仓库的 Releases 下载对应安装包。Linux x86-64 推荐 AppImage，1.0.1 要求 glibc 2.34 或更高，另有备用 tar.gz。Apple Silicon macOS 使用内含 .app 的 zip，Windows x64 使用内含可双击 exe 的 zip。安装包内有 python-build-standalone 的 CPython 3.14 install_only、Tk、pip、按 `server/uv.lock` 锁定的后端依赖和启动器。Linux 可把 AppImage 放进 `~/Applications`，从应用菜单或文件管理器打开。没有 FUSE 的系统可从终端运行 `./code-dojo-1.0.1-x86_64.AppImage --appimage-extract-and-run`。[首次安装和令牌设置](../deploy/README.md#在一台新电脑上用)
 
 启动器 1.0.1 依次查找本机保存的令牌、能读两个仓库的 GitHub CLI 登录凭据、安装包内的加密令牌。首次解锁后保存到系统钥匙串或受保护的本机文件。没有可用来源时，窗口提供手动输入；“设置”可更新令牌。
 
@@ -51,7 +51,7 @@ code-dojo/
 
 本机服务绑定 `127.0.0.1`。首次自动选端口，以后优先复用，便于浏览器找到草稿。窗口显示版本、更新时间和学习记录同步状态，“立即同步”交换学习记录，关闭窗口会尝试最后一次推送再退出。记录使用与 `dojo` 相同的数据目录和事件格式。进度仓库由 `CODE_DOJO_SYNC_REPO` 指定，默认 `Rebas9512/code_dojo_sync`。有 Git 时使用 Git，没有 Git 时通过 GitHub Contents API 同步 main 上每台机器自己的月度 JSONL。同步失败的事件保留在本机。
 
-普通 Python 题直接用随包解释器运行独立的 harness 子进程。数据科学题首次使用时在数据目录的 `judge-envs/` 创建专用环境并安装 NumPy、pandas 和 CPU 版 PyTorch。固定 SQL 题从更新包读取期望表，用户 SQL 在浏览器运行。SQL 附加题的动态校验也由已打开的网页交给 PGlite Worker。助教使用 PATH 中已登录的 Claude Code，缺少时可在控制窗口的“设置”查看安装和登录步骤。
+普通 Python 题直接用随包解释器运行独立的 harness 子进程。数据科学题首次使用时在数据目录的 `judge-envs/` 创建专用环境并安装 NumPy、pandas 和 CPU 版 PyTorch。AppImage 启动时会将 `desktop/python-<解释器版本>` 链接到当前挂载的运行时，使同一 Python 版本的判题环境在重开后仍然可用。固定 SQL 题从更新包读取期望表，用户 SQL 在浏览器运行。SQL 附加题的动态校验也由已打开的网页交给 PGlite Worker。助教使用 PATH 中已登录的 Claude Code，缺少时可在控制窗口的“设置”查看安装和登录步骤。
 
 **发布**。推送到 main 后，`ci.yml` 的三系统测试通过才触发 `release-payload.yml`。固定 Release 提供桌面更新，另保留最近五个带版本号的 `payload-v*` Release。需要回退时将目标版本的一对 `payload.zip` 和 `manifest.json` 依次覆盖固定 Release 的同名资产。修改启动器时更新 `bootstrap.VERSION`，发布对应的 `app-vX.Y.Z` 标签。`release-app.yml` 在三个系统构建、自检解释器和 Tk，全部成功后发布安装包。可选的 Actions 密钥 `CODE_DOJO_SEALED_TOKENS` 由发布者在本机加密后上传，打包时写入 `sealed-tokens.json`。本版更新包的最低启动器版本是 1.0.0。有不兼容更新时先发布新版安装包，再提高 `bootstrap.MIN_BOOTSTRAP` 并发布更新包。
 
@@ -98,7 +98,7 @@ cd web && npm run build                                # 类型检查 + 打包
 开发后端默认 `CODE_DOJO_AUTH=off`，记录保存在 `server/data/`。生产脚本启用登录，默认在用户的 Linux 数据目录保存个人记录，前端与 API 共用一个端口。后端测试使用独立数据目录和样例题库。[全部环境变量](../deploy/.env.example) · [部署步骤](../deploy/README.md)
 
 ## 代码结构
-- `bootstrap/update.py` 管理不可变版本目录和活动版本指针。`window.py` 持有桌面窗口，在服务就绪后打开浏览器。`service.py` 从选定更新包加载后端。`credentials.py` 选择凭据来源，`sealed.py` 与发布者的 `scripts/desktop/seal_tokens.py` 共用加解密格式。`scripts/desktop/build.py` 在发布机器上导出锁定依赖和预计算数据。
+- `bootstrap/update.py` 管理不可变版本目录和活动版本指针。`window.py` 持有桌面窗口，在服务就绪后打开浏览器。`service.py` 从选定更新包加载后端。`credentials.py` 选择凭据来源，`sealed.py` 与发布者的 `scripts/desktop/seal_tokens.py` 共用加解密格式。`scripts/desktop/build.py` 在发布机器上导出锁定依赖和预计算数据。Linux 发布构建在 Ubuntu 22.04 上运行，校验 appimagetool 和 Type 2 运行时的 SHA-256，用系统的 `squashfs-tools` 生成 AppImageLauncher Lite 2.2 可读的 gzip 镜像。桌面图标和网页 favicon 共用 `web/public/code-dojo.svg` 的图形。
 - `server/app/github_sync.py` 通过 Contents API 读写与 Git 后端兼容的 JSONL。`desktop_sql.py` 将动态 SQL 验证交给网页，网页与 Node 共用 `web/src/sql/validate.ts`。
 - `server/app/events.py` 给学习记录分配跨机器标识、导出按月分隔的 JSONL。写记录和登记待导出的事件共用一个 SQLite 事务。`sync.py` 管理独立 Git 克隆、重试和定时同步。`GET /api/sync` 返回状态，`POST /api/sync` 立即交换进度，顶栏入口在 `web/src/components/SyncStatus.tsx`。
 - `server/app/auth.py` 管理密码校验、登录限流和签名会话，`server/scripts/set_password.py` 交互设密。`web/src/pages/LoginPage.tsx` 提供登录页，`web/src/api.ts` 统一处理 401。`server/app/frontend.py` 托管静态文件并支持直接打开前端路由。

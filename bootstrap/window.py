@@ -12,7 +12,7 @@ import time
 import webbrowser
 from datetime import datetime
 from pathlib import Path
-from tkinter import BOTH, DISABLED, LEFT, NORMAL, X, Menu, StringVar, Tk, Toplevel, font, messagebox, ttk
+from tkinter import BOTH, DISABLED, LEFT, NORMAL, X, Menu, PhotoImage, StringVar, Tk, Toplevel, font, messagebox, ttk
 
 from . import DEFAULT_REPO, DEFAULT_SYNC
 from cryptography.exceptions import InvalidTag
@@ -414,7 +414,9 @@ class Window:
 
 
 def main(bundle: Path) -> None:
-    root = Tk()
+    root = Tk(className="Code-dojo")
+    if (icon := bundle / "code-dojo.png").is_file():
+        root.iconphoto(True, PhotoImage(master=root, file=icon))
     try:
         data = data_directory()
         data.mkdir(parents=True, exist_ok=True)
