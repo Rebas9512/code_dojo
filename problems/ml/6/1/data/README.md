@@ -19,4 +19,4 @@ python features.py
 
 ## 来源与许可
 
-书店 App 来自本仓库的虚构练习库 `readerapp`。上游用固定种子扩充样本后清洗、聚合；本文件是该合成教学数据的派生表。沿用本仓库的权利声明，保留全部权利，未另行授予开放许可。[原始练习库](../../../../analytics/_db/readerapp/seed.sql) · [仓库许可声明](../../../../../README.md#license)
+书店 App 来自本仓库的虚构练习库 `readerapp`。上游用固定种子扩充样本后清洗、聚合；本文件是该合成教学数据的派生表。随仓库以 MIT 许可提供。[原始练习库](../../../../analytics/_db/readerapp/seed.sql) · [仓库许可声明](../../../../../README.md#license)

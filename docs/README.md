@@ -349,7 +349,7 @@ Python 基础和算法题共用 Python 判题格式，SQL 题使用各自目录�
 ### 9. 待用户确认
 - 题单骨架：等调研报告（docs/reports/）出来再定。
 - 已定（2026-11-22）：判题位置 Python 服务器 / SQL 浏览器；SQL 方言 PostgreSQL。
-- 仓库首页 README 的 License 暂写"No license is granted at this time"，等用户确认。
+- 已定（2026-11-23）：仓库用 MIT 许可（LICENSE），第三方字体、图标和数据集保留各自许可。
 
 ## 还可以做的
 - 桌面启动再提速：更新包构建时把全部 YAML 预先解析成一个文件，启动时不再逐个读 1700 多个文件（本机约省 0.1 秒，Windows 上文件多时收益更大）。

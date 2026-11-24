@@ -31,4 +31,4 @@ user_id,city,signup_days,sessions_30d,active_days_30d,events_30d,orders_30d,spen
 
 ## 来源与许可
 
-原始库、扩展脚本和 CSV 均为 code-dojo 项目内的合成教学数据，无第三方数据或真实用户记录。随本仓库提供，仓库声明保留全部权利，未另授开放许可。[仓库许可声明](../../../../../README.md#license)
+原始库、扩展脚本和 CSV 均为 code-dojo 项目内的合成教学数据，无第三方数据或真实用户记录。随仓库以 MIT 许可提供。[仓库许可声明](../../../../../README.md#license)

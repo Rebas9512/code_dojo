@@ -2,7 +2,7 @@
 
 **自用的手写代码练习场** · A personal practice app for getting my hands back on writing code: Python, algorithms, SQL, and machine learning built up from scratch, ending with a small GPT.
 
-> **Status: a personal project you're welcome to try.** I built it for my own practice and keep working on it. The desktop app works locally out of the box: download it, open it, and your progress stays on your own computer. The UI and the problem text are in Chinese. I'm not taking issues or pull requests.
+> **Status: a personal project you're welcome to try.** I built it for my own practice and keep working on it. The desktop app works locally out of the box: download it, open it, and your progress stays on your own computer. The UI and the problem text are in Chinese. It's MIT-licensed, so feel free to fork it; I'm not taking issues or pull requests.
 >
 > **The AI tutor needs Claude Code or Codex on your own machine.** It runs the `claude` or `codex` command-line tool that you've installed and logged into with your own subscription; nothing is sent through a server of mine. Without either one, everything else works: lessons, judging, reference answers and projects. Only the tutor and AI-generated problems are switched off.
 
@@ -150,4 +150,10 @@ Developer documentation is in Chinese: [docs/README.md](docs/README.md) (archite
 
 ## License
 
-No license is granted at this time. All rights reserved.
+[MIT](LICENSE): use it, change it, share it, as long as you keep the copyright notice. This covers the code, the problems, lessons and reference answers, and the synthetic practice datasets.
+
+Third-party material keeps its own license:
+
+- Fonts and icons (TeX Gyre Heros, Noto Sans SC, JetBrains Mono, Codicons): see [web/public/licenses](web/public/licenses).
+- UCI handwritten digits, used by the training project: CC BY 4.0, see [its README](problems/train/5/1/data/README.md).
+- *Pride and Prejudice*, used by the build-an-LLM project: public domain, via Project Gutenberg.
