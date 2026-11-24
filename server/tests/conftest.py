@@ -1,6 +1,8 @@
 """测试用独立的题库（tests/fixtures/problems）和临时数据目录，不碰真实题库和数据。"""
 
+import atexit
 import os
+import shutil
 import tempfile
 from dataclasses import replace
 from pathlib import Path
@@ -10,6 +12,8 @@ import pytest
 FIXTURES = Path(__file__).parent / "fixtures" / "problems"
 os.environ["CODE_DOJO_PROBLEMS"] = str(FIXTURES)
 os.environ["CODE_DOJO_DATA"] = tempfile.mkdtemp(prefix="code-dojo-test-data-")
+# 数据目录里有判题用的 venv（约 1 GB），每跑一次留一份会把 /tmp 塞满。
+atexit.register(shutil.rmtree, os.environ["CODE_DOJO_DATA"], ignore_errors=True)
 os.environ["CODE_DOJO_AI_PROVIDER"] = "off"  # 测试里不调真 AI，用 FakeProvider 替换
 os.environ["CODE_DOJO_AUTH"] = "off"
 os.environ.setdefault("CODE_DOJO_BANK_WATCH", "sync")  # 测试里改了文件马上要看到，保持每次请求都检查
