@@ -27,7 +27,7 @@ code-dojo/
 │   └── research_notes/   调研的原始笔记（一个调研一个文件夹）
 ├── web/                  前端：登录、学习地图、练习工作区、今日计划、手感统计；SQL 查询、单条修改与多语句脚本在 PGlite Worker 中判题
 ├── codex/                派给 codex 的任务：brief.md（标准做法）、PLAN.md（排期和文件归属）、tasks/、runs/（运行记录，不进 git）
-├── deploy/               单端口启动脚本、环境变量、systemd 与 Cloudflare Tunnel 模板
+├── deploy/               安装说明（README）、源码运行与发版（self-host）、单端口启动脚本、环境变量、systemd 与 Cloudflare Tunnel 模板
 ├── judge/python/         本地和两个 Docker 镜像共用的 Python 判题程序、普通 Python 镜像定义
 ├── judge/ds/             数据科学判题镜像（numpy + pandas + CPU 版 torch，从 Python 镜像复制 harness）
 ├── server/               后端：FastAPI（uv）；Python 判题（本地或 Docker）、题库、掌握度、复习日程与 AI 服务
@@ -47,7 +47,7 @@ code-dojo/
 
 ## 桌面应用
 
-桌面版在同一个 Electron 窗口里打开学习地图和做题。Linux x86-64 提供 AppImage 与备用 tar.gz，Apple Silicon macOS 提供 .app zip，Windows x64 提供便携 zip。安装包内有 Chromium、CPython 3.14、pip、锁定的后端依赖及启动器。Linux 的 AppImage 可以交给 AppImageLauncher Lite 集成到菜单，也可以使用 `--appimage-extract-and-run` 启动。AppImage 的 `AppRun` 是一个只用 shell 内建的包装脚本，一律带 `--no-sandbox` 启动 Electron。Ubuntu 23.10 起默认禁止普通程序建用户命名空间，AppImage 里的 `chrome-sandbox` 又不可能归 root，不带这个参数就会直接退出。网页仍然是 sandbox + contextIsolation 的隔离页面，冒烟测试确认这个参数还在。Windows 和 macOS 照常启用 Chromium 沙箱。[首次安装和同步设置](../deploy/README.md#在一台新电脑上用)
+桌面版在同一个 Electron 窗口里打开学习地图和做题。Linux x86-64 提供 AppImage 与备用 tar.gz，Apple Silicon macOS 提供 .app zip，Windows x64 提供便携 zip。安装包内有 Chromium、CPython 3.14、pip、锁定的后端依赖及启动器。Linux 的 AppImage 可以交给 AppImageLauncher Lite 集成到菜单，也可以使用 `--appimage-extract-and-run` 启动。AppImage 的 `AppRun` 是一个只用 shell 内建的包装脚本，一律带 `--no-sandbox` 启动 Electron。Ubuntu 23.10 起默认禁止普通程序建用户命名空间，AppImage 里的 `chrome-sandbox` 又不可能归 root，不带这个参数就会直接退出。网页仍然是 sandbox + contextIsolation 的隔离页面，冒烟测试确认这个参数还在。Windows 和 macOS 照常启用 Chromium 沙箱。[安装和接 AI 助教](../deploy/README.md) · [同步码](../deploy/self-host.md#桌面应用的同步码)
 
 Electron 同时载入启动页和运行 `python -m bootstrap serve --protocol jsonl`。启动器读取本机钥匙串或 `github-tokens.json` 里的凭据，已有凭据的机器直接带同步启动，包括已解锁的 1.2.0 安装。新机器直接进入本机模式，记录写入本机数据目录。公开的 `payload-latest` Release 支持匿名检查和下载，有已存代码令牌时会使用它。
 
@@ -71,7 +71,7 @@ Electron 同时载入启动页和运行 `python -m bootstrap serve --protocol js
 - 启动器检查环境，在工作区干净时快进更新代码和题库，准备依赖、构建网页并打开浏览器。FastAPI 仅监听 `127.0.0.1:8765`，端口占用时自动换到空闲端口。可用 `CODE_DOJO_PORT` 指定首选端口。
 - `./dojo doctor` 查看环境，`./dojo --no-pull` 跳过代码与题库更新。Claude Code 和 Codex 都是可选的。判题环境由 `CODE_DOJO_JUDGE` 选择，`local` 使用本机 Python。
 - Linux 默认记录目录为 `~/.local/share/code-dojo`（支持 `XDG_DATA_HOME`），macOS 为 `~/Library/Application Support/code-dojo`，Windows 为 `%APPDATA%\code-dojo`。三个系统都可用 `CODE_DOJO_DATA` 覆盖。迁移时运行 `./dojo import-legacy <旧数据目录>`，从旧 `code_dojo.db` 的只读快照导入。
-- 设置 `CODE_DOJO_SYNC_REPO` 后，启动、每次正式提交通过、每 10 分钟和 Ctrl+C 退出时交换学习记录。启动时的那次在后台进行，不挡服务就绪；网页打开后才完成的那次同步结束时，页面自动刷新一次数据。点网页右上角的同步时间可以立即同步。离线提交保存在本机，下次连接时重试。[本地模式和同步仓库怎么建](../deploy/README.md#本地模式和同步仓库怎么建)
+- 设置 `CODE_DOJO_SYNC_REPO` 后，启动、每次正式提交通过、每 10 分钟和 Ctrl+C 退出时交换学习记录。启动时的那次在后台进行，不挡服务就绪；网页打开后才完成的那次同步结束时，页面自动刷新一次数据。点网页右上角的同步时间可以立即同步。离线提交保存在本机，下次连接时重试。[从源码运行和自己的同步仓库](../deploy/self-host.md#从源码运行和自己的同步仓库)
 
 **开发模式**。从项目根目录分别在两个终端运行后端和 Vite。
 
@@ -105,7 +105,7 @@ cd server && uv run python ../scripts/curriculum/verify_sql.py       # SQL 题�
 (cd web && node --experimental-strip-types --test tests/sql.test.mjs)
 cd web && npm run build                                # 类型检查 + 打包
 ```
-开发后端默认 `CODE_DOJO_AUTH=off`，记录保存在 `server/data/`。生产脚本启用登录，默认在用户的 Linux 数据目录保存个人记录，前端与 API 共用一个端口。后端测试使用独立数据目录和样例题库。[全部环境变量](../deploy/.env.example) · [部署步骤](../deploy/README.md)
+开发后端默认 `CODE_DOJO_AUTH=off`，记录保存在 `server/data/`。生产脚本启用登录，默认在用户的 Linux 数据目录保存个人记录，前端与 API 共用一个端口。后端测试使用独立数据目录和样例题库。[全部环境变量](../deploy/.env.example) · [部署步骤](../deploy/self-host.md)
 
 ## 代码结构
 - `bootstrap/update.py` 管理不可变版本目录和活动版本指针。`protocol.py` 管理凭据、更新和后端生命周期。`desktop/main.cjs` 持有窗口、导航与菜单，`preload.cjs` 为启动页和练习页提供各自的接口。`service.py` 从选定更新包加载后端。`credentials.py` 选择凭据来源，`sealed.py` 与发布者的 `scripts/desktop/seal_tokens.py` 共用加解密格式。`scripts/desktop/build.py` 在发布机器上导出锁定依赖和预计算数据。安装包里的解释器、依赖和启动器统一编译成不查源码的哈希式 `.pyc`（electron-builder 复制时会改文件修改时间，按时间戳校验的 `.pyc` 会全部失效、每次启动都重新编译），更新包也附带 `server/app` 的同类 `.pyc`。Linux 发布构建在 Ubuntu 22.04 上运行，校验 appimagetool 和 Type 2 运行时的 SHA-256，用系统的 `squashfs-tools` 生成 AppImageLauncher Lite 2.2 可读的 gzip 镜像。桌面图标和网页 favicon 共用 `web/public/code-dojo.svg` 的图形。
@@ -330,7 +330,7 @@ Python 基础和算法题共用 Python 判题格式，SQL 题使用各自目录�
 
 默认在每台机器上运行本地模式。浏览器和 FastAPI 共用一个回环端口，本机免登录。设置同步仓库后可在不同机器间接着做题。
 
-可选的服务器部署使用 systemd 用户服务运行 `deploy/run.sh`。FastAPI 从 `web/dist` 提供前端，默认监听 `127.0.0.1:8001`。家外访问使用 Cloudflare Tunnel，Access 应用覆盖整个主机名，仅允许本人的邮箱。通过 Access 后，还需输入应用密码。Cloudflare 账号中的配置由用户完成。[部署步骤与迁移到 VPS](../deploy/README.md)
+可选的服务器部署使用 systemd 用户服务运行 `deploy/run.sh`。FastAPI 从 `web/dist` 提供前端，默认监听 `127.0.0.1:8001`。家外访问使用 Cloudflare Tunnel，Access 应用覆盖整个主机名，仅允许本人的邮箱。通过 Access 后，还需输入应用密码。Cloudflare 账号中的配置由用户完成。[部署步骤与迁移到 VPS](../deploy/self-host.md#服务器部署)
 
 - 生产模式要求有效的密码哈希。优先读 `CODE_DOJO_PASSWORD_HASH`，也可从 `CODE_DOJO_DATA/auth.json` 加载。登录后签发默认 30 天的 HttpOnly、SameSite=Lax cookie，HTTPS 下带 Secure。各设备可分别退出；每个 IP 连续输错 5 次锁定 10 分钟。
 - `GET /api/health` 仅返回 `{"ok":true}`。`/api/auth/session` 查询当前会话，`POST /api/auth/login` 与 `POST /api/auth/logout` 处理登录、退出。其他所有 API（含 AI、判题、题库诊断 `/api/status`）均受登录保护。写请求要求 `Content-Type: application/json`，包括无正文的操作。

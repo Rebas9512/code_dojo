@@ -10,7 +10,7 @@
 
 ## Getting it
 
-Download the installer for your platform from the latest [`app-v*` release](https://github.com/Rebas9512/code_dojo/releases/latest): an AppImage (or tar.gz) for Linux x86-64, a zip for Apple Silicon macOS, and a portable zip for Windows x64. The builds are unsigned, so macOS and Windows will ask you to confirm the first launch. Step-by-step instructions (in Chinese) are in [deploy/README.md](deploy/README.md#在一台新电脑上用).
+Download the installer for your platform from the latest [`app-v*` release](https://github.com/Rebas9512/code_dojo/releases/latest): an AppImage (or tar.gz) for Linux x86-64, a zip for Apple Silicon macOS, and a portable zip for Windows x64. The builds are unsigned, so macOS and Windows will ask you to confirm the first launch. Step-by-step instructions (in Chinese), including how to hook up Claude Code or Codex for the tutor, are in [deploy/README.md](deploy/README.md).
 
 - **Local by default.** No account, no password. On first launch the app downloads the problem bank from this repo's public releases, and checks for a newer bank each time it opens.
 - **Progress stays on your machine**, in your user data folder. There's no telemetry.
@@ -21,7 +21,7 @@ Download the installer for your platform from the latest [`app-v*` release](http
 - **12 tracks, 1,620 problems, 7 capstone projects**, all checked by scripts: every reference solution runs in the judge, and the learning curve is validated so that each problem introduces at most one new skill.
 - **Capstone projects**: the advanced tracks and the SQL tracks end with a project split into parts. Each part is one problem, judged on its own; together they assemble into a script or notebook that runs end to end.
 - **Reference answers after you solve**: 1,366 problems have a clean, teaching-oriented standard solution with short notes. Once you've passed, you can open it and compare it with your own code in a diff view.
-- **Practice sets and focus mode**: start a set of 3–8 problems, with due reviews as a warm-up. The app goes full screen with everything else folded away, and the next problem opens as soon as you pass.
+- **Practice sets and focus mode**: start a set of 3–8 new problems that picks up from your latest progress, optionally with due reviews as a warm-up. The app goes full screen with everything else folded away, and the next problem opens as soon as you pass.
 - **A VS Code–style workspace**: statement and lesson on the left, Monaco editor in the middle, the AI tutor on the right, and test results / output / problems in a bottom panel. Every problem has a scratch file next to the answer. There's also a command palette, Ctrl+P quick open, and a "bare mode" that turns off autocomplete for interview-style practice.
 - **An AI tutor that edits alongside you**: it sees your answer and your scratch file, and can write in either one. It can also generate new problems, which only appear after they pass verification. It uses Claude Code or Codex installed on your machine (see above), with no API keys.
 - **Local judging**: Python runs natively with time and memory limits; SQL runs in the browser on PGlite, a WebAssembly build of PostgreSQL.
@@ -146,7 +146,7 @@ After you've passed a problem, the **参考答案** tab shows a standard solutio
 - **Desktop**: an Electron shell driving a Python launcher. GitHub Actions builds installers for all three platforms. Every push to `main` publishes a problem-bank "payload" release, which the app downloads anonymously on its next launch. Optional progress sync stores each machine's records as JSONL in a private repo. Its tokens ship encrypted in the installer (scrypt + AES-256-GCM), and the sync code unlocks them.
 - **Content pipeline**: problems are plain files (YAML, Markdown, tests as JSON, SQL datasets). Checker scripts run every reference solution and reference answer, run each project end to end, precompute the expected SQL tables, and enforce the learning-curve rules.
 
-Developer documentation is in Chinese: [docs/README.md](docs/README.md) (architecture and how to run), [docs/curriculum.md](docs/curriculum.md) (curriculum design), [docs/teaching-design.md](docs/teaching-design.md) (teaching design and the misconception catalogue), [docs/problem-format.md](docs/problem-format.md) (problem file format) and [deploy/README.md](deploy/README.md) (installing and releasing).
+Developer documentation is in Chinese: [docs/README.md](docs/README.md) (architecture and how to run), [docs/curriculum.md](docs/curriculum.md) (curriculum design), [docs/teaching-design.md](docs/teaching-design.md) (teaching design and the misconception catalogue), [docs/problem-format.md](docs/problem-format.md) (problem file format), [deploy/README.md](deploy/README.md) (installing and setting up the AI tutor) and [deploy/self-host.md](deploy/self-host.md) (running from source, releasing and self-hosting).
 
 ## License
 

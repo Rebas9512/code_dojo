@@ -1,160 +1,168 @@
-# 把 code-dojo 部署在自己的机器上
+# 安装和使用 code-dojo
 
-每台机器可以安装桌面应用，在应用窗口里练习。下方第 1–5 节是可选的服务器部署，适合想从浏览器远程访问同一台常开电脑的情况。
+code-dojo 是一个桌面应用。下载后打开就能练，不用注册账号，做题记录只保存在你自己的电脑上。界面和题目都是中文。
 
-## 在一台新电脑上用
+AI 助教是可选的，要在你电脑上自己装好并登录 Claude Code 或 Codex（见第 4 节）。不装也能用其他所有功能：课、判题、参考答案、项目和一组练习。
 
-1. **下载安装包。** 打开公开仓库最新的 `app-v*` Release，在 Assets 中选择对应平台。[下载安装包](https://github.com/Rebas9512/code_dojo/releases/latest)
+想从源码运行、给自己的仓库发版，或者部署到服务器上从浏览器访问，请看 [self-host.md](self-host.md)。
 
-   - **Linux x86-64** 推荐下载 AppImage。在下载目录打开终端，把下面的 `X.Y.Z` 替换成下载的版本号，给文件执行权限并放进应用目录。
+## 1. 下载
 
-     ```sh
-     chmod +x code-dojo-X.Y.Z-x86_64.AppImage
-     mkdir -p ~/Applications
-     mv code-dojo-X.Y.Z-x86_64.AppImage ~/Applications/
-     ```
+打开最新的 Release 页面，在 Assets 里下载和你的系统对应的文件。[下载安装包](https://github.com/Rebas9512/code_dojo/releases/latest)
 
-     在文件管理器中双击它即可打开。没有 FUSE 时，在文件所在目录运行 `./code-dojo-X.Y.Z-x86_64.AppImage --appimage-extract-and-run`。AppImageLauncher Lite 监视 `~/Applications` 时会自动添加菜单项。使用 Gear Lever 时，用它打开文件并选择加入应用菜单。也可下载备用 tar.gz，完整解压后运行目录中的 `./code-dojo`。
-   - **Apple Silicon Mac** 解压 zip，将 `code-dojo.app` 移到“应用程序”。安装包未签名，首次请右键点“打开”，再确认“打开”。如果系统仍拦截，可在“系统设置 → 隐私与安全性”确认打开。
-   - **Windows x64** 完整解压 zip，再双击 `code-dojo.exe`。保留解压后的整个目录。
+| 系统 | 下载哪个文件 | 大小 |
+|---|---|---|
+| Windows 10 / 11（x64） | `code-dojo-X.Y.Z-x64-windows.zip` | 约 220 MB |
+| macOS，Apple 芯片（M1 及以后） | `code-dojo-X.Y.Z-arm64-mac.zip` | 约 160 MB |
+| Linux x86-64 | `code-dojo-X.Y.Z-x86_64.AppImage`（打不开时换 `x86_64-linux.tar.gz`） | 约 220 MB |
 
-2. **打开就能用。** 首次打开会联网下载题库，随后进入学习地图，做题记录保存在这台电脑上。已安装过题库时可以离线练习。
-3. **想换电脑接着练时开启同步。** 在“桌面 → 设置”输入同步码，点“开启同步”。此前在本机做的题也会同步到进度仓库。已在 1.2.0 保存过凭据的机器会沿用原设置。
+目前没有 Intel Mac、ARM 版 Windows 和 ARM 版 Linux 的安装包，这些机器可以从源码运行。
 
-开启同步后，令牌优先存入系统钥匙串，备用位置是本机数据目录的 `github-tokens.json`。Linux 和 macOS 的备用文件权限为 600。磁盘不支持权限保护且钥匙串不可用时，窗口会提示令牌仅用于本次运行。设置中点“关闭同步”并确认后，应用清除已存凭据，保留本机记录和待推送事件。开启同步后，顶栏“桌面”会显示“立即同步”。原生应用菜单还能检查更新。LeetCode 等外部链接在系统浏览器打开。开启同步时，关闭主窗口会显示“正在同步…”，最多等待 10 秒。离线或超时的待推送记录保留在本机，下次联网继续同步。
+请另外留出约 2 GB 磁盘空间，用来放题库和数据科学题的判题环境。
 
-使用自己的仓库时，在打开应用前设置 `CODE_DOJO_REPO` 和 `CODE_DOJO_SYNC_REPO`，值可写成 `账户/仓库名`。进度仓库需私有，有 main 分支且可读写，初始提交只有 README 即可。`CODE_DOJO_DATA` 可指定本机数据目录。Linux 默认使用 `~/.local/share/code-dojo`，macOS 使用 `~/Library/Application Support/code-dojo`，Windows 使用 `%APPDATA%\code-dojo`。每台电脑各用自己的目录。应用退出后可以移动或替换安装目录，学习记录保存在数据目录。
+## 2. 第一次打开
 
-## 分发给别人用
+安装包没有做代码签名，所以 Windows 和 macOS 第一次打开时会拦一下，按下面的步骤确认即可。
 
-把公开的安装包 Release 链接发给对方即可。他可以直接打开应用练习，记录只保存在他自己的电脑上。每次打开会自动检查题库更新，后台下载好的题库下次启动生效。需要 AI 助教时，由他在自己的电脑上安装并登录 Claude Code 或 Codex，再重新打开应用。“桌面 → 设置”会显示助教状态。[下载安装包](https://github.com/Rebas9512/code_dojo/releases/latest)
+### Windows
 
-## 发新安装包和换令牌
+1. 右键 zip，选“全部解压缩”。请不要在压缩包里直接双击运行。
+2. 打开解压出来的文件夹，双击 `code-dojo.exe`。
+3. 如果弹出“Windows 已保护你的电脑”，先点“更多信息”，再点“仍要运行”。
 
-常规发版复用现有 `CODE_DOJO_SEALED_TOKENS`。同步更新 `bootstrap.VERSION`、`desktop/package.json` 和 npm 锁文件的版本，跑过三系统 CI 后推送对应的 `app-vX.Y.Z` 标签。
+整个文件夹都要保留，可以把它放到任意位置。想从桌面打开时，右键 `code-dojo.exe`，选“发送到 → 桌面快捷方式”。
 
-首次配置或轮换令牌时，先完成以下步骤，再按上述流程发版。
+### macOS
 
-1. 创建两个 fine-grained 令牌，每个只选择一个仓库。`Rebas9512/code_dojo` 需要 Contents 只读，私有的 `Rebas9512/code_dojo_sync` 需要 Contents 读写。在发布者电脑的 `../../.env` 中分别填写 `code_dojo` 和 `code_dojo_sync`。同步码使用至少 10 个字符的专用密码。[创建 GitHub 令牌](https://github.com/settings/personal-access-tokens/new)
-2. 在项目根目录运行 `uv run scripts/desktop/seal_tokens.py`，按提示输入两遍同步码。如果同一份文件已用 `password` 保存密码，运行 `uv run scripts/desktop/seal_tokens.py --env ../../.env --password-key password` 即可。脚本先验证代码仓库的 Releases 和进度仓库的 README 可读，再通过已登录的 `gh` 设置 `CODE_DOJO_SEALED_TOKENS`。完成后妥善保管或删除这份文件。
-
-安装带新密文的版本后，已有凭据的机器仍使用本机保存的令牌。要换用新令牌，在“桌面 → 设置”关闭同步，再输入对应的同步码开启。
-
-## 本地模式和同步仓库怎么建
-
-1. 安装 Git、uv 和 Node.js 22.13+（含 npm）。克隆代码仓库，进入项目目录，Linux 或 macOS 运行 `./dojo`，Windows PowerShell 运行 `.\dojo.ps1`。浏览器自动打开本机网页。三个系统的通用入口是 `uv run dojo.py`，环境诊断用 `uv run dojo.py doctor`。
-2. 在 GitHub 新建**另一个私有仓库**，例如 `dojo-progress`。空仓库或只有 README 的仓库都可以。每台机器都需有读写权限。使用 SSH 时，在 GitHub 账户中添加这台机器的 SSH 公钥，提前用 `ssh -T git@github.com` 确认连接。使用 HTTPS 时，可运行 `gh auth login` 选择 HTTPS，然后运行 `gh auth setup-git`。
-3. 将同一个仓库地址写入每台机器的环境变量。下面使用 SSH 地址。使用 HTTPS 凭据时替换为 `https://github.com/<账户>/dojo-progress.git`。
+1. 双击 zip 解压，把 `code-dojo.app` 拖进“应用程序”文件夹。
+2. 双击打开。系统提示无法验证开发者时，先关掉提示，然后打开“系统设置 → 隐私与安全性”，在页面下方 code-dojo 那一行点“仍要打开”，输入开机密码确认。之后再打开就不会提示了。
+3. 如果提示“已损坏，无法打开”，打开“终端”运行下面这行，再重新打开应用：
 
    ```sh
-   # Linux / macOS，可将这一行放入自己的 shell 配置
-   export CODE_DOJO_SYNC_REPO='git@github.com:<账户>/dojo-progress.git'
-   ./dojo
+   xattr -dr com.apple.quarantine /Applications/code-dojo.app
    ```
+
+### Linux
+
+在下载目录打开终端，给文件加上执行权限，再放进 `~/Applications`。命令里的 `X.Y.Z` 要换成实际的版本号：
+
+```sh
+chmod +x code-dojo-X.Y.Z-x86_64.AppImage
+mkdir -p ~/Applications
+mv code-dojo-X.Y.Z-x86_64.AppImage ~/Applications/
+```
+
+然后在文件管理器里双击就能打开。想让它出现在应用菜单里，可以用 AppImageLauncher 或 Gear Lever。
+
+如果双击没有反应，多半是系统缺 FUSE。可以用下面两种办法之一：
+
+- 安装 FUSE。Ubuntu 22.04 运行 `sudo apt install libfuse2`，Ubuntu 24.04 运行 `sudo apt install libfuse2t64`。
+- 不装 FUSE，在终端用 `./code-dojo-X.Y.Z-x86_64.AppImage --appimage-extract-and-run` 启动。
+
+也可以不用 AppImage：下载 tar.gz，完整解压后运行里面的 `./code-dojo`。
+
+### 第一次启动会做什么
+
+- 应用会先联网下载题库（约 25 MB），窗口里有进度条。下载完会自动进入学习地图。
+- 以后每次打开，应用都会在后台检查题库更新，下载好的新题库从下一次启动开始生效。题库下载过一次之后，不联网也能练。
+- 做 Python 基础、算法和 SQL 题，不需要再下载任何东西。
+- 数据处理、张量、机器学习这几类题会用到 numpy、pandas 和 PyTorch。第一次交这类题时，应用会自动下载这三个库，装好后约 1 GB，要等几分钟。以后就不用再下载了。
+
+## 3. 开始练习
+
+- **学习地图**是首页。所有路线都从“认识数据”开始，之后再分成 Python、算法、SQL、机器学习等分支。
+- **继续**按钮会带你去当前路线里最新的进度，不会让你回到第一题。前面跳过的题，等后面的都做完了再补。
+- **一组练习**一次给你 3、5 或 8 道新题，并打开全屏专注模式；当前题通过后自动进入下一题。想先做到期的复习题，可以在“热身”里选“先做到期复习”。
+- 题目通过以后，可以打开**参考答案**，和自己的代码逐行对比。
+
+完整的功能介绍和截图见仓库首页。[功能介绍](../README.md)
+
+## 4. 接上 AI 助教（可选）
+
+应用本身不带 AI，也不需要 API key。它会在你的电脑上调用 `claude` 或 `codex` 命令行工具，这两个工具需要你自己安装并登录，用量计入你自己的订阅。助教能看到题目、你的答案、你的草稿和对话内容，这些会发给 Anthropic（Claude）或 OpenAI（Codex）。
+
+应用调用助教时不给它额外权限：Claude 的所有工具都被关掉；Codex 在只读沙箱里运行，不能修改你电脑上的文件。助教对答案和草稿的修改，由应用写进编辑器。
+
+Claude Code 和 Codex 装一个就行。两个都装了的话，可以在助教栏里切换。
+
+### 用 Claude Code
+
+需要一个能在 Claude Code 里用 `claude-opus-5-5` 模型的 Claude 账号。
+
+1. 安装。macOS 和 Linux 在终端运行：
+
+   ```sh
+   curl -fsSL https://claude.ai/install.sh | bash
+   ```
+
+   Windows 在 PowerShell 里运行：
 
    ```powershell
-   # Windows，当前 PowerShell 窗口立即生效，并保存供以后使用
-   $env:CODE_DOJO_SYNC_REPO = 'git@github.com:<账户>/dojo-progress.git'
-   [Environment]::SetEnvironmentVariable('CODE_DOJO_SYNC_REPO', $env:CODE_DOJO_SYNC_REPO, 'User')
-   .\dojo.ps1
+   irm https://claude.ai/install.ps1 | iex
    ```
 
-4. 旧版用户可先运行 `uv run dojo.py import-legacy "<旧数据目录>"`，再正常启动。源目录包含 `code_dojo.db`，新目录由启动器选择，也可指定 `CODE_DOJO_DATA`。请在新机器使用新的数据目录，启动器会生成它自己的机器标识。
-5. 第一次在 A 机交卷通过后，顶栏会显示同步时间。在 B 机启动或点击顶栏时间，即可看到提交、复习日程、每日上限、助教对话和完整附加题。顶栏显示有待推送事件或错误时，仍可继续练习，恢复连接后点击重试。未设置同步地址时，顶栏显示“本机保存”。
+   其他安装方式（Homebrew、WinGet、npm）见官方文档。[Claude Code 安装说明](https://code.claude.com/docs/en/setup)
+2. 新开一个终端窗口，运行 `claude`，按提示在浏览器里登录。登录好以后输入 `/exit` 退出。
+3. 在新开的终端里运行 `claude --version`，能显示版本号就说明装好了。
 
-本机运行时使用 SQLite。学习记录的 JSONL 在数据目录的 `events/<机器 UUID>/YYYY-MM.jsonl`，同步用的克隆在同级 `sync/`。每台机器只向仓库追加自己的日志，按事件 UUID 去重。提交和复习结果保留每次交卷，同一日程或设置取时间较晚的写入。掌握度从合并后的提交与日程计算。仓库里含代码和对话明文，应保持私有。
+### 用 Codex
 
-## 1. 先在本机登录并做题
+需要 ChatGPT 的付费计划（Plus、Pro、Business 等），并且要用“Sign in with ChatGPT”登录。用 API key 登录的 Codex 不能给 code-dojo 用。应用调用的模型是 `gpt-6.2-astra`。
 
-以下命令从项目根目录执行。准备好 Docker、uv、Node.js 22.13 或更高版本和 npm。已有依赖和镜像可以复用。在新机器上执行一次：
+1. 安装。装了 Node.js 的话，运行 `npm install -g @openai/codex`；macOS 也可以运行 `brew install --cask codex`。其他方式见官方文档。[Codex CLI 安装说明](https://developers.openai.com/codex/cli)
+2. 运行 `codex`，选 “Sign in with ChatGPT”，在浏览器里登录。
+3. 在新开的终端里运行 `codex --version`，能显示版本号就说明装好了。
 
-```bash
-(cd server && uv sync --frozen)
-(cd web && npm ci)
-(cd scripts/curriculum && npm ci)
-docker build -t code-dojo-judge-py:3.14 judge/python
-```
+如果你已经在 VS Code 里装了 OpenAI 的 ChatGPT / Codex 扩展，并且已经登录，可以跳过上面的步骤，应用会自动找到扩展自带的 codex。
 
-1. 首次运行时执行 `install -m 600 deploy/.env.example deploy/.env`，打开新文件查看 `CODE_DOJO_DATA`。模板默认把个人数据存在 `~/.local/share/code-dojo`（设置过 `XDG_DATA_HOME` 时使用它），首次打开是空进度。目录应位于仅本人能读写的 Linux 文件系统。要带上现有记录，按第 5 节备份并恢复 `code_dojo.db`。部署和开发实例使用各自的数据目录。
-2. 执行 `deploy/run.sh --set-password`，输入两遍密码。脚本读取同一份 `.env` 并调用 `server/scripts/set_password.py`，只把加盐哈希写入数据目录的 `auth.json`。也可以直接运行 `CODE_DOJO_DATA='/你的数据目录' server/.venv/bin/python server/scripts/set_password.py`。若使用环境变量，取 `auth.json` 中的 `password_hash` 整个值填入 `CODE_DOJO_PASSWORD_HASH`，用单引号保留其中的美元符号。环境变量优先。
-3. 运行 `deploy/run.sh --build`。看到 Uvicorn 就绪后，打开 `http://127.0.0.1:8001/today`，输入密码按回车，应回到今日计划。进入一道题提交，点导航里的“退出”，再访问今日计划应回到登录页。模板先关闭 AI，助教栏会显示“AI 助教没有开启”。
-4. 前台实例用 Ctrl+C 结束。已有前端构建时用 `deploy/run.sh` 直接启动。改前端后再用 `--build` 重建。要轮换密码，重新执行设密步骤并重启该部署实例，各设备需重新登录。
+### 让应用认出助教
 
-脚本以单进程监听 `127.0.0.1:8001`，不需要 Vite。端口可用 `CODE_DOJO_PORT` 调整。脚本加载 `deploy/.env`，其中赋值覆盖同名环境变量。如果项目所在的磁盘无法限制文件权限，把模板复制到个人 Linux 主目录的私有文件中，通过 `export CODE_DOJO_ENV_FILE="$HOME/.config/code-dojo/production.env"` 指定它，用户服务中也添加对应的 `Environment="CODE_DOJO_ENV_FILE=%h/.config/code-dojo/production.env"`。部署需要 `CODE_DOJO_AUTH=on` 和有效的密码哈希。会话默认 30 天，`CODE_DOJO_SESSION_DAYS` 可填正整数。同一 IP 连续输错 5 次，锁定 10 分钟。
+1. 装好、登录好以后，**完全退出** code-dojo 再打开。应用只在启动时查找助教。退出方法：用菜单里的“退出”，或者按 Ctrl+Q（macOS 按 Cmd+Q）。
+2. 打开顶栏的“桌面 → 设置”。最下面显示“AI 助教已启用”，就说明已经接上了。
+3. 进入任意一道题，右侧的助教栏就可以用了。助教栏顶部的下拉框可以切换 Claude 和 Codex。
 
-## 2. 交给 systemd 用户服务
+### 设置里显示“AI 助教已关闭”
 
-1. 用将来运行服务的 Linux 用户执行 `docker info`。常规 Docker 安装需要这个用户加入 docker 组，可执行 `sudo usermod -aG docker "$USER"`。重新登录，使新登录会话和用户服务管理器都取得新组（已启用 linger 的机器可在方便时重启）。docker 组拥有管理本机容器的权限。
-2. 用该用户运行 `command -v node docker claude`，记下可执行文件的位置。模板通过 `HOME=%h` 指向该用户的主目录，通过 `PATH` 查找这些命令。用户服务不读取交互式 shell 配置。如果 Node 在版本管理器目录，或 Claude 装在其他目录，把真实的 bin 目录加入服务的 `Environment="PATH=…"`。也可以在 `.env` 用 `CODE_DOJO_CLAUDE_BIN` 指定 Claude 的绝对路径。Claude 子进程在专用目录运行，从服务继承 HOME、PATH、LANG 和可选的订阅令牌。
-3. 安装服务文件。打开副本，把两处 `/绝对路径/code-dojo` 换成项目的绝对路径（`pwd` 可查看），检查 PATH。路径含空格时，把 ExecStart 的整个可执行文件路径放在双引号内。
+先在**新开的**终端里运行 `claude --version` 或 `codex --version`：
 
-```bash
-mkdir -p ~/.config/systemd/user
-cp deploy/code-dojo.service ~/.config/systemd/user/
-${EDITOR:-nano} ~/.config/systemd/user/code-dojo.service
-systemctl --user daemon-reload
-systemctl --user enable --now code-dojo.service
-sudo loginctl enable-linger "$USER"
-systemctl --user status code-dojo.service
-journalctl --user -u code-dojo.service -n 40
-```
+- **终端里也找不到命令**：说明命令所在的目录不在 PATH 里。请按安装程序最后的提示，把这个目录加进 PATH。Claude Code 默认装在 `~/.local/bin`；Windows 上是 `%USERPROFILE%\.local\bin`。加好以后，新开一个终端再试。
+- **终端里能找到，应用里找不到**：
+  - **macOS**：从访达、启动台或程序坞打开的应用，读不到终端里的 PATH，所以装在 `~/.local/bin` 或 Homebrew 目录里的命令都找不到。目前的办法是从终端启动应用：
 
-`enable-linger` 让用户服务在开机时启动，退出桌面后仍继续运行。服务故障退出会在 5 秒后重启。访问本机地址验证；`curl -fsS http://127.0.0.1:8001/api/health` 应仅返回 `{"ok":true}`。更改 `.env` 后执行 `systemctl --user restart code-dojo.service`，更改服务文件后先执行 `daemon-reload`。更新前端可在项目里执行 `(cd web && npm run build)` 后重启服务。
+    ```sh
+    /Applications/code-dojo.app/Contents/MacOS/code-dojo
+    ```
 
-## 3. 准备 Cloudflare Tunnel
+  - **Linux**：刚装好的 `~/.local/bin`，要注销后重新登录桌面，才会对从应用菜单打开的程序生效。也可以直接从终端启动 AppImage。
+  - **Windows**：确认装好以后完全退出了应用，并且是重新打开的。
 
-以下步骤由域名和 Cloudflare 账号的所有者操作。先把域名接入自己的 Cloudflare 账号，选一个专供 code-dojo 的主机名。先准备隧道和配置，第 4 节设好邮箱规则后再接入公网。
+如果设置里显示已启用，但一提问就报错，多半是登录过期了，或者账号用不了上面写的模型。在终端里运行一次 `claude` 或 `codex` 重新登录，然后再试。
 
-1. Debian / Ubuntu 可以从官方发布页选择与系统架构一致的 `.deb`。下面的命令下载并安装对应包。[cloudflared 官方发布](https://github.com/cloudflare/cloudflared/releases)
+## 5. 记录保存在哪
 
-```bash
-curl -fL -o cloudflared.deb "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$(dpkg --print-architecture).deb"
-sudo dpkg -i cloudflared.deb
-cloudflared --version
-cloudflared tunnel login
-cloudflared tunnel create code-dojo
-```
+所有数据都在下面这个文件夹里，包括做题记录、草稿、助教对话、题库和判题环境：
 
-2. 在浏览器授权自己的域名。创建命令会显示 UUID，并在 `~/.cloudflared/` 写入对应的隧道凭据。复制下面的模板，将 `<隧道UUID>` 和 `<你的域名>` 替换成实际值。主机名填完整子域名，不含协议。若已修改应用端口，同步调整 `service` 地址。末尾规则使其余主机名返回 404。
+| 系统 | 位置 |
+|---|---|
+| Windows | `%APPDATA%\code-dojo` |
+| macOS | `~/Library/Application Support/code-dojo` |
+| Linux | `~/.local/share/code-dojo`（设置了 `XDG_DATA_HOME` 时是 `$XDG_DATA_HOME/code-dojo`） |
 
-```bash
-sudo install -d -m 700 /etc/cloudflared
-sudo install -m 600 "$HOME/.cloudflared/<隧道UUID>.json" "/etc/cloudflared/<隧道UUID>.json"
-sudo install -m 600 deploy/cloudflared-config.example.yml /etc/cloudflared/config.yml
-sudoedit /etc/cloudflared/config.yml
-sudo cloudflared tunnel --config /etc/cloudflared/config.yml ingress validate
-```
+- **备份**：先退出应用，再复制整个文件夹。
+- **换安装位置**：退出应用后，可以随意移动或替换安装包，记录不会受影响。
+- **同步**：“桌面 → 设置”里的同步码是作者给自己多台电脑同步用的，你不用填。不填的话，记录只保存在本机，顶栏显示“本机保存”。想用自己的私有仓库在多台电脑之间同步，需要从源码运行。[从源码运行和自己的同步仓库](self-host.md#从源码运行和自己的同步仓库)
 
-应用只接受本机回环地址的代理转发头，按 Uvicorn 解析出的客户端 IP 限流，按访问协议设置 Secure cookie。Tunnel 指向本机 HTTP，公网浏览器使用 HTTPS。路由器无需转发应用端口。[本机管理的 Tunnel](https://github.com/cloudflare/cloudflare-docs/blob/production/src/content/docs/tunnel/features/locally-managed-tunnels/create-local-tunnel.mdx)
+## 6. 更新
 
-## 4. 只允许自己的邮箱，再启动隧道
+- **题库**会自动更新。不想等的话，可以用菜单里的“检查更新”手动检查。新题库从下一次启动开始生效。
+- **应用本身**需要更新时，窗口里会出现“下载新版安装包”的链接。下载后按第 2 节的方法替换旧版：Windows 删掉旧文件夹，解压新的 zip；macOS 用新的 `code-dojo.app` 覆盖“应用程序”里的旧版；Linux 用新的 AppImage 替换旧的。记录保存在数据文件夹里，替换后都还在。
 
-1. 进入 Cloudflare Zero Trust，启用一个本人能使用的身份验证方式，例如邮箱一次性验证码（One-time PIN）。
-2. 在 **Access → Applications** 新建 **Self-hosted** 应用，填入与 ingress 完全相同的主机名，路径留空以覆盖整站（含 `/api`）。
-3. 添加 **Allow** 策略。**Include → Emails** 只填 `<你的邮箱>`，选择上一步的登录方式，保存应用。检查这个主机名及其路径的所有匹配规则，移除面向所有人、整个邮箱域或 Bypass 的放行规则。
-4. 用刚才创建隧道的普通用户添加 DNS 路由，再安装并启动系统级 cloudflared 服务。下面的安装步骤用于这台机器的第一个 cloudflared 服务；若已有服务，先由管理员将新主机规则合入相应隧道的配置。
+## 7. 卸载
 
-```bash
-cloudflared tunnel route dns code-dojo '<你的域名>'
-sudo cloudflared --config /etc/cloudflared/config.yml service install
-sudo systemctl enable --now cloudflared
-sudo systemctl status cloudflared
-```
+先删掉应用（Windows 是解压出来的文件夹，macOS 是“应用程序”里的 `code-dojo.app`，Linux 是 AppImage 文件），再删掉第 5 节表格里的数据文件夹。
 
-5. 在另一台机器用隐私窗口打开 `https://<你的域名>/today`。应先看到 Access 身份验证；验证自己的邮箱后才看到应用密码框。登录后应返回今日计划。浏览器开发者工具中 `dojo_session` 应带 Secure、HttpOnly、SameSite=Lax。点“退出”会撤销这台浏览器的应用会话。要在共用机器上同时退出 Access，可再打开同一域名的 `/cdn-cgi/access/logout` 并关闭隐私窗口。
-6. 两道登录都确认后，如需启用助教，把 `deploy/.env` 中的 `CODE_DOJO_AI_PROVIDER` 改为 `claude`，确认服务用户已登录个人 Claude 订阅，然后重启 code-dojo 用户服务。
+## 8. 其他问题
 
-## 5. 搬到 VPS 与备份
-
-1. 在 VPS 建立专用普通用户。按第 1、2 节安装现有依赖、在 VPS 本机重新构建判题镜像和前端，并给该服务用户配置 Docker 权限。使用数据科学题时也要构建项目的 `judge/ds` 镜像，名称与 `CODE_DOJO_DS_IMAGE` 一致。
-2. 在已登录自己 Claude 订阅的终端交互运行 `claude setup-token`。把生成的值通过私密渠道配置为 VPS 用户服务的 `CLAUDE_CODE_OAUTH_TOKEN`，例如在权限为 600 的私有环境文件中通过 systemd 的 `EnvironmentFile=` 加载。服务仍需安装 Claude Code 并设置 PATH / HOME。项目的 provider 显式向 Claude 子进程传递这一变量。令牌到期或撤销后重新生成并重启用户服务。[Claude Code 环境变量](https://code.claude.com/docs/en/env-vars)
-3. 备份前选定一个仅本人可访问的目录。SQLite 的在线备份可在原站继续使用时生成一致的快照。以下示例需要系统的 `sqlite3` 命令；源路径使用实际的 `CODE_DOJO_DATA`。若从文件设密，再备份 `auth.json`。使用环境哈希时，在私有配置中单独备份该值。
-
-```bash
-umask 077
-mkdir -p "$HOME/code-dojo-backup"
-sqlite3 '/你的数据目录/code_dojo.db' ".backup '$HOME/code-dojo-backup/code_dojo.db'"
-cp '/你的数据目录/auth.json' "$HOME/code-dojo-backup/"
-```
-
-4. 在 VPS 停止新站的 code-dojo 服务，将记录快照和密码哈希恢复到新数据目录，权限限服务用户读写。让应用新建 `sessions.db`，所有设备在新站重新登录。确认题目记录、最近提交和今日计划后再切换域名的隧道路由。继续使用同一条本人邮箱的 Access 策略。切换前先暂停旧站写入，做最后一次备份并恢复，带上试迁移期间新增的练习。
+- **第一次打开时题库下载失败**：应用要从 github.com 下载题库。如果你需要代理，Windows 和 macOS 打开系统代理就可以；Linux 要先在终端里设置 `HTTPS_PROXY`，再从同一个终端启动应用。
+- **数据科学判题环境装不上**：这一步要从 PyPI 和 download.pytorch.org 下载，请检查网络和磁盘空间，然后重新交卷。
+- **问题反馈**：这是个人项目，作者不接收 issue 和 PR。代码用 MIT 许可公开，欢迎 fork 后自己修改。
