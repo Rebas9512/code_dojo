@@ -94,7 +94,8 @@ stages:
     ({"d": "solved"}, "e"),
     ({"a": "solved", "b": "solved", "c": "solved", "d": "solved", "e": "solved"}, None),
     ({"选修二": "attempted"}, "d"),
-    ({"e": "attempted"}, None),
+    ({"e": "attempted"}, "a"),  # 跳到最后做完了，回头补前面的空
+    ({"d": "solved", "e": "solved"}, "a"),
 ])
 def test_progress_frontier(status, expected):
     path = Path(__file__).parent / "fixtures/problems/python/track.yaml"
@@ -134,7 +135,8 @@ def test_plan_session_warmup_and_frontier():
     result = plan_session(stages, {"done": "attempted"}, due, 8)
     assert result == [due[2], due[1], {"id": "new", "title": "new"}, {"id": "last", "title": "last"}]
     assert plan_session(stages, {}, [], 3) == [{"id": p, "title": p} for p in ["before", "done", "new"]]
-    assert plan_session(stages, {"last": "solved", "variant": "attempted"}, due, 3) == [due[2], due[1]]
+    # 最后一题做过了：新题回头从最早的空缺补
+    assert plan_session(stages, {"last": "solved", "variant": "attempted"}, due, 3) == [due[2], due[1], {"id": "before", "title": "before"}]
 
 
 def test_resume_session_track():

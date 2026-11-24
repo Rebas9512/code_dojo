@@ -60,7 +60,7 @@ def group_units(track: Track, skills: dict[str, Skill], ordered: list[Problem]) 
 
 
 def progress_frontier(stages: dict[str, list[Unit]], status: dict[str, str]) -> dict[str, str] | None:
-    """按地图顺序，从最靠后的已做题开始找下一道未做的必修题。"""
+    """按地图顺序，从最靠后的已做题开始往后找下一道未做的必修题；后面都做完了，再从头补漏。"""
     units = [unit for stage in stages.values() for unit in stage]
     start_unit, after_last = 0, 0
     for i, unit in enumerate(units):
@@ -68,7 +68,7 @@ def progress_frontier(stages: dict[str, list[Unit]], status: dict[str, str]) -> 
             if problem.id in status:
                 start_unit, after_last = i, j + 1
 
-    for i in range(start_unit, len(units)):
+    for i in [*range(start_unit, len(units)), *range(start_unit)]:
         problems = units[i].problems
         if i == start_unit and after_last:
             # 当前单元先往后走，再从头补漏；后续单元直接从头找。
