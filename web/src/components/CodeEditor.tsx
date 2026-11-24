@@ -67,6 +67,7 @@ const BASE: EditorOptions = {
 
 interface Props {
   value: string
+  onReady?: () => void
   onChange: (v: string) => void
   language: 'python' | 'pgsql' | 'plaintext'
   placeholder?: string
@@ -89,13 +90,14 @@ const COMPACT: EditorOptions = {
 }
 
 export interface CodeEditorHandle {
+  readonly ready: boolean
   jumpTo(line: number): void
   /** 把当前代码里唯一出现的 oldText 换成 newText（oldText 为空则接在末尾），可以 Ctrl+Z 撤销，并标出 AI 写入的行。找不到或不唯一返回 false。 */
   applyEdit(oldText: string, newText: string): boolean
 }
 
 export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEditor(
-  { value, onChange, language, theme, bare, readOnly, placeholder, onCursor, onRun, onSubmit, compact = false },
+  { value, onChange, language, theme, bare, readOnly, placeholder, onReady, onCursor, onRun, onSubmit, compact = false },
   ref,
 ) {
   // 快捷键回调放进 ref：Monaco 的命令只在挂载时注册一次
@@ -110,6 +112,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEdito
   const aiMarks = useRef<monaco.editor.IEditorDecorationsCollection | null>(null)
 
   useImperativeHandle(ref, () => ({
+    get ready() { return editorRef.current !== null },
     jumpTo(line) {
       const editor = editorRef.current
       editor?.setPosition({ lineNumber: line, column: 1 })
@@ -165,6 +168,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEdito
       handlers.current.onSubmit?.(),
     )
     if (!compact) editor.focus()
+    onReady?.()
   }
 
   useEffect(() => {

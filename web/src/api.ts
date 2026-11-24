@@ -418,7 +418,7 @@ export const api = {
     }),
   deleteExtra: (id: string, seq: number) =>
     request<{ ok: boolean }>(`/api/problems/${encodeURIComponent(id)}/extras/${seq}`, { method: 'DELETE' }),
-  chatSend: async (id: string, body: ReviewContext & { message: string; code?: string; answer?: string | null; current?: string }) =>
+  chatSend: async (id: string, body: ReviewContext & { message: string; code?: string; scratch: string; answer?: string | null; current?: string }) =>
     request<{ user: ChatMessage; assistant: ChatMessage; new_extra: ExtraSummary | null; deleted_extras: number[] }>(
       `/api/problems/${encodeURIComponent(id)}/chat`,
       {
@@ -433,6 +433,7 @@ export const api = {
 }
 
 export interface TutorEdit {
+  target: 'answer' | 'scratch'
   old: string
   new: string
   why: string

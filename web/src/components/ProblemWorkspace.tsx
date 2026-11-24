@@ -72,8 +72,9 @@ function replaceOnce(text: string, old: string, next: string, singleLine: boolea
 
 interface ActiveHandle {
   getCode(): string
+  getScratch(): string
   getAnswer(): string | null
-  applyEdits(edits: TutorEdit[]): ApplyResult
+  applyEdits(edits: TutorEdit[]): Promise<ApplyResult>
 }
 
 interface ActiveProps {
@@ -143,6 +144,9 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   const [loadingHelp, setLoadingHelp] = useState(false)
   const [finished, setFinished] = useState(false)
   const editorRef = useRef<CodeEditorHandle>(null)
+  const scratchEditor = useRef<CodeEditorHandle>(null)
+  const waitingForScratch = useRef<((mounted: boolean) => void) | null>(null)
+  useEffect(() => () => waitingForScratch.current?.(false), [])
   const latest = useRef({ code: '', answer: '' })
   latest.current = { code, answer }
   const [started] = useState(Date.now)
@@ -236,15 +240,21 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
     setAnswer('')
   }
 
-  // 共享编辑框：助教的修改按顺序直接写进去（代码题走 Monaco，可 Ctrl+Z 撤销；predict 题改答案文本），记下 AI 写入的行数
-  const applyEdits = (edits: TutorEdit[]): ApplyResult => {
-    let applied = 0
-    let failed = 0
+  const applyEdits = async (edits: TutorEdit[]): Promise<ApplyResult> => {
+    const result = { answer: 0, scratch: 0, failed: 0 }
+    // 首次改草稿时等 Monaco 建好模型，用同一条编辑路径保留原文和撤销记录。
+    if (edits.some(e => e.target === 'scratch') && !scratchEditor.current?.ready) {
+      setScratchOpened(true)
+      const mounted = await new Promise<boolean>(resolve => { waitingForScratch.current = resolve })
+      if (!mounted) return { ...result, failed: edits.length }
+    }
     let lines = 0
     let answerText = latest.current.answer
     for (const e of edits) {
       let ok: boolean
-      if (textAnswer) {
+      if (e.target === 'scratch') {
+        ok = !!scratchEditor.current?.applyEdit(e.old, e.new)
+      } else if (textAnswer) {
         const next = replaceOnce(answerText, e.old, e.new, isInspect)
         ok = next !== null
         if (next !== null) answerText = next
@@ -252,14 +262,15 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
         ok = !!editorRef.current?.applyEdit(e.old, e.new)
       }
       if (!ok) {
-        failed++
+        result.failed++
         continue
       }
-      applied++
+      result[e.target]++
+      if (e.target === 'scratch') continue
       const oldLines = new Set(e.old.split('\n'))
       lines += Math.max(e.new.split('\n').filter((l) => l.trim() && !oldLines.has(l)).length, 1)
     }
-    if (textAnswer && applied > 0) updateAnswer(answerText)
+    if (textAnswer && result.answer > 0) updateAnswer(answerText)
     if (lines > 0) {
       setAiLines((n) => {
         const next = n + lines
@@ -267,11 +278,16 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
         return next
       })
     }
-    return { applied, failed }
+    if (result.scratch) {
+      if (layout.narrow) layout.closeDrawer()
+      switchFile(true)
+    }
+    return result
   }
 
   useImperativeHandle(ref, () => ({
     getCode: () => latest.current.code,
+    getScratch: () => scratchText.current,
     getAnswer: () => ((isPredict || isInspect) ? latest.current.answer : null),
     applyEdits,
   }))
@@ -599,7 +615,8 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
           )}
           </div>
           {hasScratch && <div id="scratch-editor" hidden={!inScratch} className="editor-wrap">
-            {scratchOpened && <Suspense fallback={null}><CodeEditor value={scratch} language={isSql ? 'pgsql' : 'python'}
+            {scratchOpened && <Suspense fallback={null}><CodeEditor ref={scratchEditor} value={scratch}
+              onReady={() => waitingForScratch.current?.(true)} language={isSql ? 'pgsql' : 'python'}
               onChange={updateScratch}
               onCursor={(line, col) => setScratchCursor({ line, col })} theme={theme} bare={bare}
               placeholder="随手试代码，不判题" onRun={runCurrent} onSubmit={() => judge('submit')} /></Suspense>}
@@ -953,6 +970,7 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
           currentId={activeId}
           choice={currentProblem.answer?.type === 'choice'}
           getCode={() => active.current!.getCode()}
+          getScratch={() => active.current!.getScratch()}
           getAnswer={() => active.current!.getAnswer()}
           onEdits={(edits) => active.current!.applyEdits(edits)}
           lastFailed={lastFailed}

@@ -100,13 +100,14 @@ def test_extra_validation_and_retry(api, invalid):
 
 @pytest.mark.parametrize(("pid", "answer", "expected"), [(CHOICE, "0", "书名 title"), (SHORT, "A", "学生当前的短答案：A")])
 def test_tutor_context_and_edit_target(api, fake_agents, pid, answer, expected):
-    edit = {"old": answer, "new": "B", "why": "看清编号"}
-    fake = FakeProvider([{"reply": "再看一眼编号。", "edits": [edit]}])
+    edit = {"target": "answer", "old": answer, "new": "B", "why": "看清编号"}
+    scratch = {"target": "scratch", "old": "", "new": "x = 2\nprint(x)", "why": "打印试试"}
+    fake = FakeProvider([{"reply": "再看一眼编号。", "edits": [edit, scratch]}])
     fake_agents(claude=fake)
     r = api.post(f"/api/problems/{pid}/chat", json={"message": "讲讲思路", "answer": answer}).json()
     prompt = fake.calls[0]["prompt"]
     assert expected in prompt and "正确答案（只供判断，不要透露）" in prompt and "B2" in prompt
-    assert r["assistant"]["edits"] == ([] if pid == CHOICE else [edit])
+    assert r["assistant"]["edits"] == ([scratch] if pid == CHOICE else [edit, scratch])
 
 
 def test_extra_api_uses_inspect_branch(api, fake_agents):

@@ -5,7 +5,8 @@ import { Icon } from './WorkbenchLayout'
 import { Markdown } from './Markdown'
 
 export interface ApplyResult {
-  applied: number
+  answer: number
+  scratch: number
   failed: number
 }
 
@@ -21,9 +22,10 @@ interface Props {
   choice: boolean
   /** 发送时读取编辑框里的当前内容（代码 / predict 题的答案） */
   getCode: () => string
+  getScratch: () => string
   getAnswer: () => string | null
   /** 把助教的修改直接写进共享编辑框，返回改上了几处、几处没改上 */
-  onEdits: (edits: TutorEdit[]) => ApplyResult
+  onEdits: (edits: TutorEdit[]) => Promise<ApplyResult>
   lastFailed: boolean
   /** 助教出了 / 删了附加题 */
   onExtras: (newExtra: ExtraSummary | null, deleted: number[]) => void
@@ -37,16 +39,19 @@ const QUICK: [string, string][] = [
 ]
 
 function EditsView({ msg, result }: { msg: ChatMessage; result?: ApplyResult }) {
-  const n = msg.edits.length
+  const scratch = result?.scratch ?? msg.edits.filter(e => e.target === 'scratch').length
+  const answer = result?.answer ?? msg.edits.length - scratch
+  const counts = [answer && `答案 ${answer} 处`, scratch && `草稿 ${scratch} 处`].filter(Boolean).join(' / ')
   return (
     <details className="edits-view">
       <summary className="faint">
-        {result
-          ? `改了编辑框 ${result.applied} 处${result.failed ? `，${result.failed} 处没改上（内容已经变了）` : ''} · Ctrl+Z 撤销`
-          : `改过编辑框 ${n} 处`}
+        {result ? counts && `改了${counts}` : counts}
+        {!!result?.failed && `${counts ? '，' : ''}${result.failed} 处没改上（内容已经变了）`}
+        {result && counts && ' · Ctrl+Z 撤销'}
       </summary>
       {msg.edits.map((e, k) => (
         <div key={k} className="edit-item">
+          <small className="faint">{e.target === 'scratch' ? '草稿' : '答案'}</small>
           <pre className="diff">
             {e.old &&
               e.old.split('\n').map((l, i) => (
@@ -67,7 +72,7 @@ function EditsView({ msg, result }: { msg: ChatMessage; result?: ApplyResult }) 
   )
 }
 
-export function ChatPanel({ aiOn, close, onReply, problemId, currentId, review, choice, getCode, getAnswer, onEdits, lastFailed, onExtras }: Props) {
+export function ChatPanel({ aiOn, close, onReply, problemId, currentId, review, choice, getCode, getScratch, getAnswer, onEdits, lastFailed, onExtras }: Props) {
   const [agents, setAgents] = useState<Agent[]>([])
   const [selected, setSelected] = useState('')
   useEffect(() => {
@@ -114,16 +119,18 @@ export function ChatPanel({ aiOn, close, onReply, problemId, currentId, review, 
       created_at: '',
     }
     setMessages((m) => [...m, pending])
+    let focusChat = true
     try {
-      const r = await api.chatSend(problemId, { ...review, message, code: getCode(), answer: getAnswer(), current: currentId })
+      const r = await api.chatSend(problemId, { ...review, message, code: getCode(), scratch: getScratch(), answer: getAnswer(), current: currentId })
       const reply = r.assistant
-      onReply()
+      if (!reply.edits.length || reply.edits.some(e => e.target === 'answer') || r.new_extra || r.deleted_extras.length) onReply()
       if (r.new_extra || r.deleted_extras.length > 0) onExtras(r.new_extra, r.deleted_extras)
       if (reply.edits.length > 0 && activeId.current === currentId) {
         // 共享编辑框：助教的修改直接写进去
-        const res = onEdits(reply.edits)
+        const res = await onEdits(reply.edits)
         setResults((x) => ({ ...x, [reply.id]: res }))
-        if (res.applied > 0) {
+        focusChat = res.scratch === 0
+        if (res.answer + res.scratch > 0) {
           reply.applied = true
           void api.chatApplied(problemId, reply.id)
         }
@@ -135,7 +142,7 @@ export function ChatPanel({ aiOn, close, onReply, problemId, currentId, review, 
       setError((e as Error).message)
     } finally {
       setSending(false)
-      inputRef.current?.focus()
+      if (focusChat) inputRef.current?.focus()
     }
   }
 
@@ -174,8 +181,8 @@ export function ChatPanel({ aiOn, close, onReply, problemId, currentId, review, 
         {!aiOn && <p className="faint chat-empty">AI 助教没有开启。安装并登录 Claude Code 或 Codex 后重新打开应用。</p>}
         {aiOn && messages.length === 0 && (
           <p className="faint chat-empty">
-            {choice ? '可以问助教怎么看数据，或让它出一道相似的题。' :
-              '卡住了就问。助教看得到题目、课、编辑框里的内容和最近一次运行结果，需要时会直接在编辑框里改；想多练就让它出附加题。'}
+            {choice ? '可以问助教怎么看数据，让它在草稿里演示，或出一道相似的题。' :
+              '助教看得到题目、课、答案、草稿和最近一次运行结果。可以问思路、请它在草稿里演示，或帮你改答案。'}
           </p>
         )}
         {messages.map((m) => (

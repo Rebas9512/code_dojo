@@ -136,6 +136,7 @@ class ChatRequest(ReviewRequest):
     agent: AgentId | None = None
     message: str = Field(min_length=1, max_length=4000)
     code: str = Field(default="", max_length=100_000)
+    scratch: str = Field(default="", max_length=100_000)
     answer: str | None = Field(default=None, max_length=20_000)
     current: str | None = None  # 学生正在看的题：原题 id 或附加题 id（x-12）
 
@@ -789,7 +790,7 @@ def chat_send(problem_id: str, req: ChatRequest) -> dict[str, Any]:
     try:
         reply = tutor.ask(
             provider, cur,
-            code=req.code, answer=req.answer,
+            code=req.code, answer=req.answer, scratch=req.scratch,
             last_result=store.latest_result(cur.id),
             history=history, message=req.message,
             skill_names=skill_names,
@@ -807,7 +808,8 @@ def chat_send(problem_id: str, req: ChatRequest) -> dict[str, Any]:
     deleted = [seq for seq in reply.delete_extras if store.delete_extra(parent.id, seq)]
     notes = reply.notes + ([f"出附加题：{reply.make_extra}"] if new_extra else []) + (
         [f"删掉附加题：{deleted}"] if deleted else [])
-    if not (new_extra or deleted):
+    scratch_only = bool(reply.edits) and all(edit["target"] == "scratch" for edit in reply.edits)
+    if not (new_extra or deleted or scratch_only):
         store.record_help(cur.id, solution=False, source=req.review_source, due=req.review_due)
     assistant_msg = store.add_chat(parent.id, "assistant", reply.reply, edits=reply.edits, notes=notes, agent=agent)
     return {"user": user_msg, "assistant": assistant_msg, "new_extra": new_extra, "deleted_extras": deleted}

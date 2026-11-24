@@ -44,6 +44,12 @@ def test_strict_schemas(schema):
     assert schema == before
 
 
+def test_strict_tutor_edit_target():
+    item = strict_schema(tutor.SCHEMA)["properties"]["edits"]["items"]
+    assert item["properties"]["target"] == {"type": "string", "enum": ["answer", "scratch"]}
+    assert "target" in item["required"]
+
+
 def test_restore_sql_and_inspect_results():
     sql = {"mode": None, "ordered": False, "checks": [{"label": "列", "query": "select 1", "ordered": None},
                                                      {"label": "约束", "probe": "select 2", "expect": "ok"}]}

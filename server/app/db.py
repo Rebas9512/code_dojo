@@ -427,6 +427,8 @@ class Store:
         edits = json.loads(r["edit_json"]) if r["edit_json"] else []
         if isinstance(edits, dict):  # 早期单条修改建议的存法
             edits = [edits]
+        for edit in edits:
+            edit.setdefault("target", "answer")  # 旧记录只改答案
         agent = None
         if r["role"] == "assistant":
             notes = json.loads(r["notes"]) if r["notes"] else None

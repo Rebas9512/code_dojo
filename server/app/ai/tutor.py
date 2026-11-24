@@ -1,8 +1,8 @@
 """AI 助教：教学辅助设定、上下文组装、回复检查。
 
 共享编辑框（2026-11-22 用户决定："共同编辑这个能不能做成就是我们共享的一个编辑框 助手能直接查看，修改当前文本什么的就行"）：
-助教看得到学生当前的代码（predict 题是学生写的预测输出），它给出的 edits 由前端直接写进编辑框，
-学生可以 Ctrl+Z 撤销；AI 写过的行会标出来，提交时记 ai_lines。
+助教看得到答案和草稿，给出的 edits 由前端写进对应的编辑框。
+学生可以 Ctrl+Z 撤销；AI 写过的行会标出来，只有答案修改计入 ai_lines。
 
 教学上的约束（默认先讲思路、只补卡住的一小块、不一次写完、不透露参考解）全部写在提示词里，是软约束
 （用户决定："我们尽量不做硬约束（最多改3行什么的），做成提示词的软约束就行了"）。
@@ -24,11 +24,12 @@ from .provider import AIError, AIProvider
 EDIT_ITEM = {
     "type": "object",
     "properties": {
+        "target": {"type": "string", "enum": ["answer", "scratch"]},
         "old": {"type": "string"},
         "new": {"type": "string"},
         "why": {"type": "string"},
     },
-    "required": ["old", "new", "why"],
+    "required": ["target", "old", "new", "why"],
     "additionalProperties": False,
 }
 
@@ -54,12 +55,11 @@ SYSTEM_PROMPT = """你是 code-dojo 的教学助手。学生正在这个平台�
 - 题目页旁边有"课"标签，讲了这道题要用的知识点（上下文里附有内容）。学生问到概念时，沿用课里的讲法和例子来解释，需要时提醒他去看课里的哪一段。
 
 ## 共享编辑框（edits 字段）
-- 你和学生共用一个编辑框，你看到的"学生当前代码"就是框里此刻的内容。你在 edits 里给的修改会直接写进编辑框（学生可以 Ctrl+Z 撤销），所以回复里说"我把……改成了……"即可。
-- 默认 edits 为空列表，只讲思路。学生请你帮他写 / 改 / 补，或者这段对话里已经提示过他、他仍然卡在同一处时，再动手改。
-- 每处修改：old 是从当前内容里逐字复制的一段连续文本（包括缩进，不带行号，只出现一次）；new 是替换后的文本；why 用一句话说明道理。要在末尾追加，old 写空字符串。多处修改按顺序生效，后一处的 old 要以前一处改完后的内容为准。
-- 看数据作答时，正确答案只供你核对，不要直接说出来。单选题只用文字引导，edits 必须为空；短答案题只有一行，只能在答案框局部修改，不要代答。
-- 预测输出题没有代码，编辑框里是学生写的预测输出，规则相同。
-- 尽量只改他卡住的那一小块（通常几行以内），不要一次把{editor_unit}写完；他要完整答案时，优先写下一步，让他自己试后面的部分。
+- 你和学生共用答案和草稿两个编辑框。每处 edit 的 target 写 answer 或 scratch，修改会直接写入该编辑框，学生可以 Ctrl+Z 撤销。
+- 草稿是学生随手试代码的地方，不判题、不计入作答。演示片段、小实验、打印中间结果都适合放在草稿里，可以写成能直接运行的小例子。学生指定草稿时，只改草稿。草稿里演示的是知识点和中间过程，不要借草稿写出本题的完整解法：换一组数据、换一个相近的小问题，或者只演示他卡住的那一步。
+- 下面的分级提示和不直接给完整答案的规则适用于作答。默认只讲思路；学生请你帮他写 / 改 / 补时，只在答案框做他要的修改。仍卡住时可以提示下一步。尽量只补他卡住的那一小块，不要一次把{editor_unit}写完。
+- old 是从目标编辑框逐字复制的一段连续文本（包括缩进，不带行号，只出现一次）；new 是替换后的文本；why 用一句话说明道理。要在末尾追加，old 写空字符串。多处修改按顺序生效，后一处的 old 要以该编辑框先前改完后的内容为准。
+- 看数据作答时，正确答案只供你核对。单选题用文字引导，不要改学生的选项；短答案题只有一行，只能在答案框局部修改，不要代答。预测输出题的答案框里是学生写的预测输出。
 
 ## 附加题（make_extra、delete_extras 字段）
 - 左栏除了"题目""课"，还可以有"附加题 1、附加题 2……"标签，都是照着原题出的相似题。学生和你共用这一段对话，上下文里写着他现在在看哪一道。
@@ -112,6 +112,7 @@ def build_prompt(
     problem: Problem,
     *,
     code: str,
+    scratch: str = "",
     answer: str | None,
     last_result: dict[str, Any] | None,
     history: list[dict[str, Any]],
@@ -169,6 +170,7 @@ def build_prompt(
         parts.append(f"## 参考解（只供你判断，不要整段透露）\n```{lang}\n{reference}\n```")
         parts.append("## 编辑框里学生当前的代码（行号只为定位，edits 的 old 里不要带行号）\n```\n" + numbered(code) + "\n```")
 
+    parts.append("## 草稿（不判题）\n```\n" + numbered(scratch) + "\n```")
     if lesson:
         parts.append(format_lesson(lesson))
     parts.append("## 最近一次运行 / 提交（那时的代码可能和现在不同）\n" + summarize_result(last_result))
@@ -179,7 +181,8 @@ def build_prompt(
             who = "学生" if h["role"] == "user" else "助教"
             text = h["content"]
             for e in h.get("edits") or []:
-                text += f"\n（当时改了：{json.dumps(e.get('old'), ensure_ascii=False)} → {json.dumps(e.get('new'), ensure_ascii=False)}）"
+                label = "草稿" if e.get("target") == "scratch" else "答案"
+                text += f"\n（当时改了{label}：{json.dumps(e.get('old'), ensure_ascii=False)} → {json.dumps(e.get('new'), ensure_ascii=False)}）"
             convo.append(f"{who}：{text}")
         parts.append("## 之前的对话\n" + "\n\n".join(convo))
     parts.append("## 学生现在说\n" + message.strip())
@@ -217,40 +220,48 @@ def format_lesson(sections: list[dict[str, Any]], limit: int = 5000) -> str:
     return text if len(text) <= limit else text[:limit] + "\n……（课的内容较长，已截断）"
 
 
-def apply_edits(text: str, edits: list[dict[str, str]], *, single_line: bool = False) -> tuple[str, list[int], list[str]]:
-    """按顺序在 text 上模拟修改，返回（结果，能用的修改下标，问题列表）。"""
+def apply_edits(
+    targets: dict[str, str], edits: list[dict[str, str]], *, single_line: bool = False, choice: bool = False,
+) -> tuple[dict[str, str], list[int], list[str]]:
+    """按各编辑框的当前文本模拟修改，保留原下标以便重试后只取可用的修改。"""
+    texts = targets.copy()
     ok, issues = [], []
     for i, e in enumerate(edits):
+        target = e["target"]
+        if choice and target == "answer":
+            continue
+        text = texts[target]
         old, new = e.get("old", ""), e.get("new", "")
-        if single_line and ("\n" in new or "\r" in new):
+        one_line = single_line and target == "answer"
+        if one_line and ("\n" in new or "\r" in new):
             issues.append("短答案只能写一行")
             continue
         if not old:
             if not new:
                 issues.append(f"第 {i + 1} 处修改的 old 和 new 都是空的")
                 continue
-            text = text + ("\n" if not single_line and text and not text.endswith("\n") else "") + new
+            texts[target] = text + ("\n" if not one_line and text and not text.endswith("\n") else "") + new
             ok.append(i)
             continue
-        found = text.count(old)
-        if found != 1:
+        at = text.find(old)
+        if at < 0 or text.find(old, at + 1) >= 0:
             issues.append(
-                f"第 {i + 1} 处修改的 old 在当前内容里"
-                + ("找不到（缩进和空格要逐字一致，不要带行号；要追加就把 old 写成空字符串）" if found == 0
-                   else f"出现了 {found} 次，要选一段唯一的")
+                f"第 {i + 1} 处修改的 old 在 {target} 里"
+                + ("找不到（缩进和空格要逐字一致，不要带行号；要追加就把 old 写成空字符串）" if at < 0
+                   else "出现了多次，要选一段唯一的")
             )
             continue
-        text = text.replace(old, new, 1)
+        texts[target] = text.replace(old, new, 1)
         ok.append(i)
-    return text, ok, issues
+    return texts, ok, issues
 
 
-def check(out: dict[str, Any], target: str, *, single_line: bool = False) -> list[str]:
+def check(out: dict[str, Any], targets: dict[str, str], *, single_line: bool = False, choice: bool = False) -> list[str]:
     issues = []
     reply = out.get("reply")
     if not isinstance(reply, str) or not reply.strip():
         issues.append("reply 不能为空")
-    _, _, edit_issues = apply_edits(target, list(out.get("edits") or []), single_line=single_line)
+    _, _, edit_issues = apply_edits(targets, out.get("edits") or [], single_line=single_line, choice=choice)
     return issues + edit_issues
 
 
@@ -259,6 +270,7 @@ def ask(
     problem: Problem,
     *,
     code: str,
+    scratch: str = "",
     answer: str | None,
     last_result: dict[str, Any] | None,
     history: list[dict[str, Any]],
@@ -271,20 +283,18 @@ def ask(
     extras: list[dict[str, Any]] | None = None,
 ) -> TutorReply:
     prompt = build_prompt(
-        problem, code=code, answer=answer, last_result=last_result, history=history,
+        problem, code=code, scratch=scratch, answer=answer, last_result=last_result, history=history,
         message=message, skill_names=skill_names, applied_edits=applied_edits, lesson=lesson,
         current_label=current_label, extras=extras,
     )
-    target = (answer or "") if problem.meta.mode in ("predict", "inspect") else code
+    targets = {"answer": (answer or "") if problem.meta.mode in ("predict", "inspect") else code, "scratch": scratch}
     choice = bool(problem.inspect and problem.inspect.answer["type"] == "choice")
     short = bool(problem.inspect and problem.inspect.answer["type"] == "short")
     unit = "整道题" if problem.inspect else "整条查询" if problem.track.language == "sql" else "整个函数"
     system = SYSTEM_PROMPT.replace("{editor_unit}", unit)
     out = provider.complete(system=system, prompt=prompt, schema=SCHEMA, effort=effort)
     notes: list[str] = []
-    if choice:
-        out = out | {"edits": []}
-    issues = check(out, target, single_line=short)
+    issues = check(out, targets, single_line=short, choice=choice)
     if issues:
         notes.append("第一次回复有问题：" + "；".join(issues))
         retry = (
@@ -297,14 +307,11 @@ def ask(
     reply = str(out.get("reply") or "").strip()
     if not reply:
         raise AIError("AI 回复为空")
-    edits = [
-        {"old": e.get("old", ""), "new": e.get("new", ""), "why": e.get("why", "")}
-        for e in ([] if choice else out.get("edits") or [])
-    ]
-    _, ok, still = apply_edits(target, edits, single_line=short)
+    edits = out.get("edits") or []
+    _, ok, still = apply_edits(targets, edits, single_line=short, choice=choice)
     if still:
         notes.append("丢掉了定位不了的修改：" + "；".join(still))
-        edits = [edits[i] for i in ok]
+    edits = [edits[i] for i in ok]
     make_extra = str(out.get("make_extra") or "").strip()
     delete_extras = list(out.get("delete_extras") or [])  # JSON schema 已限定为整数
     return TutorReply(reply=reply, edits=edits, notes=notes, make_extra=make_extra, delete_extras=delete_extras)
