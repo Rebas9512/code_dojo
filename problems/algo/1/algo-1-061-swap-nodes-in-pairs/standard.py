@@ -21,7 +21,7 @@ def run_case(head: ListNode | None) -> ListNode | None:
     result = swap_pairs(head)
     node = result
     for start in range(0, len(original), k):
-        block = original[start:start + k]
+        block = original[start : start + k]
         if len(block) == k:
             block.reverse()
         for expected_node, value in block:

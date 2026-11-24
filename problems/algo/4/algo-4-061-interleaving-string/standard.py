@@ -8,6 +8,7 @@ def interleaves(a: str, b: str, text: str) -> bool:
         possible[0] = possible[0] and a[i - 1] == text[i - 1]
         for j in range(1, len(b) + 1):
             wanted = text[i + j - 1]
-            possible[j] = ((possible[j] and a[i - 1] == wanted)
-                           or (possible[j - 1] and b[j - 1] == wanted))
+            possible[j] = (possible[j] and a[i - 1] == wanted) or (
+                possible[j - 1] and b[j - 1] == wanted
+            )
     return possible[-1]

@@ -19,6 +19,7 @@ class Groups:
         self.size[a] += self.size[b]
         return True
 
+
 def redundant(edges: list[list[int]]) -> list[int]:
     groups = Groups(len(edges) + 1)
     for a, b in edges:

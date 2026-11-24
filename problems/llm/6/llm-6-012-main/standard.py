@@ -13,8 +13,12 @@ def main():
     full = generate(*args, use_cache=False)
     cached = generate(*args, use_cache=True)
     print(vocab.decode(cached))
-    print(json.dumps({
-        "val_loss": history[-1][1],
-        "cache_match": int(full == cached),
-        "generated_chars": len(cached) - len(prompt),
-    }))
+    print(
+        json.dumps(
+            {
+                "val_loss": history[-1][1],
+                "cache_match": int(full == cached),
+                "generated_chars": len(cached) - len(prompt),
+            }
+        )
+    )

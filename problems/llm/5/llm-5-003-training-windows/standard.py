@@ -4,5 +4,5 @@ def training_windows(text, width):
     samples = []
     for start in range(len(ids) - width):
         end = start + width
-        samples.append([ids[start:end], ids[start + 1:end + 1]])
+        samples.append([ids[start:end], ids[start + 1 : end + 1]])
     return samples

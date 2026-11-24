@@ -11,7 +11,7 @@ def ladder_length(begin: str, end: str, words: list[str]) -> int:
         word, length = queue.popleft()
         for i in range(len(word)):
             prefix = word[:i]
-            suffix = word[i + 1:]
+            suffix = word[i + 1 :]
             for ch in 'abcdefghijklmnopqrstuvwxyz':
                 other = prefix + ch + suffix
                 if other == end:

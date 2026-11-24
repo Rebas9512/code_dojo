@@ -7,4 +7,4 @@ def longest_palindrome(s: str) -> str:
                     best_left, best_right = left, right
                 left -= 1
                 right += 1
-    return s[best_left:best_right + 1]
+    return s[best_left : best_right + 1]

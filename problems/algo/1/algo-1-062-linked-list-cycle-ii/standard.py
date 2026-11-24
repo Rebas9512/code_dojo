@@ -13,7 +13,6 @@ def detect_cycle(head: ListNode | None) -> ListNode | None:
 
 
 def run_case(head: ListNode | None, pos: int) -> int:
-
     nodes = []
     node = head
     while node:

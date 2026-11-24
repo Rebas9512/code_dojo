@@ -6,6 +6,6 @@ def trace(w, target, rate, steps):
     losses = []
     for _ in range(steps):
         residual = w - target
-        losses.append(float(residual ** 2))
+        losses.append(float(residual**2))
         w = w - rate * 2 * residual
     return losses

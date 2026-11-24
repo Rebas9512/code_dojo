@@ -12,4 +12,6 @@ def purchase_features(orders, cutoff):
         spend_30d=("amount", "sum"),
         avg_basket=("amount", "mean"),
     )
-    return last[["user_id", "days_since_last_order"]].merge(totals, on="user_id", how="left").fillna(0)
+    return (
+        last[["user_id", "days_since_last_order"]].merge(totals, on="user_id", how="left").fillna(0)
+    )

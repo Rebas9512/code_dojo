@@ -22,7 +22,7 @@ class Node:
 def run_case(adjacency: list[list[int]]) -> list[list[int]]:
     originals = [Node(i + 1) for i in range(len(adjacency))]
     for node, row in zip(originals, adjacency):
-        node.neighbors = [originals[i-1] for i in row]
+        node.neighbors = [originals[i - 1] for i in row]
     root = clone(originals[0] if originals else None)
     if not originals:
         return [] if root is None else None
@@ -44,6 +44,6 @@ def run_case(adjacency: list[list[int]]) -> list[list[int]]:
     if len(by_value) != len(originals):
         return None
     for i, node in enumerate(originals):
-        if node.val != i+1 or node.neighbors != [originals[k-1] for k in adjacency[i]]:
+        if node.val != i + 1 or node.neighbors != [originals[k - 1] for k in adjacency[i]]:
             return None
-    return [sorted(other.val for other in by_value[i+1].neighbors) for i in range(len(originals))]
+    return [sorted(other.val for other in by_value[i + 1].neighbors) for i in range(len(originals))]

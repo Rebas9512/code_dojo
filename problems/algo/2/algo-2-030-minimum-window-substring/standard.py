@@ -18,4 +18,4 @@ def min_cover(text: str, need: str) -> str:
             if debt[leaving] > 0:
                 missing += 1
             left += 1
-    return text[start:start + size] if size <= len(text) else ""
+    return text[start : start + size] if size <= len(text) else ""

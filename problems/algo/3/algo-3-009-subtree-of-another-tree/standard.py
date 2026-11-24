@@ -3,6 +3,7 @@ def same(a: TreeNode | None, b: TreeNode | None) -> bool:
         return a is b
     return a.val == b.val and same(a.left, b.left) and same(a.right, b.right)
 
+
 def contains_tree(root: TreeNode | None, sub: TreeNode) -> bool:
     if root is None:
         return False

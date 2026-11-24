@@ -1,6 +1,7 @@
 def sentences(s: str, words: list[str]) -> list[str]:
     dictionary = set(words)
     result, path, dead = [], [], set()
+
     def split(start):
         if start == len(s):
             result.append(' '.join(path))
@@ -18,5 +19,6 @@ def sentences(s: str, words: list[str]) -> list[str]:
         if not found:
             dead.add(start)
         return found
+
     split(0)
     return result

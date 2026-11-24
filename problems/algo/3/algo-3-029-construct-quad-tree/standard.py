@@ -3,11 +3,11 @@ def construct(grid: list[list[int]]) -> Node:
         if size == 1:
             return Node(bool(grid[row][col]), True)
         half = size // 2
-        children = [build(row + dr, col + dc, half)
-                    for dr in (0, half) for dc in (0, half)]
+        children = [build(row + dr, col + dc, half) for dr in (0, half) for dc in (0, half)]
         if all(child.isLeaf and child.val == children[0].val for child in children):
             return children[0]
         return Node(False, False, *children)
+
     return build(0, 0, len(grid))
 
 

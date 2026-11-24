@@ -1,11 +1,13 @@
 def subsets(nums: list[int]) -> list[list[int]]:
     answers, path = [], []
+
     def visit(start):
         answers.append(path[:])
         for i in range(start, len(nums)):
             path.append(nums[i])
             visit(i + 1)
             path.pop()
+
     visit(0)
     return answers
 

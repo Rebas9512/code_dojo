@@ -14,6 +14,7 @@ class Codec:
     def deserialize(self, text: str) -> TreeNode | None:
         parts = text.split(',')
         index = 0
+
         def read():
             nonlocal index
             token = parts[index]
@@ -21,6 +22,7 @@ class Codec:
             if token == '#':
                 return None
             return TreeNode(int(token), read(), read())
+
         return read()
 
 

@@ -3,8 +3,7 @@ from collections import deque
 
 def jumps(x: int, y: int) -> int:
     target = (abs(x), abs(y))
-    moves = ((2, 1), (1, 2), (-1, 2), (-2, 1),
-             (-2, -1), (-1, -2), (1, -2), (2, -1))
+    moves = ((2, 1), (1, 2), (-1, 2), (-2, 1), (-2, -1), (-1, -2), (1, -2), (2, -1))
     queue = deque([(0, 0, 0)])
     seen = {(0, 0)}
     while queue:

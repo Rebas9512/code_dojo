@@ -6,7 +6,7 @@ def gcd_connected(nums: list[int]) -> bool:
     limit = max(nums)
     # 用筛法登记每个数的最小质因子，随后可以连续整除分解。
     factor = list(range(limit + 1))
-    for prime in range(2, int(limit ** 0.5) + 1):
+    for prime in range(2, int(limit**0.5) + 1):
         if factor[prime] == prime:
             for multiple in range(prime * prime, limit + 1, prime):
                 if factor[multiple] == multiple:

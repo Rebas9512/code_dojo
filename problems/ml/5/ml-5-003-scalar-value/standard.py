@@ -15,7 +15,7 @@ class Value:
 
     def tanh(self):
         result = tanh(self.data)
-        return Value(result, ((self, 1 - result ** 2),))
+        return Value(result, ((self, 1 - result**2),))
 
 
 def make_value(x):

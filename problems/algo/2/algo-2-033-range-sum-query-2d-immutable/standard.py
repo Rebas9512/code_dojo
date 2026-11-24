@@ -10,5 +10,4 @@ class NumMatrix:
 
     def sumRegion(self, row1: int, col1: int, row2: int, col2: int) -> int:
         p = self.prefix
-        return (p[row2 + 1][col2 + 1] - p[row1][col2 + 1]
-                - p[row2 + 1][col1] + p[row1][col1])
+        return p[row2 + 1][col2 + 1] - p[row1][col2 + 1] - p[row2 + 1][col1] + p[row1][col1]

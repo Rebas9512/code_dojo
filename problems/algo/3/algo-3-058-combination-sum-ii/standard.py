@@ -1,6 +1,7 @@
 def sum_choices(nums: list[int], target: int) -> list[list[int]]:
     values = sorted(nums)
     result, path = [], []
+
     def visit(start, left):
         if left == 0:
             result.append(path[:])
@@ -14,6 +15,7 @@ def sum_choices(nums: list[int], target: int) -> list[list[int]]:
             path.append(value)
             visit(i + 1, left - value)
             path.pop()
+
     visit(0, target)
     return result
 

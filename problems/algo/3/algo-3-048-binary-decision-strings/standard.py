@@ -1,5 +1,6 @@
 def bit_strings(n: int) -> list[str]:
     answers, path = [], []
+
     def visit():
         if len(path) == n:
             answers.append(''.join(path))
@@ -8,5 +9,6 @@ def bit_strings(n: int) -> list[str]:
             path.append(digit)
             visit()
             path.pop()
+
     visit()
     return answers

@@ -1,5 +1,6 @@
 def palindrome_parts(s: str) -> list[list[str]]:
     result, parts = [], []
+
     def split(start):
         if start == len(s):
             result.append(parts[:])
@@ -10,5 +11,6 @@ def palindrome_parts(s: str) -> list[list[str]]:
                 parts.append(word)
                 split(end)
                 parts.pop()
+
     split(0)
     return result

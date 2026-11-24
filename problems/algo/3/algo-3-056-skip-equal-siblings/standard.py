@@ -1,6 +1,7 @@
 def choose_pairs(nums: list[int]) -> list[list[int]]:
     values = sorted(nums)
     result, path = [], []
+
     def visit(start):
         if len(path) == 2:
             result.append(path[:])
@@ -11,6 +12,7 @@ def choose_pairs(nums: list[int]) -> list[list[int]]:
             path.append(values[i])
             visit(i + 1)
             path.pop()
+
     visit(0)
     return result
 

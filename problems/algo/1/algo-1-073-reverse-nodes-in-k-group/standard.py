@@ -30,7 +30,7 @@ def run_case(head: ListNode, k: int) -> ListNode | None:
     result = reverse_k_group(head, k)
     node = result
     for start in range(0, len(original), k):
-        block = original[start:start + k]
+        block = original[start : start + k]
         if len(block) == k:
             block.reverse()
         for expected_node, value in block:

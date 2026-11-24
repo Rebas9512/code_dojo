@@ -15,7 +15,7 @@ def sample_until(table, prompt, temperature, k, p, eos, limit, seed):
         for rank, index in enumerate(order[:k]):
             mass += probs[index].item()
             if mass >= p:
-                z[order[rank + 1:]] = float("-inf")
+                z[order[rank + 1 :]] = float("-inf")
                 break
         token = torch.multinomial(torch.softmax(z, dim=0), 1, generator=rng).item()
         tokens.append(token)

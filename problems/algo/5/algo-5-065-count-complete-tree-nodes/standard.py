@@ -12,9 +12,9 @@ def count_nodes(root: TreeNode | None) -> int:
         left = left_height(root.left)
         right = left_height(root.right)
         if left == right:
-            total += 2 ** left
+            total += 2**left
             root = root.right
         else:
-            total += 2 ** right
+            total += 2**right
             root = root.left
     return total

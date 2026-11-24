@@ -5,4 +5,4 @@ def closest(arr: list[int], k: int, x: int) -> list[int]:
             right -= 1
         else:
             left += 1
-    return arr[left:right + 1]
+    return arr[left : right + 1]

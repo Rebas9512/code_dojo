@@ -8,10 +8,14 @@ def shortest_route(grid: list[list[int]], start: list[int], end: list[int]) -> i
         r, c, distance = queue.popleft()
         if [r, c] == end:
             return distance
-        for dr, dc in ((0,1), (0,-1), (1,0), (-1,0)):
+        for dr, dc in ((0, 1), (0, -1), (1, 0), (-1, 0)):
             nr, nc = r + dr, c + dc
-            if (0 <= nr < len(grid) and 0 <= nc < len(grid[0])
-                    and grid[nr][nc] == 0 and (nr,nc) not in seen):
-                seen.add((nr,nc))
+            if (
+                0 <= nr < len(grid)
+                and 0 <= nc < len(grid[0])
+                and grid[nr][nc] == 0
+                and (nr, nc) not in seen
+            ):
+                seen.add((nr, nc))
                 queue.append((nr, nc, distance + 1))
     return -1

@@ -13,7 +13,7 @@ def open_lock(deadends: list[str], target: str) -> int:
             return turns
         for i, digit in enumerate(code):
             for step in (-1, 1):
-                new = code[:i] + str((int(digit) + step) % 10) + code[i+1:]
+                new = code[:i] + str((int(digit) + step) % 10) + code[i + 1 :]
                 if new not in seen:
                     seen.add(new)
                     queue.append((new, turns + 1))

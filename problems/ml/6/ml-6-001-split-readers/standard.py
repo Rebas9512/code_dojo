@@ -11,7 +11,5 @@ def load_split(path, seed):
         holdout = len(rows) // 5
         groups.append(np.split(rows, [len(rows) - 2 * holdout, len(rows) - holdout]))
 
-    train, valid, test = [
-        rng.permutation(np.concatenate(group)) for group in zip(*groups)
-    ]
+    train, valid, test = [rng.permutation(np.concatenate(group)) for group in zip(*groups)]
     return numeric, cities, labels, train, valid, test

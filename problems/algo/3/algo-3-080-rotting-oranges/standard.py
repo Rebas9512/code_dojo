@@ -13,8 +13,8 @@ def rot_time(grid: list[list[int]]) -> int:
     minutes = 0
     while queue:
         r, c, minutes = queue.popleft()
-        for dr, dc in ((1,0), (-1,0), (0,1), (0,-1)):
-            nr, nc = r+dr, c+dc
+        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nr, nc = r + dr, c + dc
             if 0 <= nr < len(grid) and 0 <= nc < len(grid[0]) and grid[nr][nc] == 1:
                 grid[nr][nc] = 2
                 fresh -= 1

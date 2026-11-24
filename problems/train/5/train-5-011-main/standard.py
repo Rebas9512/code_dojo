@@ -12,8 +12,9 @@ def main():
     parser.add_argument("--patience", type=int, default=defaults.patience)
     parser.add_argument("--checkpoint", default="best.pt")
     args = parser.parse_args()
-    config = Config(seed=args.seed, epochs=args.epochs, batch_size=args.batch_size,
-                    patience=args.patience)
+    config = Config(
+        seed=args.seed, epochs=args.epochs, batch_size=args.batch_size, patience=args.patience
+    )
     config.set_seed()
     torch.set_num_threads(1)
     dataset = DigitsDataset(DATA_DIR / "digits.csv")

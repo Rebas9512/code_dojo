@@ -7,4 +7,5 @@ def rob(root: TreeNode | None) -> int:
         skip = max(left_skip, left_take) + max(right_skip, right_take)
         take = node.val + left_skip + right_skip
         return skip, take
+
     return max(choose(root))

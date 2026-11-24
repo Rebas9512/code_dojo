@@ -1,5 +1,6 @@
 def max_path_sum(root: TreeNode) -> int:
     best = root.val
+
     def gain(node):
         nonlocal best
         if node is None:
@@ -8,5 +9,6 @@ def max_path_sum(root: TreeNode) -> int:
         right = max(0, gain(node.right))
         best = max(best, node.val + left + right)
         return node.val + max(left, right)
+
     gain(root)
     return best

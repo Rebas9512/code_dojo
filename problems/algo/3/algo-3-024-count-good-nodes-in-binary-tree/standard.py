@@ -5,4 +5,5 @@ def count_good(root: TreeNode) -> int:
         good = int(node.val >= highest)
         highest = max(highest, node.val)
         return good + visit(node.left, highest) + visit(node.right, highest)
+
     return visit(root, root.val)

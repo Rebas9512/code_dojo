@@ -5,11 +5,14 @@ class Checkpoint:
     def save(self, model, optimizer, epoch):
         import torch
 
-        torch.save({
-            "model": model.state_dict(),
-            "optimizer": optimizer.state_dict(),
-            "epoch": epoch,
-        }, self.path)
+        torch.save(
+            {
+                "model": model.state_dict(),
+                "optimizer": optimizer.state_dict(),
+                "epoch": epoch,
+            },
+            self.path,
+        )
 
     def load(self, model, optimizer):
         import torch

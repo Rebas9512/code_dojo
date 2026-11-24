@@ -12,6 +12,6 @@ class Codec:
             mark = packet.index('#', start)
             length = int(packet[start:mark])
             start = mark + 1
-            words.append(packet[start:start + length])
+            words.append(packet[start : start + length])
             start += length
         return words

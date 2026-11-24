@@ -1,5 +1,6 @@
 def parentheses(n: int) -> list[str]:
     answers = []
+
     def visit(opened, closed, word):
         if closed == n:
             answers.append(word)
@@ -8,5 +9,6 @@ def parentheses(n: int) -> list[str]:
             visit(opened + 1, closed, word + '(')
         if closed < opened:
             visit(opened, closed + 1, word + ')')
+
     visit(0, 0, '')
     return answers

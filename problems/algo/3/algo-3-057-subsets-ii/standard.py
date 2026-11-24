@@ -1,6 +1,7 @@
 def subsets(nums: list[int]) -> list[list[int]]:
     nums = sorted(nums)
     answers, path = [], []
+
     def visit(start):
         answers.append(path[:])
         for i in range(start, len(nums)):
@@ -9,6 +10,7 @@ def subsets(nums: list[int]) -> list[list[int]]:
             path.append(nums[i])
             visit(i + 1)
             path.pop()
+
     visit(0)
     return answers
 

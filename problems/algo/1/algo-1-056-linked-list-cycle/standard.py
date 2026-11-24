@@ -9,7 +9,6 @@ def has_cycle(head: ListNode | None) -> bool:
 
 
 def run_case(head: ListNode | None, pos: int) -> bool:
-
     nodes = []
     node = head
     while node:

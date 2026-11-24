@@ -9,8 +9,7 @@ def rising_length(matrix: list[list[int]]) -> int:
         best = 1
         for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
             nr, nc = r + dr, c + dc
-            if (0 <= nr < rows and 0 <= nc < cols
-                    and matrix[nr][nc] > matrix[r][c]):
+            if 0 <= nr < rows and 0 <= nc < cols and matrix[nr][nc] > matrix[r][c]:
                 best = max(best, 1 + length(nr, nc))
         lengths[r][c] = best
         return best

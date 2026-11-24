@@ -1,5 +1,6 @@
 def choose(n: int, k: int) -> list[list[int]]:
     result, path = [], []
+
     def fill(start):
         if len(path) == k:
             result.append(path[:])
@@ -9,6 +10,7 @@ def choose(n: int, k: int) -> list[list[int]]:
             path.append(number)
             fill(number + 1)
             path.pop()
+
     fill(1)
     return result
 

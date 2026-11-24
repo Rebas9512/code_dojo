@@ -19,6 +19,7 @@ class Groups:
         self.size[a] += self.size[b]
         return True
 
+
 def connectivity(n: int, operations: list[list]) -> list[bool]:
     groups = Groups(n)
     answers = []
