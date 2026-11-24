@@ -1,0 +1,15 @@
+class MemoryStore:
+    def __init__(self):
+        self.records = {}
+
+    def set(self, key: str, value: int) -> None:
+        self.records[key] = value
+
+    def get(self, key: str) -> int | None:
+        return self.records.get(key)
+
+    def delete(self, key: str) -> bool:
+        return self.records.pop(key, None) is not None
+
+    def scan(self, prefix: str) -> list[str]:
+        return sorted(key for key in self.records if key.startswith(prefix))

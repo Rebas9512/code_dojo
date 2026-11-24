@@ -1,0 +1,9 @@
+CREATE TABLE lines (
+    id int PRIMARY KEY,
+    batch_id int REFERENCES depots(id) ON DELETE CASCADE
+);
+
+INSERT INTO lines VALUES (11, 4), (12, 8);
+
+DELETE FROM depots
+WHERE id = 4;

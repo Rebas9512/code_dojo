@@ -1,0 +1,1 @@
+ALTER TABLE crates ADD COLUMN capacity integer NOT NULL DEFAULT 12;
