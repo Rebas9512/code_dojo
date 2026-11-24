@@ -25,7 +25,7 @@ def execute(job: dict) -> list:
         waiting[key] = job
         replies[key] = future
     try:
-        reply = future.result(timeout=50)
+        reply = future.result(timeout=50 + job.get("timeoutMs", 0) / 1000)
         if reply.error or reply.tables is None:
             raise ValueError(reply.error or "浏览器没有返回 SQL 结果")
         return reply.tables

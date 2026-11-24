@@ -1,0 +1,19 @@
+.project-page { max-width: 1320px; width: 100%; margin: 0 auto; padding: 28px clamp(16px, 4vw, 56px); }
+.project-page h1 { margin: 20px 0 4px; font-size: 28px; }
+.project-page h2 { margin: 0; font-size: 16px; }
+.project-page p { margin: 6px 0; }
+.project-columns { display: grid; grid-template-columns: minmax(210px, 1fr) minmax(0, 3fr); gap: 32px; margin-top: 30px; }
+.project-parts small { color: var(--muted); font-size: 12px; font-weight: normal; white-space: nowrap; }
+.project-parts ol { padding-left: 1.5em; margin: 12px 0 28px; }
+.project-parts li { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.project-parts li a { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.project-bar { min-height: 44px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 6px 12px; background: var(--panel); border-block: 1px solid var(--line); }
+.project-bar h2 { margin-right: auto; font-size: 14px; }
+.project-bar a { font-size: 13px; }
+.project-preview { height: clamp(280px, 45vh, 560px); }
+.project-output { min-height: 60px; padding: 10px 12px; }
+.project-output pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--font-code); }
+@media (max-width: 760px) {
+  .project-columns { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .project-parts ol { margin-bottom: 16px; }
+}

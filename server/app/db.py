@@ -41,6 +41,8 @@ CREATE TABLE IF NOT EXISTS submissions (
 );
 CREATE INDEX IF NOT EXISTS idx_submissions_problem ON submissions(problem_id, created_at);
 
+CREATE TABLE IF NOT EXISTS project_completions (project_id TEXT PRIMARY KEY, created_at TEXT NOT NULL);
+
 CREATE TABLE IF NOT EXISTS reviews (
     problem_id TEXT PRIMARY KEY,
     step INTEGER NOT NULL,
@@ -360,6 +362,27 @@ class Store:
                 (problem_id, limit),
             ).fetchall()
         return [dict(r) for r in rows]
+
+    def project_answers(self, part_ids: list[str]) -> dict[str, str]:
+        slots = ",".join("?" for _ in part_ids)
+        with self._lock:
+            rows = self._conn.execute(f"""
+                SELECT problem_id, code FROM (
+                    SELECT problem_id, code, ROW_NUMBER() OVER (
+                        PARTITION BY problem_id ORDER BY created_at DESC, v.entity DESC, id DESC
+                    ) AS rank FROM submissions
+                    LEFT JOIN sync_versions v ON v.type='submissions' AND v.local_id=id
+                    WHERE problem_id IN ({slots}) AND kind IN ('submit','review') AND verdict='accepted'
+                ) WHERE rank=1""", part_ids)
+            return dict(rows)
+
+    def complete_project(self, project_id: str) -> None:
+        with self._write():
+            self._conn.execute("INSERT OR IGNORE INTO project_completions VALUES (?,?)", (project_id, now()))
+
+    def project_completed(self, project_id: str) -> bool:
+        with self._lock:
+            return self._conn.execute("SELECT 1 FROM project_completions WHERE project_id=?", (project_id,)).fetchone() is not None
 
     def latest_result(self, problem_id: str) -> dict[str, Any] | None:
         """最近一次运行或提交的判题结果（给 AI 助教当上下文）。"""

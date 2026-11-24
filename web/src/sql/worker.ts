@@ -2,9 +2,9 @@ import { PGlite } from '@electric-sql/pglite'
 import { compareCheck, compareStates, compareTables, previewCheck, previewTable, type CheckValue, type SqlCheck, type SqlTable } from './compare'
 import { explainError, inDataset, lessonTable, parsers, runScript, runStatement } from './engine'
 
-interface Input { setup: string[]; sql: string }
+interface Input { setup: string[]; sql: string; timeoutMs?: number }
 export type Job = Input & (
-  { mode: 'script'; checks: SqlCheck[]; expected: { checks: CheckValue[] } } |
+  { mode: 'script'; cte?: string; checks: SqlCheck[]; expected: { checks: CheckValue[] } } |
   { mode?: 'dml' | 'lesson'; expected?: SqlTable; ordered?: boolean; tolerance?: number; check_query?: string }
 )
 
@@ -17,10 +17,11 @@ self.onmessage = async ({ data }: MessageEvent<Job | null>) => {
       return
     }
     const mode = data.mode === 'lesson' ? 'script' : data.mode
+    if (data.timeoutMs) self.postMessage({ executing: true })
     const reply = await inDataset(db, data.setup, async tx => {
-      self.postMessage({ executing: true })
+      if (!data.timeoutMs) self.postMessage({ executing: true })
       if (data.mode === 'script') {
-        const actual = await runScript(tx, data.sql, data.checks)
+        const actual = await runScript(tx, data.sql, data.checks, data.cte)
         self.postMessage({ comparing: true })
         return { checks: data.checks.map((check, i) => ({
           label: check.label, actual: previewCheck(actual[i]), expected: previewCheck(data.expected.checks[i]),
@@ -33,7 +34,7 @@ self.onmessage = async ({ data }: MessageEvent<Job | null>) => {
       const compare = data.mode === 'dml' ? compareStates : compareTables
       const difference = data.expected ? compare(actual, data.expected, !!data.ordered, data.tolerance) : null
       return { actual: previewTable(actual), affectedRows, difference }
-    }, mode)
+    }, mode, data.timeoutMs)
     self.postMessage(reply)
   } catch (e) {
     self.postMessage({ error: explainError(e), timeout: (e as { code?: string }).code === '57014' })

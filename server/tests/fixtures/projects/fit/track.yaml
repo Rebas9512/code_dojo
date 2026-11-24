@@ -1,0 +1,15 @@
+id: fit
+name: 拟合练习
+summary: 读取五个坐标点，算出直线斜率，再用 JSON 报告拟合结果。
+order: 1
+language: python
+runtime: ds
+status: active
+requires: []
+skill_prefix: fit
+stages:
+- id: '1'
+  name: 项目
+  kind: project
+  units:
+    1: 直线拟合

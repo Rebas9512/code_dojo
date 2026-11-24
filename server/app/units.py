@@ -29,6 +29,10 @@ def group_units(track: Track, skills: dict[str, Skill], ordered: list[Problem]) 
     for sid, name in track.stages.items():
         local = [s for s in skills.values() if s.track == track.id and s.stage == sid]
         groups = {s.id: s.group for s in local if s.group is not None}
+        if sid == track.project_stage:
+            stages[sid] = [Unit(str(unit), title, problems=[p for p in by_stage[sid] if p.meta.unit == unit])
+                           for unit, title in sorted(track.units[sid].items())]
+            continue
         if not groups:
             stages[sid] = [Unit(sid, name, local, by_stage[sid])]
             continue
@@ -133,7 +137,9 @@ def stage_progress(track: Track, stages: dict[str, list[Unit]], status: dict[str
                 "mastered": sum(progress.state(s.id) == "mastered" for s in unit.skills),
                 "skills": [{"id": s.id, "name": s.name, "status": skill_status.get(s.id)} for s in unit.skills],
                 "next": upcoming,
+                **({"project": unit.problems[0].meta.project} if sid == track.project_stage and unit.problems else {}),
             })
         rows.append({"id": sid, "name": track.stages[sid], "units": summaries,
+                     **({"kind": "project"} if sid == track.project_stage else {}),
                      "total": sum(u["total"] for u in summaries), "solved": sum(u["solved"] for u in summaries)})
     return rows

@@ -36,11 +36,12 @@ function UnitDetails({ station, onReturn }: { station: Station; onReturn: () => 
     {planned ? <p className="unit-plan">规划中 · {stage.name}</p> : <>
       <div className="unit-progress"><span>已通过</span><strong>{unit.solved} <small>/ {unit.total}</small></strong></div>
       <div className="unit-meter" aria-hidden="true"><i style={{ width: (unit.total ? 100 * unit.solved / unit.total : 0) + '%' }} /></div>
-      <div className="unit-progress"><span>掌握</span><strong>{unit.mastered} <small>/ {unit.skills.length}</small></strong></div>
+      {!unit.project && <div className="unit-progress"><span>掌握</span><strong>{unit.mastered} <small>/ {unit.skills.length}</small></strong></div>}
       {unit.skills.length > 0 && <SkillList skills={unit.skills} />}
       {unit.next && <Link className="unit-continue" to={practicePath(unit.next)}>继续：{unit.next.title}<span aria-hidden="true">→</span></Link>}
     </>}
     <nav className="unit-links" aria-label="单元内容">
+      {unit.project && <Link to={'/project/' + unit.project}>打开项目</Link>}
       <Link to={base + hash}>题目</Link><Link to={base + '/skills' + hash}>知识点</Link>
     </nav>
     <button type="button" className="map-return" onClick={onReturn}>↑ 返回单元</button>
@@ -135,8 +136,8 @@ function BranchList(props: TreeProps) {
                   title={label + '（双击进入题目）'} onClick={() => onSelect(s.key, true)}
                   onDoubleClick={() => navigate(`/t/${track.id}#${unitAnchor(s.stage.id, unit.id)}`)}
                   onKeyDown={(e) => moveStation(e, onSelect)}>
-                  <span className={'station-dot' + (upcoming ? ' is-next' : '') + (fill === 1 ? ' is-complete' : '')}>
-                    {fill > 0 && fill < 1 && <svg className="station-arc" viewBox="0 0 16 16" aria-hidden="true">
+                  <span className={'station-dot' + (unit.project ? ' project-dot' : '') + (upcoming ? ' is-next' : '') + (fill === 1 ? ' is-complete' : '')}>
+                    {!unit.project && fill > 0 && fill < 1 && <svg className="station-arc" viewBox="0 0 16 16" aria-hidden="true">
                       <circle cx="8" cy="8" r="6" pathLength="100" strokeDasharray={`${100 * fill} 100`} />
                     </svg>}
                     {unit.assisted > 0 && <i className="assist-mark" />}

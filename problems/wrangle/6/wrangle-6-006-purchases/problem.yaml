@@ -1,0 +1,22 @@
+id: wrangle-6-006-purchases
+title: 汇总购买与最近一单
+track: wrangle
+stage: '6'
+unit: 1
+order: 60
+format: combine
+difficulty: 47
+skills:
+  requires:
+    - wrangle.group
+    - wrangle.merge
+    - wrangle.dates
+    - wrangle.missing
+  introduces: null
+source: original
+project: features
+part: 6
+mode: function
+entry: purchase_features
+signature: 'def purchase_features(orders, cutoff):'
+compare: checker

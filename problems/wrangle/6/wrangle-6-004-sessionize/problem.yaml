@@ -1,0 +1,20 @@
+id: wrangle-6-004-sessionize
+title: 给每位读者的事件划会话
+track: wrangle
+stage: '6'
+unit: 1
+order: 40
+format: combine
+difficulty: 46
+skills:
+  requires:
+    - wrangle.window
+    - wrangle.dates
+  introduces: null
+source: original
+project: features
+part: 4
+mode: function
+entry: sessionize
+signature: 'def sessionize(events):'
+compare: checker

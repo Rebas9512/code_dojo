@@ -16,6 +16,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from .projects import ProbeCheck, Project, QueryCheck, SqlCheck
 from .inspect_data import InspectExercise, data_block
 from .tracks import LoadError, Track, load_track, load_tracks, normalize_stage, read_yaml
 
@@ -35,20 +36,6 @@ class Constraints(BaseModel):
     forbid_imports: list[str] = Field(default_factory=list)
 
 
-class QueryCheck(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    label: str = Field(min_length=1)
-    query: str = Field(min_length=1)
-    ordered: bool = False
-
-
-class ProbeCheck(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    label: str = Field(min_length=1)
-    probe: str = Field(min_length=1)
-    expect: Literal["error", "ok"]
-
-
 class ProblemMeta(BaseModel):
     """problem.yaml 的公共字段；未知字段保留（如 wrong_examples），方便内容侧先行试验。"""
 
@@ -59,6 +46,8 @@ class ProblemMeta(BaseModel):
     track: str
     stage: str
     order: int
+    project: str | None = None
+    part: int | None = Field(default=None, gt=0)
     week: int | None = None
     format: Format
     difficulty: int = Field(ge=1, le=100)
@@ -86,11 +75,12 @@ class ProblemMeta(BaseModel):
     convert: dict[str, Any] | None = None
 
     # SQL
+    cte: str | None = Field(default=None, pattern=r"^[a-z_][a-z0-9_]*$")
     starter_dialect: Literal["mysql"] | None = None
     datasets: list[str] = Field(default_factory=list)
     ordered: bool = False
     check_query: str | None = None
-    checks: list[QueryCheck | ProbeCheck] = Field(default_factory=list)
+    checks: list[SqlCheck] = Field(default_factory=list)
 
     @field_validator("week", mode="before")
     @classmethod
@@ -105,6 +95,8 @@ class ProblemMeta(BaseModel):
         return normalize_stage(v)
 
     def check_language(self, language: str) -> None:
+        if self.cte and not (self.project and language == "sql" and self.mode == "script"):
+            raise ValueError("cte 只用于 SQL 项目的脚本部分")
         if self.starter_dialect and (language != "sql" or self.format != "fix" or self.mode is not None):
             raise ValueError("starter_dialect 只用于 SQL 改错查询")
         if self.mode == "script":
@@ -144,6 +136,8 @@ class Problem:
     starter: str
     inspect: InspectExercise | None = None
 
+    project: Project | None = field(default=None, repr=False)
+
     @property
     def id(self) -> str:
         return self.meta.id
@@ -174,7 +168,9 @@ class Problem:
 
     def judge_options(self) -> dict[str, Any]:
         m = self.meta
-        return dict(runtime=self.track.runtime, time_limit_ms=m.time_limit_ms, entry=m.entry, compare=m.compare,
+        injection = ({"reference": self.project.reference, "data": self.project.directory / self.project.meta.data}
+                     if self.project else {})
+        return dict(**injection, runtime=self.track.runtime, time_limit_ms=m.time_limit_ms, entry=m.entry, compare=m.compare,
                     convert=m.convert, checker=self.read("checker.py") if m.compare == "checker" else None,
                     constraints=m.constraints.model_dump() if m.constraints else None,
                     compare_options=m.model_dump(include={"rtol", "atol", "ignore_row_order", "ignore_index",
@@ -325,6 +321,13 @@ def load_problem(problem_dir: Path, track: Track | None = None) -> Problem:
         raise ValueError(f"{track.id} 未知阶段 {meta.stage}")
     if meta.stage != normalize_stage(problem_dir.parent.name):
         raise ValueError(f"阶段 {meta.stage} 与目录 {problem_dir.parent.name} 不符")
+    if meta.stage == track.project_stage:
+        if not (meta.project and meta.part and meta.unit in track.units[meta.stage]
+                and meta.format == "combine" and meta.skills.introduces is None
+                and meta.mode in (("script",) if track.language == "sql" else ("function", "class"))):
+            raise ValueError("项目部分需要 project、part、unit 和 combine，且只组合已学技能")
+    elif meta.project is not None or meta.part is not None:
+        raise ValueError("项目部分应放在项目阶段")
     meta.check_language(track.language)
     if meta.compare in ("allclose", "frame") and (track.runtime != "ds" or meta.mode not in ("function", "class")):
         raise ValueError(f"{meta.compare} 需要 runtime: ds 的函数或类方法返回值")
@@ -393,6 +396,7 @@ class ProblemBank:
         self._stamp: float | None = None
         self.tracks: dict[str, Track] = {}
         self.skill_index: dict[str, Skill] = {}
+        self.projects: dict[str, Project] = {}
         self.problems: dict[str, Problem] = {}
         self.lessons: dict[str, Lesson] = {}
         self.skill_lesson: dict[str, Lesson] = {}   # 技能 id → 讲它的 lesson 文件
@@ -417,6 +421,7 @@ class ProblemBank:
         with self._lock:
             if not force and stamp == self._stamp:
                 return
+            projects: dict[str, Project] = {}
             problems: dict[str, Problem] = {}
             lessons: dict[str, Lesson] = {}
             skill_lesson: dict[str, Lesson] = {}
@@ -447,6 +452,19 @@ class ProblemBank:
                         problems[problem.id] = problem
                     except Exception as exc:  # noqa: BLE001
                         errors.append(LoadError(str(yaml_path.parent), str(exc)))
+                if config.project_stage:
+                    for unit in config.units[config.project_stage]:
+                        path = track_dir / config.project_stage / str(unit) / "project.yaml"
+                        try:
+                            project = Project.load(path, config, problems)
+                            if project.meta.id in projects:
+                                raise ValueError(f"项目 id 重复：{project.meta.id}")
+                            projects[project.meta.id] = project
+                            for p in project.parts:
+                                p.project = project
+                        except Exception as exc:  # 坏项目不影响同线的其他单元。
+                            errors.append(LoadError(str(path), str(exc)))
+                    problems = {pid: p for pid, p in problems.items() if not p.meta.project or p.project}
                 for yaml_path in sorted(track_dir.glob("lessons/*/lesson.yaml")):
                     try:
                         meta = LessonMeta.model_validate(read_yaml(yaml_path))
@@ -476,6 +494,7 @@ class ProblemBank:
             for p in ordered:
                 by_track[p.meta.track].append(p)
             self.tracks, self.skill_index, self._ordered, self._by_track = tracks, skill_index, ordered, by_track
+            self.projects = projects
             self.problems, self.lessons, self.skill_lesson, self.skills, self.errors, self._stamp = (
                 problems, lessons, skill_lesson, skills, errors, stamp,
             )

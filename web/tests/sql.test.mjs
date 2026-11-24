@@ -131,3 +131,18 @@ test('多语句示例显示末表，脚本检查分别回滚并定位失败项',
     checkScript("SELECT '; COMMIT', $$; BEGIN$$; -- ROLLBACK\nSELECT 1")
   } finally { await db.close() }
 })
+
+test('项目整跑使用配置时限，末条结果参与比较，运行后恢复普通题时限', async () => {
+  const db = await PGlite.create()
+  const checks = [{ label: '当前时限', result: true }]
+  try {
+    const [project] = await inDataset(db, [], tx => runScript(tx,
+      "CREATE TABLE marks(n integer); SELECT current_setting('statement_timeout')", checks), 'script', 12000)
+    assert.deepEqual(project.rows, [['12s']])
+    const [ordinary] = await inDataset(db, [], tx => runScript(tx,
+      "CREATE TABLE marks(n integer); SELECT current_setting('statement_timeout')", checks), 'script')
+    assert.deepEqual(ordinary.rows, [['2s']])
+    assert.ok(compareCheck(checks[0], ordinary, project))
+    await assert.rejects(inDataset(db, [], tx => runScript(tx, 'SELECT 1; CREATE TABLE marks(n int)', checks), 'script'))
+  } finally { await db.close() }
+})

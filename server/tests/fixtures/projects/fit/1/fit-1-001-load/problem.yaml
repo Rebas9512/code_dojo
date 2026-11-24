@@ -1,0 +1,15 @@
+id: fit-1-001-load
+title: 读取坐标
+track: fit
+stage: '1'
+unit: 1
+order: 10
+format: combine
+difficulty: 20
+skills:
+  requires: []
+project: line-fit
+part: 1
+mode: function
+entry: load_data
+signature: 'def load_data(n):'

@@ -16,13 +16,14 @@ interface ProblemGroup {
   key: string
   title?: string
   anchor?: string
+  project?: string
   rows: ProblemRow[]
 }
 
 function stageGroups(stage: TrackStage, problems: TrackProblem[]): ProblemGroup[] {
   const rows = problems.filter(p => p.stage === stage.id).map((problem, i) => ({ problem, index: i + 1 }))
   const units = stage.units.map(unit => ({
-    key: unit.id, anchor: unitAnchor(stage.id, unit.id),
+    key: unit.id, project: unit.project, anchor: unitAnchor(stage.id, unit.id),
     title: stage.units.length > 1 || unit.name !== stage.name ? unit.name : undefined,
     rows: rows.filter(row => row.problem.unit === unit.id),
   }))
@@ -96,6 +97,7 @@ export function TrackPage() {
             {stageGroups(stage, problems).map(group => (
               <div key={group.key} id={group.anchor} className="skill-group">
                 {group.title && <h2>{group.title}</h2>}
+                {group.project && <Link to={'/project/' + group.project}>打开项目</Link>}
                 {!group.rows.length && <p className="muted">暂无题目</p>}
                 <ol className="problem-list">
                   {group.rows.map(({ problem: p, index, anchor }) => {

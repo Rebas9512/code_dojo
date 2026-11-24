@@ -1,0 +1,21 @@
+id: wrangle-6-005-activity
+title: 汇总近 30 天的活跃程度
+track: wrangle
+stage: '6'
+unit: 1
+order: 50
+format: combine
+difficulty: 46
+skills:
+  requires:
+    - wrangle.group
+    - wrangle.dates
+    - wrangle.window
+  introduces: null
+source: original
+project: features
+part: 5
+mode: function
+entry: activity_features
+signature: 'def activity_features(sessions, cutoff):'
+compare: checker

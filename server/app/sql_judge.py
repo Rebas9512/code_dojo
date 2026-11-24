@@ -28,6 +28,12 @@ def dataset(p: Problem, spec: str) -> list[str]:
             if content is None:
                 raise ValueError(f"找不到数据集 {part}")
             scripts.append(content)
+    if p.project:
+        for previous in p.project.parts[:p.meta.part - 1]:
+            code = p.project.solutions[previous.id]
+            if name := previous.meta.cte:
+                code = f'CREATE TEMP VIEW "{name}" AS (\n{code}\n)'
+            scripts.append(code)
     return scripts
 
 
@@ -39,7 +45,7 @@ def run_node(**job: Any) -> list:
     try:
         proc = subprocess.run(
             ["node", "--experimental-strip-types", str(RUNNER)], input=json.dumps(job),
-            capture_output=True, encoding="utf-8", timeout=30, env={**env, "TZ": "UTC"},
+            capture_output=True, encoding="utf-8", timeout=30 + job.get("timeoutMs", 0) / 1000, env={**env, "TZ": "UTC"},
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise ValueError(f"无法运行 SQL 校验或运行超时：{exc}") from exc
@@ -66,7 +72,7 @@ def validation_job(directory: Path, meta: dict, datasets: list[list[str]]) -> di
     return {
         "datasets": datasets, "solution": (directory / "solution.sql").read_text(encoding="utf-8"),
         "ordered": meta.get("ordered", False), "wrong": wrong, "mode": meta.get("mode"),
-        "check_query": meta.get("check_query"), "checks": meta.get("checks"), **starter,
+        "check_query": meta.get("check_query"), "checks": meta.get("checks"), "cte": meta.get("cte"), **starter,
     }
 
 
@@ -84,6 +90,8 @@ def sql_cases(p: Problem, data_dir: Path, *, all_cases: bool) -> dict:
     exercise = {"mode": "dml", "check_query": p.meta.check_query} if p.meta.mode == "dml" else {}
     if p.meta.mode == "script":
         exercise = {"mode": "script", "checks": [c.model_dump() for c in p.meta.checks]}
+    if p.meta.cte:
+        exercise["cte"] = p.meta.cte
     options = {**exercise, "ordered": p.meta.ordered} if exercise else {}
     for i, spec in enumerate(p.meta.datasets if all_cases else p.meta.datasets[:1]):
         setup = dataset(p, spec)

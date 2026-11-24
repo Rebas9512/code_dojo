@@ -36,7 +36,7 @@ if sys.version_info[:2] != (3, 14) and not os.environ.get("CODE_DOJO_NO_REEXEC")
 
 import yaml  # noqa: E402
 
-from track_files import Track, active_tracks, lesson_files, stage_dirs
+from track_files import Track, active_tracks, lesson_files, stage_dirs, verify_projects
 
 
 # ---------- LeetCode 风格结构（和平台 harness 一致） ----------
@@ -361,7 +361,8 @@ def main() -> int:
     print(f"Python {sys.version.split()[0]}（{sys.executable}）")
     dirs = []
     # 只查跑在普通 Python 镜像里的线；runtime: ds（numpy/pandas/torch）的题和课示例由 verify_bank.py 在 DS 镜像里跑
-    tracks = [t for t in active_tracks("python") if t.runtime == "python"]
+    python_tracks = active_tracks("python")
+    tracks = [t for t in python_tracks if t.runtime == "python"]
     for sd in stage_dirs(tracks):
         if sd.exists():
             metas = []
@@ -383,7 +384,8 @@ def main() -> int:
     print(f"\n{len(dirs) - failed}/{len(dirs)} 道题通过")
     n_ex, bad_ex = verify_lessons(tracks, args.quiet)
     print(f"课的示例：{n_ex - bad_ex}/{n_ex} 个能正常运行")
-    return 1 if failed or bad_ex else 0
+    project_errors = verify_projects("python", python_tracks, args.only)
+    return int(bool(failed or bad_ex or project_errors))
 
 
 if __name__ == "__main__":

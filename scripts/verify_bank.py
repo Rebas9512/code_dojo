@@ -27,6 +27,7 @@ from verify_standard import check_answers  # noqa: E402
 from app.config import load_settings  # noqa: E402
 from app.judge import Judge  # noqa: E402
 from app.local_judge import PreparationError  # noqa: E402
+from app.project_run import python_run, sql_plan
 from app.problems import Problem, ProblemBank  # noqa: E402
 
 
@@ -90,6 +91,8 @@ def main() -> int:
     parser.add_argument("--only", default="", help="只校验 id 以此开头的题")
     parser.add_argument("--jobs", type=int, default=4)
     parser.add_argument("--judge", choices=("local", "docker"), help="指定 Python 判题方式")
+    parser.add_argument("--projects", choices=("python", "sql"), help="只验这一种语言的项目及部分题")
+    parser.add_argument("--skip-project-runs", action="store_true", help="只验部分题，跳过完整参考脚本")
     args = parser.parse_args()
 
     settings = load_settings()
@@ -98,7 +101,11 @@ def main() -> int:
     bank = ProblemBank(settings.problems_dir)
     bank.refresh(force=True)
     judge = Judge.from_settings(settings, concurrency=args.jobs)
-    selected = [p for p in bank.ordered() if p.id.startswith(args.only)]
+    projects = [p for p in bank.projects.values() if (not args.projects or p.meta.language == args.projects)
+                and (p.meta.id.startswith(args.only) or any(pid.startswith(args.only) for pid in p.meta.parts))]
+    selected = [p for p in bank.ordered() if (not args.projects or (p.project and p.track.language == args.projects))
+                and (p.id.startswith(args.only) or (p.project and p.project.meta.id.startswith(args.only)))]
+
     # 加载时已用共用的格式检查解析每个数据块，校验正确答案和误解映射。
     inspect = [p for p in selected if p.inspect]
     python = [p for p in selected if not p.inspect and p.track.language == "python"]
@@ -134,6 +141,20 @@ def main() -> int:
             passed[p.track.language] += 1
     print(f"\nPython：{passed['python']}/{len(python)} 通过；"
           f"看数据作答：{len(inspect)} 道已验证；SQL：{passed['sql']}/{len(sql)} 通过；加载错误 {len(bank.errors)} 个")
+    if not args.skip_project_runs:
+        for project in projects:
+            try:
+                if project.meta.language == "python":
+                    *_, last = python_run(judge, project, project.reference)
+                    result = last["result"]
+                    if result["verdict"] != "accepted":
+                        raise ValueError(result)
+                else:
+                    sql_plan(project)
+                print(f"✓ 项目 {project.meta.id} 完整参考脚本达标")
+            except (ValueError, OSError) as exc:
+                print(f"✗ 项目 {project.meta.id}：{exc}")
+                failed += 1
     return 1 if failed else 0
 
 

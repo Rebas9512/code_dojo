@@ -26,6 +26,7 @@ class Track:
     skill_prefix: str
     stages: dict[str, str]  # 按学习顺序保留阶段 id 和名称
     units: dict[str, dict[int, str]] = field(default_factory=dict)
+    project_stage: str | None = None
 
 
 @dataclass
@@ -60,6 +61,7 @@ def load_track(path: Path) -> Track:
         raise ValueError("stages 必须是非空阶段列表")
     stages = {}
     units = {}
+    project_stage = None
     for stage in raw["stages"]:
         if not isinstance(stage, dict) or not isinstance(stage.get("name"), str) or not stage["name"].strip():
             raise ValueError("阶段缺少名称")
@@ -67,6 +69,10 @@ def load_track(path: Path) -> Track:
         if type(value) not in (int, str) or not str(value).strip():
             raise ValueError(f"阶段 id 无效：{value!r}")
         sid = normalize_stage(value)
+        if stage.get("kind") == "project":
+            if stage is not raw["stages"][-1] or not stage.get("units"):
+                raise ValueError("项目阶段必须在线尾，且要列出项目单元")
+            project_stage = sid
         if sid in stages:
             raise ValueError(f"阶段 id 重复：{sid}")
         stages[sid] = stage["name"]
@@ -80,7 +86,7 @@ def load_track(path: Path) -> Track:
     return Track(
         id=raw["id"], name=raw["name"], summary=raw["summary"], order=raw["order"],
         language=raw["language"], runtime=raw["runtime"], status=raw["status"],
-        requires=raw["requires"], skill_prefix=raw["skill_prefix"], stages=stages, units=units,
+        requires=raw["requires"], skill_prefix=raw["skill_prefix"], stages=stages, units=units, project_stage=project_stage,
     )
 
 

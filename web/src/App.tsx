@@ -18,6 +18,7 @@ import { QuickOpen, usePickerShortcut } from './components/Picker'
 
 // 做题页带 Monaco，单独打包。知识点页带 Markdown（约 160 KB），也不放进首页的包。
 const ProblemPage = lazy(() => import('./pages/ProblemPage').then((m) => ({ default: m.ProblemPage })))
+const ProjectPage = lazy(() => import('./pages/ProjectPage'))
 const SkillsPage = lazy(() => import('./pages/SkillsPage').then((m) => ({ default: m.SkillsPage })))
 
 // 页面画好后趁空闲先载入做题页和 Monaco（约 4 MB，执行约 0.3 秒），第一次点开题目不用再等。
@@ -111,6 +112,7 @@ const router = createBrowserRouter([{
   hydrateFallbackElement: <main />,
   children: [
     { index: true, element: <MapPage /> },
+    { path: 'project/:id', loader: ({ params }) => api.project(params.id!), element: <ProjectPage />, errorElement: <RouteError /> },
     { path: 'session', element: <SessionPage /> },
     { path: 'today', loader: api.today, element: <TodayPage />, errorElement: <RouteError /> },
     { path: 'stats', loader: api.stats, element: <StatsPage />, errorElement: <RouteError /> },

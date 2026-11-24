@@ -237,3 +237,24 @@
   .track-line:has(+ ul)::before, .track-line:has(.route-note):has(+ ul)::before { top: calc(var(--junction) + 14px); }
   .station { gap: 5px; }
 }
+
+.station .project-dot {
+  height: 11px;
+  border: 1.5px solid currentColor;
+  border-radius: 1px;
+  background: var(--bg);
+  color: var(--text);
+}
+.station .project-dot::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: -1.5px;
+  width: 7px;
+  height: 3px;
+  border: 1.5px solid currentColor;
+  border-bottom: 0;
+  background: var(--bg);
+}
+.station .project-dot.is-complete { color: var(--pass); }
+.station .project-dot.is-next { color: var(--accent); }

@@ -1,0 +1,22 @@
+id: wrangle-6-007-label-features
+title: 合并特征并标记未来流失
+track: wrangle
+stage: '6'
+unit: 1
+order: 70
+format: combine
+difficulty: 49
+skills:
+  requires:
+    - wrangle.report-grain
+    - wrangle.cast
+    - wrangle.dates
+    - wrangle.filter-sort
+  introduces: null
+source: original
+project: features
+part: 7
+mode: function
+entry: label_features
+signature: 'def label_features(users, activity, purchases, orders, cutoff):'
+compare: checker

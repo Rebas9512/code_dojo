@@ -32,7 +32,7 @@ except ImportError:  # pragma: no cover
     sys.exit(2)
 
 HERE = Path(__file__).resolve().parent
-from track_files import Track, active_tracks, lesson_files, stage_dirs
+from track_files import Track, active_tracks, lesson_files, stage_dirs, verify_projects
 from app.sql_judge import validation_job
 
 NUMERIC_TYPES = {20, 21, 23, 700, 701, 1700}
@@ -320,7 +320,8 @@ def main() -> int:
     lesson_tracks = [t for t in tracks if args.only.startswith(t.skill_prefix + "-")] or tracks
     n_ex, bad_ex = verify_lessons(lesson_tracks, args.quiet)
     print(f"课的示例：{n_ex - bad_ex}/{n_ex} 个能在 PGlite 上运行")
-    return 1 if failed or bad_ex else 0
+    project_errors = verify_projects("sql", tracks, args.only)
+    return int(bool(failed or bad_ex or project_errors))
 
 
 if __name__ == "__main__":

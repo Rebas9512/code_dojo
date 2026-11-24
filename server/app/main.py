@@ -5,8 +5,11 @@
 
 from __future__ import annotations
 
+import io
+import json
 import os
 import threading
+import zipfile
 from contextlib import asynccontextmanager
 from dataclasses import replace
 from datetime import date
@@ -14,7 +17,7 @@ from collections import Counter, defaultdict
 from typing import Any, Literal
 
 from fastapi import FastAPI, HTTPException, Query, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response, StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 
 from .ai import extra as extra_gen
@@ -28,6 +31,8 @@ from .mastery import Exercise, Progress, weekly_stats
 from .result_preview import compact_result
 from .judge import Judge
 from .problems import ExtraProblem, Problem, ProblemBank, build_extra, shared_db
+from .project_run import python_run, sql_plan
+from .projects import Project
 from .sql_judge import sql_cases
 from .standard import StandardAnswer, standard_answer
 from .sync import ProgressSync
@@ -410,6 +415,96 @@ def track_skills(track: str) -> list[dict[str, Any]]:
     return out
 
 
+def require_project(project_id: str) -> Project:
+    bank.ensure_fresh()
+    project = bank.projects.get(project_id)
+    if project is None:
+        raise HTTPException(404, "找不到这个项目")
+    return project
+
+
+@app.get("/api/projects/{project_id}")
+def project_detail(project_id: str) -> dict:
+    project = require_project(project_id)
+    meta = project.meta
+    answers = store.project_answers(meta.parts)
+    status = store.status_by_problem(project.parts[0].track.id)
+    return {"id": project_id, "title": meta.title, "summary": meta.summary, "language": meta.language,
+            "track": project.parts[0].track.id, "success": meta.success, "timeout": meta.run.timeout,
+            "parts": [ref(p) | {"status": status.get(p.id)} for p in project.parts],
+            "code": project.assemble(answers), "completed": store.project_completed(project_id)}
+
+
+@app.get("/api/projects/{project_id}/data")
+def project_data(project_id: str) -> Response:
+    project = require_project(project_id)
+    if project.meta.language == "sql":
+        scripts = shared_db(project.directory.parents[1], project.meta.data)
+        return Response("\n".join(scripts), media_type="text/plain",
+                        headers={"Content-Disposition": f'attachment; filename="{project_id}-data.sql"'})
+    directory = project.directory / project.meta.data
+    content = io.BytesIO()
+    with zipfile.ZipFile(content, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for path in directory.rglob("*"):
+            if path.is_file():
+                archive.write(path, "data/" + path.relative_to(directory).as_posix())
+    return Response(content.getvalue(), media_type="application/zip",
+                    headers={"Content-Disposition": f'attachment; filename="{project_id}-data.zip"'})
+
+
+@app.get("/api/projects/{project_id}/export/{extension}")
+def project_export(project_id: str, extension: Literal["py", "ipynb", "sql"]) -> Response:
+    project = require_project(project_id)
+    if (extension == "sql") != (project.meta.language == "sql"):
+        raise HTTPException(400, "导出格式与项目语言不符")
+    answers = store.project_answers(project.meta.parts)
+    notebook = extension == "ipynb"
+    content = json.dumps(project.notebook(answers), ensure_ascii=False, indent=1) if notebook else project.assemble(answers)
+    return Response(content, media_type="application/x-ipynb+json" if notebook else "text/plain",
+                    headers={"Content-Disposition": f'attachment; filename="{project_id}.{extension}"'})
+
+
+def record_project(project_id: str) -> None:
+    store.complete_project(project_id)
+    progress_sync.request()
+
+
+def completed_answers(project: Project) -> dict[str, str]:
+    answers = store.project_answers(project.meta.parts)
+    if len(answers) != len(project.parts):
+        raise HTTPException(409, "请先通过全部部分，再完整运行项目")
+    return answers
+
+
+@app.post("/api/projects/{project_id}/run")
+def run_project(project_id: str):
+    project = require_project(project_id)
+    code = project.assemble(completed_answers(project))
+    if project.meta.language == "sql":
+        return {**sql_plan(project), "sql": code}
+
+    def stream():
+        for event in python_run(judge, project, code, on_complete=record_project):
+            yield json.dumps(event, ensure_ascii=False) + "\n"
+
+    return StreamingResponse(stream(), media_type="application/x-ndjson")
+
+
+class ProjectChecks(BaseModel):
+    passed: list[bool]
+
+
+@app.post("/api/projects/{project_id}/sql-result")
+def project_sql_result(project_id: str, report: ProjectChecks) -> dict:
+    project = require_project(project_id)
+    if project.meta.language != "sql" or len(report.passed) != len(project.meta.run.checks):
+        raise HTTPException(400, "需要每项项目检查的结果")
+    completed_answers(project)
+    if all(report.passed):
+        record_project(project_id)
+    return {"verdict": "accepted" if all(report.passed) else "wrong_answer"}
+
+
 @app.get("/api/problems/{problem_id}")
 def problem_detail(problem_id: str) -> dict[str, Any]:
     p = require(problem_id)
@@ -438,6 +533,9 @@ def problem_detail(problem_id: str) -> dict[str, Any]:
         "parent": p.parent_id if isinstance(p, ExtraProblem) else None,
         "extra_seq": p.seq if isinstance(p, ExtraProblem) else None,
     }
+    if p.project:
+        detail["project"] = {"id": m.project, "part": m.part, "total": len(p.project.parts),
+                             "others": [ref(other) for other in p.project.parts if other.id != p.id]}
     if p.inspect:
         detail["data"] = p.inspect.data
         detail["answer"] = {k: p.inspect.answer[k] for k in ("type", "options") if k in p.inspect.answer}

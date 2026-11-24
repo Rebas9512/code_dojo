@@ -36,6 +36,7 @@ code-dojo/
 │   ├── <track>/track.yaml     名称、顺序、语言、运行环境、前置线、阶段和单元名
 │   ├── <track>/skills.yaml    本线技能、前置技能、知识卡
 │   ├── <track>/lessons/       按技能编排的课
+│   ├── <track>/<项目阶段>/<单元编号>/project.yaml  项目配置、骨架和数据
 │   ├── <track>/<阶段>/<题目 id>/standard.*  可选的通过后参考答案与说明
 │   ├── python/、algo/         Python 基础（0A/0B）与算法（1–5），题在 <阶段>/<题目 id>/
 │   ├── sql/                  SQL 题（含 MySQL 迁移练习）与 _db/ 下的共享练习库
@@ -111,6 +112,7 @@ cd web && npm run build                                # 类型检查 + 打包
 - `server/app/github_sync.py` 通过 Contents API 读写与 Git 后端兼容的 JSONL。`desktop_sql.py` 将动态 SQL 验证交给网页，网页与 Node 共用 `web/src/sql/validate.ts`。
 - `server/app/events.py` 给学习记录分配跨机器标识、导出按月分隔的 JSONL。写记录和登记待导出的事件共用一个 SQLite 事务。`sync.py` 管理独立 Git 克隆、重试和定时同步。`GET /api/sync` 返回状态，`POST /api/sync` 立即交换进度，外部页面顶栏和做题页状态栏共用 `web/src/components/SyncStatus.tsx`。
 - `server/app/auth.py` 管理密码校验、登录限流和签名会话，`server/scripts/set_password.py` 交互设密。`web/src/pages/LoginPage.tsx` 提供登录页，`web/src/api.ts` 统一处理 401。`server/app/frontend.py` 托管静态文件并支持直接打开前端路由。
+- `server/app/projects.py` 载入项目与骨架，拼装脚本和 notebook；`project_run.py` 处理 Python 整跑日志、指标和 SQL 项目检查。`web/src/pages/ProjectPage.tsx` 提供项目页。
 - 首页的 `pages/MapPage.tsx` 用 `pages/mapTree.ts` 组装学习线树，样式在 `pages/map.css`。`server/app/units.py` 按本阶段技能分组归题，供地图和题目列表共用。
 - `server/app/mastery.py` 根据正式提交和复习日程计算技能状态、下一题、卡住提示和周统计。`main.learning()` 按题库版本、数据库写入次数（`Store.version`）和日期缓存这份进度，没有新提交时各接口直接复用。`db.py` 以 SQLite 事务保存提交与复习日程，并记录提示、题解和每日上限。启动时升级旧表，首次读取学习进度时按历史通过日期补排到期日。
 - `pages/PlanPages.tsx` 提供 `/today` 今日计划和 `/stats` 手感统计，对应 `GET /api/today`、`GET /api/stats`。页面通过 `PUT /api/today/settings` 保存每日上限。复习链接携带原题与到期日，运行和提交分别向已有接口传 `review_source`、`review_due`。过期或重复交卷返回 409，可回到今日计划取当前题目。统计展示最近八个周一开始的自然周，日期按服务器本地时间划分。
@@ -246,6 +248,12 @@ SQL 题按"用到的最高概念"归阶段，不照搬 SQL 50 的分节。阶段
 - **标准题单**（调研建议，待确认；详见 `docs/reports/2026 技术面试 高频题单 调研.md`）：算法与数据结构用 NeetCode 250 做骨架，Blind 75 / NC150 / 热题 100 做里程碑，另加"面试混合"阶段；SQL 用 SQL 50 按题目用到的最高概念重排，窗口函数和综合阶段靠自写和 AI 出题。只存题号、slug、套路标签、原题链接（leetcode.com），题面和测试用自己的话重写，不搬运原题面（版权）。各题单成员数据在 `docs/research_notes/2026 技术面试 高频题单 调研/lists.json`（2026-11-22 一次性快照）。
 - **公司标签**：独立的私有元数据表（公司、时间窗口、名次、快照日期），不写进题目文件；数据来自公开 GitHub 数据集，无许可证、LeetCode 条款禁止爬取，所以只私用、不自己爬。
 - **我的题**：AI 当场出的题存这里，标 `ai`；觉得好可以提升进固定题库。
+
+### 项目阶段
+
+学习线最后的项目阶段按单元组织。地图上的文件夹节点与单元题目列表都可打开 `/project/<id>`。项目页列出目标、通过条件和部分题。做题页显示部分序号，可返回项目。每个部分独立判题，Python 合并参考定义和学生代码，SQL 先执行前序参考 SQL。正式通过的代码进入拼装预览。
+
+项目页可以导出当前脚本和所需数据，Python 另提供 notebook。全部部分通过后，可整跑 DS 脚本查看逐行日志与 JSON 指标，或在 PGlite Worker 中执行 SQL 脚本及最终检查。首次达标写入 `project_completions`，与作答记录一起通过现有事件日志同步。示例位于 `server/tests/fixtures/projects/`，开发服务用 `CODE_DOJO_PROBLEMS` 指向它即可体验。[项目格式与验证](problem-format.md#项目阶段)
 
 ### 4. Python 用 Docker 或本地解释器判题，SQL 在浏览器中判题
 

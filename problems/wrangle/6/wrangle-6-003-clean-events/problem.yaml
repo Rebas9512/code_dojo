@@ -1,0 +1,21 @@
+id: wrangle-6-003-clean-events
+title: 整理读者的操作事件
+track: wrangle
+stage: '6'
+unit: 1
+order: 30
+format: combine
+difficulty: 44
+skills:
+  requires:
+    - wrangle.projection
+    - wrangle.report-grain
+    - wrangle.apply
+  introduces: null
+source: original
+project: features
+part: 3
+mode: function
+entry: clean_events
+signature: 'def clean_events(events, users):'
+compare: checker

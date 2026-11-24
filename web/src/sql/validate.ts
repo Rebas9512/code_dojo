@@ -13,6 +13,8 @@ export interface Validation extends Omit<SqlExercise, 'mode'> {
   answers?: Record<string, string>
   wrong?: string[]
   starter?: string
+  cte?: string
+  timeoutMs?: number
   preview?: boolean
   requiredTables?: string[]
 }
@@ -70,12 +72,12 @@ export async function validate(db: PGlite, job: Validation) {
         context = `数据集 ${i + 1}，参考解`
         if (mode === 'script') {
           const checks = job.checks!
-          const expected = await runScript(tx, solution, checks)
+          const expected = await runScript(tx, solution, checks, job.cte)
           for (const [j, check] of checks.entries()) {
             const value = expected[j]
             if ('query' in check && check.ordered && !/\border\s+by\b/i.test(checkQuery(check.query)))
               throw new Error(check.label + '：有序检查需要 ORDER BY')
-            if ('outcome' in value && ('query' in check || value.outcome !== check.expect))
+            if ('outcome' in value && (!('probe' in check) || value.outcome !== check.expect))
               throw new Error(check.label + '：参考解未通过检查 · ' + (value.error ?? value.outcome))
           }
           return { checks: expected }
@@ -85,7 +87,7 @@ export async function validate(db: PGlite, job: Validation) {
         if (before && !compareTables(before, expected, ordered)) throw new Error('参考解执行前后 check_query 的结果相同')
         if (!before && !expected.rows.length) throw new Error('参考解结果为空')
         return expected
-      }, mode)
+      }, mode, job.timeoutMs)
       if (Array.isArray(table)) {
         tables.push(table)
         continue
@@ -93,7 +95,7 @@ export async function validate(db: PGlite, job: Validation) {
       if ('checks' in table) {
         const checks = job.checks!
         const checkScriptAnswer = async (sql: string) => {
-          const actual = await inDataset(db, setup, tx => runScript(tx, sql, checks), 'script')
+          const actual = await inDataset(db, setup, tx => runScript(tx, sql, checks, job.cte), 'script', job.timeoutMs)
           return checks.map((check, j) => compareCheck(check, actual[j], table.checks[j])).find(Boolean)
         }
         for (const [label, sql] of Object.entries(job.answers ?? {})) {

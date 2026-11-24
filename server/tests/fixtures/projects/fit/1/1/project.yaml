@@ -1,0 +1,19 @@
+id: line-fit
+title: 直线拟合
+summary: 读取五个坐标点，算出直线斜率，再用 JSON 报告拟合结果。
+language: python
+scaffold: scaffold.py
+reference: assembled
+data: data
+parts:
+- fit-1-001-load
+- fit-1-002-fit
+- fit-1-003-report
+run:
+  entry: main
+  args:
+  - '5'
+  timeout: 10
+success:
+  slope:
+    ==: 2

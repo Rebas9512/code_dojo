@@ -1,4 +1,6 @@
-# 题目格式规范 v1.11
+# 题目格式规范 v1.12
+
+> v1.12 支持项目阶段、独立判定的部分题、完整运行与脚本和 notebook 导出。
 
 > v1.11 支持正式通过后查看的 `standard.py` / `standard.sql` 和 `standard.md`，包括可执行的进阶写法。
 
@@ -28,6 +30,7 @@
 ```
 problems/
 ├── <track>/track.yaml                   每条线都有，包括规划中的线
+├── <track>/<项目阶段>/<单元编号>/project.yaml   项目配置、同目录骨架与项目数据
 ├── data/0/<id>/                         看数据作答的 problem.yaml、statement.md 和数据文件
 ├── python/                              algo/ 使用相同的 Python 题格式
 │   ├── skills.yaml                       技能图
@@ -360,6 +363,75 @@ checks:
 脚本题至少有一项检查。每个数据集从初始库开始，在同一个事务内执行整份答案和各项检查，结束时回滚。答案可含建表、写入、视图、索引等多条语句。事务由判题器管理，答案和课内脚本中使用 BEGIN、COMMIT、ROLLBACK、SAVEPOINT 或同类事务控制命令会收到中文提示。
 
 每项有中文 `label`。`query` 为一条只读查询，按本项的 `ordered`（默认 false）与同一数据集上参考脚本的结果比对，允许空表。`probe` 为一条试写语句，`expect: ok` 要求数据库接受，`expect: error` 要求数据库拒绝。每项在独立保存点中执行并撤销，探针写入的行不会进入后续检查。PostgreSQL 序列取号可能留空号，检查自增列时以唯一、递增为准。每个参考脚本必须通过全部探针，每份典型错误脚本至少在一个数据集上判错。附加题沿用相同判定。课的 SQL 示例可以先建表、写数据，再以一条查询展示结果，再次运行会重新建库。
+
+## 项目阶段
+
+在 `track.yaml` 最后一个阶段标记 `kind: project`。这个阶段的每个 `units` 编号对应一个项目。部分题仍放在 `<阶段>/<题目 id>/`；项目配置和骨架放在同阶段的 `<单元编号>/`。项目 id 在题库内唯一，使用小写字母、数字和连字符。
+
+```yaml
+# track.yaml 中最后一个阶段
+- id: '1'
+  name: 项目
+  kind: project
+  units: {1: 直线拟合}
+```
+
+```yaml
+# 1/1/project.yaml
+id: line-fit
+title: 直线拟合
+summary: 读取坐标点，拟合直线并报告斜率。
+language: python
+scaffold: scaffold.py
+reference: assembled
+data: data
+parts: [fit-1-001-load, fit-1-002-fit, fit-1-003-report]
+run:
+  entry: main
+  args: ['5']
+  timeout: 10
+success: {slope: {">=": 1.99, "<=": 2.01}}
+```
+
+每道部分题在原有 `problem.yaml` 里写 `unit: 1`、`project: line-fit`、`part: 1`。序号从 1 开始，`parts` 按题目的 `order` 顺序列全。所有部分使用 `format: combine`，计入掌握度。`skills.requires` 只列本线此前已经引入的技能，`introduces` 留空。
+
+### 骨架和参考脚本
+
+骨架每部分留一个顶格、独占一行的占位符。Python 写 `# @part fit-1-001-load`，SQL 写 `-- @part sales-1-001-view`，标记后的名字是完整题号，顺序与 `parts` 一致。骨架可放公共导入、设置和 SQL 连接各部分的语句。Python 骨架开头可放公共导入（含 `from __future__`）。平台在第一部分之前定义数据路径，在末尾调用入口。每份 Python 答案提供一个完整的顶层函数或类，公共导入放骨架或函数内。
+
+`reference: assembled` 表示用各题的 `solution.py` 或 `solution.sql` 填骨架。完整参考脚本和学生脚本用同一个拼装器。项目页读取每部分最近一次正式通过的提交（含复习提交），样例运行和后来的失败提交不会替换它。缺少提交的位置填 `raise NotImplementedError("第 N 部分还没完成")` 或 SQL 的 `-- TODO 第 N 部分还没完成`，可以预览和导出。所有部分通过后可以完整运行。
+
+### Python 部分和整跑
+
+部分题用 `mode: function` 或 `class`，沿用本题测试、比较方式、checker 和时限。每例在同一命名空间里依次执行完整参考脚本和学生代码。参考脚本的入口保护使 `main` 只在整跑时调用。加载学生代码前清掉本题的入口定义，因此学生必须自己定义它。其他部分可以通过全局名字互相调用，调用到本题入口时使用学生的实现。项目 checker 使用合并后的名字，可以直接调用其他部分或 `DATA_DIR`。函数 checker 保留现有签名；类题的 `check_function(args, expected, cls)` 收到学生的类，普通 `check(args, expected, actual)` 收到操作序列的输出。
+
+`data` 是相对项目配置的目录，代码通过 `DATA_DIR / "文件名"` 读取（`DATA_DIR` 为 `pathlib.Path`）。单题和整跑都有可写的临时工作目录，可写入检查点。完整脚本在 DS 环境中运行，`run.entry` 默认 `main`，以无参数形式调用，`run.args` 是传给 `sys.argv[1:]` 的字符串列表，`run.timeout` 单位秒，默认 300。标准输出逐行显示。脚本须正常退出，最后一个非空行须是 JSON 对象，`success` 中每项具名数值须满足全部阈值，支持 `<`、`<=`、`==`、`>=`、`>`。
+
+项目页可下载脚本、nbformat 4 的 notebook 和项目数据。解压数据后让 `data/` 与脚本并列，按脚本开头的命令运行。notebook 在同目录启动，先定义公共设置，然后每部分一格标题与说明、一格代码，最后一格设定项目参数并调用入口。
+
+### SQL 部分和整跑
+
+SQL 项目配置中的 `language` 为 `sql`，`data` 为本线 `_db/` 下的共享库名。其余公共字段同上。`run` 与 `success` 示例见下。
+
+```yaml
+data: sales
+run:
+  timeout: 30
+  checks:
+    - {label: 最终销售报表, result: true, ordered: true}
+    - {label: 允许追加销售, probe: 'INSERT INTO sales VALUES (1)', expect: ok}
+success: all_checks
+```
+
+部分题写 `mode: script`，每个 `datasets` 项以项目库开头，例如 `db:sales + extra.sql`。每次先建项目库并执行本数据集补丁，再顺序执行前面各部分的参考 SQL、当前答案和本题检查。本题可以在前面部分尚未作答时提交。浏览器与后端验题读取相同的 setup。最终运行从项目库出发，只执行完整学生脚本及项目检查。所有运行都沿用事务回滚和探针的独立保存点。项目整跑使用 `run.timeout`，普通部分仍用原有的 2 秒限制。
+
+`checks` 可使用上述 `query`、`probe`，也可用 `result: true` 比较脚本末条语句的结果表。`ordered: true` 时应让查询决定唯一行序。各项均与完整参考脚本产生的期望表或探针要求比对，全部通过即达标。导出的 `.sql` 可在项目库执行，「下载数据」提供建库与种子语句。
+
+拼成单条 `WITH` 查询时，可在部分题的 `problem.yaml` 写 `cte: positive_sales`，名字只用小写字母、数字和下划线，以字母或下划线开头。该题的答案和参考解写 CTE 括号里的完整查询体，末尾省略分号。骨架保留 `WITH positive_sales AS (`、右括号、逗号和最终查询。独立判题把前序 CTE 暂存为同名临时视图，本题的 CTE 也可用 `query` 检查，或用 `result: true` 检查它返回的行。最后一个部分可以是普通查询题段（同样使用 `mode: script`）。
+
+### 验证项目
+
+`scripts/verify_bank.py` 默认同时验证各部分和完整参考脚本。用 `--projects python` 或 `--projects sql` 只验证对应语言的项目，`--only` 支持项目或题号前缀；`--skip-project-runs` 跳过较慢的整跑。内容侧的 `verify_python.py` 和 `verify_sql.py` 也调用同一个项目判题路径。两个三部分的可运行样本见 [Python 项目](../server/tests/fixtures/projects/fit/1/1/project.yaml) 和 [SQL 项目](../server/tests/fixtures/projects/sales/1/1/project.yaml)。
 
 ## 谁检查什么
 

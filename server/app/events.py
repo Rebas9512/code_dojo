@@ -13,6 +13,7 @@ from uuid import UUID, uuid4, uuid5, NAMESPACE_URL
 # 顺序有意义：先给附加题建立编号，再还原引用它的提交和复习。
 KEYS = {
     "extra_problems": ("id",), "submissions": ("id",), "chat_messages": ("id",),
+    "project_completions": ("project_id",),
     "reviews": ("problem_id",), "study_help": ("problem_id", "attempt"), "settings": ("key",),
 }
 REFS = ("problem_id", "review_source", "rewrite_target", "parent_id")

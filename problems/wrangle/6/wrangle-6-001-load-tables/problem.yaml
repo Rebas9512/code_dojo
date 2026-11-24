@@ -1,0 +1,22 @@
+id: wrangle-6-001-load-tables
+title: 把三张流水表读进脚本
+track: wrangle
+stage: '6'
+unit: 1
+order: 10
+format: combine
+difficulty: 43
+skills:
+  requires:
+    - wrangle.csv
+    - wrangle.cast
+    - wrangle.dates
+    - wrangle.loc
+  introduces: null
+source: original
+project: features
+part: 1
+mode: function
+entry: load_tables
+signature: 'def load_tables(data_dir):'
+compare: checker

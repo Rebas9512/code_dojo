@@ -1,0 +1,24 @@
+id: features
+title: 书店 App 用户特征表
+summary: 把读者、操作和付款流水整理成每人一行的 features.csv，用截止日后的订单标记流失。
+language: python
+scaffold: scaffold.py
+reference: assembled
+data: data
+parts:
+  - wrangle-6-001-load-tables
+  - wrangle-6-002-clean-readers
+  - wrangle-6-003-clean-events
+  - wrangle-6-004-sessionize
+  - wrangle-6-005-activity
+  - wrangle-6-006-purchases
+  - wrangle-6-007-label-features
+  - wrangle-6-008-report
+run:
+  entry: main
+  timeout: 60
+success:
+  rows: {"==": 1720}
+  columns_ok: {"==": 1}
+  churn_rate: {">=": 0.4668594651, "<=": 0.4668614652}
+  spend_30d: {">=": 34415.245, "<=": 34415.255}

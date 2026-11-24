@@ -454,6 +454,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
           </nav>
         </div>
         <p className="meta faint">
+          {p.project && <><Link to={'/project/' + p.project.id}>项目 · 第 {p.project.part}/{p.project.total} 部分</Link> · </>}
           {p.extra_seq ? `附加题 ${p.extra_seq} · AI 出题 · ` : ''}
           {FORMAT_NAME[p.format]} · 难度 {p.difficulty}
           {p.leetcode && (
@@ -466,6 +467,9 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
           )}
         </p>
         <Markdown>{p.statement}</Markdown>
+        {p.project && <section><h3>其他部分（判题时用参考实现）</h3>
+          <ul>{p.project.others.map(other => <li key={other.id}><Link to={'/p/' + other.id}>{other.title}</Link></li>)}</ul>
+        </section>}
         {p.data?.map((block, i) => <InspectData key={i} block={block} />)}
         {isPredict && (
           <pre className="program">

@@ -111,3 +111,20 @@ def test_standard_skills_follow_solution_closure(curriculum):
     meta["skills"]["requires"] = []
     path.write_text(yaml.safe_dump(meta))
     assert any("标准写法用到 py.print" in msg for msg in errors())
+
+
+def test_project_combines_only_previously_introduced_skills(curriculum):
+    """项目部分不引入新技能；本线或前置线引入过的技能都可以组合（py.print 来自前置线 base）。"""
+    path = curriculum / "leaf/track.yaml"
+    track = yaml.safe_load(path.read_text())
+    track["stages"][0].update(kind="project", units={1: "项目"})
+    path.write_text(yaml.safe_dump(track))
+    path = curriculum / "leaf/3/leaf-3-001-print/problem.yaml"
+    problem = yaml.safe_load(path.read_text())
+    problem.update(project="report", part=1, unit=1, format="combine", mode="function",
+                   entry="show", signature="def show():")
+    problem["skills"]["introduces"] = "leaf.output"
+    path.write_text(yaml.safe_dump(problem))
+    issues = errors()
+    assert any("不能引入新技能" in e for e in issues)
+    assert not any("py.print 尚未" in e for e in issues)

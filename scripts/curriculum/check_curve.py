@@ -199,6 +199,9 @@ PY_METHODS_DEFAULT: dict[str, str | None] = {
     "merge": "wrangle.merge", "pivot_table": "wrangle.pivot", "melt": "wrangle.melt",
     "value_counts": "wrangle.frequency", "apply": "wrangle.apply",
     "drop_duplicates": "wrangle.projection",
+    "mean": "wrangle.axis", "sum": "wrangle.axis",  # 数组 / 表的汇总方法（内置 sum() 另在 PY_CALLS）
+    "diff": "wrangle.window", "to_csv": "wrangle.csv",
+    "dumps": "data.text-formats", "loads": "data.text-formats",  # 骨架里 import json，部分里直接 json.dumps
     "isin": "py.in-membership", "eq": "py.compare-bool",
     "rank": "wrangle.window", "cumcount": "wrangle.window", "cumsum": "wrangle.cumsum",
     "serialize": "algo.tree-basics", "deserialize": "algo.tree-basics",  # 二叉树编解码接口
@@ -231,6 +234,7 @@ PY_METHODS_BY_TYPE: dict[str, dict[str, str | None]] = {
 }
 # import：模块或 模块.名字
 PY_IMPORTS: dict[str, str | None] = {
+    "json.dumps": "data.text-formats", "json.loads": "data.text-formats",
     "torch.nn.functional.gelu": "llm.mlp", "torch.nn.Embedding.from_pretrained": "llm.embedding",
     "torch.utils.data.Dataset": "train.dataset", "torch.utils.data.DataLoader": "train.batch",
     "torch.nn.utils.rnn.pad_sequence": "train.pad", "io.BytesIO": "train.checkpoint",
@@ -758,10 +762,12 @@ class PyDetector(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def detect_python(source: str, mode: str, entry: str | None) -> tuple[list[Detection], list[str]]:
+def detect_python(source: str, mode: str, entry: str | None,
+                  known: frozenset[str] = frozenset()) -> tuple[list[Detection], list[str]]:
+    """known：项目里其他部分和骨架定义的名字，部分之间互相调用不算未登记的调用。"""
     tree = ast.parse(source)
     det = PyDetector(mode, entry)
-    det.defined_funcs = {
+    det.defined_funcs = known | {
         n.name for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
     }
     det.visit(tree)
@@ -958,16 +964,42 @@ def detect_sql(source: str) -> list[Detection]:
     return found
 
 
+def top_level_names(source: str) -> set[str]:
+    tree = ast.parse(source)
+    names = {n.name for n in tree.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))}
+    return names | {t.id for n in tree.body if isinstance(n, ast.Assign) for t in n.targets if isinstance(t, ast.Name)}
+
+
+def project_names(problem_dir: Path, project: str | None) -> frozenset[str]:
+    """同一项目里其他部分（solution.py）和骨架在顶层定义的名字，外加平台提供的 DATA_DIR。"""
+    if not project:
+        return frozenset()
+    stage = problem_dir.parent
+    names = {"DATA_DIR"}
+    for meta_path in stage.glob("*/problem.yaml"):
+        meta = yaml.safe_load(meta_path.read_text(encoding="utf-8")) or {}
+        solution = meta_path.parent / "solution.py"
+        if meta.get("project") == project and solution.is_file():
+            names |= top_level_names(solution.read_text(encoding="utf-8"))
+    for config in stage.glob("*/project.yaml"):
+        meta = yaml.safe_load(config.read_text(encoding="utf-8")) or {}
+        scaffold = config.parent / str(meta.get("scaffold", ""))
+        if meta.get("id") == project and meta.get("language") == "python" and scaffold.is_file():
+            names |= top_level_names(scaffold.read_text(encoding="utf-8"))
+    return frozenset(names)
+
+
 def standard_skill_errors(source: str, language: str, mode: str | None, entry: str | None,
-                          declared: set[str]) -> list[str]:
+                          declared: set[str], known: frozenset[str] = frozenset()) -> list[str]:
+    """只报技能超纲和语法错误；未登记的写法和参考解一样只是映射表的事，由参考解那边警告。"""
     if language == "python":
         try:
-            found, unknown = detect_python(source, mode or "function", entry)
+            found, _ = detect_python(source, mode or "function", entry, known)
         except SyntaxError as exc:
             return [f"标准写法语法错误：{exc}"]
     else:
-        found, unknown = detect_sql(source), []
-    issues = [f"标准写法：{message}" for message in unknown]
+        found = detect_sql(source)
+    issues = []
     for skill in sorted({item.skill for item in found} - declared):
         uses = sorted({d.construct + (f"@{d.line}" if d.line else "") for d in found if d.skill == skill})
         issues.append(f"标准写法用到 {skill}（{', '.join(uses)}），不在 requires ∪ introduces 及其前置里")
@@ -1299,6 +1331,15 @@ def check_track(track: Track, problems: list[dict], own: dict, skills: dict, inh
         if isinstance(intro, list):
             rep.err(f"{pid}：introduces 只能是一个技能（或 null），现在是列表 {intro}")
             intro = intro[0] if intro else None
+        if m["stage"] == track.project_stage:
+            if not m.get("project") or type(m.get("part")) is not int or m["part"] < 1 or m.get("format") != "combine":
+                rep.err(f"{pid}：项目阶段需要 project、正整数 part 和 format: combine")
+            if intro:
+                rep.err(f"{pid}：项目部分不能引入新技能")
+            for skill in set(requires) - introduced.keys():
+                rep.err(f"{pid}：项目部分的 {skill} 尚未在本线或前置线引入")
+        elif m.get("project") is not None or m.get("part") is not None:
+            rep.err(f"{pid}：项目部分必须属于项目阶段")
         for r in requires:
             if r not in skills:
                 rep.err(f"{pid}：requires 里的 {r} 不在技能图里")
@@ -1331,7 +1372,8 @@ def check_track(track: Track, problems: list[dict], own: dict, skills: dict, inh
         try:
             if m.get("format") != "inspect" and track.language == "python":
                 src = (m["_dir"] / "solution.py").read_text(encoding="utf-8")
-                found, unknown = detect_python(src, m.get("mode", "function"), m.get("entry"))
+                known = project_names(m["_dir"], m.get("project"))
+                found, unknown = detect_python(src, m.get("mode", "function"), m.get("entry"), known)
                 for u in unknown:
                     rep.warn(f"{pid}：{u}")
             elif m.get("format") != "inspect" and track.language == "sql":
@@ -1353,7 +1395,8 @@ def check_track(track: Track, problems: list[dict], own: dict, skills: dict, inh
         standard = m["_dir"] / ("standard.sql" if track.language == "sql" else "standard.py")
         if standard.is_file():
             for issue in standard_skill_errors(standard.read_text(encoding="utf-8"), track.language,
-                                               m.get("mode"), m.get("entry"), allowed):
+                                               m.get("mode"), m.get("entry"), allowed,
+                                               project_names(m["_dir"], m.get("project"))):
                 rep.err(f"{pid}：{issue}")
 
         # 选修：必修题不能依赖选修内容引入的技能

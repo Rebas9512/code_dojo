@@ -99,13 +99,14 @@ export function compareStates(actual: SqlTable, expected: SqlTable, ordered: boo
 }
 
 export type SqlCheck = { label: string; query: string; ordered?: boolean } |
+  { label: string; result: true; ordered?: boolean } |
   { label: string; probe: string; expect: 'ok' | 'error' }
 export type CheckValue = SqlTable | { outcome: 'ok' | 'error'; error?: string }
 
 export function compareCheck(check: SqlCheck, actual: CheckValue, expected: CheckValue): Difference | null {
   if ('probe' in check && 'outcome' in actual)
     return actual.outcome === check.expect ? null : { message: check.expect === 'error' ? '应当被拒绝，实际被接受' : '应当被接受，实际被拒绝' }
-  if ('query' in check && 'rows' in actual && 'rows' in expected)
+  if (!('probe' in check) && 'rows' in actual && 'rows' in expected)
     return compareStates(actual, expected, !!check.ordered)
   return { message: '检查查询执行失败' }
 }

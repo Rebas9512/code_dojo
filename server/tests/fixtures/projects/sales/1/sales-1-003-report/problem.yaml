@@ -1,0 +1,22 @@
+id: sales-1-003-report
+title: 查询最终报表
+track: sales
+stage: '1'
+unit: 1
+order: 30
+format: combine
+difficulty: 20
+skills:
+  requires: []
+project: sales-report
+part: 3
+mode: script
+checks:
+- label: 报表结果
+  result: true
+datasets:
+- db:sales
+- db:sales + extra.sql
+wrong_examples:
+- why: 没有生成题目要求的结果
+  sql: SELECT 0;

@@ -27,6 +27,7 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor, wait
 from contextlib import redirect_stdout
 from pathlib import Path
+from types import ModuleType
 
 # -I 不会自动加入脚本目录。这里只加入随程序发布的 checker 工具。
 sys.path.append(os.path.dirname(__file__))
@@ -253,21 +254,38 @@ def compile_user(source):
         return None, f"第 {exc.lineno} 行语法错误：{exc.msg}{caret}"
 
 
-def fresh_namespace():
-    return {
+def fresh_namespace(job=None):
+    ns = {}
+    if job and "reference" in job:
+        module = ModuleType("solution")
+        sys.modules["solution"] = module
+        ns = vars(module)
+    ns.update({
         "__name__": "solution",
         "__builtins__": __builtins__,
         "ListNode": ListNode,
         "TreeNode": TreeNode,
         "Optional": __import__("typing").Optional,
         "List": list,
-    }
+    })
+    return ns
 
 
-def load_checker():
-    path = Path("checker.py")
+def load_part(job, code, ns):
+    if "reference" in job:
+        ns["__file__"] = str(job["root"] / USER_FILE)
+        exec(job["reference"], ns)
+        # 当前入口必须来自本次作答，空提交不能继承参考实现。
+        ns.pop(job["entry"], None)
+    exec(code, ns)
+
+
+def load_checker(job, namespace):
+    path = job.get("root", Path(".")) / "checker.py"
     ns = {"__name__": "checker"}
-    with open(path, encoding="utf-8") as f:
+    if "reference" in job:
+        ns.update({k: v for k, v in namespace.items() if k not in ("check", "check_function", "__name__")})
+    with path.open(encoding="utf-8") as f:
         exec(compile(f.read(), "checker.py", "exec"), ns)
     if "check_function" in ns:
         return ns["check_function"], True
@@ -294,18 +312,18 @@ def judge_function(job, code):
     checker = None
 
     def judge_one(case):
-        ns = fresh_namespace()
+        ns = fresh_namespace(job)
         args = copy.deepcopy(case["args"])
 
         def call():
             nonlocal checker
-            exec(code, ns)
+            load_part(job, code, ns)
             fn = ns.get(job["entry"])
             if fn is None:
                 raise NameError(f"没有找到函数 {job['entry']}")
             expected = case.get("expected")
-            if job["compare"] == "checker" and checker is None:
-                checker = load_checker()
+            if job["compare"] == "checker" and (checker is None or "reference" in job):
+                checker = load_checker(job, ns)
             if checker and checker[1]:
                 try:
                     passed = checker[0](args, expected, fn)
@@ -339,14 +357,21 @@ def judge_function(job, code):
 
 def judge_class(job, code):
     def judge_one(case):
-        ns = fresh_namespace()
+        ns = fresh_namespace(job)
         ops, args = case["ops"], copy.deepcopy(case["args"])
 
+        project_checker = job["compare"] == "checker" and "reference" in job
+
         def run_ops():
-            exec(code, ns)
+            load_part(job, code, ns)
             cls = ns.get(job["entry"])
             if cls is None:
                 raise NameError(f"没有找到类 {job['entry']}")
+            if project_checker:
+                check, by_entry = load_checker(job, ns)
+                if by_entry:
+                    passed = check(args, case.get("expected"), cls)
+                    return None, None if passed else "checker 未通过"
             obj = cls(*args[0])
             outputs = [None]
             first_error = None
@@ -364,6 +389,8 @@ def judge_class(job, code):
                     if error and first_error is None:
                         first_error = f"第 {index} 次方法调用 {op}：{error}"
                 outputs.append(normalize(value))
+            if project_checker:
+                first_error = None if check(case["args"], case.get("expected"), outputs) else "checker 未通过"
             return outputs, first_error
 
         status, value, error, out, ms = capture(run_ops, job["time_limit_ms"])
@@ -371,8 +398,8 @@ def judge_class(job, code):
         if status == "ok":
             actual, error = value
             expected = case["expected"]
-            passed = len(actual) == len(expected) and error is None
-            if job["compare"] not in ("allclose", "frame"):
+            passed = error is None and (project_checker or len(actual) == len(expected))
+            if not project_checker and job["compare"] not in ("allclose", "frame"):
                 passed = passed and all(values_equal(e, a, job["compare"]) for e, a in zip(expected, actual))
             status = "passed" if passed else "wrong_answer"
         return case_result(case, status, actual, error, out, ms)
@@ -421,6 +448,37 @@ def case_result(case, status, actual, error, stdout, ms, expected=None):
     return result
 
 
+def write_verdict(output, verdict):
+    output.write("\n" + RESULT_MARK + json.dumps(verdict, ensure_ascii=False, default=repr) + "\n")
+    output.flush()
+
+
+def run_project_script(job, root, code):
+    # 普通训练脚本在主线程运行，pickle、dataclass 和信号处理能找到真正的 __main__。
+    output = sys.stdout
+    def timeout():
+        write_verdict(output, {"verdict": "timeout", "error": f"超过时限 {job['time_limit_ms']} ms", "cases": []})
+        os._exit(0)
+
+    timer = threading.Timer(job["time_limit_ms"] / 1000, timeout)
+    module = ModuleType("__main__")
+    module.__file__ = str(root / USER_FILE)
+    sys.modules["__main__"] = module
+    sys.argv = [module.__file__, *job["args"]]
+    timer.start()
+    try:
+        with open(job["log"], "w", encoding="utf-8", buffering=1) as log, redirect_stdout(log):
+            exec(code, vars(module))
+    except SystemExit as exc:
+        if exc.code not in (None, 0):
+            return {"verdict": "runtime_error", "error": user_traceback(exc), "cases": []}
+    except BaseException as exc:
+        return {"verdict": "runtime_error", "error": user_traceback(exc), "cases": []}
+    finally:
+        timer.cancel()
+    return {"verdict": "accepted", "cases": []}
+
+
 def main():
     global worker
     sys.setrecursionlimit(200000)
@@ -440,13 +498,23 @@ def main():
             resource.setrlimit(resource.RLIMIT_AS, (limit, limit))
         if job.get("runtime") == "ds":
             sys.path.append(str(Path(__file__).resolve().parents[1] / "ds"))
-    worker = start_worker()
+    if job["mode"] != "project":
+        worker = start_worker()
     job.setdefault("compare", "exact")
     job.setdefault("compare_options", {})
     job.setdefault("time_limit_ms", 2000)
     with open("user.py", encoding="utf-8") as f:
         source = f.read()
 
+    root = Path.cwd()
+    if (root / "scratch").is_dir():
+        job["root"] = root
+        if (root / "reference.py").exists():
+            job["reference"] = compile((root / "reference.py").read_text(encoding="utf-8"), "reference.py", "exec")
+            # checker 可在可写目录读取本次答案。
+            import shutil
+            shutil.copyfile(root / USER_FILE, root / "scratch" / USER_FILE)
+        os.chdir(root / "scratch")
     real_stdout = sys.stdout
     code, compile_error = compile_user(source)
     constraint_error = None
@@ -455,6 +523,8 @@ def main():
         constraint_error = violation(source, job["constraints"])
     if compile_error:
         verdict = {"verdict": "compile_error", "error": compile_error, "cases": []}
+    elif job["mode"] == "project":
+        verdict = run_project_script(job, root, code)
     elif constraint_error:
         verdict = {"verdict": "constraint_error", "error": constraint_error, "cases": []}
     else:
@@ -476,9 +546,8 @@ def main():
             "total": len(statuses),
             "cases": cases,
         }
-    real_stdout.write("\n" + RESULT_MARK + json.dumps(verdict, ensure_ascii=False, default=repr) + "\n")
-    real_stdout.flush()
-    if any(c["status"] == "timeout" for c in verdict["cases"]):
+    write_verdict(real_stdout, verdict)
+    if verdict["verdict"] == "timeout" or any(c["status"] == "timeout" for c in verdict["cases"]):
         os._exit(0)  # 工作线程可能仍在死循环，结果写完立即退出。
 
 

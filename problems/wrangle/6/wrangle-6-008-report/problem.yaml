@@ -1,0 +1,23 @@
+id: wrangle-6-008-report
+title: 写出特征表与汇总报告
+track: wrangle
+stage: '6'
+unit: 1
+order: 80
+format: combine
+difficulty: 50
+skills:
+  requires:
+    - wrangle.csv
+    - wrangle.report-grain
+    - wrangle.dates
+    - py.type-convert
+    - wrangle.axis
+  introduces: null
+source: original
+project: features
+part: 8
+mode: function
+entry: main
+signature: 'def main():'
+compare: checker

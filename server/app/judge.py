@@ -67,6 +67,10 @@ class Judge:
         compare_options: dict | None = None,
         checker: str | None = None,
         answer: str | None = None,
+        reference: str | None = None,
+        data: Path | None = None,
+        args: list[str] | None = None,
+        log: Path | None = None,
     ) -> dict[str, Any]:
         image = self.image_for(runtime)
         memory = self.ds_memory if runtime == "ds" else "256m"
@@ -83,27 +87,41 @@ class Judge:
             "time_limit_ms": time_limit_ms,
             "cases": cases,
             "answer": answer,
+            "args": args or [],
         }
         self.tmp_root.mkdir(parents=True, exist_ok=True)
         work = Path(tempfile.mkdtemp(prefix="job-", dir=self.tmp_root))
+        local = self.backends[runtime] == "local"
         try:
+            if log is not None:
+                job["log"] = str(log.resolve()) if local else "/work/project.log"
+                if not local:
+                    log.chmod(0o666)
+                    (work / "project.log").touch()  # 在只读 /work 中预建单文件挂载点
+            if data is not None:
+                shutil.copytree(data, work / "data")
+                (work / "scratch").mkdir(mode=0o777)
+                if reference is not None:
+                    (work / "reference.py").write_text(reference, encoding="utf-8")
             (work / "job.json").write_text(json.dumps(job, ensure_ascii=False), encoding="utf-8")
             (work / "user.py").write_text(code, encoding="utf-8")
             if checker is not None:
                 (work / "checker.py").write_text(checker, encoding="utf-8")
             budget_s = time_limit_ms / 1000 * max(len(cases), 1) + STARTUP_ALLOWANCE_S
-            local = self.backends[runtime] == "local"
             if local:
                 python = self.local.interpreter(runtime)
             else:
                 work.chmod(0o755)
                 for f in work.iterdir():
-                    f.chmod(0o644)
+                    if f.is_file():
+                        f.chmod(0o644)
+                if data is not None:
+                    (work / "scratch").chmod(0o777)
             with self._slots:
                 if local:
                     proc = run_local(python, work, budget_s, memory)
                 else:
-                    proc = self._docker(work, budget_s, image, memory)
+                    proc = self._docker(work, budget_s, image, memory, log)
             return self._result(proc, memory)
         except subprocess.TimeoutExpired:
             return {"verdict": "timeout", "error": f"整体运行超过 {budget_s:.0f} 秒，已终止", "cases": []}
@@ -112,7 +130,8 @@ class Judge:
         finally:
             shutil.rmtree(work, ignore_errors=True)
 
-    def _docker(self, work: Path, budget_s: float, image: str, memory: str) -> subprocess.CompletedProcess:
+    def _docker(self, work: Path, budget_s: float, image: str, memory: str,
+                log: Path | None = None) -> subprocess.CompletedProcess:
         name = f"cdj-{uuid.uuid4().hex[:12]}"
         cmd = [
             "docker", "run", "--rm", "--name", name,
@@ -123,6 +142,8 @@ class Judge:
             "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
             "--ulimit", "stack=268435456:268435456",
             "-v", f"{work}:/work:ro",
+            *(["-v", f"{work}/scratch:/work/scratch:rw"] if (work / "scratch").exists() else []),
+            *(["-v", f"{log.resolve()}:/work/project.log:rw"] if log else []),
             image, "/work/job.json",
         ]
         try:

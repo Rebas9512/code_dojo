@@ -10,10 +10,10 @@ from pathlib import Path
 
 from functools import cache
 
-from check_curve import PROBLEMS, Report, closure, load_skills, load_tracks, standard_skill_errors
+from check_curve import PROBLEMS, Report, closure, load_skills, load_tracks, project_names, standard_skill_errors
 from app.config import load_settings
 from app.judge import Judge
-from app.problems import Problem, load_problem
+from app.problems import Problem, ProblemBank, load_problem
 from app.sql_judge import dataset, verify_sql_files
 from app.standard import MARKDOWN_PART, note_sections
 from app.tracks import load_track
@@ -77,7 +77,8 @@ def standard_sources(p: Problem) -> tuple[list[str], dict[str, str]]:
         if skills.introduces:
             declared.add(skills.introduces)
         allowed = closure(skill_graph(), declared)
-        errors.extend(standard_skill_errors(code, p.track.language, p.meta.mode, p.meta.entry, allowed))
+        errors.extend(standard_skill_errors(code, p.track.language, p.meta.mode, p.meta.entry, allowed,
+                                            project_names(p.path, getattr(p.meta, "project", None))))
     if "standard.md" in files:
         issues, advanced = note_errors(p.file("standard.md").read_text(encoding="utf-8"), p)
         errors.extend(issues)
@@ -124,13 +125,19 @@ def main() -> int:
     directories = selected_directories(settings.problems_dir, args.only, args.track)
     judge = Judge.from_settings(settings)
     tracks = {}
+    bank = ProblemBank(settings.problems_dir)
     failed = 0
     for directory in directories:
         track = directory.parents[1]
         try:
             if track not in tracks:
                 tracks[track] = load_track(track / "track.yaml")
-            issues = check_answers(judge, load_problem(directory, tracks[track]))
+            problem = load_problem(directory, tracks[track])
+            if problem.meta.project:
+                if not bank.projects:
+                    bank.refresh(stamp=0)
+                problem = bank.problems[problem.id]
+            issues = check_answers(judge, problem)
         except Exception as exc:  # 单题文件损坏时继续检查下一题。
             issues = [str(exc)]
         if issues:

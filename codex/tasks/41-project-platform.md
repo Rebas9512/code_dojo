@@ -18,7 +18,7 @@
 
 ## 要做的事
 
-### 1. 格式（`docs/problem-format.md` 升到 v1.11）
+### 1. 格式（`docs/problem-format.md` 升到 v1.12；v1.11 已被参考答案占用）
 
 - `track.yaml` 的阶段可以标 `kind: project`。这个阶段里每个单元就是一个项目，单元目录下放 `project.yaml`。目录怎么摆自己定，跟现有单元的组织方式一致即可。
 - `project.yaml` 至少包括：
@@ -88,7 +88,7 @@
 
 ## 验收标准
 
-- `docs/problem-format.md` v1.11 写清项目格式、注入规则、拼装和运行；`docs/README.md` 相关节小补丁更新。
+- `docs/problem-format.md` v1.12 写清项目格式、注入规则、拼装和运行；`docs/README.md` 相关节小补丁更新。
 - `cd server && .venv/bin/python -m pytest -q` 全过（7 个会建临时 git 仓库的同步测试可以按标准做法排除）。新增测试覆盖：
   - Python 注入（学习者代码覆盖参考定义；其他部分可以调用）；
   - SQL 注入顺序；

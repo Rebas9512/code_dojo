@@ -49,6 +49,7 @@ export interface Week {
 export interface ReviewContext { review_source?: string; review_due?: string }
 
 export interface MapUnit {
+  project?: string
   id: string
   name: string
   total: number
@@ -61,6 +62,7 @@ export interface MapUnit {
 }
 
 export interface TrackStage {
+  kind?: 'project'
   id: string
   name: string
   total: number
@@ -186,7 +188,28 @@ export interface StandardAnswer {
   has_notes: boolean
 }
 
+export interface ProjectDetail {
+  id: string
+  track: string
+  title: string
+  summary: string
+  language: 'python' | 'sql'
+  timeout: number
+  success: Record<string, Record<string, number>> | 'all_checks'
+  parts: { id: string; title: string; status: Status }[]
+  code: string
+  completed: boolean
+}
+
+export interface ProjectResult {
+  verdict: string
+  metrics?: Record<string, number>
+  error?: string
+}
+
+export type ProjectEvent = { line: string } | { result: ProjectResult }
 export interface ProblemDetail extends ProblemSummary {
+  project?: { id: string; part: number; total: number; others: ItemRef[] }
   language: Language
   statement: string
   starter: string
@@ -227,7 +250,7 @@ export type CaseStatus = 'passed' | 'wrong_answer' | 'runtime_error' | 'timeout'
 export type Verdict = 'accepted' | 'compile_error' | 'constraint_error' | 'system_error' | CaseStatus
 
 type SqlDataset<T> = { setup: string[]; hidden: boolean; expected: T }
-type SqlPlan = { mode: 'script'; checks: SqlCheck[]; datasets: SqlDataset<{ checks: CheckValue[] }>[] } |
+type SqlPlan = { mode: 'script'; cte?: string; checks: SqlCheck[]; datasets: SqlDataset<{ checks: CheckValue[] }>[] } |
   { mode?: 'dml'; check_query?: string; ordered: boolean; tolerance: number; datasets: SqlDataset<SqlTable>[] }
 
 export interface FullCaseResult {
@@ -313,7 +336,7 @@ function cached<T>(key: string, load: () => Promise<T>, ttl = 60_000): Promise<T
   return value
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+async function response(path: string, init?: RequestInit) {
   const res = await fetch(path, {
     ...init,
     headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
@@ -332,10 +355,19 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     }
     throw new Error(detail)
   }
-  return res.json() as Promise<T>
+  return res
+}
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  return (await response(path, init)).json() as Promise<T>
 }
 
 export const api = {
+  project: (id: string) => request<ProjectDetail>(`/api/projects/${id}`),
+  runProject: (id: string) => response(`/api/projects/${id}/run`, { method: 'POST', body: '{}' }),
+  projectChecks: (id: string, passed: boolean[]) => request<ProjectResult>(`/api/projects/${id}/sql-result`, {
+    method: 'POST', body: JSON.stringify({ passed }),
+  }),
   syncStatus: () => request<SyncState>('/api/sync'),
   syncNow: () => request<SyncState>('/api/sync', { method: 'POST', body: '{}' }),
   session: () => request<Session>('/api/auth/session'),

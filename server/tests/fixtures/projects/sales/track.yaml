@@ -1,0 +1,15 @@
+id: sales
+name: 销售练习
+summary: 清理销售记录，汇总有效金额，输出一行销售报表。
+order: 2
+language: sql
+runtime: pglite
+status: active
+requires: []
+skill_prefix: sales
+stages:
+- id: '1'
+  name: 项目
+  kind: project
+  units:
+    1: 销售汇总

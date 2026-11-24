@@ -1,0 +1,23 @@
+id: sales-1-001-view
+title: 建立销售视图
+track: sales
+stage: '1'
+unit: 1
+order: 10
+format: combine
+difficulty: 20
+skills:
+  requires: []
+project: sales-report
+part: 1
+mode: script
+checks:
+- label: 正数销售
+  query: SELECT amount FROM positive_sales ORDER BY amount
+  ordered: true
+datasets:
+- db:sales
+- db:sales + extra.sql
+wrong_examples:
+- why: 没有生成题目要求的结果
+  sql: SELECT 0;

@@ -1,0 +1,22 @@
+id: wrangle-6-002-clean-readers
+title: 整理读者登记
+track: wrangle
+stage: '6'
+unit: 1
+order: 20
+format: combine
+difficulty: 43
+skills:
+  requires:
+    - wrangle.projection
+    - wrangle.missing
+    - wrangle.dates
+    - wrangle.apply
+  introduces: null
+source: original
+project: features
+part: 2
+mode: function
+entry: clean_readers
+signature: 'def clean_readers(readers):'
+compare: checker

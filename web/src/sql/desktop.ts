@@ -9,7 +9,7 @@ async function listen() {
           const worker = new Worker(new URL('./validationWorker.ts', import.meta.url), { type: 'module' })
           try {
             const reply = await new Promise(resolve => {
-              const timer = setTimeout(() => resolve({ error: '浏览器验证 SQL 超时' }), 30000)
+              const timer = setTimeout(() => resolve({ error: '浏览器验证 SQL 超时' }), 30000 + (task.job.timeoutMs ?? 0))
               worker.onmessage = e => { clearTimeout(timer); resolve(e.data) }
               worker.onerror = () => { clearTimeout(timer); resolve({ error: 'SQL 校验器加载失败' }) }
               worker.postMessage(task.job)

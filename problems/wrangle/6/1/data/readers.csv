@@ -1,0 +1,2051 @@
+user_id,joined_on,channel,city,device
+1245,2025-01-21,referral,Rome,android
+44,2025-02-12,referral, lima ,android
+307,2025-01-06,ad,Oslo,ios
+492,2024-12-20,ad,LIMA,web
+238,2025-01-01,organic, oslo ,android
+474,2025-02-20,ad,YORK,ios
+909,2025-02-27,ad,ROME,web
+881,2025-02-07,organic,OSLO,android
+1545,2024-12-30,ad,YORK,ios
+882,2025-03-06,referral,LIMA,android
+1416,2024-12-22,referral,Rome,android
+396,2025-02-12,organic,Lima,ios
+1275,2025-01-02,referral,Oslo,web
+1274,2025-01-11,referral,Rome,android
+223,2025-01-17,referral, york ,web
+1739,2025-01-28,test,,android
+976,2025-02-26,ad,OSLO,ios
+1237,2025-02-02,ad,Lima,web
+657,2024-12-27,ad,LIMA,web
+851,2025-01-26,referral,,web
+442,2025-01-21,organic,OSLO,android
+1426,2025-02-21,organic,YORK,android
+1026,2025-02-27,referral,LIMA,android
+54,2025-02-04,organic,Rome,ios
+1389,2025-01-14,referral, lima ,android
+1090,2025-02-14,organic,ROME,ios
+57,2025-01-29,organic, rome ,ios
+1784,2025-02-25,organic,ROME,ios
+106,2025-01-26,referral,Oslo,web
+1331,2025-01-06,organic, rome ,ios
+1830,2025-02-23,organic,YORK,android
+1109,2025-02-03,referral,York,web
+228,2024-12-22,referral, lima ,android
+1788,2025-01-08,ad, rome ,web
+1870,2025-02-18,organic,LIMA,ios
+232,2025-02-21,organic, oslo ,android
+506,2025-02-18,organic, rome ,ios
+1685,2025-02-28,ad,Oslo,ios
+762,2025-02-15,referral,ROME,android
+527,2024-12-20,organic, rome ,ios
+1029,2025-02-26,organic, york ,android
+122,2025-02-05,organic,York,android
+1773,2025-02-15,referral,YORK,web
+1951,2025-01-08,referral,OSLO,web
+1866,2025-01-16,ad,Lima,web
+1577,2025-02-06,ad,York,ios
+789,2025-01-13,organic, oslo ,android
+1769,2025-01-23,ad,Oslo,ios
+1390,2025-02-17,organic,Oslo,android
+1202,2024-12-29,ad,LIMA,web
+146,2025-01-07,ad,Rome,web
+627,2025-02-24,organic,York,android
+481,2025-03-08,referral,,web
+1189,2025-01-15,ad,ROME,web
+1981,,ad,OSLO,ios
+1306,2024-12-28,organic, lima ,ios
+1952,2025-01-20,organic, rome ,ios
+973,2025-03-02,ad,OSLO,ios
+526,2025-01-25,referral,Oslo,web
+612,2025-02-26,ad,ROME,web
+1319,2025-01-13,organic,YORK,android
+1158,2025-01-07,referral,LIMA,android
+1858,2025-03-05,organic,OSLO,android
+704,2024-12-20,ad,Lima,web
+504,2025-01-09,organic,ROME,ios
+523,2025-02-09,referral, oslo ,web
+833,2024-12-20,ad,Rome,web
+1752,2025-01-08,organic,YORK,android
+622,2025-01-01,organic,ROME,ios
+1608,2025-02-06,referral, rome ,android
+659,2025-02-02,organic, lima ,ios
+1425,2025-02-15,organic,York,android
+577,2025-02-22,ad,ROME,web
+634,2025-02-28,ad, york ,ios
+219,2025-03-04,referral,Lima,android
+258,2024-12-29,ad,LIMA,web
+324,2025-03-08,referral,Rome,android
+1102,2025-01-10,organic, lima ,ios
+348,2025-01-10,organic,Lima,ios
+1192,2024-12-18,organic,LIMA,ios
+1241,2024-12-23,ad,YORK,ios
+143,2025-02-01,organic,Lima,ios
+432,2024-12-17,organic, york ,android
+142,2024-12-20,ad, oslo ,ios
+1399,2024-12-18,organic,ROME,ios
+1108,2025-02-08,referral, lima ,android
+756,2024-12-22,ad,LIMA,web
+435,2024-12-23,ad,York,ios
+1221,2025-01-07,referral,,web
+1512,2025-02-11,organic, rome ,ios
+1931,2024-12-30,referral,OSLO,web
+901,2025-01-30,referral,Oslo,web
+1948,2025-03-08,ad, rome ,web
+1776,2025-01-06,ad,,ios
+1572,2025-02-27,referral,OSLO,web
+1036,2025-02-21,ad,,ios
+450,2025-01-06,referral, oslo ,web
+1153,2024-12-17,ad,YORK,ios
+1933,2025-01-11,referral, york ,web
+63,2025-02-01,organic, york ,android
+1119,2025-02-28,ad, york ,ios
+691,2025-01-23,ad,Lima,web
+1473,2025-01-24,referral,YORK,web
+463,2025-01-14,organic,ROME,ios
+97,2024-12-25,ad, york ,ios
+1096,2025-02-18,ad,Lima,web
+399,2025-02-13,ad,ROME,web
+1461,2024-12-30,referral,YORK,web
+1323,2025-03-07,organic,Oslo,android
+18,2025-01-18,organic,Rome,ios
+28,2025-01-28,ad, lima ,web
+601,2025-02-06,organic, rome ,ios
+1059,2025-03-07,organic, oslo ,android
+1281,2025-02-27,referral, york ,web
+131,2025-02-05,organic,Oslo,android
+1848,2025-02-03,referral,Oslo,web
+1561,2025-02-04,ad, oslo ,ios
+449,2025-01-11,organic, oslo ,android
+1844,2025-01-26,organic, lima ,ios
+1914,2024-12-22,organic,Oslo,android
+666,2025-02-04,referral,,android
+1151,2025-01-28,ad,York,ios
+1025,2025-01-21,organic,York,android
+1539,2025-03-09,referral,OSLO,web
+1538,2024-12-17,organic,YORK,android
+1459,2024-12-22,organic, rome ,ios
+682,2025-01-30,organic,Lima,ios
+875,2025-02-02,referral,LIMA,android
+1668,2025-02-08,organic, lima ,ios
+1314,2025-01-28,referral, lima ,android
+487,2025-02-15,referral, oslo ,web
+1181,2025-01-19,ad,ROME,web
+1344,2025-02-19,referral,York,web
+785,2025-01-19,referral, rome ,android
+82,2025-01-09,organic,ROME,ios
+1106,2025-03-09,ad, rome ,web
+563,2024-12-30,ad,Oslo,ios
+1301,2024-12-24,referral, oslo ,web
+1757,2025-02-26,organic, rome ,ios
+315,2024-12-24,ad,Oslo,ios
+41,2025-02-09,referral, york ,web
+1704,2025-02-04,referral,ROME,android
+290,2025-01-25,ad, york ,ios
+1713,2025-02-06,referral, rome ,android
+253,2024-12-29,ad,YORK,ios
+1960,2024-12-22,referral,Oslo,web
+737,2024-12-28,ad,York,ios
+1336,2025-01-17,ad,Rome,web
+629,2024-12-28,organic,,android
+471,2025-02-09,referral,Rome,android
+1398,2025-02-06,referral, rome ,android
+1897,2025-02-14,organic,YORK,android
+1670,2025-01-12,ad, oslo ,ios
+1520,2025-01-28,organic,ROME,ios
+580,2024-12-18,ad,Oslo,ios
+915,2025-01-10,ad, rome ,web
+118,2025-02-26,organic, york ,android
+305,2024-12-17,referral, lima ,android
+1813,2025-01-07,organic,,android
+592,2025-02-18,organic,,android
+267,2025-02-17,referral,YORK,web
+1532,2025-01-16,referral, oslo ,web
+488,2025-01-17,organic,LIMA,ios
+607,2025-01-16,referral,LIMA,android
+1046,2025-03-04,ad,Oslo,ios
+535,2025-03-08,referral,York,web
+1375,2025-02-15,organic,LIMA,ios
+781,2025-02-03,organic, oslo ,android
+1514,2025-03-09,ad,Lima,web
+191,2025-01-22,referral,OSLO,web
+874,2025-01-07,organic,YORK,android
+500,2025-01-05,organic,YORK,android
+1167,2025-02-19,referral,Rome,android
+1295,2025-01-04,organic,,ios
+1220,2025-01-28,organic, york ,android
+702,2025-03-01,ad, oslo ,ios
+285,2024-12-16,ad,Oslo,ios
+1140,2024-12-15,ad,Lima,web
+337,2024-12-31,organic,YORK,android
+1560,2025-01-03,organic,Lima,ios
+1834,2025-01-24,referral,Rome,android
+1066,2024-12-18,referral, rome ,android
+781,2025-02-03,organic, oslo ,android
+1636,2025-02-24,organic,York,android
+633,2024-12-19,organic,Rome,ios
+1197,2025-01-09,ad,Rome,web
+561,2025-02-26,organic,Oslo,android
+363,2025-03-09,organic, york ,android
+1155,2025-02-13,organic,ROME,ios
+327,2024-12-26,ad, rome ,web
+990,2025-01-01,ad, york ,ios
+453,2025-03-04,referral,LIMA,android
+1640,2025-01-26,referral, york ,web
+1838,2025-01-05,organic,OSLO,android
+1924,2024-12-15,ad,,web
+1597,2024-12-20,ad, oslo ,ios
+1521,2025-03-07,referral, oslo ,web
+289,2025-01-02,organic,Rome,ios
+486,2025-03-01,ad,OSLO,ios
+1703,2025-02-20,ad, rome ,web
+1643,2025-02-15,referral,LIMA,android
+1526,2024-12-27,referral, oslo ,web
+883,2025-02-20,ad, rome ,web
+945,2025-03-09,ad, oslo ,ios
+969,2025-01-15,referral, rome ,android
+635,2025-01-07,organic,York,android
+387,2024-12-26,organic,Rome,ios
+1822,2025-03-01,referral,LIMA,android
+1659,2024-12-20,referral,Lima,android
+1472,2025-03-08,ad, lima ,web
+876,2025-01-26,organic,Rome,ios
+1839,2025-01-09,organic, oslo ,android
+1115,2025-03-04,referral, rome ,android
+1345,2025-01-23,ad,ROME,web
+1571,2025-02-18,organic, lima ,ios
+1743,2025-02-26,referral,Oslo,web
+1657,2025-02-11,ad, oslo ,ios
+368,2024-12-21,organic,OSLO,android
+423,2025-02-19,test,OSLO,ios
+478,2025-02-27,ad,OSLO,ios
+730,2025-03-01,ad,Rome,web
+1941,2024-12-24,referral,Rome,android
+855,2025-02-03,ad,Lima,web
+225,2025-01-26,ad, oslo ,ios
+174,2025-01-15,ad,York,ios
+928,2025-02-26,organic,York,android
+1009,2025-02-16,organic,ROME,ios
+1525,2024-12-22,organic, oslo ,android
+1595,2025-01-25,ad,ROME,web
+366,2025-02-11,organic,YORK,android
+246,2025-01-01,organic, lima ,ios
+162,2025-01-03,ad,Rome,web
+1482,2025-03-08,referral,ROME,android
+1251,2025-01-17,organic,ROME,ios
+827,2025-02-11,organic,YORK,android
+1453,2025-01-11,organic, rome ,ios
+52,2025-02-27,ad,YORK,ios
+986,2025-01-18,referral,YORK,web
+441,2025-03-06,referral, york ,web
+1218,2024-12-18,referral,Rome,android
+576,2025-01-21,referral,York,web
+964,2024-12-25,ad,Lima,web
+241,2025-01-18,organic, rome ,ios
+988,2024-12-16,referral,Rome,android
+801,2025-01-01,referral,ROME,android
+1647,2025-01-12,organic,York,android
+310,2025-01-07,referral,York,web
+1759,2025-02-27,referral,ROME,android
+390,2025-02-17,referral,Lima,android
+373,2024-12-31,ad,York,ios
+1171,2025-02-05,organic, rome ,ios
+1208,2025-01-24,organic,OSLO,android
+1980,2025-02-06,referral,LIMA,android
+1540,2024-12-16,ad, rome ,web
+14,2025-01-15,referral, rome ,android
+889,2025-01-19,ad, oslo ,ios
+1621,2025-02-03,referral,LIMA,android
+926,2024-12-29,referral, oslo ,web
+589,2025-02-23,organic,ROME,ios
+1049,2025-01-29,ad, lima ,web
+495,2025-01-07,referral, york ,web
+409,2025-01-13,referral, york ,web
+1736,2024-12-22,organic,OSLO,android
+1338,2025-01-03,organic,ROME,ios
+1225,2024-12-28,organic,ROME,ios
+553,2024-12-16,ad,LIMA,web
+157,2025-01-27,referral,Rome,android
+9,2025-01-10,organic,YORK,android
+1457,2025-01-12,test,YORK,android
+1493,2025-03-04,ad, york ,ios
+597,2024-12-30,organic,LIMA,ios
+1280,2025-01-26,ad,Lima,web
+1557,2025-01-03,ad, york ,ios
+1738,2025-01-04,ad, lima ,web
+1661,2025-01-06,referral,Oslo,web
+767,2024-12-19,referral, york ,web
+1763,2025-02-18,referral,ROME,android
+1909,2025-01-22,ad, york ,ios
+718,2024-12-20,ad, rome ,web
+1786,2025-01-25,test, oslo ,android
+288,2025-02-11,referral,YORK,web
+323,2025-02-07,organic,LIMA,ios
+1433,2025-01-29,organic, rome ,ios
+101,2025-01-15,ad,LIMA,web
+1324,2025-02-28,ad,Lima,web
+1257,2025-01-29,organic, york ,android
+448,2024-12-29,referral, lima ,android
+1420,2025-01-20,organic,OSLO,android
+559,2025-01-19,referral,Oslo,web
+667,2025-01-29,organic,LIMA,ios
+455,2025-03-05,referral,York,web
+1209,2025-02-08,organic,York,android
+56,2024-12-23,organic,Rome,ios
+1435,2025-01-24,referral, york ,web
+1323,2025-03-07,organic,Oslo,android
+1200,2025-02-19,organic, oslo ,android
+1381,2025-01-14,referral,Oslo,web
+299,2024-12-27,organic, oslo ,android
+1874,2024-12-22,ad,YORK,ios
+1729,2025-01-03,referral,York,web
+709,2024-12-22,ad,Lima,web
+890,2024-12-26,organic,York,android
+599,2024-12-23,referral,LIMA,android
+515,2025-01-19,organic, york ,android
+312,2025-02-11,ad, lima ,web
+828,2025-02-12,ad, york ,ios
+1437,2025-02-27,ad,Rome,web
+708,2025-01-30,organic,Rome,ios
+858,2025-01-22,organic,YORK,android
+983,2025-01-15,organic,LIMA,ios
+1162,2024-12-30,organic,Oslo,android
+1855,2025-01-31,organic,ROME,ios
+729,2025-03-08,organic, york ,android
+5,2025-01-06,referral,York,web
+1582,2025-01-12,referral, oslo ,web
+1496,2025-01-31,referral,Rome,android
+336,2024-12-17,organic,York,android
+1504,2025-01-31,test,OSLO,web
+64,2025-02-13,ad, york ,ios
+1271,2025-02-18,organic,LIMA,ios
+594,2025-01-07,ad,Oslo,ios
+1717,2025-01-11,organic,Oslo,android
+1481,2025-01-07,organic,LIMA,ios
+193,2025-02-26,organic,YORK,android
+1184,2025-02-24,referral,,android
+759,2025-01-10,referral,York,web
+107,2024-12-19,ad,Rome,web
+1596,2025-02-22,ad,Oslo,ios
+1764,2025-01-01,referral, lima ,android
+1917,2025-02-15,ad,York,ios
+1978,2025-02-16,ad, oslo ,ios
+811,2025-02-02,organic, lima ,ios
+1407,2025-01-23,referral, oslo ,web
+513,2024-12-29,ad,York,ios
+1799,2025-02-14,referral,LIMA,android
+841,2025-02-12,ad, lima ,web
+1633,2025-01-24,referral,Rome,android
+1297,2025-01-15,referral,York,web
+654,2025-02-03,referral, oslo ,web
+1456,2024-12-16,organic,Rome,ios
+1246,2025-02-05,ad,Oslo,ios
+1863,2025-01-14,organic,Oslo,android
+443,2025-03-04,ad,York,ios
+1929,2025-02-01,organic, oslo ,android
+1283,2025-01-17,ad,OSLO,ios
+1797,2025-03-05,ad,Lima,web
+15,2025-01-16,organic, oslo ,android
+40,2025-02-08,ad,LIMA,web
+936,2025-01-10,referral,ROME,android
+123,2025-02-28,organic, rome ,ios
+374,2025-02-26,organic,ROME,ios
+892,2025-01-27,referral,Rome,android
+69,2024-12-26,referral, york ,web
+209,2025-01-14,ad, york ,ios
+1710,2025-01-28,referral,Rome,android
+1217,2025-01-03,referral,Oslo,web
+47,2025-02-15,test,OSLO,web
+1098,2025-01-24,ad,OSLO,ios
+1063,2025-01-21,organic,Oslo,android
+1441,2024-12-22,ad,Rome,web
+1498,2025-02-24,organic, york ,android
+317,2024-12-21,referral,YORK,web
+784,2025-01-04,ad, york ,ios
+1989,2024-12-25,organic, oslo ,android
+204,2025-03-09,organic,Rome,ios
+1956,2025-03-04,ad,Rome,web
+353,2025-01-21,organic, oslo ,android
+1641,2025-01-02,organic, york ,android
+873,2025-01-16,referral,YORK,web
+20,2025-01-20,referral,Lima,android
+1556,2025-03-01,referral,York,web
+461,2025-01-31,ad,Rome,web
+665,2024-12-30,referral,YORK,web
+797,2025-01-01,referral,York,web
+1644,2024-12-29,referral, lima ,android
+202,2025-01-11,ad,OSLO,ios
+587,2025-02-26,referral,YORK,web
+1408,2025-02-27,ad,YORK,ios
+1092,2025-02-27,organic, york ,android
+1694,2025-02-05,referral,Rome,android
+314,2025-01-26,referral,YORK,web
+1607,2024-12-15,organic, york ,android
+1513,2025-01-02,referral, lima ,android
+1474,2024-12-29,organic,OSLO,android
+1354,2025-02-18,ad,ROME,web
+45,2025-02-13,organic,YORK,android
+236,2025-01-24,ad,OSLO,ios
+188,2025-01-18,test, lima ,web
+1938,2025-03-01,ad,OSLO,ios
+1134,2025-01-05,organic,LIMA,ios
+1303,2025-02-07,organic, york ,android
+1793,2024-12-26,organic, oslo ,android
+501,2024-12-15,referral,Lima,android
+1254,2025-03-02,ad,ROME,web
+517,2025-03-06,test,YORK,ios
+1765,2025-03-08,referral,LIMA,android
+1853,2024-12-17,ad, rome ,web
+1817,2025-03-07,ad, rome ,web
+1489,2024-12-26,ad,Rome,web
+808,2025-02-12,organic,York,android
+1023,2025-03-06,referral, york ,web
+410,2025-02-14,referral,YORK,web
+1767,2025-02-11,referral,Rome,android
+984,2025-02-26,organic, lima ,ios
+514,2024-12-26,referral,Lima,android
+445,2025-01-02,referral,Oslo,web
+1050,2025-01-06,organic,Lima,ios
+521,2024-12-16,referral, york ,web
+385,2025-01-13,referral, york ,web
+1228,2025-02-13,referral,LIMA,android
+1720,2025-03-08,ad,Rome,web
+1279,2025-02-14,ad,York,ios
+1269,2024-12-16,test, lima ,ios
+1374,2025-01-03,ad,YORK,ios
+510,2025-02-07,organic, york ,android
+1442,2025-03-08,ad,ROME,web
+1655,2025-02-15,ad, oslo ,ios
+555,2025-01-22,referral,,android
+698,2025-02-05,organic,Lima,ios
+575,2025-01-01,ad, rome ,web
+1460,2024-12-23,referral,LIMA,android
+1316,2024-12-21,test,ROME,web
+1825,2025-01-30,ad,OSLO,ios
+1985,2025-01-05,referral, rome ,android
+100,2025-02-08,referral,YORK,web
+1350,2025-02-25,ad, oslo ,ios
+831,2025-01-18,organic,Oslo,android
+1086,2025-01-05,ad,ROME,web
+1530,2025-02-04,organic, lima ,ios
+1716,2025-02-25,referral,ROME,android
+959,2025-02-11,ad, oslo ,ios
+1282,2024-12-29,organic,LIMA,ios
+1714,2025-02-11,referral,Rome,android
+795,2024-12-31,ad, york ,ios
+1930,2025-02-23,organic,Oslo,android
+1053,2025-01-10,organic,York,android
+960,2025-01-25,referral,OSLO,web
+721,2025-02-18,ad,Oslo,ios
+271,2025-01-29,ad,YORK,ios
+813,2024-12-22,ad, rome ,web
+395,2025-01-29,referral,OSLO,web
+1529,2025-02-14,organic,YORK,android
+765,2025-01-05,referral,LIMA,android
+1298,2025-02-28,ad,LIMA,web
+213,2025-01-28,referral,Lima,android
+525,2025-02-12,referral,LIMA,android
+1299,2025-01-17,ad, oslo ,ios
+1915,2025-03-09,ad,YORK,ios
+637,2024-12-18,referral,ROME,android
+1787,2024-12-20,organic, rome ,ios
+679,2025-01-13,organic,Lima,ios
+1849,2025-03-02,organic,York,android
+1260,2025-01-07,organic,ROME,ios
+1833,2025-02-04,test, york ,web
+257,2024-12-15,referral,Lima,android
+1483,2025-01-21,organic,Lima,ios
+1206,2025-02-01,referral, rome ,android
+358,2025-03-04,organic,LIMA,ios
+460,2025-01-18,referral, lima ,android
+880,2025-01-13,organic,Rome,ios
+1551,2025-01-22,test,Oslo,web
+114,2025-02-17,organic, oslo ,android
+469,2024-12-19,organic, lima ,ios
+297,2024-12-27,ad,YORK,ios
+1751,2024-12-31,organic, rome ,ios
+884,2025-02-26,ad,Lima,web
+1291,2024-12-16,organic, oslo ,android
+1939,2025-01-15,ad, lima ,web
+1495,2025-02-04,referral,OSLO,web
+334,2025-01-18,organic,York,android
+800,2025-01-01,organic, rome ,ios
+559,2025-01-19,referral,Oslo,web
+1871,2025-02-21,ad,LIMA,web
+562,2025-02-08,ad, rome ,web
+117,2025-02-08,referral,OSLO,web
+1351,2025-01-14,referral, oslo ,web
+1651,2024-12-20,ad, oslo ,ios
+715,2025-02-26,ad,ROME,web
+42,2025-02-10,organic,Rome,ios
+1243,2025-01-30,ad,OSLO,ios
+1922,2025-01-15,referral, oslo ,web
+867,2025-02-27,organic, rome ,ios
+1639,2025-01-31,referral, york ,web
+1615,2025-01-26,referral, rome ,android
+1000,2025-01-02,ad,ROME,web
+1294,2025-02-19,referral,LIMA,android
+1562,2025-01-25,ad,Oslo,ios
+1421,2025-02-25,organic,ROME,ios
+1234,2025-01-08,organic,OSLO,android
+693,2025-02-01,organic,Rome,ios
+1212,2025-01-27,referral, rome ,android
+895,2025-01-09,organic,YORK,android
+840,2024-12-25,referral,Lima,android
+1826,2025-01-27,organic,Oslo,android
+221,2025-01-21,organic,ROME,ios
+502,2024-12-22,organic,Rome,ios
+1261,2024-12-25,organic, rome ,ios
+1227,2025-01-01,referral,LIMA,android
+1145,2025-02-28,referral,Oslo,web
+1581,2025-03-05,organic,YORK,android
+832,2025-01-23,referral,YORK,web
+595,2025-01-18,ad, york ,ios
+503,2025-02-25,organic,ROME,ios
+910,2025-01-06,referral,Rome,android
+1037,2025-01-17,ad,Lima,web
+1805,2025-02-03,organic, lima ,ios
+1088,2025-01-16,organic, oslo ,android
+567,2025-03-07,organic, lima ,ios
+805,2025-03-09,referral,YORK,web
+1905,2025-02-18,referral,Oslo,web
+1447,2025-01-30,ad, york ,ios
+647,2025-03-05,ad,York,ios
+1468,2024-12-25,referral, oslo ,web
+1697,2025-01-23,referral,York,web
+1966,2025-01-04,referral,ROME,android
+925,2024-12-24,referral,,web
+1359,2025-03-02,organic, rome ,ios
+735,2025-02-08,organic, rome ,ios
+1913,2025-01-12,ad,LIMA,web
+1071,2025-02-20,ad,Lima,web
+568,2025-02-22,organic,Lima,ios
+1308,2025-02-06,organic,ROME,ios
+1867,2025-02-13,organic,Lima,ios
+1768,2025-02-07,organic,Lima,ios
+911,2025-01-20,ad,YORK,ios
+1289,2025-01-02,organic, rome ,ios
+1387,2025-01-19,ad,Lima,web
+903,2025-02-21,organic,LIMA,ios
+1007,2024-12-26,ad,YORK,ios
+1652,2025-02-11,ad,Lima,web
+1987,2024-12-25,organic,ROME,ios
+1235,2025-01-31,organic,LIMA,ios
+1233,2024-12-16,ad, rome ,web
+1123,2025-02-08,ad,Oslo,ios
+1570,2024-12-16,organic,Rome,ios
+752,2025-02-27,test, oslo ,web
+357,2025-01-16,referral, rome ,android
+1727,2024-12-23,ad, lima ,web
+1172,2024-12-26,organic, lima ,ios
+536,2024-12-23,organic,LIMA,ios
+1928,2024-12-23,organic,LIMA,ios
+1671,2024-12-21,organic,YORK,android
+94,2025-02-04,test,OSLO,web
+1523,2025-03-04,referral,Rome,android
+1902,2025-02-08,organic,Lima,ios
+1522,2025-01-16,organic,Oslo,android
+853,2024-12-23,referral,YORK,web
+1689,2024-12-27,referral,York,web
+1057,2025-01-03,ad,LIMA,web
+689,2025-01-11,referral, lima ,android
+230,2025-01-03,referral,Oslo,web
+216,2025-02-06,referral, york ,web
+663,2025-01-31,organic,LIMA,ios
+948,2025-01-17,ad,YORK,ios
+1925,2025-02-19,organic,YORK,android
+1840,2025-02-18,referral,Rome,android
+167,2025-01-21,referral,York,web
+1658,2025-02-19,referral,York,web
+470,2024-12-31,test,YORK,ios
+1728,2024-12-25,organic,ROME,ios
+613,2025-02-02,referral, york ,web
+431,2024-12-21,referral,OSLO,web
+636,2025-01-25,organic,York,android
+10,2025-01-11,ad, rome ,web
+367,2025-02-24,ad,Oslo,ios
+206,2025-01-20,ad,ROME,web
+424,2024-12-25,organic, lima ,ios
+938,2025-02-25,ad, oslo ,ios
+73,2025-03-07,ad,Lima,web
+1646,2025-02-14,referral,York,web
+1479,2025-03-01,referral, rome ,android
+1082,2024-12-25,ad, york ,ios
+683,2025-02-12,referral,Rome,android
+908,2025-02-15,organic, lima ,ios
+60,2025-01-24,organic,York,android
+1814,2025-01-17,referral,Lima,android
+81,2024-12-17,referral,OSLO,web
+780,2025-03-04,referral,ROME,android
+1508,2025-01-12,referral,York,web
+661,2025-03-08,referral,Rome,android
+17,2025-01-17,referral, york ,web
+346,2025-02-04,ad,York,ios
+1893,2025-01-14,ad,ROME,web
+1486,2025-03-09,organic, lima ,ios
+483,2025-03-08,ad, york ,ios
+1264,2025-01-07,organic, oslo ,android
+1719,2025-01-04,referral,Lima,android
+550,2025-03-02,referral,OSLO,web
+1020,2025-01-06,referral,Rome,android
+1418,2025-02-27,ad,York,ios
+1645,2025-02-15,test,Rome,android
+1320,2025-01-06,ad,OSLO,ios
+1550,2024-12-26,referral,Lima,android
+316,2025-03-03,organic,Rome,ios
+631,2025-02-20,organic,Rome,ios
+240,2025-01-13,referral,LIMA,android
+590,2025-01-14,referral, york ,web
+1578,2025-01-12,organic,Rome,ios
+838,2025-01-07,ad,York,ios
+108,2025-01-20,referral,YORK,web
+1804,2024-12-21,ad, oslo ,ios
+828,2025-02-12,ad, york ,ios
+1268,2025-02-01,ad,OSLO,ios
+62,2025-02-04,organic,OSLO,android
+155,2025-01-03,referral,YORK,web
+1137,2025-02-27,ad,OSLO,ios
+1239,2025-01-22,referral, york ,web
+1335,2025-03-08,organic, rome ,ios
+1862,2025-01-17,referral,Oslo,web
+788,2025-03-03,organic, york ,android
+1428,2024-12-22,referral,LIMA,android
+16,2025-01-17,ad,LIMA,web
+283,,ad,Rome,web
+1342,2025-02-17,organic, rome ,ios
+700,2025-02-13,ad,OSLO,ios
+1865,2025-01-15,referral, lima ,android
+1904,2025-01-31,organic,YORK,android
+362,2025-01-08,ad, york ,ios
+1315,2025-02-25,referral,YORK,web
+496,2025-03-08,referral, rome ,android
+1287,2025-01-01,ad, rome ,web
+1207,2025-03-07,referral,Oslo,web
+1027,2025-01-06,referral,LIMA,android
+1899,2025-02-24,referral,Oslo,web
+74,2025-01-27,ad,,web
+606,2025-03-01,organic,OSLO,android
+48,2025-02-16,organic,Lima,ios
+1277,2025-02-03,referral,ROME,android
+829,2025-01-26,referral,York,web
+1953,2025-02-08,ad, rome ,web
+1882,2025-01-24,referral, rome ,android
+902,2025-02-15,ad, lima ,web
+103,2025-02-16,ad,LIMA,web
+1994,2024-12-20,referral,York,web
+1242,2025-01-17,ad,Lima,web
+810,2025-01-12,referral, rome ,android
+1593,2024-12-15,organic,OSLO,android
+664,2025-02-28,ad,LIMA,web
+1895,2025-01-13,referral,Oslo,web
+1095,2025-02-27,organic,LIMA,ios
+740,2025-02-14,organic,,ios
+1683,2025-01-05,ad, rome ,web
+1916,2025-01-26,referral,YORK,web
+1045,2025-01-31,organic,Lima,ios
+1567,2025-02-20,organic, york ,android
+11,2025-01-12,referral,OSLO,web
+1815,2025-01-04,organic,LIMA,ios
+939,2024-12-17,organic,OSLO,android
+1524,2025-02-15,organic, lima ,ios
+1891,2025-01-21,organic, rome ,ios
+243,2025-01-03,ad, rome ,web
+696,2025-02-26,organic,York,android
+50,2025-02-14,referral, oslo ,web
+1389,2025-01-14,referral, lima ,android
+1810,2025-03-05,ad, oslo ,ios
+278,2025-02-09,ad,LIMA,web
+405,2025-01-29,ad,Oslo,ios
+1965,2024-12-18,ad,York,ios
+836,2025-02-03,organic, oslo ,android
+34,2025-02-02,ad,ROME,web
+271,2025-01-29,ad,YORK,ios
+416,2025-02-11,organic,Rome,ios
+1674,2025-01-19,referral,YORK,web
+1835,2024-12-24,ad,ROME,web
+1091,2025-01-05,organic,OSLO,android
+1414,2024-12-24,ad,OSLO,ios
+1589,2025-01-17,referral,Oslo,web
+950,2025-02-04,ad, oslo ,ios
+578,2025-02-25,ad,ROME,web
+447,2025-01-19,referral,Lima,android
+1440,2025-01-21,ad,York,ios
+1195,2025-02-24,referral,York,web
+1058,2025-01-04,referral,York,web
+1990,2025-03-09,organic,Lima,ios
+137,2025-01-16,organic, lima ,ios
+339,2025-03-03,organic,ROME,ios
+1307,2025-02-25,referral,LIMA,android
+574,2024-12-25,organic, lima ,ios
+1836,2025-03-05,organic,LIMA,ios
+1427,2024-12-22,organic,LIMA,ios
+675,2024-12-24,organic,Lima,ios
+1369,2025-01-13,ad,,web
+1968,2025-03-07,organic,York,android
+1005,2025-01-14,referral,OSLO,web
+579,2025-02-04,referral, oslo ,web
+124,2024-12-18,ad,OSLO,ios
+1131,2025-02-04,referral,OSLO,web
+755,2025-02-04,ad,ROME,web
+331,2024-12-20,ad,Lima,web
+1630,2025-02-13,organic,ROME,ios
+741,2025-02-06,referral,York,web
+618,2025-02-02,organic,OSLO,android
+68,2025-02-18,organic, rome ,ios
+178,2025-01-25,referral,OSLO,web
+352,2025-01-02,referral,Rome,android
+306,2025-01-04,referral,OSLO,web
+1013,2025-01-07,ad, lima ,web
+437,2025-03-08,organic,OSLO,android
+1603,2025-01-27,organic, rome ,ios
+1580,2025-02-20,referral,ROME,android
+610,2024-12-15,referral, lima ,android
+763,2025-02-10,ad,YORK,ios
+340,2025-02-25,organic, lima ,ios
+1605,2024-12-31,organic,OSLO,android
+1780,2025-02-10,organic,Rome,ios
+1309,2025-01-07,organic, lima ,ios
+1762,2025-01-26,referral,Rome,android
+554,2024-12-18,ad,Oslo,ios
+1818,2024-12-24,ad, rome ,web
+86,2025-03-02,ad, lima ,web
+773,2024-12-22,ad, york ,ios
+199,2025-03-09,organic,ROME,ios
+169,2025-02-07,referral, oslo ,web
+287,2025-01-20,ad,OSLO,ios
+1006,2025-02-13,ad,Lima,web
+1701,2024-12-25,referral, york ,web
+111,2025-01-02,organic,,android
+227,2025-03-01,referral,Rome,android
+1662,2025-01-25,referral, york ,web
+160,2025-02-26,ad,Oslo,ios
+684,2025-01-11,ad,Rome,web
+1500,2025-02-09,organic,OSLO,android
+532,2025-02-20,ad,YORK,ios
+750,2025-01-12,organic, york ,android
+1443,2025-03-09,referral,,web
+614,2025-02-06,referral, rome ,android
+133,2025-01-10,referral,Lima,android
+1159,2024-12-18,referral,LIMA,android
+1921,2024-12-21,ad,LIMA,web
+1363,2025-02-14,test,ROME,android
+43,2025-02-11,ad, oslo ,ios
+1465,2025-03-01,referral,Rome,android
+229,2025-01-21,referral,Oslo,web
+389,2025-02-20,organic,YORK,android
+1393,2025-01-19,ad, oslo ,ios
+1263,2025-02-04,referral,Oslo,web
+947,2025-02-25,organic,Oslo,android
+494,2025-01-04,organic,YORK,android
+1305,2025-03-08,organic,ROME,ios
+175,2024-12-23,ad,Oslo,ios
+1510,2025-01-01,referral,Oslo,web
+250,2025-01-12,referral, oslo ,web
+570,2025-02-09,ad,YORK,ios
+1620,2025-01-09,referral,York,web
+1467,2025-01-02,ad,Oslo,ios
+711,2025-01-21,referral, rome ,android
+1515,2024-12-22,referral,YORK,web
+739,2025-03-01,referral,LIMA,android
+703,2024-12-28,referral,,android
+29,2025-01-29,referral, york ,web
+1531,2025-02-16,ad, oslo ,ios
+1364,2025-02-10,ad,Lima,web
+1432,2025-03-09,ad, oslo ,ios
+180,2025-02-20,organic,LIMA,ios
+321,2025-02-04,ad, york ,ios
+1475,2025-02-23,ad,Lima,web
+1113,2025-03-04,organic,ROME,ios
+585,2024-12-26,referral,ROME,android
+1906,2024-12-23,organic, lima ,ios
+854,2025-01-09,organic,Oslo,android
+1566,2025-01-18,referral,LIMA,android
+1333,2025-03-03,referral,Oslo,web
+1741,2025-02-26,organic,LIMA,ios
+1783,2025-02-13,ad, rome ,web
+866,2025-02-19,organic,LIMA,ios
+418,2025-03-07,referral,OSLO,web
+1122,2024-12-26,referral, oslo ,web
+1774,2024-12-31,organic,ROME,ios
+377,2025-02-01,ad, oslo ,ios
+1010,2025-03-05,organic, lima ,ios
+98,2025-01-30,ad, rome ,web
+865,2024-12-30,organic, york ,android
+1373,2025-02-26,organic, rome ,ios
+1868,2025-03-07,organic,LIMA,ios
+1043,2025-01-16,referral,Oslo,web
+1782,2025-03-05,referral,Rome,android
+140,2025-01-13,organic, oslo ,android
+203,2025-02-06,referral,York,web
+1801,2024-12-17,organic,ROME,ios
+954,2025-02-04,organic,OSLO,android
+1329,2025-03-06,referral,Lima,android
+1371,2025-02-09,ad,Lima,web
+1622,2024-12-27,ad,York,ios
+505,2025-01-31,organic,Rome,ios
+128,2025-02-04,referral,Oslo,web
+1559,2024-12-16,organic,LIMA,ios
+1737,2025-01-15,referral,Lima,android
+1587,2025-03-03,ad, rome ,web
+78,2025-02-13,organic,Oslo,android
+1779,2024-12-25,referral,YORK,web
+707,2025-02-07,ad,OSLO,ios
+565,2025-03-04,referral,YORK,web
+1250,2024-12-23,ad, rome ,web
+1955,2024-12-21,ad, york ,ios
+1317,2025-02-25,organic, york ,android
+322,2025-01-25,referral,ROME,android
+1198,2025-01-06,referral,ROME,android
+1048,2025-02-04,ad, rome ,web
+897,2024-12-20,ad,YORK,ios
+1684,2024-12-16,ad, rome ,web
+1130,2025-02-13,ad,Oslo,ios
+1083,2025-02-12,ad, oslo ,ios
+877,2025-01-24,referral, york ,web
+1491,2025-01-02,ad,ROME,web
+476,2025-01-25,ad, york ,ios
+620,2025-02-20,organic,YORK,android
+173,2025-03-05,ad,OSLO,ios
+1253,2025-01-28,organic, rome ,ios
+1328,2025-01-04,organic, rome ,ios
+1216,2025-01-29,referral,YORK,web
+51,2025-02-12,referral, rome ,android
+743,2025-02-08,referral, york ,web
+1831,2025-03-04,organic, lima ,ios
+408,2025-01-11,ad, lima ,web
+604,2025-02-12,organic,York,android
+1056,2025-01-09,referral, oslo ,web
+55,2024-12-17,referral, oslo ,web
+778,2025-01-18,organic,Rome,ios
+728,2025-02-20,referral,Lima,android
+1642,2025-02-28,referral, lima ,android
+806,2025-02-25,referral,York,web
+1664,2025-03-03,ad,Rome,web
+927,2025-03-06,organic,LIMA,ios
+426,2025-03-04,ad, rome ,web
+974,2025-03-05,ad, lima ,web
+254,2025-01-25,organic,Lima,ios
+1035,2025-02-26,ad, lima ,web
+879,2025-02-17,referral,Rome,android
+1688,2025-03-05,organic,ROME,ios
+906,2025-01-10,referral,Rome,android
+953,2025-02-27,ad, york ,ios
+1462,2025-02-24,referral,Rome,android
+891,2024-12-18,ad,Rome,web
+1896,2025-03-06,referral,ROME,android
+1791,2025-03-09,organic,Rome,ios
+1528,2025-01-15,referral, oslo ,web
+1061,2025-02-04,ad,OSLO,ios
+1068,2025-01-29,ad, lima ,web
+1395,2024-12-29,ad, lima ,web
+1911,2025-01-24,organic, rome ,ios
+1318,2024-12-20,referral,Rome,android
+166,2025-03-03,referral,Lima,android
+1761,2025-03-03,referral, york ,web
+53,2025-01-30,referral,York,web
+982,2025-03-06,referral,ROME,android
+799,2025-01-19,test, rome ,web
+256,2024-12-17,ad,Oslo,ios
+837,2025-03-03,referral,OSLO,web
+1624,2025-02-12,referral,LIMA,android
+672,2025-02-21,organic, york ,android
+1591,2025-01-04,ad,,web
+132,2025-02-15,referral,Rome,android
+1093,2025-01-17,ad,LIMA,web
+1141,2025-01-03,ad, oslo ,ios
+1292,2025-03-08,organic, rome ,ios
+1097,2024-12-22,referral,Lima,android
+744,2024-12-31,ad,Rome,web
+338,2025-01-30,organic,YORK,android
+916,2025-01-17,organic,Rome,ios
+531,2025-03-06,referral,LIMA,android
+1507,2025-03-02,ad, york ,ios
+1353,2025-01-29,referral,OSLO,web
+302,2025-02-04,ad,York,ios
+775,2025-03-02,ad,York,ios
+783,2025-01-23,ad,YORK,ios
+276,2025-02-25,organic,YORK,android
+1084,2025-01-07,ad,Oslo,ios
+1040,2025-02-15,ad,OSLO,ios
+1072,2025-01-16,organic, york ,android
+1358,2025-01-16,organic,LIMA,ios
+1152,2024-12-16,organic,YORK,android
+1211,2025-03-03,ad, oslo ,ios
+303,2024-12-17,referral,Oslo,web
+932,2025-03-01,organic,York,android
+1019,2025-02-08,ad, york ,ios
+1423,2025-02-07,ad, rome ,web
+1602,2024-12-28,organic,York,android
+541,2024-12-20,organic, oslo ,android
+1429,2025-01-08,organic, lima ,ios
+1518,2025-02-22,ad,OSLO,ios
+1100,2025-03-09,referral,ROME,android
+35,2025-02-03,referral,Oslo,web
+189,2025-02-17,referral,YORK,web
+656,2025-02-06,organic,YORK,android
+462,2025-01-21,referral,LIMA,android
+541,2024-12-20,organic, oslo ,android
+120,2025-02-17,organic,LIMA,ios
+197,2025-01-19,organic, rome ,ios
+1296,2025-03-07,ad,Oslo,ios
+1594,2025-01-18,ad,ROME,web
+1038,2025-03-05,organic,Oslo,android
+847,2025-02-25,referral, lima ,android
+671,2024-12-16,ad,YORK,ios
+537,2025-02-03,referral, oslo ,web
+1044,2024-12-22,referral,Lima,android
+1611,2024-12-28,organic,YORK,android
+842,2025-02-11,ad,LIMA,web
+1807,2025-02-17,organic,Rome,ios
+1190,2025-02-08,ad,York,ios
+821,2025-02-18,organic,LIMA,ios
+259,2024-12-31,referral,,web
+1430,2024-12-29,referral,ROME,android
+1663,2025-03-09,ad,OSLO,ios
+1452,2025-01-11,organic,York,android
+524,2025-01-13,organic, york ,android
+318,2024-12-17,organic, oslo ,android
+1696,2025-03-06,referral,Rome,android
+1854,2025-01-05,ad, oslo ,ios
+625,2025-02-23,referral, york ,web
+900,2024-12-30,ad,ROME,web
+1535,2025-02-24,referral,Rome,android
+75,2025-03-08,organic, oslo ,android
+1574,2025-01-30,organic,Lima,ios
+643,2025-02-18,ad,ROME,web
+1548,2025-01-23,referral,Oslo,web
+335,2024-12-21,organic, york ,android
+1796,2025-02-02,organic,Lima,ios
+301,2024-12-23,ad, oslo ,ios
+1690,2025-01-26,organic,YORK,android
+1755,2025-02-22,referral, york ,web
+1401,2025-01-08,ad, lima ,web
+1653,2025-01-03,organic,LIMA,ios
+168,2024-12-31,ad,YORK,ios
+552,2025-03-03,organic, york ,android
+138,2025-02-19,ad, oslo ,ios
+1702,2025-02-15,referral,,android
+1055,2025-01-14,ad,York,ios
+457,2025-02-22,referral,York,web
+1402,2025-03-01,organic, york ,android
+1967,2024-12-15,ad,Lima,web
+1270,2024-12-27,ad, rome ,web
+1439,2025-03-09,ad, rome ,web
+1638,2025-02-23,organic, york ,android
+190,2025-02-03,referral,OSLO,web
+1362,2025-03-08,referral,Rome,android
+458,2025-02-19,referral, rome ,android
+669,2025-02-21,ad, york ,ios
+1919,2025-03-03,organic, york ,android
+1434,2025-03-07,ad, york ,ios
+857,2024-12-21,ad, lima ,web
+21,2025-01-21,organic,YORK,android
+37,2025-02-05,ad,,ios
+466,2025-01-19,organic,LIMA,ios
+731,2025-01-16,organic,LIMA,ios
+766,2025-01-28,ad, oslo ,ios
+776,2025-01-13,organic, rome ,ios
+261,2024-12-16,organic,LIMA,ios
+919,2025-02-27,referral, rome ,android
+1908,2025-01-10,ad, rome ,web
+201,2025-01-01,referral,OSLO,web
+1073,2025-02-09,referral,,web
+359,2025-02-05,ad, oslo ,ios
+1894,2025-01-16,organic,Rome,ios
+354,2025-02-24,organic,ROME,ios
+1105,2025-03-06,referral, oslo ,web
+1404,2025-02-14,organic, oslo ,android
+440,2025-01-17,ad,York,ios
+1430,2024-12-29,referral,ROME,android
+1537,2024-12-18,organic,YORK,android
+1081,2025-01-04,test,OSLO,ios
+660,2025-01-12,ad, york ,ios
+920,2025-01-17,organic,ROME,ios
+1519,2025-03-03,ad,Lima,web
+1650,2025-02-20,organic, york ,android
+690,2025-03-08,referral, oslo ,web
+479,2025-02-04,ad,YORK,ios
+247,2025-01-14,ad,YORK,ios
+1637,2025-03-09,organic,Oslo,android
+825,2025-02-03,ad, york ,ios
+830,2025-01-05,ad, rome ,web
+1201,2025-01-04,organic, lima ,ios
+1410,2024-12-23,test,OSLO,ios
+116,2025-01-05,ad, oslo ,ios
+451,2025-02-21,organic,York,android
+1649,2025-01-02,ad,ROME,web
+538,2025-02-22,organic,Rome,ios
+697,2025-02-09,ad, oslo ,ios
+161,2025-01-28,ad, lima ,web
+296,2025-03-04,organic,,ios
+360,2025-02-13,referral,Rome,android
+816,2025-01-23,organic, york ,android
+674,2025-02-20,organic,Lima,ios
+1712,2025-02-09,organic, york ,android
+214,2025-02-19,referral,YORK,web
+1927,2025-02-06,test,Rome,android
+275,2025-03-02,organic,Lima,ios
+596,2025-02-26,organic, york ,android
+1898,2025-03-06,referral,ROME,android
+1823,2025-03-08,organic, lima ,ios
+602,2025-01-03,organic,LIMA,ios
+530,2025-02-25,referral, lima ,android
+1259,2025-01-19,ad,Lima,web
+1995,2025-02-02,referral,York,web
+224,2025-01-14,referral, rome ,android
+999,2024-12-23,referral,,web
+19,2025-01-19,ad,Oslo,ios
+1864,2025-01-14,ad, lima ,web
+1772,2025-02-02,organic,Lima,ios
+771,2025-02-20,organic,ROME,ios
+273,2025-03-03,referral,York,web
+1614,2025-01-11,referral,Lima,android
+1731,2024-12-18,referral, lima ,android
+1213,2025-02-04,organic,YORK,android
+439,2025-02-17,ad, rome ,web
+896,2025-03-09,organic,Lima,ios
+1124,2025-01-28,organic,ROME,ios
+1070,2025-02-17,ad,Rome,web
+705,2025-01-14,test,YORK,android
+413,2025-02-11,referral,Lima,android
+1920,2025-01-14,referral, york ,web
+400,2024-12-25,ad,Lima,web
+623,2025-01-18,referral,York,web
+692,2024-12-28,ad,YORK,ios
+1444,2025-02-14,referral, lima ,android
+361,2025-01-10,referral, rome ,android
+1601,2025-02-19,referral, rome ,android
+498,2025-01-10,organic,LIMA,ios
+650,2025-03-03,referral,LIMA,android
+1157,2025-03-07,ad,Lima,web
+1734,2024-12-28,ad,OSLO,ios
+326,2025-03-09,organic,Oslo,android
+80,2025-03-02,ad,Lima,web
+1142,2025-03-08,organic,LIMA,ios
+516,2025-03-05,organic,LIMA,ios
+1464,2024-12-22,organic,ROME,ios
+1139,2025-01-07,ad, oslo ,ios
+1877,2024-12-30,ad,LIMA,web
+1183,2025-01-23,referral, oslo ,web
+1484,2025-01-17,ad,ROME,web
+1687,2025-01-16,organic,LIMA,ios
+1409,2024-12-16,ad, lima ,web
+794,2025-01-10,referral, rome ,android
+1505,2025-01-24,ad,OSLO,ios
+333,2025-01-06,ad,,web
+1449,2025-02-03,referral,York,web
+381,2024-12-23,ad,Oslo,ios
+1147,2024-12-22,referral,,android
+1464,2024-12-22,organic,ROME,ios
+165,2025-02-17,ad,Lima,web
+1114,2025-01-24,organic,Rome,ios
+1466,2025-02-15,organic, oslo ,android
+1126,2025-03-09,ad,OSLO,ios
+1143,2025-03-05,organic,YORK,android
+1078,2025-03-09,organic,ROME,ios
+304,2025-01-21,ad, rome ,web
+852,2025-03-08,ad,LIMA,web
+1812,2025-03-01,referral,Rome,android
+764,2025-01-17,organic,ROME,ios
+136,2025-02-09,referral, rome ,android
+854,2025-01-09,organic,Oslo,android
+1565,2025-01-06,ad,York,ios
+872,2025-01-29,organic,York,android
+1963,2025-01-23,organic,LIMA,ios
+313,2024-12-30,organic, rome ,ios
+234,2025-03-05,ad, rome ,web
+1613,2025-03-08,referral,Rome,android
+802,2025-01-31,ad,Oslo,ios
+207,2025-01-01,referral, lima ,android
+1413,2025-01-17,referral,YORK,web
+1312,2025-02-12,referral, rome ,android
+864,2025-02-05,ad,YORK,ios
+1544,2025-02-08,referral,OSLO,web
+25,2025-01-25,ad,York,ios
+1327,2024-12-22,referral,LIMA,android
+1343,2024-12-17,organic, lima ,ios
+46,2025-02-14,ad,ROME,web
+528,2025-01-18,ad,Oslo,ios
+1573,2025-02-10,ad, york ,ios
+1730,2025-02-13,ad, york ,ios
+220,2025-01-26,ad,Lima,web
+351,2025-02-22,organic,Lima,ios
+1014,2025-03-06,ad,OSLO,ios
+293,2025-02-01,organic, oslo ,android
+1223,2025-03-02,referral,OSLO,web
+344,2025-01-15,referral,OSLO,web
+1065,2025-01-01,organic,Lima,ios
+758,2025-02-05,organic, york ,android
+38,2025-02-06,referral,Rome,android
+1667,2025-01-02,referral, lima ,android
+1451,2025-01-21,referral,YORK,web
+621,2025-02-14,referral,LIMA,android
+2000,2025-03-05,referral, lima ,android
+372,2025-01-06,ad,Lima,web
+556,2025-01-22,referral,YORK,web
+1808,2025-02-25,organic, york ,android
+931,2025-02-16,referral,ROME,android
+300,2024-12-23,referral,YORK,web
+1108,2025-02-08,referral, lima ,android
+1379,2025-01-09,referral,OSLO,web
+1154,2024-12-26,ad,LIMA,web
+1160,2025-01-10,organic,Rome,ios
+1553,2024-12-28,referral, york ,web
+1558,2025-01-14,referral,Lima,android
+991,2025-03-02,ad, york ,ios
+1665,2025-01-10,organic,,android
+1383,2025-01-29,ad,OSLO,ios
+894,2025-01-19,organic,Lima,ios
+774,2025-01-01,referral,LIMA,android
+1681,2025-03-06,referral, lima ,android
+688,2025-01-30,referral,YORK,web
+736,2025-03-06,ad, rome ,web
+725,2025-01-10,ad,Oslo,ios
+1112,2025-01-16,ad,YORK,ios
+79,2025-02-04,referral,ROME,android
+1396,2024-12-20,ad,Oslo,ios
+1386,2025-02-08,organic,OSLO,android
+1273,2025-01-24,ad, oslo ,ios
+1758,2025-03-08,organic,Rome,ios
+425,2025-01-09,referral,YORK,web
+320,2024-12-29,referral,Oslo,web
+1699,2025-03-08,ad, york ,ios
+1229,2025-02-15,organic,YORK,android
+745,2024-12-25,referral,Rome,android
+1080,2025-01-24,ad,Lima,web
+1356,2025-02-17,referral, york ,web
+1542,2024-12-26,organic,York,android
+1120,2024-12-28,ad,Oslo,ios
+1002,2025-02-17,organic,OSLO,android
+311,2025-01-24,ad,LIMA,web
+646,2025-03-01,referral, rome ,android
+1377,2025-01-12,organic, rome ,ios
+1469,2025-01-14,ad, lima ,web
+1052,2025-03-04,ad, lima ,web
+1110,2025-02-03,ad,,ios
+958,2025-02-24,referral,Oslo,web
+1064,2025-03-03,referral, rome ,android
+1487,2025-02-03,referral, york ,web
+37,2025-02-05,ad,,ios
+1708,2025-01-29,organic, rome ,ios
+375,2025-01-31,ad,Lima,web
+1074,2025-01-21,referral,Lima,android
+1890,2025-02-02,ad,Lima,web
+1944,2025-03-04,ad, oslo ,ios
+218,2025-01-16,referral, rome ,android
+1365,2025-01-12,organic, oslo ,android
+1885,2025-02-10,organic, lima ,ios
+467,2025-01-28,ad,Rome,web
+1385,2025-01-29,organic, york ,android
+790,2025-02-07,ad,ROME,web
+391,2024-12-31,referral,Lima,android
+88,2025-01-06,ad, lima ,web
+701,2025-02-08,referral, york ,web
+1935,2025-02-02,organic,YORK,android
+1454,2025-02-21,organic,Lima,ios
+1954,2025-01-16,organic,Rome,ios
+30,2025-01-30,organic, rome ,ios
+1618,2024-12-17,referral,ROME,android
+211,2025-02-03,organic,YORK,android
+1775,2025-01-31,ad,LIMA,web
+1579,2025-01-24,organic, oslo ,android
+870,2025-01-25,ad,Lima,web
+1,2025-01-03,ad,YORK,ios
+820,2025-02-05,referral,YORK,web
+186,2025-01-15,referral,ROME,android
+539,2024-12-19,referral,Rome,android
+1150,2025-02-05,organic, rome ,ios
+77,2024-12-23,organic,OSLO,android
+544,2025-01-05,ad,Rome,web
+1760,2025-01-18,organic,YORK,android
+1619,2024-12-30,ad, oslo ,ios
+1676,2025-02-15,referral,OSLO,web
+583,2025-01-04,ad, oslo ,ios
+384,2025-01-07,referral,OSLO,web
+205,2025-02-26,organic, rome ,ios
+545,2025-01-08,referral,LIMA,android
+742,2025-02-20,ad,LIMA,web
+817,2025-01-14,ad,Rome,web
+1746,2025-01-23,organic, rome ,ios
+924,2025-01-17,organic, rome ,ios
+1610,2025-01-30,referral, oslo ,web
+845,2025-01-19,referral,OSLO,web
+1412,2025-02-27,organic,Oslo,android
+887,2025-02-17,organic, lima ,ios
+985,2025-02-03,ad,Oslo,ios
+1811,2025-02-15,referral, york ,web
+624,2025-01-06,ad,Oslo,ios
+1946,2025-01-09,referral, oslo ,web
+1907,2024-12-28,organic,Lima,ios
+147,2024-12-20,ad,York,ios
+946,2025-01-20,organic,Lima,ios
+1087,2025-02-07,organic,YORK,android
+1940,2025-01-27,referral,York,web
+325,2025-01-05,ad,York,ios
+1735,2025-02-01,referral, oslo ,web
+1179,2025-01-07,ad, rome ,web
+1079,2024-12-31,ad, lima ,web
+1975,2025-03-02,organic,LIMA,ios
+1366,2025-01-29,organic,Lima,ios
+1959,2025-03-08,referral,Rome,android
+509,2025-03-08,organic,YORK,android
+1569,2025-01-22,organic,York,android
+1998,2024-12-27,ad,,web
+1249,2025-02-08,referral, lima ,android
+860,2025-01-18,organic,YORK,android
+1034,2025-03-05,test, lima ,ios
+1986,2025-01-01,ad, york ,ios
+1034,2025-03-05,test, lima ,ios
+748,2024-12-29,organic,YORK,android
+586,2025-02-01,referral,York,web
+274,2025-02-21,organic, oslo ,android
+1438,2025-02-04,ad,Rome,web
+90,2024-12-28,organic,YORK,android
+1099,2025-01-16,referral, rome ,android
+1549,2025-02-24,ad,YORK,ios
+32,2025-02-01,referral, lima ,android
+962,2024-12-16,organic,,ios
+308,2024-12-25,referral,Lima,android
+12,2025-01-13,organic, lima ,ios
+848,2025-02-19,referral,Rome,android
+403,2024-12-25,ad, rome ,web
+1419,2025-02-08,ad, rome ,web
+294,2025-01-26,organic,OSLO,android
+1015,2024-12-22,referral,YORK,web
+1876,2025-01-14,organic,Oslo,android
+888,2025-03-09,organic,,ios
+824,2025-02-05,ad, york ,ios
+1076,2025-01-27,organic, york ,android
+1276,2025-02-20,organic, oslo ,android
+1424,2024-12-20,ad,York,ios
+551,2025-01-28,organic,OSLO,android
+1501,2025-03-01,organic,LIMA,ios
+349,2024-12-18,referral,LIMA,android
+856,2024-12-16,ad,Lima,web
+1042,2025-02-25,ad,LIMA,web
+878,2024-12-25,organic,ROME,ios
+1415,,referral,OSLO,web
+1161,2024-12-16,ad,YORK,ios
+235,2025-01-25,test, york ,android
+1463,2024-12-23,referral, oslo ,web
+1820,2025-01-09,organic,YORK,android
+61,2024-12-27,organic,OSLO,android
+1918,2025-02-24,referral,York,web
+994,2025-01-12,referral,ROME,android
+212,2025-01-12,organic,York,android
+1585,2024-12-28,organic,OSLO,android
+121,2025-01-06,ad,LIMA,web
+1568,2025-02-16,referral, york ,web
+1332,2025-03-03,organic,,ios
+1255,2025-03-07,ad,LIMA,web
+497,2025-02-06,referral,Rome,android
+266,2025-01-29,referral,Lima,android
+130,2025-02-25,ad,OSLO,ios
+249,2025-03-08,organic,YORK,android
+92,2024-12-17,referral,YORK,web
+1011,2025-01-13,organic,ROME,ios
+1165,2025-02-27,organic,LIMA,ios
+913,2025-01-25,ad,Oslo,ios
+598,2025-01-07,referral,Rome,android
+546,2025-02-04,referral,OSLO,web
+792,2024-12-24,organic,Rome,ios
+1485,2025-01-14,referral, york ,web
+777,2025-02-19,ad,,web
+1107,2025-01-19,ad,York,ios
+1631,2025-01-05,ad,York,ios
+1417,2025-02-10,referral,York,web
+1979,2025-02-08,referral,OSLO,web
+1586,2024-12-26,organic, york ,android
+1394,2025-02-04,ad, rome ,web
+754,2025-02-05,ad, york ,ios
+465,2025-01-18,referral, york ,web
+149,2025-02-18,referral, rome ,android
+482,2024-12-18,ad, york ,ios
+1376,2025-02-05,referral,ROME,android
+547,2025-01-21,organic,Rome,ios
+793,2025-02-04,organic,ROME,ios
+534,2025-01-24,organic,Oslo,android
+184,2025-02-14,referral,YORK,web
+965,2025-01-22,organic,YORK,android
+1285,2024-12-31,referral,ROME,android
+1901,2025-02-10,referral,ROME,android
+1054,2025-02-08,ad,Oslo,ios
+839,2025-01-26,referral,York,web
+558,2025-02-05,ad,OSLO,ios
+36,2025-02-04,organic, lima ,ios
+1852,2025-02-17,ad, lima ,web
+872,2025-01-29,organic,York,android
+83,2025-01-09,ad,York,ios
+508,2025-02-27,organic,Oslo,android
+1837,2025-03-05,ad,Oslo,ios
+1754,2024-12-26,referral,ROME,android
+605,2025-02-21,organic,Rome,ios
+260,2024-12-29,ad,Rome,web
+1722,2025-01-12,organic,OSLO,android
+105,2025-01-10,referral, oslo ,web
+134,2025-02-20,organic,OSLO,android
+652,2025-01-10,organic,OSLO,android
+560,2024-12-27,ad,Oslo,ios
+192,2025-01-09,ad,ROME,web
+1937,2025-02-14,referral, york ,web
+22,2025-01-22,ad,Rome,web
+564,2024-12-27,test, rome ,android
+233,2025-01-17,ad,OSLO,ios
+27,2025-01-27,organic,OSLO,android
+210,2025-03-04,ad,OSLO,ios
+1176,2025-01-29,referral, rome ,android
+628,2025-03-02,referral, york ,web
+1506,2024-12-22,organic,Lima,ios
+1502,2025-02-20,referral,Rome,android
+342,2025-01-01,referral,Rome,android
+419,2025-01-20,ad,YORK,ios
+1824,2025-01-19,organic,YORK,android
+1179,2025-01-07,ad, rome ,web
+677,2025-01-27,referral, oslo ,web
+1445,2025-01-12,ad,LIMA,web
+1590,2025-02-13,organic, york ,android
+964,2024-12-25,ad,Lima,web
+1264,2025-01-07,organic, oslo ,android
+1584,2025-01-25,ad,OSLO,ios
+1970,2025-03-03,referral,OSLO,web
+87,2025-01-15,organic, rome ,ios
+1230,2024-12-25,organic, lima ,ios
+573,2025-02-12,organic, oslo ,android
+1859,2025-01-23,ad,Oslo,ios
+350,2025-02-24,ad, lima ,web
+1357,2024-12-29,referral,Lima,android
+979,2025-01-30,organic,Oslo,android
+433,2025-02-10,referral, lima ,android
+581,2025-03-03,ad,ROME,web
+868,2024-12-30,ad,York,ios
+393,2025-03-03,referral,Rome,android
+444,2025-01-14,organic,,android
+1802,2024-12-21,referral, oslo ,web
+407,2025-01-08,ad,,ios
+1785,2025-01-10,ad,LIMA,web
+1380,2024-12-27,referral,OSLO,web
+804,2025-02-09,ad,LIMA,web
+1352,2025-02-28,ad,Oslo,ios
+1750,2024-12-19,organic,York,android
+1400,2024-12-23,organic, rome ,ios
+1806,2025-01-06,referral, rome ,android
+270,2025-01-21,ad,Rome,web
+104,2025-03-09,organic,York,android
+787,2025-01-30,organic,Oslo,android
+1118,2025-02-18,organic,Lima,ios
+1721,2025-01-18,ad, rome ,web
+379,2025-03-05,referral,Rome,android
+148,2024-12-21,organic,,ios
+1552,2025-01-13,organic,OSLO,android
+549,2025-03-03,ad,ROME,web
+859,2024-12-25,organic,ROME,ios
+655,2025-01-22,ad,YORK,ios
+578,2025-02-25,ad,ROME,web
+1164,2024-12-27,ad, lima ,web
+1105,2025-03-06,referral, oslo ,web
+617,2025-03-02,organic, rome ,ios
+782,2025-01-06,referral,ROME,android
+172,2025-03-04,organic,Rome,ios
+1660,2025-03-04,referral,ROME,android
+1724,2025-03-06,organic,OSLO,android
+511,2025-01-19,ad,ROME,web
+1516,2025-02-21,ad,LIMA,web
+1715,2025-01-14,referral,LIMA,android
+1748,2025-01-14,ad,York,ios
+402,2025-01-19,ad,Oslo,ios
+1992,2025-02-17,ad,Oslo,ios
+1450,2024-12-16,organic, oslo ,android
+1973,2025-01-12,ad,Lima,web
+185,2025-01-21,organic,,android
+1355,2025-01-14,referral,OSLO,web
+1039,2025-02-15,ad, lima ,web
+499,2025-01-31,ad,ROME,web
+1211,2025-03-03,ad, oslo ,ios
+1910,2024-12-31,organic,Lima,ios
+956,2025-02-22,referral,Oslo,web
+961,2025-01-17,organic,OSLO,android
+1156,2025-01-23,ad, oslo ,ios
+1856,2025-02-20,referral, rome ,android
+941,2025-01-11,organic, oslo ,android
+1022,2025-01-09,referral,Oslo,web
+67,2025-01-10,ad,ROME,web
+255,2024-12-21,ad,YORK,ios
+1310,2025-02-17,ad,OSLO,ios
+1182,2025-01-28,organic,ROME,ios
+713,2025-01-12,organic,OSLO,android
+1017,2025-02-22,referral, york ,web
+1248,2024-12-16,ad, oslo ,ios
+1616,2025-01-19,ad,ROME,web
+1003,2024-12-27,ad,ROME,web
+1706,2025-02-27,referral,York,web
+1958,2025-02-21,ad, lima ,web
+1816,2025-03-06,ad,Lima,web
+1030,2025-01-28,ad,YORK,ios
+963,2025-01-19,referral,YORK,web
+726,2025-01-02,referral,Lima,android
+1609,2025-01-12,organic,LIMA,ios
+1576,2025-01-04,ad,ROME,web
+1778,2025-01-14,ad,Lima,web
+786,2025-01-31,ad, rome ,web
+1628,2025-02-13,referral,,web
+533,2025-01-14,ad,Oslo,ios
+905,2025-03-02,ad,LIMA,web
+971,2025-01-27,organic,YORK,android
+1828,2025-03-04,referral, york ,web
+668,2025-01-26,referral,Rome,android
+1625,2025-01-19,organic,LIMA,ios
+1926,2025-02-01,organic, rome ,ios
+972,2025-02-14,ad,Rome,web
+13,2025-01-14,ad, york ,ios
+1403,2025-02-03,referral, lima ,android
+648,2024-12-28,organic, lima ,ios
+686,2025-02-03,referral, oslo ,web
+561,2025-02-26,organic,Oslo,android
+1382,2025-02-23,organic, rome ,ios
+1673,2024-12-26,ad,York,ios
+475,2025-01-14,referral,Rome,android
+600,2024-12-25,ad, york ,ios
+981,2025-01-01,referral,ROME,android
+1541,2024-12-19,ad,Rome,web
+826,2025-01-20,referral,Oslo,web
+603,2025-02-09,organic, york ,android
+1290,2025-02-21,referral, lima ,android
+1903,2025-01-08,organic, lima ,ios
+844,2025-01-11,ad,YORK,ios
+1770,2025-02-22,referral, lima ,android
+7,2025-01-08,ad,Oslo,ios
+843,2024-12-18,referral,ROME,android
+1947,2025-02-01,organic,ROME,ios
+970,2025-03-05,ad,LIMA,web
+72,2025-02-19,organic, oslo ,android
+1346,2025-02-14,ad,Lima,web
+1388,2025-01-26,ad,Rome,web
+1135,2025-01-23,ad,Lima,web
+1129,2024-12-22,ad,OSLO,ios
+480,2024-12-17,ad,OSLO,ios
+1252,2025-03-08,organic, lima ,ios
+1888,2025-02-24,ad, rome ,web
+895,2025-01-09,organic,YORK,android
+421,2025-01-20,ad,ROME,web
+769,2025-01-13,organic,OSLO,android
+4,2025-01-05,ad,Lima,web
+198,2024-12-19,ad, oslo ,ios
+1193,2025-01-15,referral, oslo ,web
+1999,2025-03-02,organic,Lima,ios
+912,2025-01-23,ad,YORK,ios
+1340,2025-03-01,referral,Rome,android
+940,2025-01-18,test,Oslo,ios
+626,2024-12-22,referral, lima ,android
+1942,2025-02-27,ad,LIMA,web
+1753,2025-02-01,ad,Oslo,ios
+1060,2025-02-15,organic, rome ,ios
+644,2025-01-11,referral,OSLO,web
+1790,2025-02-07,ad,LIMA,web
+1422,2025-01-09,organic, york ,android
+751,2025-01-07,referral,Lima,android
+1210,2024-12-28,organic, lima ,ios
+1024,2025-01-20,referral,Oslo,web
+417,2025-01-10,ad,OSLO,ios
+1988,2025-01-29,ad, lima ,web
+957,2025-01-03,organic, york ,android
+1732,2024-12-25,referral, lima ,android
+181,2025-01-15,ad, rome ,web
+376,2025-02-08,test,Lima,ios
+356,2025-01-25,referral,York,web
+420,2025-03-09,ad, lima ,web
+1678,2025-02-25,ad,Lima,web
+1704,2025-02-04,referral,ROME,android
+746,2024-12-30,ad, oslo ,ios
+1726,2025-01-23,referral, lima ,android
+1334,2025-02-09,ad,LIMA,web
+722,2025-01-05,organic,Oslo,android
+1148,2024-12-19,ad,Rome,web
+348,2025-01-10,organic,Lima,ios
+609,2025-01-14,organic, rome ,ios
+39,2025-02-07,organic,OSLO,android
+279,2025-02-26,organic,Oslo,android
+175,2024-12-23,ad,Oslo,ios
+398,2025-01-04,ad, lima ,web
+1293,2025-02-10,organic, oslo ,android
+343,2024-12-18,organic,ROME,ios
+717,2025-01-25,ad,York,ios
+1458,2025-01-14,organic, oslo ,android
+244,2024-12-22,ad, lima ,web
+363,2025-03-09,organic, york ,android
+99,2025-02-10,organic,LIMA,ios
+1747,2024-12-17,ad, oslo ,ios
+248,2025-02-12,referral,YORK,web
+921,2024-12-20,ad,Lima,web
+1480,2025-01-27,referral,,web
+1186,2025-01-24,referral,Oslo,web
+1592,2025-02-07,organic, rome ,ios
+687,2025-02-17,organic, oslo ,android
+1718,2025-01-08,organic,Oslo,android
+706,2024-12-19,ad,Lima,web
+59,2025-02-17,referral,York,web
+1677,2025-02-09,referral, york ,web
+1104,2024-12-22,organic,YORK,android
+1021,2025-02-01,organic,York,android
+893,2025-02-04,test,Lima,ios
+1692,2025-01-21,test, york ,web
+582,2025-01-09,organic, oslo ,android
+572,2025-01-27,ad,YORK,ios
+125,2025-01-18,referral,OSLO,web
+171,2025-02-12,referral,ROME,android
+641,2024-12-22,ad,LIMA,web
+1094,2025-03-01,organic,OSLO,android
+1497,2025-03-01,organic,YORK,android
+1984,2024-12-17,organic,LIMA,ios
+542,2024-12-21,organic, lima ,ios
+401,2024-12-15,organic,York,android
+422,2025-01-01,organic, york ,android
+819,2025-01-24,ad,Oslo,ios
+993,2025-02-12,ad,OSLO,ios
+1971,2024-12-27,referral,YORK,web
+849,,ad,YORK,ios
+1943,2025-02-06,ad,ROME,web
+1499,2025-01-01,organic,Oslo,android
+1311,2025-02-21,referral,YORK,web
+779,2024-12-25,ad,ROME,web
+1138,2025-01-17,organic, oslo ,android
+282,2024-12-21,test,York,ios
+252,2025-01-30,ad,YORK,ios
+1781,2025-02-06,referral,Oslo,web
+632,2025-02-16,referral,LIMA,android
+65,2025-02-11,referral,YORK,web
+412,2025-03-01,ad, lima ,web
+557,2025-01-07,referral,YORK,web
+1629,2025-01-08,referral, york ,web
+264,2025-02-26,organic,Lima,ios
+1069,2025-02-02,referral,Rome,android
+1302,2025-03-09,organic,OSLO,android
+522,2025-02-26,organic,OSLO,android
+1751,2024-12-31,organic, rome ,ios
+226,2025-02-02,ad, rome ,web
+1368,2024-12-28,referral, oslo ,web
+1740,2025-02-11,ad,York,ios
+846,2025-03-03,test,YORK,android
+1256,2025-01-09,referral,YORK,web
+1411,2024-12-31,organic,Oslo,android
+151,2025-01-02,ad,OSLO,ios
+1648,2024-12-25,ad,Lima,web
+1846,2025-03-09,ad,OSLO,ios
+1397,2025-02-14,ad,LIMA,web
+694,2025-02-21,referral,OSLO,web
+406,2025-01-10,ad,Lima,web
+1341,2025-01-20,referral, oslo ,web
+520,2025-03-02,referral, oslo ,web
+1588,2025-03-07,referral,OSLO,web
+295,2025-02-04,organic,Rome,ios
+145,2024-12-20,referral,LIMA,android
+1543,2025-02-13,organic,Oslo,android
+695,2025-02-10,organic,ROME,ios
+1857,2025-01-07,ad,YORK,ios
+1219,2025-01-17,referral, rome ,android
+1067,2025-02-16,organic,Lima,ios
+1991,2025-01-21,ad, oslo ,ios
+1777,2024-12-27,referral,Oslo,web
+84,2025-02-08,organic, rome ,ios
+1431,2025-02-11,ad,Lima,web
+1286,2025-01-08,organic, york ,android
+716,2024-12-15,ad,York,ios
+177,2025-01-17,organic, rome ,ios
+1861,2024-12-25,ad,Rome,web
+1983,2025-01-26,organic,YORK,android
+1339,2025-02-17,organic,OSLO,android
+812,2025-01-12,ad, oslo ,ios
+1204,2025-02-07,organic,YORK,android
+507,2025-02-04,referral,YORK,web
+1845,2025-01-12,referral,Oslo,web
+1244,2024-12-29,referral,OSLO,web
+1041,2025-01-09,organic,ROME,ios
+1851,2025-02-25,referral, rome ,android
+1829,2025-02-23,organic, rome ,ios
+768,2024-12-19,referral,YORK,web
+658,2025-03-07,test,York,ios
+174,2025-01-15,ad,York,ios
+76,2024-12-24,referral,York,web
+1880,2024-12-25,test,Rome,ios
+380,2025-01-13,ad,Rome,web
+1146,2024-12-22,organic, rome ,ios
+1478,2025-02-14,referral,YORK,web
+1679,2025-01-26,organic,Rome,ios
+749,2024-12-30,ad,York,ios
+1969,2025-02-20,ad,OSLO,ios
+1089,2024-12-24,organic,YORK,android
+616,2025-02-20,ad, lima ,web
+898,2025-01-04,organic,YORK,android
+1322,2024-12-25,referral,YORK,web
+1075,2025-02-26,organic, york ,android
+112,2025-02-23,referral,ROME,android
+280,2025-02-12,ad,ROME,web
+1232,2024-12-27,referral,Rome,android
+135,2025-02-02,referral,York,web
+678,2025-02-16,ad, rome ,web
+1974,2025-02-12,test, lima ,ios
+937,2024-12-17,referral, rome ,android
+382,2025-01-06,referral,OSLO,web
+141,2025-03-01,test,ROME,android
+1617,2025-01-12,ad, lima ,web
+261,2024-12-16,organic,LIMA,ios
+164,2024-12-27,referral,LIMA,android
+1018,2024-12-20,organic,OSLO,android
+518,2024-12-16,referral,,web
+1196,2024-12-22,ad,YORK,ios
+651,2025-02-07,referral,LIMA,android
+150,2024-12-18,organic,YORK,android
+158,2025-03-09,organic,Rome,ios
+187,2024-12-28,referral,OSLO,web
+673,2025-02-07,organic,YORK,android
+822,2025-01-01,organic, york ,android
+58,2025-01-20,organic,LIMA,ios
+446,2025-02-05,organic,YORK,android
+899,2025-01-10,referral, york ,web
+1446,2025-02-02,referral,York,web
+1883,2025-02-28,ad, lima ,web
+378,2024-12-22,organic,ROME,ios
+676,2025-01-23,organic,LIMA,ios
+1238,2025-03-04,referral, york ,web
+1367,2025-03-04,ad,Lima,web
+156,2025-02-22,ad,Oslo,ios
+1370,2024-12-19,referral,York,web
+1534,2024-12-22,organic,ROME,ios
+1809,2025-01-18,ad,LIMA,web
+885,2025-02-28,ad, rome ,web
+1875,2025-03-06,ad, rome ,web
+370,2024-12-30,ad,,ios
+265,2024-12-21,referral,LIMA,android
+1215,2024-12-15,ad,Oslo,ios
+1170,2025-01-01,ad,OSLO,ios
+394,2025-01-29,ad, york ,ios
+515,2025-01-19,organic, york ,android
+1827,2025-03-09,organic,YORK,android
+1789,2025-02-16,ad,OSLO,ios
+1326,2025-02-18,referral,LIMA,android
+809,2025-02-27,organic, lima ,ios
+1187,2025-01-27,organic, rome ,ios
+1128,2025-02-20,test,ROME,android
+1564,2025-02-06,organic,ROME,ios
+314,2025-01-26,referral,YORK,web
+1224,2025-02-23,organic,OSLO,android
+477,2024-12-30,ad,YORK,ios
+152,2024-12-17,ad, rome ,web
+1391,2025-02-26,organic,OSLO,android
+1149,2025-02-03,referral,Lima,android
+1033,2025-02-06,ad, oslo ,ios
+1886,2025-01-24,referral,OSLO,web
+1847,2025-02-12,referral, oslo ,web
+119,2025-01-06,organic,Lima,ios
+182,2025-01-16,referral,Oslo,web
+1632,2025-03-01,organic, rome ,ios
+1536,2025-02-22,organic, rome ,ios
+427,2025-01-13,organic,ROME,ios
+1711,2024-12-28,ad, oslo ,ios
+263,2025-02-28,referral,Rome,android
+183,2025-02-25,referral,Rome,android
+1972,2024-12-16,referral, york ,web
+217,2025-01-03,ad,OSLO,ios
+662,2025-02-24,organic,Rome,ios
+24,2025-01-24,organic,LIMA,ios
+127,2025-01-23,organic,Rome,ios
+1561,2025-02-04,ad, oslo ,ios
+1842,2025-01-17,referral,Rome,android
+1700,2025-01-31,organic, lima ,ios
+473,2025-02-28,organic, rome ,ios
+930,2024-12-30,referral,YORK,web
+1361,2025-01-22,referral, lima ,android
+454,2025-01-21,ad,LIMA,web
+1623,2025-02-27,ad,LIMA,web
+1771,2025-02-21,organic,York,android
+3,2025-01-04,organic, oslo ,android
+566,,referral,York,web
+434,2025-02-20,referral,Rome,android
+630,2025-01-17,organic, oslo ,android
+1291,2024-12-16,organic, oslo ,android
+1766,2025-03-02,referral,Oslo,web
+1612,2025-02-27,organic, lima ,ios
+414,2025-02-27,organic, rome ,ios
+966,2025-01-20,organic,ROME,ios
+1288,2025-01-07,organic,ROME,ios
+262,2025-02-02,referral, oslo ,web
+1062,2025-01-07,ad,YORK,ios
+942,2025-03-06,ad, lima ,web
+1680,2025-01-02,ad,OSLO,ios
+968,2024-12-16,referral, rome ,android
+1136,2025-01-05,ad,ROME,web
+85,2025-02-02,ad, oslo ,ios
+1203,2024-12-22,referral,York,web
+619,2025-01-03,organic, oslo ,android
+1923,2024-12-26,organic,Lima,ios
+944,2025-01-15,referral, lima ,android
+1575,2025-03-09,organic,Oslo,android
+493,2025-02-05,ad,OSLO,ios
+1977,2025-01-24,ad,Lima,web
+1262,2025-01-11,organic, rome ,ios
+1185,2025-01-13,ad, oslo ,ios
+1934,2025-01-08,referral,Rome,android
+807,2025-02-14,organic,Rome,ios
+1240,2025-01-02,referral,ROME,android
+1226,2025-01-30,ad,Oslo,ios
+1691,2025-01-27,organic,LIMA,ios
+869,2025-02-26,referral,York,web
+540,2025-01-22,referral, lima ,android
+987,2025-03-09,test,LIMA,android
+1695,2024-12-18,referral,ROME,android
+328,2025-01-29,referral, york ,web
+1868,2025-03-07,organic,LIMA,ios
+608,2025-02-19,ad,ROME,web
+102,2025-01-14,ad,ROME,web
+1554,2025-01-10,ad,,ios
+490,2025-02-02,organic,Oslo,android
+1843,2025-02-22,organic,Rome,ios
+1266,2025-01-23,ad,ROME,web
+1634,2024-12-24,organic,LIMA,ios
+798,2025-01-16,ad,LIMA,web
+404,2025-02-21,referral,York,web
+436,2025-01-12,referral,OSLO,web
+1125,2024-12-27,ad, rome ,web
+1490,2024-12-15,referral, oslo ,web
+933,2025-01-21,ad, oslo ,ios
+713,2025-01-12,organic,OSLO,android
+1503,2025-02-20,organic,ROME,ios
+277,2024-12-22,referral,Oslo,web
+670,2025-01-16,ad,York,ios
+1470,2025-02-28,organic, rome ,ios
+284,2025-02-06,referral,ROME,android
+952,2025-02-25,organic,Lima,ios
+734,2025-01-08,ad,Lima,web
+1463,2024-12-23,referral, oslo ,web
+179,2024-12-23,referral,Oslo,web
+904,2024-12-15,ad,OSLO,ios
+91,2024-12-23,referral, oslo ,web
+1533,2025-03-06,ad,LIMA,web
+529,2024-12-17,ad,Rome,web
+1077,2025-01-11,ad,Oslo,ios
+978,2025-01-29,organic, oslo ,android
+71,2025-01-25,referral,Rome,android
+1932,2025-01-11,organic, rome ,ios
+1178,2025-02-16,organic,Rome,ios
+1016,2025-01-29,organic, lima ,ios
+231,2024-12-16,organic,Oslo,android
+1872,2025-03-03,ad, york ,ios
+611,2025-02-05,test,ROME,ios
+93,2024-12-21,ad,ROME,web
+998,2025-02-20,organic, rome ,ios
+214,2025-02-19,referral,YORK,web
+1982,2025-01-03,organic, rome ,ios
+1527,2024-12-25,referral,ROME,android
+760,2024-12-27,referral, rome ,android
+215,2025-01-15,organic, rome ,ios
+386,2025-01-27,ad,Oslo,ios
+1598,2025-02-09,test,LIMA,web
+1873,2024-12-15,ad,Rome,web
+268,2025-01-08,referral,Oslo,web
+245,2025-01-09,referral,Rome,android
+1135,2025-01-23,ad,Lima,web
+1869,2025-03-09,organic,York,android
+569,2025-01-13,organic,Lima,ios
+1949,2025-02-19,ad, oslo ,ios
+1950,2025-01-23,ad, lima ,web
+1821,2024-12-25,referral,YORK,web
+144,2024-12-23,ad,LIMA,web
+710,2025-03-07,ad,York,ios
+1236,2025-03-08,referral,York,web
+1173,2025-02-09,referral, oslo ,web
+922,2025-01-27,ad, york ,ios
+452,2025-03-03,ad,ROME,web
+935,2025-01-07,referral, oslo ,web
+1672,2024-12-20,organic,Rome,ios
+699,2025-02-12,ad, lima ,web
+1725,2025-02-17,referral, rome ,android
+347,2025-01-20,organic,LIMA,ios
+1962,2025-02-04,referral,YORK,web
+723,2025-02-03,ad,OSLO,ios
+95,2025-02-15,referral,OSLO,web
+113,2025-02-24,referral,York,web
+1900,2025-02-18,ad,York,ios
+815,2024-12-24,referral, rome ,android
+1583,2024-12-24,ad,ROME,web
+1961,2024-12-31,organic,,android
+1492,2025-01-11,organic, rome ,ios
+1214,2025-01-28,organic,York,android
+733,2024-12-18,referral, lima ,android
+66,2025-01-16,organic,Rome,ios
+1682,2025-02-06,referral,OSLO,web
+571,2025-01-14,referral,LIMA,android
+194,2025-01-12,referral,LIMA,android
+871,2025-02-26,ad, lima ,web
+242,2025-01-01,referral,OSLO,web
+33,2025-02-01,organic, york ,android
+772,2025-01-25,ad, oslo ,ios
+823,2025-01-07,ad,LIMA,web
+1278,2025-01-28,referral,York,web
+1001,2025-01-07,ad,Rome,web
+727,2025-01-20,ad,ROME,web
+886,2025-03-06,ad,Rome,web
+8,2025-01-09,referral, lima ,android
+126,2024-12-22,organic,Oslo,android
+863,2025-01-31,referral, rome ,android
+814,2024-12-16,organic,,ios
+1654,2025-01-19,ad,OSLO,ios
+291,2025-01-08,organic, rome ,ios
+1188,2025-02-20,organic, rome ,ios
+1626,2025-01-01,organic,Oslo,android
+846,2025-03-03,test,YORK,android
+109,2024-12-26,referral,Lima,android
+1884,2025-01-16,ad, york ,ios
+1957,2025-01-01,ad,YORK,ios
+110,2025-03-04,organic,Rome,ios
+1032,2025-03-05,referral, oslo ,web
+49,2025-03-08,ad,YORK,ios
+548,2025-02-27,ad, york ,ios
+1892,2025-02-24,ad,York,ios
+491,2025-02-07,ad,Oslo,ios
+1723,2024-12-28,organic, oslo ,android
+1690,2025-01-26,organic,YORK,android
+1321,2025-02-19,ad,Rome,web
+70,2025-02-21,organic, york ,android
+803,2024-12-17,organic,OSLO,android
+1360,2025-01-22,ad,York,ios
+1168,2025-02-08,referral, lima ,android
+1455,2025-01-18,organic, york ,android
+1166,2025-01-08,organic, oslo ,android
+1627,2024-12-20,referral, oslo ,web
+468,2024-12-16,referral,ROME,android
+732,2025-03-03,ad,Oslo,ios
+1169,2025-01-19,organic,ROME,ios
+1136,2025-01-05,ad,ROME,web
+1744,2025-01-18,organic,Oslo,android
+274,2025-02-21,organic, oslo ,android
+696,2025-02-26,organic,York,android
+914,2025-01-16,referral,LIMA,android
+1850,2024-12-31,ad,,web
+955,2024-12-28,referral, york ,web
+153,2025-01-31,organic, lima ,ios
+208,2025-02-04,ad,Rome,web
+1436,2025-01-20,organic,Rome,ios
+1996,2025-01-13,ad,YORK,ios
+371,2024-12-15,organic,Rome,ios
+1707,2025-01-21,ad, rome ,web
+309,2025-01-24,referral,LIMA,android
+1348,2025-02-11,referral,YORK,web
+365,2025-02-28,referral, oslo ,web
+818,2024-12-28,ad,Oslo,ios
+1189,2025-01-15,ad,ROME,web
+724,2025-02-10,ad,Rome,web
+1284,2024-12-28,referral,LIMA,android
+1476,2025-03-08,referral,Rome,android
+791,2025-02-28,referral,Lima,android
+1878,2025-03-02,organic, rome ,ios
+472,2025-01-02,ad,Lima,web
+943,2025-02-18,organic,Lima,ios
+251,2025-01-31,ad, rome ,web
+1047,2025-02-10,referral,OSLO,web
+907,2025-01-01,referral,Lima,android
+1698,,ad, oslo ,ios
+747,2025-01-26,referral, york ,web
+1272,2025-01-26,ad,York,ios
+345,2025-01-08,ad,Lima,web
+1563,2025-01-24,ad,Rome,web
+1127,2025-02-06,organic,Lima,ios
+2,2025-01-03,referral,ROME,android
+438,2025-01-15,ad,YORK,ios
+512,2025-01-23,referral,YORK,web
+861,2025-02-06,referral,Oslo,web
+1116,2025-01-10,organic,Oslo,android
+1879,2025-02-12,ad, lima ,web
+1555,2024-12-30,referral,Lima,android
+1803,2024-12-22,referral,Lima,android
+139,2025-01-14,referral,OSLO,web
+1205,2025-01-24,organic,Oslo,android
+720,2025-01-01,referral,York,web
+1300,2024-12-30,ad,Lima,web
+698,2025-02-05,organic,Lima,ios
+996,2024-12-30,referral,YORK,web
+464,2024-12-25,organic,YORK,android
+949,2025-02-19,ad,LIMA,web
+1028,2025-03-01,organic, york ,android
+429,2025-01-26,referral,Oslo,web
+1800,2025-01-25,ad,Oslo,ios
+967,2024-12-22,organic, rome ,ios
+1742,2025-01-03,referral, york ,web
+1121,2025-02-10,referral,Rome,android
+1993,2025-01-11,referral, lima ,android
+639,2025-02-21,organic,OSLO,android
+934,2025-02-01,referral,LIMA,android
+1103,2025-01-18,organic,Lima,ios
+222,2025-01-04,ad,,ios
+1008,2025-03-05,ad,OSLO,ios
+397,2024-12-16,referral, york ,web
+115,2025-01-12,referral, rome ,android
+159,2025-01-07,ad,Oslo,ios
+239,2024-12-21,referral, lima ,android
+1488,2025-01-27,organic,YORK,android
+1247,2025-03-01,ad,LIMA,web
+1199,2025-01-21,organic, rome ,ios
+653,2024-12-15,organic,LIMA,ios
+1600,2025-02-15,ad,LIMA,web
+655,2025-01-22,ad,YORK,ios
+1144,2025-02-18,referral,York,web
+591,2025-01-19,ad,LIMA,web
+1841,2024-12-19,organic,LIMA,ios
+1477,2025-01-03,ad, lima ,web
+281,2024-12-18,organic, oslo ,android
+428,2025-02-25,ad, rome ,web
+1509,2025-02-10,referral,OSLO,web
+1792,2024-12-19,ad, rome ,web
+1733,2025-02-19,ad,Oslo,ios
+329,2025-01-30,test, york ,ios
+951,2025-01-30,organic,York,android
+459,2024-12-22,ad,YORK,ios
+1191,2025-01-17,organic,Rome,ios
+1795,2025-02-27,referral, oslo ,web
+388,2025-02-17,ad,OSLO,ios
+1347,2025-01-01,organic,Lima,ios
+1889,2025-01-29,organic,Oslo,android
+456,2025-02-23,referral, lima ,android
+1606,2025-01-19,referral,ROME,android
+1163,2024-12-31,organic,Oslo,android
+1666,2024-12-18,referral, rome ,android
+430,2025-01-30,organic,Lima,ios
+269,2024-12-26,ad,OSLO,ios
+975,2025-03-07,ad, lima ,web
+1194,2025-03-09,referral,ROME,android
+1546,2025-01-28,referral,York,web
+196,2024-12-25,referral,Rome,android
+1749,2025-02-15,ad,Lima,web
+6,2025-01-07,organic,ROME,ios
+272,2025-02-02,referral, lima ,android
+154,2025-01-02,organic,ROME,ios
+1325,2025-02-05,referral,Rome,android
+681,2025-01-14,organic, york ,android
+200,2025-01-10,ad, york ,ios
+770,2025-01-06,ad, oslo ,ios
+1031,2025-01-07,ad,ROME,web
+543,2025-01-04,organic,YORK,android
+1117,2025-01-02,ad, rome ,web
+383,2024-12-25,organic,Lima,ios
+1132,,organic,ROME,ios
+1330,2024-12-24,ad,ROME,web
+796,2024-12-26,ad, oslo ,ios
+642,2025-03-06,ad, lima ,web
+588,2025-02-17,organic,YORK,android
+923,2024-12-30,referral, lima ,android
+1819,2025-03-03,ad, lima ,web
+1976,2025-02-08,ad,LIMA,web
+23,2025-01-23,referral,OSLO,web
+1392,2025-02-20,ad, oslo ,ios
+714,2025-01-18,ad, oslo ,ios
+485,2025-02-19,ad,Lima,web
+738,2025-01-15,referral,OSLO,web
+96,2025-03-06,referral,Rome,android
+292,2025-03-05,referral, lima ,android
+929,2025-01-20,organic,ROME,ios
+1511,2025-01-13,ad,ROME,web
+1448,2025-01-25,referral,OSLO,web
+918,2025-01-23,referral,York,web
+1599,2025-01-21,ad,York,ios
+355,2025-01-30,referral,Rome,android
+1051,2024-12-23,referral,OSLO,web
+645,2024-12-20,ad,ROME,web
+1547,2025-01-29,organic,York,android
+1756,2025-02-10,organic,Oslo,android
+1133,2025-02-02,organic, oslo ,android
+1267,2025-01-10,organic,Rome,ios
+917,2025-03-03,referral,YORK,web
+615,2025-01-10,ad,York,ios
+989,2025-02-12,organic, oslo ,android
+1675,2024-12-26,ad,LIMA,web
+685,2025-02-28,ad,OSLO,ios
+640,2024-12-30,organic, oslo ,android
+862,2025-01-03,referral,YORK,web
+1085,2025-02-01,organic, rome ,ios
+195,2025-01-29,referral,Rome,android
+415,2025-02-05,referral, lima ,android
+341,2025-02-16,referral,ROME,android
+992,2024-12-16,organic,ROME,ios
+1656,2025-01-05,referral, oslo ,web
+835,2024-12-22,referral,Rome,android
+584,2025-01-17,referral, rome ,android
+1349,2025-01-01,organic,York,android
+519,2024-12-26,organic,Rome,ios
+680,2025-02-05,referral,Oslo,web
+319,2025-01-16,referral, lima ,android
+757,2025-01-02,organic,LIMA,ios
+1705,2025-01-07,referral,York,web
+364,2025-01-15,organic,OSLO,android
+1794,2024-12-27,ad, lima ,web
+1604,2025-01-18,ad,Rome,web
+1231,2025-03-07,organic, lima ,ios
+977,2025-03-08,ad,OSLO,ios
+31,2025-01-31,ad, oslo ,ios
+129,2025-01-13,referral,Rome,android
+170,2025-01-02,organic,York,android
+1174,2025-03-05,ad, york ,ios
+1012,2024-12-26,ad, rome ,web
+1222,2025-02-16,test,OSLO,ios
+722,2025-01-05,organic,Oslo,android
+369,2025-02-12,organic,Oslo,android
+1471,2025-01-15,ad,York,ios
+995,2024-12-18,ad, york ,ios
+1912,2025-02-14,ad,YORK,ios
+1881,2025-03-05,referral,LIMA,android
+1265,2025-02-25,organic,YORK,android
+1945,2025-01-20,organic,Lima,ios
+1111,2025-01-03,organic,Lima,ios
+761,2025-01-02,ad, oslo ,ios
+1832,2025-02-09,organic,Oslo,android
+1406,2025-01-11,referral,,web
+1004,2024-12-22,referral, rome ,android
+1414,2024-12-24,ad,OSLO,ios
+1378,2025-03-05,organic,Oslo,android
+176,2025-02-12,organic,Oslo,android
+1517,2025-03-08,ad,,ios
+1180,2025-03-04,referral,Lima,android
+392,2025-01-24,ad,Lima,web
+1175,2025-02-26,test, rome ,android
+1304,2025-02-12,organic, lima ,ios
+286,2025-01-10,referral, oslo ,web
+237,2025-02-23,referral, oslo ,web
+712,2025-02-22,organic,LIMA,ios
+489,2025-02-16,ad,Lima,web
+1693,2025-02-08,organic,York,android
+441,2025-03-06,referral, york ,web
+1964,2025-03-05,ad,ROME,web
+1860,2025-03-03,organic,YORK,android
+163,2025-02-28,organic,York,android
+719,2025-01-02,ad, lima ,web
+1669,2024-12-31,organic, lima ,ios
+298,2025-01-03,ad, rome ,web
+1158,2025-01-07,referral,LIMA,android
+834,2024-12-27,ad,OSLO,ios
+997,2025-01-28,referral, york ,web
+1405,2024-12-17,referral,OSLO,web
+1709,2025-01-09,referral,OSLO,web
+1372,2025-02-15,referral, oslo ,web
+850,2025-02-21,referral, rome ,android
+411,2025-01-01,ad,ROME,web
+1686,2025-01-03,referral,YORK,web
+1494,2024-12-18,ad,YORK,ios
+980,2025-01-01,organic,Rome,ios
+593,2025-02-16,organic, rome ,ios
+649,2025-01-26,ad,York,ios
+1258,2025-01-21,referral,,web
+484,2025-01-14,organic,Lima,ios
+1997,2025-03-06,ad, rome ,web
+1384,2024-12-17,referral, oslo ,web
+89,2025-02-10,organic,York,android
+1798,2025-02-06,ad,YORK,ios
+753,2025-02-11,organic, oslo ,android
+332,2025-01-20,organic,YORK,android
+1745,2025-02-27,organic, lima ,ios
+1313,2025-02-16,ad, lima ,web
+1177,2025-01-09,organic,YORK,android
+1936,2025-01-25,referral, oslo ,web
+1887,2025-03-09,referral,,android
+1101,2025-01-24,referral,YORK,web
+1337,2025-01-12,organic,Rome,ios
+26,2025-01-26,referral, rome ,android
+1635,2024-12-25,organic,York,android
+638,2024-12-22,organic,OSLO,android
+330,2025-02-04,ad,LIMA,web

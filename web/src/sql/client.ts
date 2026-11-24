@@ -25,12 +25,13 @@ function exchange(job: Job | null): Promise<Reply> {
       worker = null
       reject(error)
     }
+    const limit = job?.timeoutMs ?? 2000
     let timer = window.setTimeout(() => stop(new Error('准备数据库超时，请重试。')), 30000)
     active.onerror = e => stop(new Error(e.message || '数据库加载失败，请重试。'))
     active.onmessage = ({ data }) => {
       window.clearTimeout(timer)
       // WebAssembly 长查询可能阻塞 Worker 的事件循环，由主线程负责最终截断。
-      if (data.executing) timer = window.setTimeout(() => stop(new Error('超时：查询超过 2 秒。')), 2200)
+      if (data.executing) timer = window.setTimeout(() => stop(new Error(`超时：查询超过 ${limit / 1000} 秒。`)), limit + 200)
       else if (data.comparing) timer = window.setTimeout(() => stop(new Error('比较结果超时。')), 30000)
       else if (!job && data.error) stop(new Error(data.error))
       else resolve(data)
@@ -60,6 +61,10 @@ async function execute(job: Job) {
   return reply
 }
 
+export async function runProject(job: Extract<Job, { mode: 'script' }>) {
+  return (await execute(job)).checks!
+}
+
 export async function runExample(setup: string[], sql: string) {
   const reply = await execute({ setup, sql, mode: 'lesson' })
   return reply.actual!
@@ -73,7 +78,7 @@ export async function grade(id: string, sql: string, kind: 'run' | 'submit'): Pr
     let expected: unknown
     if (plan.mode === 'script') {
       const data = plan.datasets[i]
-      job = { sql, setup: data.setup, mode: 'script', checks: plan.checks, expected: data.expected }
+      job = { sql, setup: data.setup, mode: 'script', cte: plan.cte, checks: plan.checks, expected: data.expected }
       expected = { labels: plan.checks.map(c => c.label) }
     } else {
       const data = plan.datasets[i]

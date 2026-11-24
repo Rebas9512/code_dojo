@@ -1,0 +1,15 @@
+id: fit-1-002-fit
+title: 拟合直线
+track: fit
+stage: '1'
+unit: 1
+order: 20
+format: combine
+difficulty: 20
+skills:
+  requires: []
+project: line-fit
+part: 2
+mode: function
+entry: fit
+signature: 'def fit(n):'

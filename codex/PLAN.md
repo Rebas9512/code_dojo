@@ -152,3 +152,5 @@
 - ✓ 46-standard-python：169 道（152 沿用、15 重写、4 道带进阶写法），verify 169/169。抽查倍数计数、银行账户类：用的都是已学写法。
 - ✓ 47-standard-sql：213 道（90 原样、86 只调排版、36 调整表达），verify 213/213。抽查体育馆人流（连续段用 id − ROW_NUMBER）、推荐层级（递归 CTE）：标准写法。
 - ✓ 45/48/49/50/51 参考答案：算法 4–5（159）、产品分析和建模（148）、数学和数据处理（128）、张量和机器学习（129）、训练和 LLM（110），verify 全过。抽查零钱兑换 DP、手写 autograd（h+h 要用 +=）、SCD2 关闭旧版本、pandas merge / loc：都合格。参考答案 1300 道全部完成；PEP 8 统一格式化在项目任务完成后做。
+- ✓ 41-project-platform（主控验收：后端 362、全库验证无回归；全库验证里 4 道张量超时是 8 个任务并行时机器太忙，单独重跑都通过）。主控修检查器三处：项目部分允许前置线技能（41 按我的任务写成了"只许本线"，太严）；同一项目里其他部分和骨架定义的名字算已知（跨部分调用不再算"未登记的调用"）；标准写法里未登记的写法不算错误（和参考解一样只警告）。另补映射：.mean/.sum→wrangle.axis、.diff→wrangle.window、.to_csv→wrangle.csv、json.dumps/loads→data.text-formats，全库非项目题无新增错误或警告。
+- ✓ 52-project-wrangle：书店 App 用户特征表，8 部分；参考脚本 2.1 秒，1720 行 × 11 列，特征表列名符合约定（53 直接用）。主控补了第 8 部分 requires 漏掉的 wrangle.axis（参考解本来就用了 .mean/.sum）。check_curve 0/0、verify_standard 8/8、verify_bank 8/8，完整运行达标。

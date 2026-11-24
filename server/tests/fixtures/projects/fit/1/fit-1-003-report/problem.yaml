@@ -1,0 +1,16 @@
+id: fit-1-003-report
+title: 输出拟合指标
+track: fit
+stage: '1'
+unit: 1
+order: 30
+format: combine
+difficulty: 20
+skills:
+  requires: []
+project: line-fit
+part: 3
+mode: function
+entry: main
+signature: 'def main(n=None):'
+compare: checker

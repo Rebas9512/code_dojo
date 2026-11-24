@@ -1,0 +1,22 @@
+id: sales-1-002-total
+title: 汇总销售额
+track: sales
+stage: '1'
+unit: 1
+order: 20
+format: combine
+difficulty: 20
+skills:
+  requires: []
+project: sales-report
+part: 2
+mode: script
+checks:
+- label: 销售汇总
+  query: SELECT total FROM sale_total
+datasets:
+- db:sales
+- db:sales + extra.sql
+wrong_examples:
+- why: 没有生成题目要求的结果
+  sql: SELECT 0;

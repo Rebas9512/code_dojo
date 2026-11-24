@@ -1,0 +1,20 @@
+id: sales-report
+title: 销售汇总
+summary: 清理销售记录，汇总有效金额，输出一行销售报表。
+language: sql
+scaffold: scaffold.sql
+reference: assembled
+data: sales
+parts:
+- sales-1-001-view
+- sales-1-002-total
+- sales-1-003-report
+run:
+  checks:
+  - label: 总额一致
+    result: true
+  - label: 允许追加
+    probe: INSERT INTO sales VALUES (1)
+    expect: ok
+  timeout: 12
+success: all_checks

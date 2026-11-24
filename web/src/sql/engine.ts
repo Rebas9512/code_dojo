@@ -59,9 +59,9 @@ async function prefixedQuery<T>(tx: Transaction, prefix: string, sql: string) {
   }
 }
 
-export async function inDataset<T>(db: PGlite, setup: string[], run: (tx: Transaction) => Promise<T>, mode?: 'dml' | 'script') {
+export async function inDataset<T>(db: PGlite, setup: string[], run: (tx: Transaction) => Promise<T>, mode?: 'dml' | 'script', timeoutMs = 2000) {
   return db.transaction(async tx => {
-    await tx.exec("SET LOCAL TIME ZONE 'UTC'; SET LOCAL statement_timeout = '2s'")
+    await tx.exec(`SET LOCAL TIME ZONE 'UTC'; SET LOCAL statement_timeout = ${timeoutMs}`)
     for (const script of setup) await tx.exec(script)
     if (!mode) await tx.exec('SET TRANSACTION READ ONLY')
     const result = await run(tx)
@@ -134,11 +134,20 @@ export async function lessonTable(tx: Transaction, sql: string) {
   return last ? resultTable(last as Results<unknown[]>) : { columns: [], types: [], rows: [] }
 }
 
-export async function runScript(tx: Transaction, sql: string, checks: SqlCheck[]) {
+export async function runScript(tx: Transaction, sql: string, checks: SqlCheck[], cte?: string) {
+  if (cte) sql = `CREATE TEMP VIEW "${cte}" AS (
+${sql}
+); SELECT * FROM "${cte}"`
   checkScript(sql)
-  await tx.exec(sql)
+  const results = await tx.exec(sql, { rowMode: 'array', parsers })
   const values: CheckValue[] = []
   for (const check of checks) {
+    if ('result' in check) {
+      const last = results.at(-1)
+      if (!last?.fields.length) throw new Error('脚本末条语句需要返回结果表。')
+      values.push(resultTable(last as Results<unknown[]>))
+      continue
+    }
     if ('probe' in check) checkScript(check.probe)
     await tx.exec('SAVEPOINT dojo_check')
     try {
@@ -148,6 +157,7 @@ export async function runScript(tx: Transaction, sql: string, checks: SqlCheck[]
         values.push({ outcome: 'ok' })
       }
     } catch (error) {
+      if ((error as { code?: string }).code === '57014') throw error
       values.push({ outcome: 'error', error: (error as Error).message })
     }
     await tx.exec('ROLLBACK TO dojo_check; RELEASE dojo_check')
