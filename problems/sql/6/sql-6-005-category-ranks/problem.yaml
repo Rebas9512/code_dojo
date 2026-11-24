@@ -1,0 +1,47 @@
+id: sql-6-005-category-ranks
+title: 给每月的分类销售额排名
+track: sql
+stage: "6"
+unit: 1
+order: 50
+format: combine
+difficulty: 69
+skills:
+  requires: [sql.rank]
+source: original
+project: bookstore-monthly-report
+part: 5
+mode: script
+cte: category_ranks
+datasets:
+  - db:bookstore + ../1/data/extra.sql
+  - db:bookstore
+  - db:bookstore + ../1/data/gaps.sql
+  - db:bookstore + ../1/data/ties.sql
+  - db:bookstore + ../1/data/year-end.sql
+checks:
+  - label: 给每月的分类销售额排名
+    result: true
+  - label: 七月起的新增记录
+    query: |
+      SELECT order_month, category, category_revenue, sales_rank
+      FROM category_ranks
+      WHERE order_month >= DATE '2025-07-01'
+wrong_examples:
+  - why: 并列后跳过了下一名
+    sql: |
+        SELECT order_month, category, SUM(line_amount) AS category_revenue,
+               RANK() OVER (
+                   PARTITION BY order_month
+                   ORDER BY SUM(line_amount) DESC
+               ) AS sales_rank
+        FROM line_amounts
+        GROUP BY order_month, category
+  - why: 把各月的分类放进同一次排名
+    sql: |
+        SELECT order_month, category, SUM(line_amount) AS category_revenue,
+               DENSE_RANK() OVER (
+                   ORDER BY SUM(line_amount) DESC
+               ) AS sales_rank
+        FROM line_amounts
+        GROUP BY order_month, category

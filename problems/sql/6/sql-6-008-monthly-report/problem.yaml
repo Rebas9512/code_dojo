@@ -1,0 +1,51 @@
+id: sql-6-008-monthly-report
+title: 交付完整的书店月报
+track: sql
+stage: "6"
+unit: 1
+order: 80
+format: combine
+difficulty: 72
+skills:
+  requires: [sql.correlated-subquery, sql.string-agg, sql.left-join, sql.coalesce, sql.and-or]
+source: original
+project: bookstore-monthly-report
+part: 8
+mode: script
+datasets:
+  - db:bookstore + ../1/data/extra.sql
+  - db:bookstore
+  - db:bookstore + ../1/data/gaps.sql
+  - db:bookstore + ../1/data/ties.sql
+  - db:bookstore + ../1/data/year-end.sql
+checks:
+  - label: 月报内容与月份顺序
+    result: true
+    ordered: true
+wrong_examples:
+  - why: 丢掉了无人复购的月份
+    sql: |
+        SELECT m.order_month, m.order_count, m.revenue, m.growth_pct,
+               (SELECT STRING_AGG(c.category, ', ' ORDER BY c.category)
+                FROM category_ranks AS c
+                WHERE c.order_month = m.order_month AND c.sales_rank = 1) AS top_categories,
+               (SELECT MAX(a.author_revenue)
+                FROM author_sales AS a
+                WHERE a.order_month = m.order_month) AS top_author_revenue,
+               COALESCE(r.repeat_count, 0) AS repeat_count
+        FROM monthly_change AS m
+        JOIN repeat_buyers AS r ON r.order_month = m.order_month
+        ORDER BY m.order_month;
+  - why: 并列时只保留一个分类
+    sql: |
+        SELECT m.order_month, m.order_count, m.revenue, m.growth_pct,
+               (SELECT MIN(c.category)
+                FROM category_ranks AS c
+                WHERE c.order_month = m.order_month AND c.sales_rank = 1) AS top_categories,
+               (SELECT MAX(a.author_revenue)
+                FROM author_sales AS a
+                WHERE a.order_month = m.order_month) AS top_author_revenue,
+               COALESCE(r.repeat_count, 0) AS repeat_count
+        FROM monthly_change AS m
+        LEFT JOIN repeat_buyers AS r ON r.order_month = m.order_month
+        ORDER BY m.order_month;

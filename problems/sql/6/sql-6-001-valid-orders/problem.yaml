@@ -1,0 +1,43 @@
+id: sql-6-001-valid-orders
+title: 筛出有效订单
+track: sql
+stage: "6"
+unit: 1
+order: 10
+format: combine
+difficulty: 64
+skills:
+  requires: [sql.and-or, sql.is-null, sql.date-funcs, sql.round-cast]
+source: original
+project: bookstore-monthly-report
+part: 1
+mode: script
+cte: valid_orders
+datasets:
+  - db:bookstore + ../1/data/extra.sql
+  - db:bookstore
+  - db:bookstore + ../1/data/gaps.sql
+  - db:bookstore + ../1/data/ties.sql
+  - db:bookstore + ../1/data/year-end.sql
+checks:
+  - label: 筛出有效订单
+    result: true
+  - label: 七月起的新增记录
+    query: |
+      SELECT order_id, user_id, order_date, order_month
+      FROM valid_orders
+      WHERE order_month >= DATE '2025-07-01'
+wrong_examples:
+  - why: 只剔除取消单，测试券仍可入账
+    sql: |
+        SELECT order_id, user_id, order_date,
+               DATE_TRUNC('month', order_date)::date AS order_month
+        FROM orders
+        WHERE status <> 'cancelled'
+  - why: 直接比较券码，漏掉所有未用券的订单
+    sql: |
+        SELECT order_id, user_id, order_date,
+               DATE_TRUNC('month', order_date)::date AS order_month
+        FROM orders
+        WHERE status <> 'cancelled'
+          AND coupon_code <> 'TEST'

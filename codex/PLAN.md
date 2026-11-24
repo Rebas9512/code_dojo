@@ -157,3 +157,4 @@
 - ✓ 54-project-train：UCI 手写数字训小 MLP，11 部分，CPU 6.9 秒，验证准确率 97.5%。
 - ✓ 55-project-llm：字符级小 GPT，12 部分，CPU 43 秒，验证损失 4.43 → 1.62，有无 KV cache 生成 90 字符逐字一致。抽查训练一轮、多头因果注意力（KV cache 拼历史后按偏移遮挡）：合格。
 - 主控再修检查器：项目部分预先登记骨架里的导入（torch / nn / json 等不再被当成方法）；参数和循环变量算已知名字；json.dumps 和项目工具方法映射为"不对应技能"。全库 check_curve 回到 0 错 0 警；train-5、llm-6 的 verify_bank 和 verify_standard 全过，完整参考运行达标。
+- ✓ 56-project-sql：书店月报，8 个 CTE 拼成一条 WITH … SELECT；完整运行 1.1 秒达标（7 个月、29 笔有效订单）。环比用月初 = 上月 + 1 个月自连接而不是 LAG，能发现缺月。

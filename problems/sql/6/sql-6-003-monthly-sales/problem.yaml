@@ -1,0 +1,44 @@
+id: sql-6-003-monthly-sales
+title: 按月汇总单数和销售额
+track: sql
+stage: "6"
+unit: 1
+order: 30
+format: combine
+difficulty: 67
+skills:
+  requires: [sql.join-aggregate, sql.left-join, sql.count-distinct, sql.sum-avg, sql.coalesce]
+source: original
+project: bookstore-monthly-report
+part: 3
+mode: script
+cte: monthly_sales
+datasets:
+  - db:bookstore + ../1/data/extra.sql
+  - db:bookstore
+  - db:bookstore + ../1/data/gaps.sql
+  - db:bookstore + ../1/data/ties.sql
+  - db:bookstore + ../1/data/year-end.sql
+checks:
+  - label: 按月汇总单数和销售额
+    result: true
+  - label: 七月起的新增记录
+    query: |
+      SELECT order_month, order_count, revenue
+      FROM monthly_sales
+      WHERE order_month >= DATE '2025-07-01'
+wrong_examples:
+  - why: 每条明细都算成一笔订单
+    sql: |
+        SELECT o.order_month, COUNT(*) AS order_count,
+               COALESCE(SUM(i.line_amount), 0) AS revenue
+        FROM valid_orders AS o
+        LEFT JOIN line_amounts AS i ON i.order_id = o.order_id
+        GROUP BY o.order_month
+  - why: 只保留能找到明细的订单
+    sql: |
+        SELECT o.order_month, COUNT(DISTINCT o.order_id) AS order_count,
+               COALESCE(SUM(i.line_amount), 0) AS revenue
+        FROM valid_orders AS o
+        JOIN line_amounts AS i ON i.order_id = o.order_id
+        GROUP BY o.order_month

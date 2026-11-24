@@ -1,0 +1,44 @@
+id: sql-6-002-line-amounts
+title: 计算每条明细的成交额
+track: sql
+stage: "6"
+unit: 1
+order: 20
+format: combine
+difficulty: 65
+skills:
+  requires: [sql.multi-join]
+source: original
+project: bookstore-monthly-report
+part: 2
+mode: script
+cte: line_amounts
+datasets:
+  - db:bookstore + ../1/data/extra.sql
+  - db:bookstore
+  - db:bookstore + ../1/data/gaps.sql
+  - db:bookstore + ../1/data/ties.sql
+  - db:bookstore + ../1/data/year-end.sql
+checks:
+  - label: 计算每条明细的成交额
+    result: true
+  - label: 七月起的新增记录
+    query: |
+      SELECT order_id, book_id, order_month, category, author_id, line_amount
+      FROM line_amounts
+      WHERE order_month >= DATE '2025-07-01'
+wrong_examples:
+  - why: 用今天的书价结算旧订单
+    sql: |
+        SELECT o.order_id, i.book_id, o.order_month, b.category, b.author_id,
+               i.quantity * b.price AS line_amount
+        FROM valid_orders AS o
+        JOIN order_items AS i ON i.order_id = o.order_id
+        JOIN books AS b ON b.book_id = i.book_id
+  - why: 把成交单价当作整行金额
+    sql: |
+        SELECT o.order_id, i.book_id, o.order_month, b.category, b.author_id,
+               i.unit_price AS line_amount
+        FROM valid_orders AS o
+        JOIN order_items AS i ON i.order_id = o.order_id
+        JOIN books AS b ON b.book_id = i.book_id

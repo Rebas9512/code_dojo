@@ -1,0 +1,23 @@
+id: bookstore-monthly-report
+title: 书店月报
+summary: 店长想知道每月卖了多少钱、哪个分类最畅销，以及多少读者回来买书。写好七张中间表，用一条查询交出整份月报。
+language: sql
+scaffold: scaffold.sql
+reference: assembled
+data: bookstore
+parts:
+  - sql-6-001-valid-orders
+  - sql-6-002-line-amounts
+  - sql-6-003-monthly-sales
+  - sql-6-004-monthly-change
+  - sql-6-005-category-ranks
+  - sql-6-006-author-sales
+  - sql-6-007-repeat-buyers
+  - sql-6-008-monthly-report
+run:
+  timeout: 12
+  checks:
+    - label: 每月七列指标与参考报表逐行一致
+      result: true
+      ordered: true
+success: all_checks

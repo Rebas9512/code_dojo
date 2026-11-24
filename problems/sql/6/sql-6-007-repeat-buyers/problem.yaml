@@ -1,0 +1,56 @@
+id: sql-6-007-repeat-buyers
+title: 统计每月回来下单的读者
+track: sql
+stage: "6"
+unit: 1
+order: 70
+format: combine
+difficulty: 70
+skills:
+  requires: [sql.partition-by, sql.derived-table, sql.count-distinct]
+source: original
+project: bookstore-monthly-report
+part: 7
+mode: script
+cte: repeat_buyers
+datasets:
+  - db:bookstore + ../1/data/extra.sql
+  - db:bookstore
+  - db:bookstore + ../1/data/gaps.sql
+  - db:bookstore + ../1/data/ties.sql
+  - db:bookstore + ../1/data/year-end.sql
+checks:
+  - label: 统计每月回来下单的读者
+    result: true
+  - label: 七月起的新增记录
+    query: |
+      SELECT order_month, repeat_count
+      FROM repeat_buyers
+      WHERE order_month >= DATE '2025-07-01'
+wrong_examples:
+  - why: 把复购订单数当成了复购人数
+    sql: |
+        SELECT order_month, COUNT(*) AS repeat_count
+        FROM (
+            SELECT order_month, user_id,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY user_id
+                       ORDER BY order_date, order_id
+                   ) AS purchase_no
+            FROM valid_orders
+        ) AS purchases
+        WHERE purchase_no > 1
+        GROUP BY order_month
+  - why: 每个月都重置购买历史
+    sql: |
+        SELECT order_month, COUNT(DISTINCT user_id) AS repeat_count
+        FROM (
+            SELECT order_month, user_id,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY user_id, order_month
+                       ORDER BY order_date, order_id
+                   ) AS purchase_no
+            FROM valid_orders
+        ) AS purchases
+        WHERE purchase_no > 1
+        GROUP BY order_month

@@ -20,3 +20,8 @@ stages:
     name: 窗口函数
   - id: "5"
     name: 综合
+  - id: "6"
+    name: 项目
+    kind: project
+    units:
+      1: 书店月报

@@ -1,0 +1,44 @@
+id: sql-6-004-monthly-change
+title: 计算销售额环比
+track: sql
+stage: "6"
+unit: 1
+order: 40
+format: combine
+difficulty: 69
+skills:
+  requires: [sql.self-join, sql.left-join, sql.date-funcs, sql.nullif, sql.round-cast]
+source: original
+project: bookstore-monthly-report
+part: 4
+mode: script
+cte: monthly_change
+datasets:
+  - db:bookstore + ../1/data/extra.sql
+  - db:bookstore
+  - db:bookstore + ../1/data/gaps.sql
+  - db:bookstore + ../1/data/ties.sql
+  - db:bookstore + ../1/data/year-end.sql
+checks:
+  - label: 计算销售额环比
+    result: true
+  - label: 七月起的新增记录
+    query: |
+      SELECT order_month, order_count, revenue, growth_pct
+      FROM monthly_change
+      WHERE order_month >= DATE '2025-07-01'
+wrong_examples:
+  - why: 跨过缺月取上一次有销售的记录
+    sql: |
+        SELECT order_month, order_count, revenue,
+               ROUND(100 * (revenue - prior) / NULLIF(prior, 0), 2) AS growth_pct
+        FROM (
+            SELECT m.*, LAG(revenue) OVER (ORDER BY order_month) AS prior
+            FROM monthly_sales AS m
+        ) AS history
+  - why: 用本月销售额作分母
+    sql: |
+        SELECT cur.order_month, cur.order_count, cur.revenue,
+               ROUND(100 * (cur.revenue - prev.revenue) / NULLIF(cur.revenue, 0), 2) AS growth_pct
+        FROM monthly_sales AS cur
+        LEFT JOIN monthly_sales AS prev ON prev.order_month = cur.order_month - INTERVAL '1 month'

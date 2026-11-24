@@ -1,0 +1,41 @@
+id: sql-6-006-author-sales
+title: 结算每位作者的月度贡献
+track: sql
+stage: "6"
+unit: 1
+order: 60
+format: combine
+difficulty: 65
+skills:
+  requires: [sql.group-by, sql.sum-avg]
+source: original
+project: bookstore-monthly-report
+part: 6
+mode: script
+cte: author_sales
+datasets:
+  - db:bookstore + ../1/data/extra.sql
+  - db:bookstore
+  - db:bookstore + ../1/data/gaps.sql
+  - db:bookstore + ../1/data/ties.sql
+  - db:bookstore + ../1/data/year-end.sql
+checks:
+  - label: 结算每位作者的月度贡献
+    result: true
+  - label: 七月起的新增记录
+    query: |
+      SELECT order_month, author_id, author_revenue
+      FROM author_sales
+      WHERE order_month >= DATE '2025-07-01'
+wrong_examples:
+  - why: 给没有编号的作者也出了一张月账
+    sql: |
+        SELECT order_month, author_id, SUM(line_amount) AS author_revenue
+        FROM line_amounts
+        GROUP BY order_month, author_id
+  - why: 同一作者的同额明细只加一次
+    sql: |
+        SELECT order_month, author_id, SUM(DISTINCT line_amount) AS author_revenue
+        FROM line_amounts
+        WHERE author_id IS NOT NULL
+        GROUP BY order_month, author_id
