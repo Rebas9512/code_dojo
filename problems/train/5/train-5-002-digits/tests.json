@@ -1,0 +1,66 @@
+{
+  "examples": [
+    {
+      "ops": [
+        "DigitsDataset"
+      ],
+      "args": [
+        [
+          0,
+          1
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "ops": [
+        "DigitsDataset"
+      ],
+      "args": [
+        [
+          3,
+          2
+        ]
+      ],
+      "expected": true
+    }
+  ],
+  "hidden": [
+    {
+      "ops": [
+        "DigitsDataset"
+      ],
+      "args": [
+        [
+          16,
+          1
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "ops": [
+        "DigitsDataset"
+      ],
+      "args": [
+        [
+          11,
+          4
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "ops": [
+        "DigitsDataset"
+      ],
+      "args": [
+        [
+          8,
+          5
+        ]
+      ],
+      "expected": true
+    }
+  ]
+}

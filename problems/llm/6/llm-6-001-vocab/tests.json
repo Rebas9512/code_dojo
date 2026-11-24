@@ -1,0 +1,149 @@
+{
+  "examples": [
+    {
+      "ops": [
+        "CharVocab",
+        "encode",
+        "decode"
+      ],
+      "args": [
+        [
+          "cab"
+        ],
+        [
+          "cab"
+        ],
+        [
+          [
+            0,
+            2
+          ]
+        ]
+      ],
+      "expected": [
+        null,
+        [
+          2,
+          0,
+          1
+        ],
+        "ac"
+      ]
+    },
+    {
+      "ops": [
+        "CharVocab",
+        "encode",
+        "decode"
+      ],
+      "args": [
+        [
+          "aba\n"
+        ],
+        [
+          "a\n"
+        ],
+        [
+          [
+            2,
+            0
+          ]
+        ]
+      ],
+      "expected": [
+        null,
+        [
+          1,
+          0
+        ],
+        "b\n"
+      ]
+    }
+  ],
+  "hidden": [
+    {
+      "ops": [
+        "CharVocab",
+        "encode",
+        "decode"
+      ],
+      "args": [
+        [
+          "x"
+        ],
+        [
+          ""
+        ],
+        [
+          []
+        ]
+      ],
+      "expected": [
+        null,
+        [],
+        ""
+      ]
+    },
+    {
+      "ops": [
+        "CharVocab",
+        "encode",
+        "decode"
+      ],
+      "args": [
+        [
+          "a aA"
+        ],
+        [
+          "A a"
+        ],
+        [
+          [
+            2,
+            0,
+            1
+          ]
+        ]
+      ],
+      "expected": [
+        null,
+        [
+          1,
+          0,
+          2
+        ],
+        "a A"
+      ]
+    },
+    {
+      "ops": [
+        "CharVocab",
+        "encode",
+        "decode"
+      ],
+      "args": [
+        [
+          "é🙂é"
+        ],
+        [
+          "é🙂"
+        ],
+        [
+          [
+            1,
+            0,
+            1
+          ]
+        ]
+      ],
+      "expected": [
+        null,
+        [
+          0,
+          1
+        ],
+        "🙂é🙂"
+      ]
+    }
+  ]
+}

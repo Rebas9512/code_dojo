@@ -1,0 +1,24 @@
+id: train-5-006-train-epoch
+title: 用小批次训练一轮
+track: train
+stage: '5'
+unit: 1
+order: 60
+format: combine
+mode: function
+difficulty: 40
+skills:
+  requires:
+    - train.clip
+    - train.ce
+    - train.history
+    - train.evaluate
+    - train.checkpoint
+  introduces: null
+source: original
+project: train
+part: 6
+entry: train_one_epoch
+signature: 'def train_one_epoch(model, loader, optimizer, loss_fn, max_norm):'
+compare: checker
+time_limit_ms: 45000

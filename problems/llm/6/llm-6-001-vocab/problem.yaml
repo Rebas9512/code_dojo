@@ -1,0 +1,25 @@
+id: llm-6-001-vocab
+title: 字符怎样变成编号
+track: llm
+stage: '6'
+unit: 1
+order: 10
+project: gpt
+part: 1
+format: combine
+difficulty: 52
+skills:
+  requires:
+    - llm.alphabet
+    - py.class-methods
+    - py.dict-set-comp
+    - py.enumerate
+    - py.genexp
+    - py.split-join
+  introduces: null
+source: original
+time_limit_ms: 25000
+mode: class
+entry: CharVocab
+signature: 'class CharVocab:'
+compare: checker

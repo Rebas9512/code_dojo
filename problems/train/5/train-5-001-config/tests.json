@@ -1,0 +1,75 @@
+{
+  "examples": [
+    {
+      "ops": [
+        "Config"
+      ],
+      "args": [
+        [
+          {}
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "ops": [
+        "Config"
+      ],
+      "args": [
+        [
+          {
+            "seed": 0,
+            "batch_size": 1
+          }
+        ]
+      ],
+      "expected": true
+    }
+  ],
+  "hidden": [
+    {
+      "ops": [
+        "Config"
+      ],
+      "args": [
+        [
+          {
+            "seed": 7,
+            "epochs": 1
+          }
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "ops": [
+        "Config"
+      ],
+      "args": [
+        [
+          {
+            "seed": 314,
+            "lr": 0.02,
+            "patience": 1
+          }
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "ops": [
+        "Config"
+      ],
+      "args": [
+        [
+          {
+            "seed": 4294967295,
+            "hidden_size": 19,
+            "gamma": 0.8
+          }
+        ]
+      ],
+      "expected": true
+    }
+  ]
+}

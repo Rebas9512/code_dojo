@@ -1,0 +1,20 @@
+id: train-5-001-config
+title: 固定一次实验的配置与种子
+track: train
+stage: '5'
+unit: 1
+order: 10
+format: combine
+mode: class
+difficulty: 37
+skills:
+  requires:
+    - train.shuffle
+  introduces: null
+source: original
+project: train
+part: 1
+entry: Config
+signature: 'class Config:'
+compare: checker
+time_limit_ms: 30000

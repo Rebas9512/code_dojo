@@ -1,0 +1,21 @@
+id: llm-6-010-sample
+title: 按温度和 top-k 抽下一个字
+track: llm
+stage: '6'
+unit: 1
+order: 100
+project: gpt
+part: 10
+format: combine
+difficulty: 63
+skills:
+  requires:
+    - llm.temperature
+    - llm.top-k
+  introduces: null
+source: original
+time_limit_ms: 25000
+mode: function
+entry: sample_token
+signature: 'def sample_token(logits, temperature, k, generator):'
+compare: checker

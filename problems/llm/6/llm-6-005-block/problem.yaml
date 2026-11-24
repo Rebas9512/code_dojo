@@ -1,0 +1,22 @@
+id: llm-6-005-block
+title: 把两个残差分支接成一块
+track: llm
+stage: '6'
+unit: 1
+order: 50
+project: gpt
+part: 5
+format: combine
+difficulty: 61
+skills:
+  requires:
+    - llm.block
+    - llm.kv
+    - py.default-args
+  introduces: null
+source: original
+time_limit_ms: 25000
+mode: class
+entry: Block
+signature: 'class Block(nn.Module):'
+compare: checker

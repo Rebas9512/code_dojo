@@ -1,0 +1,24 @@
+id: llm-6-012-main
+title: 训练、续写并核对两条路径
+track: llm
+stage: '6'
+unit: 1
+order: 120
+project: gpt
+part: 12
+format: combine
+difficulty: 67
+skills:
+  requires:
+    - llm.train-lm
+    - llm.kv
+    - llm.alphabet
+    - llm.top-k
+    - llm.utf8
+  introduces: null
+source: original
+time_limit_ms: 25000
+mode: function
+entry: main
+signature: 'def main():'
+compare: checker

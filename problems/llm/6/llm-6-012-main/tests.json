@@ -1,0 +1,51 @@
+{
+  "examples": [
+    {
+      "args": [
+        3,
+        6,
+        "It ",
+        true
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        2,
+        2,
+        "A",
+        true
+      ],
+      "expected": true
+    }
+  ],
+  "hidden": [
+    {
+      "args": [
+        4,
+        7,
+        "a ",
+        false
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        5,
+        0,
+        "It ",
+        true
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        2,
+        3,
+        "A",
+        false
+      ],
+      "expected": true
+    }
+  ]
+}

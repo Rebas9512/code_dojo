@@ -1,0 +1,27 @@
+id: llm-6-009-train
+title: 训练并定期测量验证损失
+track: llm
+stage: '6'
+unit: 1
+order: 90
+project: gpt
+part: 9
+format: combine
+difficulty: 65
+skills:
+  requires:
+    - llm.train-lm
+    - train.clip
+    - train.evaluate
+    - train.schedule
+    - py.bool-ops
+    - py.floordiv-mod
+    - py.fstring
+    - py.list-append
+  introduces: null
+source: original
+time_limit_ms: 25000
+mode: function
+entry: train_model
+signature: 'def train_model(model, data, optimizer, cfg):'
+compare: checker

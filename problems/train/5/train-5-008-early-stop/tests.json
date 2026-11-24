@@ -1,0 +1,104 @@
+{
+  "examples": [
+    {
+      "ops": [
+        "EarlyStopping"
+      ],
+      "args": [
+        [
+          2,
+          [
+            0.5,
+            0.8,
+            0.8,
+            0.7,
+            1.0
+          ]
+        ]
+      ],
+      "expected": [
+        4,
+        2
+      ]
+    },
+    {
+      "ops": [
+        "EarlyStopping"
+      ],
+      "args": [
+        [
+          1,
+          [
+            0.0
+          ]
+        ]
+      ],
+      "expected": [
+        1,
+        1
+      ]
+    }
+  ],
+  "hidden": [
+    {
+      "ops": [
+        "EarlyStopping"
+      ],
+      "args": [
+        [
+          2,
+          [
+            0.2,
+            0.1,
+            0.4,
+            0.3,
+            0.3,
+            0.6
+          ]
+        ]
+      ],
+      "expected": [
+        5,
+        3
+      ]
+    },
+    {
+      "ops": [
+        "EarlyStopping"
+      ],
+      "args": [
+        [
+          1,
+          [
+            0.5,
+            0.5,
+            0.8
+          ]
+        ]
+      ],
+      "expected": [
+        2,
+        1
+      ]
+    },
+    {
+      "ops": [
+        "EarlyStopping"
+      ],
+      "args": [
+        [
+          4,
+          [
+            0.4,
+            0.8,
+            0.7
+          ]
+        ]
+      ],
+      "expected": [
+        3,
+        2
+      ]
+    }
+  ]
+}

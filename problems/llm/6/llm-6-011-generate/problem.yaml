@@ -1,0 +1,23 @@
+id: llm-6-011-generate
+title: 复用每层的键和值续写
+track: llm
+stage: '6'
+unit: 1
+order: 110
+project: gpt
+part: 11
+format: combine
+difficulty: 66
+skills:
+  requires:
+    - llm.kv
+    - llm.top-k
+    - llm.cache-cost
+    - py.list-append
+  introduces: null
+source: original
+time_limit_ms: 25000
+mode: function
+entry: generate
+signature: 'def generate(model, prompt, steps, temperature, k, seed, use_cache):'
+compare: checker

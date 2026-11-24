@@ -33,3 +33,8 @@ stages:
     units:
       1: 逐步排查训练脚本
       2: 综合修复
+  - id: '5'
+    name: 项目
+    kind: project
+    units:
+      1: 标准 PyTorch 训练脚本

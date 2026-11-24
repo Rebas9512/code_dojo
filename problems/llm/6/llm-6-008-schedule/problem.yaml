@@ -1,0 +1,21 @@
+id: llm-6-008-schedule
+title: 先预热，再按余弦降速
+track: llm
+stage: '6'
+unit: 1
+order: 80
+project: gpt
+part: 8
+format: combine
+difficulty: 61
+skills:
+  requires:
+    - llm.train-lm
+    - train.schedule
+  introduces: null
+source: original
+time_limit_ms: 25000
+mode: function
+entry: learning_rate
+signature: 'def learning_rate(step, steps, warmup, peak, floor):'
+compare: float

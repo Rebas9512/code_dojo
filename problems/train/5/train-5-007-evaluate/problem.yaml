@@ -1,0 +1,20 @@
+id: train-5-007-evaluate
+title: 在留出集上计算准确率
+track: train
+stage: '5'
+unit: 1
+order: 70
+format: combine
+mode: function
+difficulty: 40
+skills:
+  requires:
+    - train.metric
+  introduces: null
+source: original
+project: train
+part: 7
+entry: evaluate
+signature: 'def evaluate(model, loader):'
+compare: checker
+time_limit_ms: 30000

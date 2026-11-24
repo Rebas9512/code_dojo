@@ -1,0 +1,31 @@
+id: llm-6-003-attention
+title: 每个位置能看见哪些字
+track: llm
+stage: '6'
+unit: 1
+order: 30
+project: gpt
+part: 3
+format: combine
+difficulty: 60
+skills:
+  requires:
+    - llm.heads
+    - llm.causal
+    - llm.kv
+    - py.default-args
+    - py.floordiv-mod
+    - py.none
+  introduces: null
+source: original
+time_limit_ms: 25000
+mode: class
+entry: CausalAttention
+signature: 'class CausalAttention(nn.Module):'
+compare: checker
+constraints:
+  forbid_calls:
+    - torch.nn.functional.scaled_dot_product_attention
+    - torch.nn.MultiheadAttention
+    - F.scaled_dot_product_attention
+    - nn.MultiheadAttention

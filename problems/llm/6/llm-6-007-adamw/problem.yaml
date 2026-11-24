@@ -1,0 +1,23 @@
+id: llm-6-007-adamw
+title: 只衰减权重矩阵
+track: llm
+stage: '6'
+unit: 1
+order: 70
+project: gpt
+part: 7
+format: combine
+difficulty: 61
+skills:
+  requires:
+    - llm.train-lm
+    - train.adam
+    - train.decay
+    - py.list-append
+  introduces: null
+source: original
+time_limit_ms: 25000
+mode: function
+entry: make_optimizer
+signature: 'def make_optimizer(model, lr, decay):'
+compare: checker

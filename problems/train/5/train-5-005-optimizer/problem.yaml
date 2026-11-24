@@ -1,0 +1,23 @@
+id: train-5-005-optimizer
+title: 配好 AdamW 与学习率调度
+track: train
+stage: '5'
+unit: 1
+order: 50
+format: combine
+mode: function
+difficulty: 39
+skills:
+  requires:
+    - train.adam
+    - train.schedule
+    - train.decay
+    - train.checkpoint
+  introduces: null
+source: original
+project: train
+part: 5
+entry: make_optimizer
+signature: 'def make_optimizer(model, config):'
+compare: checker
+time_limit_ms: 45000

@@ -1,0 +1,66 @@
+{
+  "examples": [
+    {
+      "ops": [
+        "Checkpoint"
+      ],
+      "args": [
+        [
+          1,
+          1
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "ops": [
+        "Checkpoint"
+      ],
+      "args": [
+        [
+          5,
+          2
+        ]
+      ],
+      "expected": true
+    }
+  ],
+  "hidden": [
+    {
+      "ops": [
+        "Checkpoint"
+      ],
+      "args": [
+        [
+          2,
+          3
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "ops": [
+        "Checkpoint"
+      ],
+      "args": [
+        [
+          13,
+          1
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "ops": [
+        "Checkpoint"
+      ],
+      "args": [
+        [
+          7,
+          4
+        ]
+      ],
+      "expected": true
+    }
+  ]
+}

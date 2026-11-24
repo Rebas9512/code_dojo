@@ -1,0 +1,27 @@
+id: llm-6-006-gpt
+title: 从字符编号得到下一字损失
+track: llm
+stage: '6'
+unit: 1
+order: 60
+project: gpt
+part: 6
+format: combine
+difficulty: 64
+skills:
+  requires:
+    - llm.gpt
+    - llm.kv
+    - llm.train-lm
+    - py.default-args
+    - py.enumerate
+    - py.list-comp
+    - py.none
+    - py.ternary
+  introduces: null
+source: original
+time_limit_ms: 25000
+mode: class
+entry: GPT
+signature: 'class GPT(nn.Module):'
+compare: checker

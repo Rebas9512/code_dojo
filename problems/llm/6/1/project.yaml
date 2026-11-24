@@ -1,0 +1,27 @@
+id: gpt
+title: 字符级小 GPT
+summary: 用《傲慢与偏见》的英文原文训练一个小 GPT，观察验证损失，再让它用两种方式续写同一段文字。
+language: python
+scaffold: scaffold.py
+reference: assembled
+data: data
+parts:
+  - llm-6-001-vocab
+  - llm-6-002-windows
+  - llm-6-003-attention
+  - llm-6-004-mlp
+  - llm-6-005-block
+  - llm-6-006-gpt
+  - llm-6-007-adamw
+  - llm-6-008-schedule
+  - llm-6-009-train
+  - llm-6-010-sample
+  - llm-6-011-generate
+  - llm-6-012-main
+run:
+  entry: main
+  timeout: 150
+success:
+  val_loss: {"<": 2.0}
+  cache_match: {"==": 1}
+  generated_chars: {"==": 90}

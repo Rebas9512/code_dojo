@@ -1,0 +1,27 @@
+id: train-5-011-main
+title: 从命令行完成一次训练
+track: train
+stage: '5'
+unit: 1
+order: 110
+format: combine
+mode: function
+difficulty: 42
+skills:
+  requires:
+    - train.replay
+    - train.holdout
+    - train.schedule
+    - train.patience
+    - train.checkpoint
+    - train.metric
+    - train.ce
+    - py.break-continue
+  introduces: null
+source: original
+project: train
+part: 11
+entry: main
+signature: 'def main():'
+compare: checker
+time_limit_ms: 45000

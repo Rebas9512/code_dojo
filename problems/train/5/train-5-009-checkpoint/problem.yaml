@@ -1,0 +1,21 @@
+id: train-5-009-checkpoint
+title: 在磁盘上保存和恢复训练现场
+track: train
+stage: '5'
+unit: 1
+order: 90
+format: combine
+mode: class
+difficulty: 41
+skills:
+  requires:
+    - train.checkpoint
+    - train.dataset
+  introduces: null
+source: original
+project: train
+part: 9
+entry: Checkpoint
+signature: 'class Checkpoint:'
+compare: checker
+time_limit_ms: 45000

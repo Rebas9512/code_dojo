@@ -1,0 +1,21 @@
+id: train-5-010-log
+title: 写出一轮训练的日志
+track: train
+stage: '5'
+unit: 1
+order: 100
+format: combine
+mode: function
+difficulty: 42
+skills:
+  requires:
+    - train.history
+    - train.schedule
+  introduces: null
+source: original
+project: train
+part: 10
+entry: epoch_record
+signature: 'def epoch_record(epoch, loss, val_accuracy, lr):'
+compare: exact
+time_limit_ms: 30000

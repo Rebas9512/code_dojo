@@ -1,0 +1,22 @@
+id: train-5-008-early-stop
+title: 早停并取回最佳轮次
+track: train
+stage: '5'
+unit: 1
+order: 80
+format: combine
+mode: class
+difficulty: 41
+skills:
+  requires:
+    - train.patience
+    - train.checkpoint
+    - train.dataset
+  introduces: null
+source: original
+project: train
+part: 8
+entry: EarlyStopping
+signature: 'class EarlyStopping:'
+compare: checker
+time_limit_ms: 45000

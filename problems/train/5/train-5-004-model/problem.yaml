@@ -1,0 +1,21 @@
+id: train-5-004-model
+title: 搭建手写数字分类器
+track: train
+stage: '5'
+unit: 1
+order: 40
+format: combine
+mode: function
+difficulty: 39
+skills:
+  requires:
+    - train.loop
+    - train.ce
+  introduces: null
+source: original
+project: train
+part: 4
+entry: build_model
+signature: 'def build_model(hidden_size):'
+compare: checker
+time_limit_ms: 30000

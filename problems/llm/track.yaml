@@ -37,3 +37,8 @@ stages:
     units:
       1: 用短文本训练
       2: 复用历史键值
+  - id: '6'
+    name: 项目
+    kind: project
+    units:
+      1: 字符级小 GPT

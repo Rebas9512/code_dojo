@@ -1,0 +1,20 @@
+id: train-5-003-loaders
+title: 留出验证集并按批取数
+track: train
+stage: '5'
+unit: 1
+order: 30
+format: combine
+mode: function
+difficulty: 38
+skills:
+  requires:
+    - train.holdout
+  introduces: null
+source: original
+project: train
+part: 3
+entry: make_loaders
+signature: 'def make_loaders(dataset, valid_size, batch_size, seed):'
+compare: checker
+time_limit_ms: 30000

@@ -1,0 +1,21 @@
+id: train-5-002-digits
+title: 把一行像素读成一个样本
+track: train
+stage: '5'
+unit: 1
+order: 20
+format: combine
+mode: class
+difficulty: 38
+skills:
+  requires:
+    - train.batch
+    - train.ce
+  introduces: null
+source: original
+project: train
+part: 2
+entry: DigitsDataset
+signature: 'class DigitsDataset(Dataset):'
+compare: checker
+time_limit_ms: 30000

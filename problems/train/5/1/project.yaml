@@ -1,0 +1,26 @@
+id: train
+title: 标准 PyTorch 训练脚本
+summary: 用 8×8 手写数字训练一个小型神经网络，保留验证准确率最高的一轮。完成后可导出 train.py 和 notebook。
+language: python
+scaffold: scaffold.py
+reference: assembled
+data: data
+parts:
+  - train-5-001-config
+  - train-5-002-digits
+  - train-5-003-loaders
+  - train-5-004-model
+  - train-5-005-optimizer
+  - train-5-006-train-epoch
+  - train-5-007-evaluate
+  - train-5-008-early-stop
+  - train-5-009-checkpoint
+  - train-5-010-log
+  - train-5-011-main
+run:
+  entry: main
+  args: []
+  timeout: 60
+success:
+  val_accuracy:
+    ">=": 0.95

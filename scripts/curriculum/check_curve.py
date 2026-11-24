@@ -201,7 +201,11 @@ PY_METHODS_DEFAULT: dict[str, str | None] = {
     "drop_duplicates": "wrangle.projection",
     "mean": "wrangle.axis", "sum": "wrangle.axis",  # 数组 / 表的汇总方法（内置 sum() 另在 PY_CALLS）
     "diff": "wrangle.window", "to_csv": "wrangle.csv",
-    "dumps": "data.text-formats", "loads": "data.text-formats",  # 骨架里 import json，部分里直接 json.dumps
+    "dumps": None, "loads": None,  # 同上，部分里直接用骨架导入的 json
+    # 项目部分里的工具调用和其他部分对象的方法，不对应单独的技能
+    "add_argument": None, "parse_args": None, "read_text": None, "save": None, "load": None,
+    "set_seed": None, "restore": None, "observe": None, "get_batch": None,
+    "size": None, "flatten": None, "unbind": None, "softmax": None, "AdamW": None,
     "isin": "py.in-membership", "eq": "py.compare-bool",
     "rank": "wrangle.window", "cumcount": "wrangle.window", "cumsum": "wrangle.cumsum",
     "serialize": "algo.tree-basics", "deserialize": "algo.tree-basics",  # 二叉树编解码接口
@@ -234,7 +238,7 @@ PY_METHODS_BY_TYPE: dict[str, dict[str, str | None]] = {
 }
 # import：模块或 模块.名字
 PY_IMPORTS: dict[str, str | None] = {
-    "json.dumps": "data.text-formats", "json.loads": "data.text-formats",
+    "json.dumps": None, "json.loads": None, "json": None, "argparse": None, "random": None,  # 项目 main 按平台约定打印最后一行 JSON 指标，不是要教的技能
     "torch.nn.functional.gelu": "llm.mlp", "torch.nn.Embedding.from_pretrained": "llm.embedding",
     "torch.utils.data.Dataset": "train.dataset", "torch.utils.data.DataLoader": "train.batch",
     "torch.nn.utils.rnn.pad_sequence": "train.pad", "io.BytesIO": "train.checkpoint",
@@ -763,12 +767,18 @@ class PyDetector(ast.NodeVisitor):
 
 
 def detect_python(source: str, mode: str, entry: str | None,
-                  known: frozenset[str] = frozenset()) -> tuple[list[Detection], list[str]]:
-    """known：项目里其他部分和骨架定义的名字，部分之间互相调用不算未登记的调用。"""
+                  project: "ProjectContext | None" = None) -> tuple[list[Detection], list[str]]:
+    """project：项目部分能用的其他部分、骨架名字和骨架导入，部分之间互相调用不算未登记的调用。"""
     tree = ast.parse(source)
     det = PyDetector(mode, entry)
-    det.defined_funcs = known | {
+    if project:
+        det.modules.update(project.modules)
+    # 本文件定义的函数和类，加上参数和循环变量（调用传进来的函数是正常写法，如 loss_fn()、block()）
+    det.defined_funcs = (project.names if project else frozenset()) | {
         n.name for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+    } | {n.arg for n in ast.walk(tree) if isinstance(n, ast.arg)} | {
+        t.id for n in ast.walk(tree) if isinstance(n, (ast.For, ast.comprehension))
+        for t in ast.walk(n.target) if isinstance(t, ast.Name)
     }
     det.visit(tree)
     return det.found, det.unknown
@@ -970,12 +980,33 @@ def top_level_names(source: str) -> set[str]:
     return names | {t.id for n in tree.body if isinstance(n, ast.Assign) for t in n.targets if isinstance(t, ast.Name)}
 
 
-def project_names(problem_dir: Path, project: str | None) -> frozenset[str]:
-    """同一项目里其他部分（solution.py）和骨架在顶层定义的名字，外加平台提供的 DATA_DIR。"""
+@dataclass(frozen=True)
+class ProjectContext:
+    """项目部分看得见的东西：其他部分和骨架定义的名字、骨架导入的模块（本地名 → 全名）。"""
+    names: frozenset[str] = frozenset()
+    modules: tuple[tuple[str, str], ...] = ()
+
+
+NO_PROJECT = ProjectContext()
+
+
+def scaffold_modules(source: str) -> dict[str, str]:
+    modules = {}
+    for node in ast.parse(source).body:
+        if isinstance(node, ast.Import):
+            modules.update({a.asname or a.name: a.name for a in node.names})
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            modules.update({a.asname or a.name: f"{node.module}.{a.name}" for a in node.names})
+    return modules
+
+
+def project_names(problem_dir: Path, project: str | None) -> ProjectContext:
+    """同一项目里其他部分（solution.py）和骨架在顶层定义的名字（外加平台提供的 DATA_DIR），以及骨架的导入。"""
     if not project:
-        return frozenset()
+        return NO_PROJECT
     stage = problem_dir.parent
     names = {"DATA_DIR"}
+    modules: dict[str, str] = {}
     for meta_path in stage.glob("*/problem.yaml"):
         meta = yaml.safe_load(meta_path.read_text(encoding="utf-8")) or {}
         solution = meta_path.parent / "solution.py"
@@ -985,16 +1016,18 @@ def project_names(problem_dir: Path, project: str | None) -> frozenset[str]:
         meta = yaml.safe_load(config.read_text(encoding="utf-8")) or {}
         scaffold = config.parent / str(meta.get("scaffold", ""))
         if meta.get("id") == project and meta.get("language") == "python" and scaffold.is_file():
-            names |= top_level_names(scaffold.read_text(encoding="utf-8"))
-    return frozenset(names)
+            source = scaffold.read_text(encoding="utf-8")
+            names |= top_level_names(source)
+            modules |= scaffold_modules(source)
+    return ProjectContext(frozenset(names | modules.keys()), tuple(sorted(modules.items())))
 
 
 def standard_skill_errors(source: str, language: str, mode: str | None, entry: str | None,
-                          declared: set[str], known: frozenset[str] = frozenset()) -> list[str]:
+                          declared: set[str], project: "ProjectContext | None" = None) -> list[str]:
     """只报技能超纲和语法错误；未登记的写法和参考解一样只是映射表的事，由参考解那边警告。"""
     if language == "python":
         try:
-            found, _ = detect_python(source, mode or "function", entry, known)
+            found, _ = detect_python(source, mode or "function", entry, project)
         except SyntaxError as exc:
             return [f"标准写法语法错误：{exc}"]
     else:

@@ -1,0 +1,20 @@
+id: llm-6-004-mlp
+title: 逐位置加工字符表示
+track: llm
+stage: '6'
+unit: 1
+order: 40
+project: gpt
+part: 4
+format: combine
+difficulty: 58
+skills:
+  requires:
+    - llm.mlp
+  introduces: null
+source: original
+time_limit_ms: 25000
+mode: function
+entry: build_mlp
+signature: 'def build_mlp(width):'
+compare: checker

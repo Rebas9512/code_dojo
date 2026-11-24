@@ -1,0 +1,24 @@
+id: llm-6-002-windows
+title: 从一段连续文字抽一批窗口
+track: llm
+stage: '6'
+unit: 1
+order: 20
+project: gpt
+part: 2
+format: combine
+difficulty: 54
+skills:
+  requires:
+    - llm.train-lm
+    - train.holdout
+    - train.shuffle
+    - py.floordiv-mod
+    - py.ternary
+  introduces: null
+source: original
+time_limit_ms: 25000
+mode: class
+entry: TextWindows
+signature: 'class TextWindows:'
+compare: checker
