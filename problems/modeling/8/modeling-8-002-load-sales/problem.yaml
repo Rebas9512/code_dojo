@@ -1,0 +1,51 @@
+id: modeling-8-002-load-sales
+title: 载入首批并核对退回行
+track: modeling
+stage: '8'
+unit: 1
+order: 20
+format: combine
+difficulty: 58
+skills:
+  requires:
+  - modeling.view
+  - modeling.load-select
+  - sql.is-null
+  - sql.and-or
+  - sql.self-join
+  introduces: null
+source: original
+project: warehouse
+part: 2
+mode: script
+datasets:
+- db:workshop
+- db:workshop + ../1/datasets/one-sale.sql
+- db:workshop + ../1/datasets/empty.sql
+- db:workshop + ../1/datasets/history.sql
+- db:workshop + ../1/datasets/unmatched.sql
+checks:
+- label: 普通视图 · valid_sales
+  query: SELECT table_type FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'valid_sales'
+- label: 全部批次的合格来料
+  query: SELECT batch_no, line_id, sold_on, customer_code, sku, qty FROM valid_sales
+- label: 原始层中的各批次快照
+  query: SELECT batch_no, line_id, sold_on, customer_code, sku, qty FROM raw_sale
+- label: 末句列出首批退回行号
+  result: true
+wrong_examples:
+- why: 误把一件的销售也筛掉
+  sql: |-
+    CREATE VIEW valid_sales AS
+    SELECT batch_no, line_id, sold_on, customer_code, sku, qty
+    FROM warehouse_feed.sales
+    WHERE qty > 1;
+
+    INSERT INTO raw_sale (batch_no, line_id, sold_on, customer_code, sku, qty)
+    SELECT batch_no, line_id, sold_on, customer_code, sku, qty
+    FROM valid_sales
+    WHERE batch_no = 1;
+
+    SELECT line_id
+    FROM warehouse_feed.sales
+    WHERE batch_no = 1 AND (qty <= 0 OR qty IS NULL);

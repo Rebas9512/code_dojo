@@ -1,0 +1,1 @@
+-- 创建 fact_customer_day_idx 和逐条列出缺失映射的 sale_issues。

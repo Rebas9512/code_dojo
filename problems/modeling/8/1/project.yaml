@@ -1,0 +1,47 @@
+id: warehouse
+title: 小数仓
+summary: 给文具店的两批销售建仓。保留客户等级历史，把每笔销售归到交易当天的等级，最后核对件数和异常。
+language: sql
+scaffold: scaffold.sql
+reference: assembled
+data: workshop
+parts:
+- modeling-8-001-raw-sales
+- modeling-8-002-load-sales
+- modeling-8-003-customer-history
+- modeling-8-004-product-catalog
+- modeling-8-005-sale-facts
+- modeling-8-006-merge-delivery
+- modeling-8-007-audit-sales
+- modeling-8-008-close-books
+run:
+  timeout: 30
+  checks:
+  - label: 两批结账
+    result: true
+  - label: 原始层中的各批次快照
+    query: SELECT batch_no, line_id, sold_on, customer_code, sku, qty FROM raw_sale
+  - label: 每个客户的等级与起止日期
+    query: SELECT customer_code, tier, valid_from, valid_to FROM dim_customer
+  - label: 商品目录中的全部条目
+    query: SELECT sku, product_name FROM dim_product
+  - label: 销售行对应的客户版本、商品和件数
+    query: |-
+      SELECT f.line_id, f.sold_on, c.customer_code, c.valid_from, c.tier, p.sku, f.qty
+      FROM fact_sale f
+      LEFT JOIN dim_customer c USING (customer_key)
+      LEFT JOIN dim_product p USING (product_key)
+  - label: 客户与日期的索引键顺序
+    query: |-
+      SELECT am.amname, i.indisunique, i.indpred IS NULL, i.indnkeyatts,
+             pg_get_indexdef(i.indexrelid, 1, true), pg_get_indexdef(i.indexrelid, 2, true), i.indoption::text
+      FROM pg_index i
+      JOIN pg_class c ON c.oid = i.indexrelid
+      JOIN pg_am am ON am.oid = c.relam
+      WHERE i.indrelid = 'fact_sale'::regclass AND c.relname = 'fact_customer_day_idx'
+  - label: 每条未匹配的来料及原因
+    query: SELECT batch_no, line_id, issue FROM sale_issues
+  - label: 同批重复快照会被拒绝
+    probe: INSERT INTO raw_sale VALUES (1, 9001, '2025-01-01', 'C', 'P', 1), (1, 9001, '2025-01-01', 'C', 'P', 1)
+    expect: error
+success: all_checks

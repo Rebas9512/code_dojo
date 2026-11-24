@@ -1,0 +1,1 @@
+-- 定义 fact_sale 和 keyed_sale，写入首批能找到两侧维度键的销售。

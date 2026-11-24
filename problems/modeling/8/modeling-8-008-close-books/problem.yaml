@@ -1,0 +1,48 @@
+id: modeling-8-008-close-books
+title: 两批销售结账
+track: modeling
+stage: '8'
+unit: 1
+order: 80
+format: combine
+difficulty: 63
+skills:
+  requires:
+  - modeling.grain
+  - modeling.audit
+  - sql.subquery-scalar
+  - sql.coalesce
+  - sql.sum-avg
+  - sql.cte
+  - sql.cross-join
+  introduces: null
+source: original
+project: warehouse
+part: 8
+mode: script
+datasets:
+- db:workshop + ../1/scaffold.sql
+- db:workshop + ../1/scaffold.sql + ../1/datasets/one-sale.sql
+- db:workshop + ../1/scaffold.sql + ../1/datasets/empty.sql
+- db:workshop + ../1/scaffold.sql + ../1/datasets/history.sql
+- db:workshop + ../1/scaffold.sql + ../1/datasets/unmatched.sql
+checks:
+- label: 两批结账的六项数字
+  result: true
+wrong_examples:
+- why: 把历史版本总数也当成当前客户数
+  sql: |-
+    WITH customers AS (
+        SELECT COUNT(*) AS customer_versions,
+               COUNT(*) AS current_customers
+        FROM dim_customer
+    ), sales AS (
+        SELECT COUNT(*) AS fact_rows, COALESCE(SUM(qty), 0) AS units
+        FROM fact_sale
+    )
+    SELECT customers.customer_versions, customers.current_customers,
+           (SELECT COUNT(*) FROM dim_product) AS products,
+           sales.fact_rows, sales.units,
+           (SELECT COUNT(*) FROM sale_issues) AS quality_issues
+    FROM customers
+    CROSS JOIN sales;

@@ -1,0 +1,28 @@
+id: ml-6-010-cross-validation
+title: 用 k 折选择学习率和 L2
+track: ml
+stage: '6'
+unit: 1
+order: 100
+format: combine
+difficulty: 57
+skills:
+  requires:
+    - ml.crossval
+    - ml.leakage
+    - ml.logistic
+    - ml.descent
+    - wrangle.rank-index
+    - wrangle.axis
+    - py.enumerate
+    - py.nested-loop
+  introduces: null
+source: original
+project: churn
+part: 10
+mode: function
+entry: select_params
+signature: 'def select_params(numeric, cities, labels, candidates, k, steps):'
+compare: checker
+constraints:
+  forbid_imports: [sklearn, scipy, torch, pandas]

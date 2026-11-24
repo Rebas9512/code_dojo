@@ -1,0 +1,26 @@
+id: ml-6-008-report
+title: 从误报和漏报读出 F1
+track: ml
+stage: '6'
+unit: 1
+order: 80
+format: combine
+difficulty: 53
+skills:
+  requires:
+    - ml.confusion
+    - ml.metrics
+    - wrangle.axis
+    - py.ternary
+    - py.dict-basics
+    - py.type-convert
+  introduces: null
+source: original
+project: churn
+part: 8
+mode: function
+entry: classification_report
+signature: 'def classification_report(labels, predictions):'
+compare: checker
+constraints:
+  forbid_imports: [sklearn, scipy, torch, pandas]

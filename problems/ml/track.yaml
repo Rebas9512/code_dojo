@@ -41,3 +41,8 @@ stages:
       2: 沿图反传与梯度检查
       3: 手写两层网络
       4: 用 PyTorch 对拍
+  - id: '6'
+    name: 项目
+    kind: project
+    units:
+      1: NumPy 预测流失

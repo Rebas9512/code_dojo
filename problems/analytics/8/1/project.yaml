@@ -1,0 +1,45 @@
+id: dashboard
+title: App 增长看板
+summary: 给书店 App 做一张 3 月 15 日的增长快照。用七个视图拆清活跃、转化和留存，最后把各项读数拼成一行。
+language: sql
+scaffold: dashboard.sql
+reference: assembled
+data: readerapp
+parts:
+  - analytics-8-001-clean-activity
+  - analytics-8-002-sessions
+  - analytics-8-003-active-reach
+  - analytics-8-004-ordered-funnel
+  - analytics-8-005-cohort-retention
+  - analytics-8-006-monthly-growth
+  - analytics-8-007-cover-experiment
+  - analytics-8-008-dashboard
+run:
+  timeout: 30
+  checks:
+    - label: 清洗后的活动明细
+      query: SELECT user_id, action, local_at, source_id FROM clean_activity ORDER BY user_id, local_at, action
+      ordered: true
+    - label: 会话起止与操作数
+      query: SELECT user_id, session_no, started_at, ended_at, event_count FROM app_sessions ORDER BY user_id, session_no
+      ordered: true
+    - label: 每日与每周登录人数
+      query: SELECT grain, period_start, active_users FROM active_reach ORDER BY grain, period_start
+      ordered: true
+    - label: 有序漏斗与下单率
+      query: SELECT viewers, carters, buyers, order_rate FROM order_funnel
+    - label: 完整批次的次周留存
+      query: SELECT cohort_week, registered, returned, w1_rate FROM cohort_retention ORDER BY cohort_week
+      ordered: true
+    - label: 三个月的增长分项
+      query: SELECT month_start, new_users, retained, reactivated, lost FROM monthly_growth ORDER BY month_start
+      ordered: true
+    - label: 封面实验分组读数
+      query: SELECT arm, enrolled, buyers, buy_rate FROM cover_readout ORDER BY arm
+      ordered: true
+    - label: 看板快照
+      result: true
+    - label: 七个中间结果均为视图
+      query: SELECT viewname FROM pg_views WHERE viewname IN ('clean_activity', 'app_sessions', 'active_reach', 'order_funnel', 'cohort_retention', 'monthly_growth', 'cover_readout') ORDER BY viewname
+      ordered: true
+success: all_checks

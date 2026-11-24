@@ -1,0 +1,105 @@
+id: modeling-8-005-sale-facts
+title: 把销售归到当日的维度键
+track: modeling
+stage: '8'
+unit: 1
+order: 50
+format: combine
+difficulty: 64
+skills:
+  requires:
+  - modeling.asof
+  - modeling.foreign
+  - modeling.load-select
+  - sql.multi-join
+  - sql.join-conditions
+  - sql.is-null
+  introduces: null
+source: original
+project: warehouse
+part: 5
+mode: script
+datasets:
+- db:workshop
+- db:workshop + ../1/datasets/one-sale.sql
+- db:workshop + ../1/datasets/empty.sql
+- db:workshop + ../1/datasets/history.sql
+- db:workshop + ../1/datasets/unmatched.sql
+checks:
+- label: 列名、类型、必填与自动编号
+  query: |-
+    SELECT column_name, data_type, is_nullable, identity_generation
+    FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'fact_sale'
+    ORDER BY ordinal_position
+  ordered: true
+- label: 标识一行的主键列
+  query: |-
+    SELECT k.column_name
+    FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog, constraint_schema, constraint_name, table_name)
+    WHERE c.table_schema = 'public' AND c.table_name = 'fact_sale' AND c.constraint_type = 'PRIMARY KEY'
+- label: 销售行对应的客户版本、商品和件数
+  query: |-
+    SELECT f.line_id, f.sold_on, c.customer_code, c.valid_from, c.tier, p.sku, f.qty
+    FROM fact_sale f
+    LEFT JOIN dim_customer c USING (customer_key)
+    LEFT JOIN dim_product p USING (product_key)
+- label: 普通视图 · keyed_sale
+  query: SELECT table_type FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'keyed_sale'
+- label: 换键后的来料
+  query: |-
+    SELECT k.batch_no, k.line_id, k.sold_on, c.customer_code, c.valid_from, p.sku, k.qty
+    FROM keyed_sale k
+    JOIN dim_customer c USING (customer_key)
+    JOIN dim_product p USING (product_key)
+- label: 次批一到也能从视图取键
+  probe: |-
+    DO $$
+    BEGIN
+        INSERT INTO dim_product (sku, product_name) VALUES ('probe', 'Pen');
+        INSERT INTO dim_customer (customer_code, tier, valid_from) VALUES ('probe', 'base', '2025-01-01');
+        INSERT INTO raw_sale VALUES (2, 9001, '2025-03-15', 'probe', 'probe', 1);
+        IF (SELECT COUNT(*) FROM keyed_sale WHERE batch_no = 2 AND line_id = 9001) <> 1 THEN
+            RAISE EXCEPTION '次批销售没有对应的维度键';
+        END IF;
+    END $$
+  expect: ok
+- label: 客户键必须有对应版本
+  probe: |-
+    DO $$
+    BEGIN
+        INSERT INTO dim_product (sku, product_name) VALUES ('probe', 'Pen');
+        INSERT INTO fact_sale SELECT 9001, DATE '2025-01-01', -9001, product_key, 1 FROM dim_product WHERE sku = 'probe';
+    END $$
+  expect: error
+- label: 商品键必须有对应商品
+  probe: |-
+    DO $$
+    BEGIN
+        INSERT INTO dim_customer (customer_code, tier, valid_from) VALUES ('probe', 'base', '2025-01-01');
+        INSERT INTO fact_sale SELECT 9001, DATE '2025-01-01', customer_key, -9001, 1 FROM dim_customer WHERE customer_code = 'probe';
+    END $$
+  expect: error
+wrong_examples:
+- why: 使用当前等级给所有日期的交易换键
+  sql: |-
+    CREATE TABLE fact_sale (
+        line_id integer PRIMARY KEY,
+        sold_on date NOT NULL,
+        customer_key integer NOT NULL REFERENCES dim_customer (customer_key),
+        product_key integer NOT NULL REFERENCES dim_product (product_key),
+        qty integer NOT NULL
+    );
+
+    CREATE VIEW keyed_sale AS
+    SELECT r.batch_no, r.line_id, r.sold_on, c.customer_key, p.product_key, r.qty
+    FROM raw_sale r
+    JOIN dim_customer c ON c.customer_code = r.customer_code
+                       AND c.valid_to IS NULL
+    JOIN dim_product p ON p.sku = r.sku;
+
+    INSERT INTO fact_sale (line_id, sold_on, customer_key, product_key, qty)
+    SELECT line_id, sold_on, customer_key, product_key, qty
+    FROM keyed_sale
+    WHERE batch_no = 1;

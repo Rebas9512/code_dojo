@@ -1,0 +1,1 @@
+-- 返回一行 customer_versions、current_customers、products、fact_rows、units、quality_issues。

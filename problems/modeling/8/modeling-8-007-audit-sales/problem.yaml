@@ -1,0 +1,73 @@
+id: modeling-8-007-audit-sales
+title: 查出找不到维度的来料
+track: modeling
+stage: '8'
+unit: 1
+order: 70
+format: combine
+difficulty: 66
+skills:
+  requires:
+  - modeling.index
+  - modeling.audit
+  - modeling.asof
+  - sql.exists
+  - sql.set-ops
+  - sql.is-null
+  - sql.self-join
+  introduces: null
+source: original
+project: warehouse
+part: 7
+mode: script
+datasets:
+- db:workshop + ../1/scaffold.sql
+- db:workshop + ../1/scaffold.sql + ../1/datasets/one-sale.sql
+- db:workshop + ../1/scaffold.sql + ../1/datasets/empty.sql
+- db:workshop + ../1/scaffold.sql + ../1/datasets/history.sql
+- db:workshop + ../1/scaffold.sql + ../1/datasets/unmatched.sql
+checks:
+- label: 普通视图 · sale_issues
+  query: SELECT table_type FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'sale_issues'
+- label: 每条未匹配的来料及原因
+  query: SELECT batch_no, line_id, issue FROM sale_issues
+- label: 客户与日期的索引键顺序
+  query: |-
+    SELECT am.amname, i.indisunique, i.indpred IS NULL, i.indnkeyatts,
+           pg_get_indexdef(i.indexrelid, 1, true), pg_get_indexdef(i.indexrelid, 2, true), i.indoption::text
+    FROM pg_index i
+    JOIN pg_class c ON c.oid = i.indexrelid
+    JOIN pg_am am ON am.oid = c.relam
+    WHERE i.indrelid = 'fact_sale'::regclass AND c.relname = 'fact_customer_day_idx'
+- label: 同一来料可以同时缺两侧维度
+  probe: |-
+    DO $$
+    BEGIN
+        INSERT INTO raw_sale VALUES (2, 9001, '2025-03-01', 'probe', 'probe', 1);
+        IF (SELECT COUNT(DISTINCT issue) FROM sale_issues WHERE batch_no = 2 AND line_id = 9001 AND issue IN ('customer_gap', 'unknown_sku')) <> 2 THEN
+            RAISE EXCEPTION '请各写一条异常';
+        END IF;
+    END $$
+  expect: ok
+wrong_examples:
+- why: 把索引的等值键和范围键放反
+  sql: |-
+    CREATE INDEX fact_customer_day_idx ON fact_sale (sold_on, customer_key);
+
+    CREATE VIEW sale_issues AS
+    SELECT r.batch_no, r.line_id, 'customer_gap' AS issue
+    FROM raw_sale r
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM dim_customer c
+        WHERE c.customer_code = r.customer_code AND c.valid_from <= r.sold_on
+          AND (c.valid_to IS NULL OR r.sold_on < c.valid_to)
+    )
+    UNION ALL
+    SELECT r.batch_no, r.line_id, 'unknown_sku' AS issue
+    FROM raw_sale r
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM dim_product p
+        WHERE p.sku = r.sku
+    );

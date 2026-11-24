@@ -158,3 +158,7 @@
 - ✓ 55-project-llm：字符级小 GPT，12 部分，CPU 43 秒，验证损失 4.43 → 1.62，有无 KV cache 生成 90 字符逐字一致。抽查训练一轮、多头因果注意力（KV cache 拼历史后按偏移遮挡）：合格。
 - 主控再修检查器：项目部分预先登记骨架里的导入（torch / nn / json 等不再被当成方法）；参数和循环变量算已知名字；json.dumps 和项目工具方法映射为"不对应技能"。全库 check_curve 回到 0 错 0 警；train-5、llm-6 的 verify_bank 和 verify_standard 全过，完整参考运行达标。
 - ✓ 56-project-sql：书店月报，8 个 CTE 拼成一条 WITH … SELECT；完整运行 1.1 秒达标（7 个月、29 笔有效订单）。环比用月初 = 上月 + 1 个月自连接而不是 LAG，能发现缺月。
+- ✓ 53-project-ml：NumPy 预测流失，11 部分；完整运行 1.2 秒，测试集 F1 0.80、AUC 0.88。重跑 52 产出的 features.csv 和随包的一份逐字节一致，两个项目串得上。抽查梯度（L2 跳过偏置）、AUC（searchsorted 按半分计并列）：合格。
+- ✓ 57-project-analytics：App 增长看板，7 个视图加 1 条汇总；整跑 1.9 秒，9/9 达标。留存只统计观察窗口完整的注册周。
+- ✓ 58-project-modeling：小数仓，两批 ON CONFLICT 增量合并，整跑 0.96 秒，8/8。越界改了共用库 _db/workshop（加了独立的 warehouse_feed 模式和原料），主控全量复验建模线 73/73、课示例 118/118，无副作用，保留。
+- 七个项目全部完成。

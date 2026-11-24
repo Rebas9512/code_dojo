@@ -1,0 +1,70 @@
+id: modeling-8-006-merge-delivery
+title: 合并第二批到货
+track: modeling
+stage: '8'
+unit: 1
+order: 60
+format: combine
+difficulty: 68
+skills:
+  requires:
+  - modeling.history
+  - modeling.upsert
+  - sql.exists
+  - sql.is-null
+  - sql.self-join
+  introduces: null
+source: original
+project: warehouse
+part: 6
+mode: script
+datasets:
+- db:workshop + ../1/scaffold.sql
+- db:workshop + ../1/scaffold.sql + ../1/datasets/one-sale.sql
+- db:workshop + ../1/scaffold.sql + ../1/datasets/empty.sql
+- db:workshop + ../1/scaffold.sql + ../1/datasets/history.sql
+- db:workshop + ../1/scaffold.sql + ../1/datasets/unmatched.sql
+checks:
+- label: 原始层中的各批次快照
+  query: SELECT batch_no, line_id, sold_on, customer_code, sku, qty FROM raw_sale
+- label: 每个客户的等级与起止日期
+  query: SELECT customer_code, tier, valid_from, valid_to FROM dim_customer
+- label: 销售行对应的客户版本、商品和件数
+  query: |-
+    SELECT f.line_id, f.sold_on, c.customer_code, c.valid_from, c.tier, p.sku, f.qty
+    FROM fact_sale f
+    LEFT JOIN dim_customer c USING (customer_key)
+    LEFT JOIN dim_product p USING (product_key)
+wrong_examples:
+- why: 把次批快照数量当成追加数量
+  sql: |-
+    INSERT INTO raw_sale (batch_no, line_id, sold_on, customer_code, sku, qty)
+    SELECT batch_no, line_id, sold_on, customer_code, sku, qty
+    FROM valid_sales
+    WHERE batch_no = 2
+    ON CONFLICT (batch_no, line_id) DO NOTHING;
+
+    UPDATE dim_customer c
+    SET valid_to = incoming.valid_from
+    FROM warehouse_feed.customers incoming
+    WHERE incoming.batch_no = 2 AND incoming.customer_code = c.customer_code
+      AND c.valid_to IS NULL AND c.tier <> incoming.tier;
+
+    INSERT INTO dim_customer (customer_code, tier, valid_from)
+    SELECT incoming.customer_code, incoming.tier, incoming.valid_from
+    FROM warehouse_feed.customers incoming
+    WHERE incoming.batch_no = 2 AND NOT EXISTS (
+        SELECT 1
+        FROM dim_customer c
+        WHERE c.customer_code = incoming.customer_code AND c.valid_to IS NULL
+    );
+
+    INSERT INTO fact_sale (line_id, sold_on, customer_key, product_key, qty)
+    SELECT line_id, sold_on, customer_key, product_key, qty
+    FROM keyed_sale
+    WHERE batch_no = 2
+    ON CONFLICT (line_id) DO UPDATE
+    SET sold_on = EXCLUDED.sold_on,
+        customer_key = EXCLUDED.customer_key,
+        product_key = EXCLUDED.product_key,
+        qty = fact_sale.qty + EXCLUDED.qty;

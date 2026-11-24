@@ -1,0 +1,23 @@
+id: ml-6-009-auc
+title: 给流失概率的排序打分
+track: ml
+stage: '6'
+unit: 1
+order: 90
+format: combine
+difficulty: 54
+skills:
+  requires:
+    - ml.auc
+    - wrangle.filter-sort
+    - wrangle.axis
+  introduces: null
+source: original
+project: churn
+part: 9
+mode: function
+entry: roc_auc
+signature: 'def roc_auc(labels, scores):'
+compare: checker
+constraints:
+  forbid_imports: [sklearn, scipy, torch, pandas]

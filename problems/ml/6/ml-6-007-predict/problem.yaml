@@ -1,0 +1,22 @@
+id: ml-6-007-predict
+title: 按阈值标记流失
+track: ml
+stage: '6'
+unit: 1
+order: 70
+format: combine
+difficulty: 52
+skills:
+  requires:
+    - ml.logistic
+    - wrangle.cast
+  introduces: null
+source: original
+project: churn
+part: 7
+mode: function
+entry: predict_labels
+signature: 'def predict_labels(probabilities, threshold):'
+compare: checker
+constraints:
+  forbid_imports: [sklearn, scipy, torch, pandas]

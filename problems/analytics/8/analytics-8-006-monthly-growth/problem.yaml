@@ -1,0 +1,57 @@
+id: analytics-8-006-monthly-growth
+title: 核对三个月的增长账
+track: analytics
+stage: '8'
+unit: 1
+order: 60
+format: combine
+mode: script
+difficulty: 72
+skills:
+  requires: [analytics.growth-ledger, sql.generate-series, sql.join-aggregate, sql.join-conditions, sql.multi-join, sql.round-cast]
+  introduces: null
+source: original
+project: dashboard
+part: 6
+datasets:
+  - db:readerapp + ../1/data/example.sql
+  - db:readerapp
+  - db:readerapp + ../1/data/boundaries.sql
+  - db:readerapp + ../1/data/quiet.sql
+  - db:readerapp + ../1/data/history.sql
+checks:
+  - label: 三个月的增长分项
+    query: SELECT month_start, new_users, retained, reactivated, lost FROM monthly_growth ORDER BY month_start
+    ordered: true
+  - label: 视图名称与列序
+    query: |
+      SELECT column_name FROM information_schema.columns
+      WHERE table_name = 'monthly_growth' AND table_name IN (SELECT viewname FROM pg_views)
+      ORDER BY ordinal_position
+    ordered: true
+wrong_examples:
+  - why: 把回流也算作新增
+    sql: |
+      CREATE VIEW monthly_growth AS
+      WITH months AS (
+          SELECT GENERATE_SERIES(DATE '2025-01-01', DATE '2025-03-01', INTERVAL '1 month')::date AS month_start
+      ), visits AS (
+          SELECT DISTINCT user_id, DATE_TRUNC('month', local_at)::date AS active_month
+          FROM clean_activity
+          WHERE action = 'login'
+      ), history AS (
+          SELECT m.month_start, v.user_id, MIN(v.active_month) AS first_month,
+                 BOOL_OR(v.active_month = m.month_start) AS active_now,
+                 BOOL_OR(v.active_month = m.month_start - INTERVAL '1 month') AS active_before
+          FROM months m
+          JOIN visits v ON v.active_month <= m.month_start
+          GROUP BY m.month_start, v.user_id
+      )
+      SELECT m.month_start,
+             COUNT(*) FILTER (WHERE h.active_now AND NOT h.active_before) AS new_users,
+             COUNT(*) FILTER (WHERE h.active_now AND h.active_before) AS retained,
+             COUNT(*) FILTER (WHERE h.active_now AND NOT h.active_before AND h.first_month < m.month_start) AS reactivated,
+             COUNT(*) FILTER (WHERE h.active_before AND NOT h.active_now) AS lost
+      FROM months m
+      LEFT JOIN history h USING (month_start)
+      GROUP BY m.month_start;

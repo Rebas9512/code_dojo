@@ -1,0 +1,29 @@
+id: ml-6-001-split-readers
+title: 按流失标签分出三组读者
+track: ml
+stage: '6'
+unit: 1
+order: 10
+format: combine
+difficulty: 50
+skills:
+  requires:
+    - ml.split
+    - py.floordiv-mod
+    - wrangle.csv
+    - wrangle.projection
+    - wrangle.array
+    - py.zip
+    - py.list-append
+    - py.list-comp
+    - py.slice
+  introduces: null
+source: original
+project: churn
+part: 1
+mode: function
+entry: load_split
+signature: 'def load_split(path, seed):'
+compare: checker
+constraints:
+  forbid_imports: [sklearn, scipy, torch]

@@ -1,0 +1,25 @@
+id: churn
+title: NumPy 预测流失
+summary: 用书店 App 的用户特征表训练逻辑回归，预测哪位读者下个月不会再下单，用留出的用户检验模型。
+language: python
+scaffold: scaffold.py
+reference: assembled
+data: data
+parts:
+  - ml-6-001-split-readers
+  - ml-6-002-fit-scaler
+  - ml-6-003-design-matrix
+  - ml-6-004-forward-loss
+  - ml-6-005-gradient
+  - ml-6-006-train
+  - ml-6-007-predict
+  - ml-6-008-report
+  - ml-6-009-auc
+  - ml-6-010-cross-validation
+  - ml-6-011-main
+run:
+  entry: main
+  timeout: 60
+success:
+  f1: {">=": 0.78}
+  auc: {">=": 0.86}

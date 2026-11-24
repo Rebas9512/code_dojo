@@ -51,3 +51,8 @@ stages:
     units:
       1: 案例一 · 结账改版后少了哪一步
       2: 案例二 · 续费下降与套餐构成
+  - id: '8'
+    name: 项目
+    kind: project
+    units:
+      1: App 增长看板

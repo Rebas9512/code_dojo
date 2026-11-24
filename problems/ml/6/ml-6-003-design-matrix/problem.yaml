@@ -1,0 +1,24 @@
+id: ml-6-003-design-matrix
+title: 给城市留一列，再添偏置
+track: ml
+stage: '6'
+unit: 1
+order: 30
+format: combine
+difficulty: 50
+skills:
+  requires:
+    - ml.affine
+    - wrangle.reshape
+    - tensor.broadcast
+    - py.slice
+  introduces: null
+source: original
+project: churn
+part: 3
+mode: function
+entry: design_matrix
+signature: 'def design_matrix(numeric, cities, vocabulary):'
+compare: checker
+constraints:
+  forbid_imports: [sklearn, scipy, torch, pandas]

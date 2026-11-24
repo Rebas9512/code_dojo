@@ -1,0 +1,73 @@
+id: modeling-8-001-raw-sales
+title: 给销售来料建登记表
+track: modeling
+stage: '8'
+unit: 1
+order: 10
+format: combine
+difficulty: 57
+skills:
+  requires:
+  - modeling.composite
+  - modeling.check
+  - sql.in-list
+  introduces: null
+source: original
+project: warehouse
+part: 1
+mode: script
+datasets:
+- db:workshop
+- db:workshop + ../1/datasets/one-sale.sql
+- db:workshop + ../1/datasets/empty.sql
+- db:workshop + ../1/datasets/history.sql
+- db:workshop + ../1/datasets/unmatched.sql
+checks:
+- label: 列名、类型、必填与自动编号
+  query: |-
+    SELECT column_name, data_type, is_nullable, identity_generation
+    FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'raw_sale'
+    ORDER BY ordinal_position
+  ordered: true
+- label: 标识一行的主键列
+  query: |-
+    SELECT k.column_name
+    FROM information_schema.table_constraints c
+    JOIN information_schema.key_column_usage k USING (constraint_catalog, constraint_schema, constraint_name, table_name)
+    WHERE c.table_schema = 'public' AND c.table_name = 'raw_sale' AND c.constraint_type = 'PRIMARY KEY'
+- label: 刚建好的表是空表
+  query: SELECT COUNT(*) FROM raw_sale
+- label: 一件也能登记
+  probe: INSERT INTO raw_sale VALUES (1, 9001, '2025-01-01', 'C', 'P', 1)
+  expect: ok
+- label: 同一行号可以分两批到货
+  probe: INSERT INTO raw_sale VALUES (1, 9001, '2025-01-01', 'C', 'P', 1), (2, 9001, '2025-01-01', 'C', 'P', 1)
+  expect: ok
+- label: 同批同号会被拒绝
+  probe: INSERT INTO raw_sale VALUES (1, 9001, '2025-01-01', 'C', 'P', 1), (1, 9001, '2025-01-01', 'C', 'P', 1)
+  expect: error
+- label: 第三批会被拒绝
+  probe: INSERT INTO raw_sale VALUES (3, 9001, '2025-01-01', 'C', 'P', 1)
+  expect: error
+- label: 零件销售会被拒绝
+  probe: INSERT INTO raw_sale VALUES (1, 9001, '2025-01-01', 'C', 'P', 0)
+  expect: error
+- label: 负件数会被拒绝
+  probe: INSERT INTO raw_sale VALUES (1, 9001, '2025-01-01', 'C', 'P', -1)
+  expect: error
+- label: 未知件数会被拒绝
+  probe: INSERT INTO raw_sale VALUES (1, 9001, '2025-01-01', 'C', 'P', NULL)
+  expect: error
+wrong_examples:
+- why: 把同一行号的次批更正也当成重复
+  sql: |-
+    CREATE TABLE raw_sale (
+        batch_no integer CHECK (batch_no IN (1, 2)),
+        line_id integer,
+        sold_on date NOT NULL,
+        customer_code text NOT NULL,
+        sku text NOT NULL,
+        qty integer NOT NULL CHECK (qty > 0),
+        PRIMARY KEY (line_id)
+    );

@@ -44,3 +44,8 @@ stages:
   units:
     1: 履约仓库
     2: 会员交易仓库
+- id: '8'
+  name: 项目
+  kind: project
+  units:
+    1: 小数仓

@@ -1,0 +1,55 @@
+id: analytics-8-004-ordered-funnel
+title: 计算浏览到下单的转化
+track: analytics
+stage: '8'
+unit: 1
+order: 40
+format: combine
+mode: script
+difficulty: 68
+skills:
+  requires: [analytics.ordered-path, sql.join-aggregate, sql.join-conditions, sql.multi-join, sql.round-cast, sql.self-join]
+  introduces: null
+source: original
+project: dashboard
+part: 4
+datasets:
+  - db:readerapp + ../1/data/example.sql
+  - db:readerapp
+  - db:readerapp + ../1/data/boundaries.sql
+  - db:readerapp + ../1/data/quiet.sql
+  - db:readerapp + ../1/data/history.sql
+checks:
+  - label: 有序漏斗与下单率
+    query: SELECT viewers, carters, buyers, order_rate FROM order_funnel
+  - label: 视图名称与列序
+    query: |
+      SELECT column_name FROM information_schema.columns
+      WHERE table_name = 'order_funnel' AND table_name IN (SELECT viewname FROM pg_views)
+      ORDER BY ordinal_position
+    ordered: true
+wrong_examples:
+  - why: 允许同一时刻的加购接在浏览之后
+    sql: |
+      CREATE VIEW order_funnel AS
+      WITH views AS (
+          SELECT user_id, MIN(local_at) AS viewed_at
+          FROM clean_activity
+          WHERE action = 'view'
+          GROUP BY user_id
+      ), carts AS (
+          SELECT v.user_id, MIN(e.local_at) AS carted_at
+          FROM views v
+          LEFT JOIN clean_activity e ON e.user_id = v.user_id
+              AND e.action = 'cart' AND e.local_at >= v.viewed_at
+          GROUP BY v.user_id
+      ), orders AS (
+          SELECT c.user_id, c.carted_at, MIN(e.local_at) AS ordered_at
+          FROM carts c
+          LEFT JOIN clean_activity e ON e.user_id = c.user_id
+              AND e.action = 'order' AND e.local_at > c.carted_at
+          GROUP BY c.user_id, c.carted_at
+      )
+      SELECT COUNT(*) AS viewers, COUNT(carted_at) AS carters, COUNT(ordered_at) AS buyers,
+             ROUND(COUNT(ordered_at)::numeric / NULLIF(COUNT(*), 0), 4) AS order_rate
+      FROM orders;

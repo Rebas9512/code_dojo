@@ -1,0 +1,44 @@
+id: analytics-8-003-active-reach
+title: 统计日活和自然周活
+track: analytics
+stage: '8'
+unit: 1
+order: 30
+format: combine
+mode: script
+difficulty: 64
+skills:
+  requires: [analytics.active-reach, sql.cross-join, sql.cte, sql.join-aggregate, sql.round-cast]
+  introduces: null
+source: original
+project: dashboard
+part: 3
+datasets:
+  - db:readerapp + ../1/data/example.sql
+  - db:readerapp
+  - db:readerapp + ../1/data/boundaries.sql
+  - db:readerapp + ../1/data/quiet.sql
+  - db:readerapp + ../1/data/history.sql
+checks:
+  - label: 每日与每周登录人数
+    query: SELECT grain, period_start, active_users FROM active_reach ORDER BY grain, period_start
+    ordered: true
+  - label: 视图名称与列序
+    query: |
+      SELECT column_name FROM information_schema.columns
+      WHERE table_name = 'active_reach' AND table_name IN (SELECT viewname FROM pg_views)
+      ORDER BY ordinal_position
+    ordered: true
+wrong_examples:
+  - why: 把每次登录都算作一个人
+    sql: |
+      CREATE VIEW active_reach AS
+      WITH periods(grain) AS (
+          VALUES ('day'), ('week')
+      )
+      SELECT grain, DATE_TRUNC(grain, local_at)::date AS period_start,
+             COUNT(*) AS active_users
+      FROM clean_activity
+      CROSS JOIN periods
+      WHERE action = 'login'
+      GROUP BY grain, period_start;

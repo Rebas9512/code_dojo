@@ -1,0 +1,46 @@
+id: analytics-8-001-clean-activity
+title: 合并登录和操作，统一业务时间
+track: analytics
+stage: '8'
+unit: 1
+order: 10
+format: combine
+mode: script
+difficulty: 64
+skills:
+  requires: [sql.cte, sql.date-funcs, sql.set-ops, sql.sum-avg]
+  introduces: null
+source: original
+project: dashboard
+part: 1
+datasets:
+  - db:readerapp + ../1/data/example.sql
+  - db:readerapp
+  - db:readerapp + ../1/data/boundaries.sql
+  - db:readerapp + ../1/data/quiet.sql
+  - db:readerapp + ../1/data/history.sql
+checks:
+  - label: 清洗后的活动明细
+    query: SELECT user_id, action, local_at, source_id FROM clean_activity ORDER BY user_id, local_at, action
+    ordered: true
+  - label: 视图名称与列序
+    query: |
+      SELECT column_name FROM information_schema.columns
+      WHERE table_name = 'clean_activity' AND table_name IN (SELECT viewname FROM pg_views)
+      ORDER BY ordinal_position
+    ordered: true
+wrong_examples:
+  - why: 只换算时间却保留每条重复上报
+    sql: |
+      CREATE VIEW clean_activity AS
+      WITH reports AS (
+          SELECT event_id AS source_id, user_id, action, happened_at AS utc_at
+          FROM events
+          UNION ALL
+          SELECT login_id, user_id, 'login', logged_at
+          FROM logins
+      )
+      SELECT user_id, action, utc_at + INTERVAL '8 hours' AS local_at,
+             source_id
+      FROM reports
+      WHERE utc_at < TIMESTAMP '2025-03-15 16:00';

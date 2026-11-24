@@ -1,0 +1,47 @@
+id: analytics-8-005-cohort-retention
+title: 按注册周计算次周留存
+track: analytics
+stage: '8'
+unit: 1
+order: 50
+format: combine
+mode: script
+difficulty: 69
+skills:
+  requires: [analytics.cohort-matrix, sql.join-aggregate, sql.join-conditions, sql.round-cast]
+  introduces: null
+source: original
+project: dashboard
+part: 5
+datasets:
+  - db:readerapp + ../1/data/example.sql
+  - db:readerapp
+  - db:readerapp + ../1/data/boundaries.sql
+  - db:readerapp + ../1/data/quiet.sql
+  - db:readerapp + ../1/data/history.sql
+checks:
+  - label: 完整批次的次周留存
+    query: SELECT cohort_week, registered, returned, w1_rate FROM cohort_retention ORDER BY cohort_week
+    ordered: true
+  - label: 视图名称与列序
+    query: |
+      SELECT column_name FROM information_schema.columns
+      WHERE table_name = 'cohort_retention' AND table_name IN (SELECT viewname FROM pg_views)
+      ORDER BY ordinal_position
+    ordered: true
+wrong_examples:
+  - why: 把次周周一前的注册当周也算作回访
+    sql: |
+      CREATE VIEW cohort_retention AS
+      WITH roster AS (
+          SELECT user_id, DATE_TRUNC('week', joined_on)::date AS cohort_week
+          FROM readers
+      )
+      SELECT r.cohort_week, COUNT(DISTINCT r.user_id) AS registered,
+             COUNT(DISTINCT a.user_id) AS returned,
+             ROUND(COUNT(DISTINCT a.user_id)::numeric / COUNT(DISTINCT r.user_id), 4) AS w1_rate
+      FROM roster r
+      LEFT JOIN clean_activity a ON a.user_id = r.user_id AND a.action = 'login'
+          AND a.local_at >= r.cohort_week AND a.local_at < r.cohort_week + 14
+      WHERE r.cohort_week + 13 <= DATE '2025-03-15'
+      GROUP BY r.cohort_week;

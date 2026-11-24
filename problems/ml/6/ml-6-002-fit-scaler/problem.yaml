@@ -1,0 +1,23 @@
+id: ml-6-002-fit-scaler
+title: 只用训练行定标尺
+track: ml
+stage: '6'
+unit: 1
+order: 20
+format: combine
+difficulty: 50
+skills:
+  requires:
+    - ml.leakage
+    - wrangle.axis
+    - wrangle.where
+  introduces: null
+source: original
+project: churn
+part: 2
+mode: function
+entry: fit_scaler
+signature: 'def fit_scaler(train):'
+compare: checker
+constraints:
+  forbid_imports: [sklearn, scipy, torch, pandas]
