@@ -6,6 +6,7 @@ import operator
 import time
 from collections.abc import Callable, Iterator
 from concurrent.futures import ThreadPoolExecutor
+from functools import lru_cache
 from tempfile import TemporaryDirectory
 from pathlib import Path
 
@@ -74,7 +75,9 @@ def python_run(judge: Judge, project: Project, code: str,
         yield {"result": future.result()}
 
 
+@lru_cache(maxsize=16)
 def sql_plan(project: Project) -> dict:
+    """参考脚本的期望结果只取决于题库里的项目，按项目对象缓存（题库重载会换新对象）；每次 PGlite 跑一遍约 1 秒。"""
     meta = project.meta
     setup = shared_db(project.directory.parents[1], meta.data)
     checks = [c.model_dump() for c in meta.run.checks]

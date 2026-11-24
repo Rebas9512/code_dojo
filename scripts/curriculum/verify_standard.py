@@ -5,10 +5,9 @@ from __future__ import annotations
 
 import argparse
 import sys
+from functools import cache
 from glob import escape
 from pathlib import Path
-
-from functools import cache
 
 from check_curve import PROBLEMS, Report, closure, load_skills, load_tracks, project_names, standard_skill_errors
 from app.config import load_settings
@@ -78,7 +77,7 @@ def standard_sources(p: Problem) -> tuple[list[str], dict[str, str]]:
             declared.add(skills.introduces)
         allowed = closure(skill_graph(), declared)
         errors.extend(standard_skill_errors(code, p.track.language, p.meta.mode, p.meta.entry, allowed,
-                                            project_names(p.path, getattr(p.meta, "project", None))))
+                                            project_names(p.path, p.meta.project)))
     if "standard.md" in files:
         issues, advanced = note_errors(p.file("standard.md").read_text(encoding="utf-8"), p)
         errors.extend(issues)

@@ -766,15 +766,24 @@ class PyDetector(ast.NodeVisitor):
         self.generic_visit(node)
 
 
+@dataclass(frozen=True)
+class ProjectContext:
+    """项目部分看得见的东西：其他部分和骨架定义的名字、骨架导入的模块（本地名 → 全名）。"""
+    names: frozenset[str] = frozenset()
+    modules: tuple[tuple[str, str], ...] = ()
+
+
+NO_PROJECT = ProjectContext()
+
+
 def detect_python(source: str, mode: str, entry: str | None,
-                  project: "ProjectContext | None" = None) -> tuple[list[Detection], list[str]]:
+                  project: ProjectContext = NO_PROJECT) -> tuple[list[Detection], list[str]]:
     """project：项目部分能用的其他部分、骨架名字和骨架导入，部分之间互相调用不算未登记的调用。"""
     tree = ast.parse(source)
     det = PyDetector(mode, entry)
-    if project:
-        det.modules.update(project.modules)
+    det.modules.update(project.modules)
     # 本文件定义的函数和类，加上参数和循环变量（调用传进来的函数是正常写法，如 loss_fn()、block()）
-    det.defined_funcs = (project.names if project else frozenset()) | {
+    det.defined_funcs = project.names | {
         n.name for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
     } | {n.arg for n in ast.walk(tree) if isinstance(n, ast.arg)} | {
         t.id for n in ast.walk(tree) if isinstance(n, (ast.For, ast.comprehension))
@@ -980,16 +989,6 @@ def top_level_names(source: str) -> set[str]:
     return names | {t.id for n in tree.body if isinstance(n, ast.Assign) for t in n.targets if isinstance(t, ast.Name)}
 
 
-@dataclass(frozen=True)
-class ProjectContext:
-    """项目部分看得见的东西：其他部分和骨架定义的名字、骨架导入的模块（本地名 → 全名）。"""
-    names: frozenset[str] = frozenset()
-    modules: tuple[tuple[str, str], ...] = ()
-
-
-NO_PROJECT = ProjectContext()
-
-
 def scaffold_modules(source: str) -> dict[str, str]:
     modules = {}
     for node in ast.parse(source).body:
@@ -1023,7 +1022,7 @@ def project_names(problem_dir: Path, project: str | None) -> ProjectContext:
 
 
 def standard_skill_errors(source: str, language: str, mode: str | None, entry: str | None,
-                          declared: set[str], project: "ProjectContext | None" = None) -> list[str]:
+                          declared: set[str], project: ProjectContext = NO_PROJECT) -> list[str]:
     """只报技能超纲和语法错误；未登记的写法和参考解一样只是映射表的事，由参考解那边警告。"""
     if language == "python":
         try:
@@ -1402,6 +1401,7 @@ def check_track(track: Track, problems: list[dict], own: dict, skills: dict, inh
         declared = set(requires) | ({intro} if intro else set())
         allowed = declared if strict else closure(skills, declared)
         found: list[Detection] = []
+        known = NO_PROJECT  # 参考解和标准写法共用；只有 Python 需要项目里的名字
         try:
             if m.get("format") != "inspect" and track.language == "python":
                 src = (m["_dir"] / "solution.py").read_text(encoding="utf-8")
@@ -1428,8 +1428,7 @@ def check_track(track: Track, problems: list[dict], own: dict, skills: dict, inh
         standard = m["_dir"] / ("standard.sql" if track.language == "sql" else "standard.py")
         if standard.is_file():
             for issue in standard_skill_errors(standard.read_text(encoding="utf-8"), track.language,
-                                               m.get("mode"), m.get("entry"), allowed,
-                                               project_names(m["_dir"], m.get("project"))):
+                                               m.get("mode"), m.get("entry"), allowed, known):
                 rep.err(f"{pid}：{issue}")
 
         # 选修：必修题不能依赖选修内容引入的技能

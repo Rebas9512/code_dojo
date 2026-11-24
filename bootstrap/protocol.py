@@ -155,7 +155,7 @@ class Controller:
 
     def checked(self, updates, result):
         # 手动更新清理旧目录时，后台刚下载完的目录可能已被删掉，那就不记。
-        if result.active and self.item and result.active.root != self.item.root and result.active.root.is_dir():
+        if result.active and result.active.root != self.item.root and result.active.root.is_dir():
             updates.stage(result.active)
         if result.message or result.installer:
             self.send("status", message=result.message, installer=result.installer, checked=True)

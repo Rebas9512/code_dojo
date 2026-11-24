@@ -62,7 +62,7 @@ class ProjectMeta(BaseModel):
     success: dict[str, dict[Literal["<", "<=", "==", ">=", ">"], float]] | Literal["all_checks"]
 
 
-@dataclass
+@dataclass(eq=False)  # 按对象比较和哈希，sql_plan 可以按项目对象缓存
 class Project:
     meta: ProjectMeta
     directory: Path
@@ -75,9 +75,10 @@ class Project:
     def load(cls, path: Path, track: Track, problems: dict[str, Problem]) -> Project:
         meta = ProjectMeta.model_validate(read_yaml(path))
         directory = path.parent
+        # 题库只按 track.yaml 列出的 <项目阶段>/<单元编号>/project.yaml 来找，阶段和单元已经对得上。
         stage, unit = directory.parent.name, int(directory.name)
-        if track.project_stage != stage or meta.language != track.language or unit not in track.units[stage]:
-            raise ValueError("项目应属于本线项目阶段的已命名单元，语言与学习线相同")
+        if meta.language != track.language:
+            raise ValueError("项目语言应与学习线相同")
         if meta.language == "python":
             if not meta.run.entry.isidentifier() or not (directory / meta.data).is_dir():
                 raise ValueError("Python 项目需要入口和数据目录")

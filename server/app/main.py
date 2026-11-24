@@ -306,6 +306,12 @@ def today_plan() -> dict:
                 [p.id for p in ordered if p.meta.track == t.id])} for t in bank.tracks.values() if t.status == "active"]}
 
 
+def completed_tracks(statuses: dict[str, dict[str, str]]) -> set[str]:
+    """每道题都通过（含 AI 协助）的线。地图的 requires_done 和一组练习的解锁判断共用。"""
+    return {tid for tid in bank.tracks if (ps := bank.ordered(tid))
+            and all(statuses[tid].get(p.id) in ("solved", "assisted") for p in ps)}
+
+
 @app.get("/api/session-plan")
 def session_plan(tab: Literal["python", "sql"], size: int = Query(5, ge=1, le=8)) -> list[dict]:
     state = learning()
@@ -315,8 +321,7 @@ def session_plan(tab: Literal["python", "sql"], size: int = Query(5, ge=1, le=8)
     stages = {t.id: group_units(t, bank.skills[t.id], bank.ordered(t.id)) for t in visible}
     status = {tid: store.status_by_problem(tid) for tid in bank.tracks}
     open_ids = {tid for tid in stages if progress_frontier(stages[tid], status[tid])}
-    done = {tid for tid in bank.tracks if (ps := bank.ordered(tid))
-            and all(status[tid].get(p.id) in ("solved", "assisted") for p in ps)}
+    done = completed_tracks(status)
     unlocked = {t.id for t in visible if all(r in done for r in t.requires)}
     track = resume_track(visible, store.last_active_by_track(), open_ids, unlocked)
     if not track:
@@ -350,7 +355,7 @@ def tracks() -> list[dict[str, Any]]:
     rows = {}
     for track in bank.tracks.values():
         problems = bank.ordered(track.id)
-        status = statuses.get(track.id, {})
+        status = statuses[track.id]
         counts = Counter(status.get(p.id) for p in problems)
         stages = group_units(track, bank.skills[track.id], problems)
         upcoming = state.next_item([p.id for p in problems])
@@ -366,7 +371,7 @@ def tracks() -> list[dict[str, Any]]:
             "frontier": progress_frontier(stages, status),
             "last_active": last_active.get(track.id),
         }
-    completed = {tid for tid, row in rows.items() if row["total"] > 0 and row["solved"] == row["total"]}
+    completed = completed_tracks(statuses)
     for row in rows.values():
         row["requires_done"] = all(tid in completed for tid in row["requires"])
     return list(rows.values())

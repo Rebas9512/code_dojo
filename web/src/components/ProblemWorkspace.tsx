@@ -711,7 +711,7 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
   const autoOpen = useRef<Set<string>>(new Set()) // 出好后要自动切过去的附加题
   const active = useRef<ActiveHandle>(null)
   const recordAi = () => {
-    if (!session || session.ended) return
+    if (!session) return
     const index = session.items.findIndex(p => p.id === activeId)
     if (index >= 0) recordHelp(session.id, index, 'ai')
   }

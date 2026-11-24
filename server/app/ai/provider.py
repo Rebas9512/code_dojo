@@ -69,14 +69,13 @@ class CliProvider:
         model: str | None = None,
         workdir: Path | None = None,
         timeout_s: float = 180,
-        concurrency: int = 2,
         slots: threading.BoundedSemaphore | None = None,
     ):
         self.binary = binary or self.command
         self.model = model or self.default_model
         self.workdir = workdir or Path(tempfile.gettempdir()) / "code-dojo-ai"
         self.timeout_s = timeout_s
-        self._slots = slots or threading.BoundedSemaphore(concurrency)
+        self._slots = slots or threading.BoundedSemaphore(2)  # 应用里由 main 传入，两个助教共用
 
     def _run(self, cmd: list[str], prompt: str, cwd: Path) -> subprocess.CompletedProcess[str]:
         keys = ("HOME", "PATH", "LANG", self.login_env)

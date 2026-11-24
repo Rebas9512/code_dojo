@@ -171,4 +171,4 @@
 ## 助教看得到草稿、能改草稿（用户 2026-11-23："我想agent也能看到当前scratchpad和参与共同编辑"）
 - ✓ 60-tutor-scratch：聊天请求带草稿；edits 加 target（answer / scratch）；改草稿自动切过去、可撤销，不计入 AI 协助。主控真实冒烟 Claude、Codex 都返回 target=scratch；主控补了一条软约束：草稿里只演示知识点和中间过程，不借草稿写出本题完整解法（否则抄进答案会被记成独立通过）。
 - 两项都完成后：整体更新仓库首页 README 展示新功能（一组练习、参考答案、项目、草稿、本机即用 + 同步码；写明 AI 助教要用户自己在本机装好 Claude Code 或 Codex），配新截图。
-- 待做（用户 2026-11-23：最后提交前也派一个opus去做一下优化和性能检查以免codex写了太多防御性代码）：59、60 验收后、最终提交前，派 Opus 过一遍今天（dc12c34 之后）codex 写的平台代码（server/app、web/src、bootstrap、desktop、scripts），清理防御性代码、查性能；不碰 problems/ 内容。
+- ✓ Opus 清理（8 个文件 +37/−31；SQL 项目参考结果按项目缓存，完整跑一遍从约 1 秒到约 0）；全量复验通过；1.3.0 发版。（用户 2026-11-23：最后提交前也派一个opus去做一下优化和性能检查以免codex写了太多防御性代码）：59、60 验收后、最终提交前，派 Opus 过一遍今天（dc12c34 之后）codex 写的平台代码（server/app、web/src、bootstrap、desktop、scripts），清理防御性代码、查性能；不碰 problems/ 内容。
