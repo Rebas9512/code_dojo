@@ -211,7 +211,9 @@ def test_session_uses_visible_reviews_and_one_frontier(site, monkeypatch):
     store.add_submission(problem_id=ADD, track="python", kind="submit", code="",
                          result={"verdict": "wrong_answer"}, elapsed_ms=500, hints_used=0)
     review, = client.get("/api/today").json()["reviews"]
-    sql = client.get(url, params={"tab": "sql"}).json()
+    # 默认接着进度出新题，不把到期复习塞在前面
+    assert [p["id"] for p in client.get(url, params={"tab": "sql"}).json()] == [B]
+    sql = client.get(url, params={"tab": "sql", "warmup": True}).json()
     assert sql[0] == review and [p["id"] for p in sql[1:]] == [B]
-    python = client.get(url, params={"tab": "python", "size": 3}).json()
+    python = client.get(url, params={"tab": "python", "size": 3, "warmup": True}).json()
     assert python[0] == review and [p["id"] for p in python[1:]] == ["py-0a-004-fill-return"]

@@ -155,7 +155,11 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
     if (left === 'standard' && autoAt !== null) setAutoAt(null)
   }, [left, autoAt])
   const [sound, setSound] = useState(() => readPref('dojo-sound', '0') === '1')
-  const toggleSound = () => { writePref('dojo-sound', sound ? '0' : '1'); setSound(!sound) }
+  const toggleSound = () => {
+    writePref('dojo-sound', sound ? '0' : '1')
+    if (!sound) playPassSound(true) // 打开时先听一下
+    setSound(!sound)
+  }
   const index = session && !session.ended && !waiting ? session.items.findIndex(item => item.id === id) : -1
   const item = session?.items[index]
   const openSessionId = item?.status === 'open' ? session?.id : undefined

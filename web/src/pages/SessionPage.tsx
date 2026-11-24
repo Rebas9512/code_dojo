@@ -11,6 +11,7 @@ export function SessionStart({ tab, again = false }: { tab: MapTab; again?: bool
   const navigate = useNavigate()
   const [size, setSize] = useState(() => Number(readPref('dojo-session-size', '5')))
   const [minutes, setMinutes] = useState(() => Number(readPref('dojo-session-minutes', '0')))
+  const [warmup, setWarmup] = useState(() => readPref('dojo-session-warmup', '0') === '1')
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -18,7 +19,7 @@ export function SessionStart({ tab, again = false }: { tab: MapTab; again?: bool
     setBusy(true)
     setMessage('')
     try {
-      const items = await api.sessionPlan(tab, size)
+      const items = await api.sessionPlan(tab, size, warmup)
       if (!items.length) {
         setMessage('这条线暂时没有可排的题。')
         return
@@ -51,6 +52,9 @@ export function SessionStart({ tab, again = false }: { tab: MapTab; again?: bool
         <label htmlFor="session-minutes">时间盒</label><select id="session-minutes" value={minutes} onChange={e => {
           setMinutes(Number(e.target.value)); writePref('dojo-session-minutes', e.target.value)
         }}>{[0, 25, 45].map(n => <option key={n} value={n}>{n ? n + ' 分钟' : '不限时'}</option>)}</select>
+        <label htmlFor="session-warmup">热身</label><select id="session-warmup" value={warmup ? '1' : '0'} onChange={e => {
+          setWarmup(e.target.value === '1'); writePref('dojo-session-warmup', e.target.value)
+        }}><option value="0">直接做新题</option><option value="1">先做到期复习</option></select>
       </div>
     </details>}
     {message && <span className="session-message" role="status">{message}</span>}

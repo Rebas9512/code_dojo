@@ -148,20 +148,30 @@ export function enableFocus(enabled: boolean) {
   }
 }
 
+// 通过提示音：G5 → D6 两声轻敲（上行五度）。每声是基音加两个泛音，泛音比基音衰减得快，听起来像敲玻璃。
+const NOTES = [[783.99, 0], [1174.66, .09]]
+const PARTIALS = [[1, 1, 1.1], [2, .22, .4], [3, .06, .2]] // 倍频、相对音量、衰减秒数
+
 let audio: AudioContext | undefined
-export function playPassSound() {
-  if (readPref('dojo-sound', '0') !== '1') return
+export function playPassSound(preview = false) {
+  if (!preview && readPref('dojo-sound', '0') !== '1') return
   const ctx = audio ??= new AudioContext()
-  const now = ctx.currentTime
-  const tone = ctx.createOscillator()
-  const volume = ctx.createGain()
-  tone.frequency.setValueAtTime(523.25, now)
-  tone.frequency.setValueAtTime(659.25, now + .06)
-  volume.gain.setValueAtTime(0, now)
-  volume.gain.linearRampToValueAtTime(.035, now + .009)
-  volume.gain.exponentialRampToValueAtTime(.0001, now + .135)
-  tone.connect(volume).connect(ctx.destination)
-  tone.start(now)
-  tone.stop(now + .14)
   if (ctx.state === 'suspended') void ctx.resume()
+  const out = ctx.createGain()
+  out.gain.value = .04
+  out.connect(ctx.destination)
+  for (const [frequency, delay] of NOTES) {
+    const start = ctx.currentTime + .01 + delay
+    for (const [ratio, level, decay] of PARTIALS) {
+      const tone = ctx.createOscillator()
+      const volume = ctx.createGain()
+      tone.frequency.value = frequency * ratio
+      volume.gain.setValueAtTime(0, start)
+      volume.gain.linearRampToValueAtTime(level, start + .005)
+      volume.gain.exponentialRampToValueAtTime(.0001, start + decay)
+      tone.connect(volume).connect(out)
+      tone.start(start)
+      tone.stop(start + decay)
+    }
+  }
 }

@@ -313,11 +313,12 @@ def completed_tracks(statuses: dict[str, dict[str, str]]) -> set[str]:
 
 
 @app.get("/api/session-plan")
-def session_plan(tab: Literal["python", "sql"], size: int = Query(5, ge=1, le=8)) -> list[dict]:
+def session_plan(tab: Literal["python", "sql"], size: int = Query(5, ge=1, le=8), warmup: bool = False) -> list[dict]:
+    """默认只排进度前沿之后的新题；warmup 时先放最多两道到期复习（用户 2026-11-24：按组做题应该按最新进度继续做）。"""
     state = learning()
     visible = [t for t in bank.tracks.values() if t.language in (tab, "none")]
     ids = {t.id for t in visible}
-    reviews = [state.review_item(r) for r in state.queue if state.exercises[r["problem_id"]].track in ids]
+    reviews = [state.review_item(r) for r in state.queue if state.exercises[r["problem_id"]].track in ids] if warmup else []
     stages = {t.id: group_units(t, bank.skills[t.id], bank.ordered(t.id)) for t in visible}
     status = {tid: store.status_by_problem(tid) for tid in bank.tracks}
     open_ids = {tid for tid in stages if progress_frontier(stages[tid], status[tid])}
