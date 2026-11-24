@@ -17,12 +17,13 @@ const bin = path.join(work, 'bin')
 for (const dir of [tmp, bin]) fs.mkdirSync(dir)
 const contents = new Map()
 let closing = false, stall = false, finalReads = 0
+let connected = false
 const blob = bytes => createHash('sha1').update('blob ' + bytes.length + '\0').update(bytes).digest('hex')
 
 const hub = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://127.0.0.1').pathname
   const sync = url.includes('/code_dojo_sync/')
-  assert.equal(req.headers.authorization, 'Bearer test-' + (sync ? 'write' : 'read'))
+  assert.equal(req.headers.authorization, sync ? 'Bearer test-write' : connected ? 'Bearer test-read' : undefined)
   const reply = obj => res.end(JSON.stringify(obj))
   if (url.endsWith('payload-latest')) {
     reply({ assets: [{ id: 1, name: 'manifest.json' }, { id: 2, name: 'payload.zip' }] })
@@ -92,7 +93,7 @@ async function main() {
   const launcher = path.join(bin, 'launch')
   fs.writeFileSync(launcher, '#!/bin/sh\nexec "$DOJO_SMOKE_IMAGE" --appimage-extract-and-run "$@"\n', { mode: 0o755 })
   // 隔离用户的 Git、gh、助教和钥匙串。仅为本次测试提供凭据存储。
-  fs.writeFileSync(path.join(bin, 'secret-tool'), '#!/bin/sh\nfile="$CODE_DOJO_DATA/test-keyring"\ncase "$1" in store) /bin/cat > "$file";; lookup) /bin/cat "$file";; esac\n', { mode: 0o755 })
+  fs.writeFileSync(path.join(bin, 'secret-tool'), '#!/bin/sh\nfile="$CODE_DOJO_DATA/test-keyring"\ncase "$1" in store) /bin/cat > "$file";; lookup) [ -f "$file" ] && /bin/cat "$file";; clear) /bin/rm -f "$file";; esac\n', { mode: 0o755 })
   hub.listen(0, '127.0.0.1')
   await once(hub, 'listening')
   let app
@@ -109,14 +110,6 @@ async function main() {
     page.setDefaultTimeout(90000)
     page.on('framenavigated', frame => { if (frame === page.mainFrame()) console.log('窗口导航', frame.url()) })
     const shot = name => page.screenshot({ path: path.join(output, name + '.png') })
-    await page.getByLabel('解锁密码').waitFor()
-    await shot('unlock')
-    await page.getByLabel('解锁密码').fill('incorrect-smoke-password')
-    await page.getByRole('button', { name: '解锁', exact: true }).click()
-    await page.getByText('密码不对，还可尝试 4 次').waitFor()
-    await shot('unlock-failed')
-    await page.getByLabel('解锁密码').fill('dojo-smoke-unlock')
-    await page.getByRole('button', { name: '解锁', exact: true }).click()
     await page.getByRole('progressbar').waitFor()
     await shot('download')
     await page.waitForURL(/^http:\/\/127\.0\.0\.1:\d+\/$/, { timeout: 120000 })
@@ -148,16 +141,32 @@ async function main() {
     origin = new URL(page.url()).origin
     await page.getByRole('tab').first().waitFor()
     console.log('已验证渲染器隔离、第二实例聚焦与后端崩溃重启')
+    await page.getByText('本机保存', { exact: true }).waitFor()
     await page.locator('summary', { hasText: '桌面' }).click()
     const opened = app.waitForEvent('window')
     await page.getByRole('button', { name: '设置', exact: true }).click()
     const settings = await opened
     await settings.getByText(/AI 助教已关闭/).waitFor()
     await settings.screenshot({ path: path.join(output, 'settings.png') })
-    await settings.getByLabel('代码仓库令牌（只读）').fill('test-read')
-    await settings.getByLabel('进度仓库令牌（读写）').fill('test-write')
-    const refreshed = page.waitForEvent('framenavigated', frame => frame === page.mainFrame() && frame.url().startsWith('http://127.0.0.1:'))
-    await Promise.all([refreshed, settings.waitForEvent('close'), settings.getByRole('button', { name: '保存' }).click()])
+    await settings.getByLabel('同步码').fill('incorrect-smoke-password')
+    await settings.getByRole('button', { name: '开启同步' }).click()
+    await settings.getByText('同步码不对，还可尝试 4 次').waitFor()
+    await settings.screenshot({ path: path.join(output, 'settings-failed.png') })
+    async function enable() {
+      await settings.getByLabel('同步码').fill('dojo-smoke-unlock')
+      await settings.getByRole('button', { name: '开启同步' }).click()
+      await settings.getByText('已开启进度同步').waitFor()
+      connected = true
+    }
+    await enable()
+    await settings.screenshot({ path: path.join(output, 'settings-connected.png') })
+    await settings.getByRole('button', { name: '关闭同步' }).click()
+    await settings.getByRole('button', { name: '确认关闭' }).click()
+    await settings.getByLabel('同步码').waitFor()
+    connected = false
+    assert.ok(!fs.existsSync(path.join(env.CODE_DOJO_DATA, 'test-keyring')))
+    await enable()
+    await settings.close()
     origin = new URL(page.url()).origin
     await page.getByRole('tab').first().waitFor()
     await submit(page, origin, 'python', '0A', 'py-0a-003-rectangle-perimeter', 'solution.py')

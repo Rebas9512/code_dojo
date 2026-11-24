@@ -77,7 +77,8 @@ export function SyncStatus({ silent = false }: { silent?: boolean }) {
 
   const failure = error || state?.error || notice
   if (silent || (!state && !failure)) return null
-  if (state && !state.enabled && !failure) return <span className="sync-status">未开启同步</span>
+  if (state && !state.enabled && !failure) return <span className="sync-status"
+    title="在 桌面 → 设置 输入同步码可以开启同步">本机保存</span>
   const date = state?.last_sync ? new Date(state.last_sync) : null
   const time = date?.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
   const last = time ? `已同步 ${date?.toDateString() === new Date().toDateString() ? '' : date?.toLocaleDateString('zh-CN') + ' '}${time}` : '尚未同步'

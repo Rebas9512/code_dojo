@@ -52,32 +52,36 @@ def test_wrong_password_and_tampering(envelope):
         unseal(envelope | {"kdf": dict(n=2**30)}, PASSWORD, *REPOS)
 
 
-@pytest.mark.parametrize(("saved", "gh_ok", "bundled", "source"), [
-    (VALUES, True, True, "local"), ({}, True, True, "gh"), ({}, False, True, "sealed"), ({}, False, False, "manual"),
-])
-def test_credential_priority(tmp_path, monkeypatch, saved, gh_ok, bundled, source):
+@pytest.mark.parametrize("saved", [VALUES, {}])
+@pytest.mark.parametrize("bundled", [True, False])
+def test_start_uses_only_saved_credentials(tmp_path, monkeypatch, saved, bundled):
+    from bootstrap.protocol import Controller
+
     if bundled:
         (tmp_path / "sealed-tokens.json").touch()
-    run = Mock(return_value=subprocess.CompletedProcess([], 0, b"test-session\n"))
-    verify = Mock(side_effect=None if gh_ok else ValueError("权限不足"))
-    monkeypatch.setattr(credentials.shutil, "which", lambda _: "gh")
-    monkeypatch.setattr(credentials.subprocess, "run", run)
-    monkeypatch.setattr(credentials, "verify_tokens", verify)
-    actual, values = credentials.credential_source(saved, tmp_path, *REPOS, "https://api.github.com")
-    assert actual == source
-    if saved:
-        assert values == saved
-        run.assert_not_called()
-    else:
-        pair = dict(code="test-session", sync="test-session")
-        verify.assert_called_once_with(pair, *REPOS)
-        assert values == (pair if gh_ok else {})
+    ring = Mock()
+    ring.get_password.return_value = json.dumps(saved)
+    monkeypatch.setattr(credentials, "keychain", lambda: ring)
+    controller = Controller(tmp_path, tmp_path, Mock())
+    monkeypatch.setattr(controller, "launch", Mock())
+    run = Mock()
+    monkeypatch.setattr(subprocess, "run", run)
+    controller.begin()
+    controller.launch.assert_called_once_with()
+    assert controller.values == saved
+    run.assert_not_called()
 
 
-def test_gh_logged_out(tmp_path, monkeypatch):
-    monkeypatch.setattr(credentials.shutil, "which", lambda _: "gh")
-    monkeypatch.setattr(credentials.subprocess, "run", Mock(side_effect=subprocess.CalledProcessError(1, [])))
-    assert credentials.credential_source({}, tmp_path, *REPOS, "https://api.github.com") == ("manual", {})
+def test_legacy_fallback_and_keyring_both_cleared(tmp_path, monkeypatch):
+    ring = Mock()
+    ring.get_password.side_effect = [json.dumps(VALUES), None]
+    monkeypatch.setattr(credentials, "keychain", lambda: ring)
+    fallback = tmp_path / "github-tokens.json"
+    fallback.write_text(json.dumps(VALUES))
+    assert credentials.tokens(tmp_path) == VALUES
+    credentials.clear_tokens(tmp_path)
+    assert not fallback.exists() and credentials.tokens(tmp_path) == {}
+    ring.delete_password.assert_called_once_with(*ring.get_password.call_args.args)
 
 
 def test_five_attempts_survive_reopen(tmp_path, monkeypatch):

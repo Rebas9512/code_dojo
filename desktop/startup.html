@@ -13,20 +13,23 @@
   <main>
     <h1 id="heading" aria-live="polite">正在打开…</h1>
     <progress id="progress" max="100" hidden aria-label="题库下载进度"></progress>
+    <form id="connect" hidden>
+      <p>做题记录保存在本机。输入同步码，可以把记录同步到进度仓库，换电脑接着练。</p>
+      <label for="code">同步码</label>
+      <input type="password" id="code" autocomplete="off" aria-describedby="note" required>
+      <button id="enable">开启同步</button>
+    </form>
+    <div id="connected" hidden>
+      <p>已开启进度同步</p>
+      <button id="disable">关闭同步</button>
+      <div id="confirm" hidden>
+        <p>关闭进度同步？做题记录会保留在本机。</p>
+        <button id="cancel">取消</button>
+        <button id="confirmDisable">确认关闭</button>
+      </div>
+    </div>
     <p id="note" role="status" hidden></p>
-    <form id="unlock" hidden>
-      <label for="password">解锁密码</label>
-      <input type="password" id="password" autocomplete="off" required>
-      <div class="actions"><button id="unlockButton">解锁</button><button type="button" class="quiet manual">改用令牌</button></div>
-    </form>
-    <form id="tokens" hidden>
-      <label for="code">代码仓库令牌（只读）</label>
-      <input type="password" id="code" autocomplete="off" required>
-      <label for="sync">进度仓库令牌（读写）</label>
-      <input type="password" id="sync" autocomplete="off" placeholder="共用同一令牌时留空">
-      <button id="save">保存</button>
-    </form>
-    <div id="recovery" class="actions" hidden><button id="retry">重启</button><button class="quiet manual">改用令牌</button></div>
+    <button id="retry" hidden>重启</button>
     <a id="installer" target="_blank" rel="noreferrer" hidden>下载新版安装包</a>
     <p id="ai" hidden></p>
   </main>

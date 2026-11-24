@@ -2,12 +2,8 @@
 
 import hashlib
 import json
-import os
-import shutil
-import subprocess
 from pathlib import Path
 
-from .github import verify_tokens
 from .keychain import available
 from .update import atomic_json
 
@@ -22,12 +18,16 @@ def keychain():
     return available()
 
 
+def account_name(directory: Path) -> str:
+    return hashlib.sha256(str(directory.resolve()).encode()).hexdigest()
+
+
 def tokens(directory: Path, values: dict | None = None) -> dict:
     file = directory / "github-tokens.json"
-    account = hashlib.sha256(str(directory.resolve()).encode()).hexdigest()
-    ring = keychain()
     if values is None and file.exists():
         return json.loads(file.read_bytes())
+    account = account_name(directory)
+    ring = keychain()
     if ring:
         try:
             if values is None:
@@ -43,19 +43,10 @@ def tokens(directory: Path, values: dict | None = None) -> dict:
     return values or {}
 
 
-def credential_source(saved: dict, bundle: Path, repo: str, sync_repo: str, api: str) -> tuple[str, dict]:
-    if saved.get("code"):
-        return "local", saved
-    # 只把 github.com 的登录凭据交给对应的官方 API。其他服务使用自己的令牌。
-    if api == "https://api.github.com" and (gh := shutil.which("gh")):
-        try:
-            result = subprocess.run([gh, "auth", "token", "--hostname", "github.com"], check=True,
-                                    stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL,
-                                    timeout=5, creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
-            if token := result.stdout.decode("ascii").strip():
-                values = {"code": token, "sync": token}
-                verify_tokens(values, repo, sync_repo)
-                return "gh", values
-        except (OSError, ValueError, subprocess.SubprocessError):
-            pass
-    return ("sealed" if (bundle / "sealed-tokens.json").is_file() else "manual"), {}
+def clear_tokens(directory: Path) -> None:
+    ring = keychain()
+    if ring:
+        account = account_name(directory)
+        if ring.get_password("code-dojo", account):
+            ring.delete_password("code-dojo", account)
+    (directory / "github-tokens.json").unlink(missing_ok=True)

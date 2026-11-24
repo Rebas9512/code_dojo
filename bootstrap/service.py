@@ -52,7 +52,8 @@ def serve() -> None:
     import uvicorn
     from app.main import app, progress_sync
 
-    progress_sync.github = GitHub(from_bootstrap["repo"], from_bootstrap["token"], from_bootstrap["api"])
+    if from_bootstrap["token"]:
+        progress_sync.github = GitHub(from_bootstrap["repo"], from_bootstrap["token"], from_bootstrap["api"])
     progress_sync.root = data / "desktop/sync"
     del from_bootstrap
 
@@ -90,6 +91,11 @@ def serve() -> None:
             try:
                 for line in sys.stdin:
                     command = line.strip()
+                    if command == "disconnect":
+                        # 等正在进行的交换结束，再跳过退出推送，保留其余待推送事件。
+                        with progress_sync._lock:
+                            progress_sync.repo = ""
+                        break
                     if command == "quit":
                         break
                     if command == "sync":

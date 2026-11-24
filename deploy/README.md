@@ -4,33 +4,41 @@
 
 ## 在一台新电脑上用
 
-1. **下载安装包。** 登录有仓库访问权的 GitHub 账号，打开最新的 `app-v*` Release，在 Assets 中选择对应平台。[下载安装包](https://github.com/Rebas9512/code_dojo/releases/latest)
+1. **下载安装包。** 打开公开仓库最新的 `app-v*` Release，在 Assets 中选择对应平台。[下载安装包](https://github.com/Rebas9512/code_dojo/releases/latest)
 
-   - **Linux x86-64** 推荐下载 `code-dojo-1.1.0-x86_64.AppImage`。在下载目录打开终端，给文件执行权限并放进应用目录（其他版本请替换文件名）。
+   - **Linux x86-64** 推荐下载 AppImage。在下载目录打开终端，把下面的 `X.Y.Z` 替换成下载的版本号，给文件执行权限并放进应用目录。
 
      ```sh
-     chmod +x code-dojo-1.1.0-x86_64.AppImage
+     chmod +x code-dojo-X.Y.Z-x86_64.AppImage
      mkdir -p ~/Applications
-     mv code-dojo-1.1.0-x86_64.AppImage ~/Applications/
+     mv code-dojo-X.Y.Z-x86_64.AppImage ~/Applications/
      ```
 
-     在文件管理器中双击它即可打开。没有 FUSE 时，在文件所在目录运行 `./code-dojo-1.1.0-x86_64.AppImage --appimage-extract-and-run`。AppImageLauncher Lite 监视 `~/Applications` 时会自动添加菜单项。使用 Gear Lever 时，用它打开文件并选择加入应用菜单。也可下载备用 tar.gz，完整解压后运行目录中的 `./code-dojo`。
+     在文件管理器中双击它即可打开。没有 FUSE 时，在文件所在目录运行 `./code-dojo-X.Y.Z-x86_64.AppImage --appimage-extract-and-run`。AppImageLauncher Lite 监视 `~/Applications` 时会自动添加菜单项。使用 Gear Lever 时，用它打开文件并选择加入应用菜单。也可下载备用 tar.gz，完整解压后运行目录中的 `./code-dojo`。
    - **Apple Silicon Mac** 解压 zip，将 `code-dojo.app` 移到“应用程序”。安装包未签名，首次请右键点“打开”，再确认“打开”。如果系统仍拦截，可在“系统设置 → 隐私与安全性”确认打开。
    - **Windows x64** 完整解压 zip，再双击 `code-dojo.exe`。保留解压后的整个目录。
 
-2. **第一次打开。** 在应用启动页输入发布者设置的解锁密码，点“解锁”。首次联网下载题库时可看到进度，随后同一窗口会显示学习地图。以后在这台电脑上直接打开即可。已有本机令牌，或本机已登录的 GitHub CLI 能读取两个仓库时，启动器会自动使用已有凭据。
-3. **备用方式。** 点“改用令牌”可手动粘贴。没有随包密文时会直接显示两个令牌框。为 `Rebas9512/code_dojo` 创建仅有 Contents 读权限的 fine-grained 令牌，为 `Rebas9512/code_dojo_sync` 单独创建有 Contents 读写权限的令牌。每个令牌只选择对应仓库，分别粘贴后点“保存”。过期后可在“桌面 → 设置”更换。[创建 GitHub 令牌](https://github.com/settings/personal-access-tokens/new)
-4. **可选，启用 AI。** 按官方说明安装 Claude Code，在终端运行 `claude` 并按提示登录个人订阅。确认命令在 PATH 中可用，或将 `CODE_DOJO_CLAUDE_BIN` 设为其绝对路径，再重新打开桌面应用。“桌面 → 设置”显示助教状态。[Claude Code 安装说明](https://code.claude.com/docs/en/setup)
+2. **打开就能用。** 首次打开会联网下载题库，随后进入学习地图，做题记录保存在这台电脑上。已安装过题库时可以离线练习。
+3. **想换电脑接着练时开启同步。** 在“桌面 → 设置”输入同步码，点“开启同步”。此前在本机做的题也会同步到进度仓库。已在 1.2.0 保存过凭据的机器会沿用原设置。
 
-解锁或手动输入后，令牌优先存入系统钥匙串，备用位置是本机数据目录的 `github-tokens.json`。Linux 和 macOS 的备用文件权限为 600。磁盘不支持权限保护且钥匙串不可用时，窗口会提示令牌仅用于本次运行。顶栏“桌面”提供立即同步、设置和关于。原生应用菜单还能检查更新。LeetCode 等外部链接在系统浏览器打开。关闭主窗口时会显示“正在同步…”，最多等待 10 秒。离线或超时的待推送记录保留在本机，下次联网继续同步。
+开启同步后，令牌优先存入系统钥匙串，备用位置是本机数据目录的 `github-tokens.json`。Linux 和 macOS 的备用文件权限为 600。磁盘不支持权限保护且钥匙串不可用时，窗口会提示令牌仅用于本次运行。设置中点“关闭同步”并确认后，应用清除已存凭据，保留本机记录和待推送事件。开启同步后，顶栏“桌面”会显示“立即同步”。原生应用菜单还能检查更新。LeetCode 等外部链接在系统浏览器打开。开启同步时，关闭主窗口会显示“正在同步…”，最多等待 10 秒。离线或超时的待推送记录保留在本机，下次联网继续同步。
 
 使用自己的仓库时，在打开应用前设置 `CODE_DOJO_REPO` 和 `CODE_DOJO_SYNC_REPO`，值可写成 `账户/仓库名`。进度仓库需私有，有 main 分支且可读写，初始提交只有 README 即可。`CODE_DOJO_DATA` 可指定本机数据目录。Linux 默认使用 `~/.local/share/code-dojo`，macOS 使用 `~/Library/Application Support/code-dojo`，Windows 使用 `%APPDATA%\code-dojo`。每台电脑各用自己的目录。应用退出后可以移动或替换安装目录，学习记录保存在数据目录。
 
+## 分发给别人用
+
+把公开的安装包 Release 链接发给对方即可。他可以直接打开应用练习，记录只保存在他自己的电脑上。每次打开会自动检查题库更新，后台下载好的题库下次启动生效。需要 AI 助教时，由他在自己的电脑上安装并登录 Claude Code 或 Codex，再重新打开应用。“桌面 → 设置”会显示助教状态。[下载安装包](https://github.com/Rebas9512/code_dojo/releases/latest)
+
 ## 发新安装包和换令牌
 
-1. 在发布者电脑上更新项目外的 `../../.env`。变量 `code_dojo` 填代码仓库的只读令牌，`code_dojo_sync` 填进度仓库的读写令牌。发布用的明文只保存在本机这份文件里，Actions 密钥和安装包里保存的是密文。解锁密码至少 10 个字符，请使用专用密码。
-2. 在项目根目录运行 `uv run scripts/desktop/seal_tokens.py`，按提示输入两遍解锁密码。如果同一份文件已用 `password` 保存密码，运行 `uv run scripts/desktop/seal_tokens.py --env ../../.env --password-key password` 即可。脚本先验证代码仓库的 Releases 和进度仓库的 README 可读，再通过已登录的 `gh` 设置 `CODE_DOJO_SEALED_TOKENS`。完成后妥善保管或删除这份文件。
-3. 确认上传成功后，在对应的发布提交上推送与启动器版本一致的 `app-vX.Y.Z` 标签。本版为 `app-v1.1.0`。三个系统的新安装包会带上这次的密文。已安装的电脑优先用本机令牌，轮换时可通过“桌面 → 设置”更换。
+常规发版复用现有 `CODE_DOJO_SEALED_TOKENS`。同步更新 `bootstrap.VERSION`、`desktop/package.json` 和 npm 锁文件的版本，跑过三系统 CI 后推送对应的 `app-vX.Y.Z` 标签。
+
+首次配置或轮换令牌时，先完成以下步骤，再按上述流程发版。
+
+1. 创建两个 fine-grained 令牌，每个只选择一个仓库。`Rebas9512/code_dojo` 需要 Contents 只读，私有的 `Rebas9512/code_dojo_sync` 需要 Contents 读写。在发布者电脑的 `../../.env` 中分别填写 `code_dojo` 和 `code_dojo_sync`。同步码使用至少 10 个字符的专用密码。[创建 GitHub 令牌](https://github.com/settings/personal-access-tokens/new)
+2. 在项目根目录运行 `uv run scripts/desktop/seal_tokens.py`，按提示输入两遍同步码。如果同一份文件已用 `password` 保存密码，运行 `uv run scripts/desktop/seal_tokens.py --env ../../.env --password-key password` 即可。脚本先验证代码仓库的 Releases 和进度仓库的 README 可读，再通过已登录的 `gh` 设置 `CODE_DOJO_SEALED_TOKENS`。完成后妥善保管或删除这份文件。
+
+安装带新密文的版本后，已有凭据的机器仍使用本机保存的令牌。要换用新令牌，在“桌面 → 设置”关闭同步，再输入对应的同步码开启。
 
 ## 本地模式和同步仓库怎么建
 
@@ -52,7 +60,7 @@
    ```
 
 4. 旧版用户可先运行 `uv run dojo.py import-legacy "<旧数据目录>"`，再正常启动。源目录包含 `code_dojo.db`，新目录由启动器选择，也可指定 `CODE_DOJO_DATA`。请在新机器使用新的数据目录，启动器会生成它自己的机器标识。
-5. 第一次在 A 机交卷通过后，顶栏会显示同步时间。在 B 机启动或点击顶栏时间，即可看到提交、复习日程、每日上限、助教对话和完整附加题。顶栏显示有待推送事件或错误时，仍可继续练习，恢复连接后点击重试。未设置同步地址时，顶栏显示“未开启同步”。
+5. 第一次在 A 机交卷通过后，顶栏会显示同步时间。在 B 机启动或点击顶栏时间，即可看到提交、复习日程、每日上限、助教对话和完整附加题。顶栏显示有待推送事件或错误时，仍可继续练习，恢复连接后点击重试。未设置同步地址时，顶栏显示“本机保存”。
 
 本机运行时使用 SQLite。学习记录的 JSONL 在数据目录的 `events/<机器 UUID>/YYYY-MM.jsonl`，同步用的克隆在同级 `sync/`。每台机器只向仓库追加自己的日志，按事件 UUID 去重。提交和复习结果保留每次交卷，同一日程或设置取时间较晚的写入。掌握度从合并后的提交与日程计算。仓库里含代码和对话明文，应保持私有。
 

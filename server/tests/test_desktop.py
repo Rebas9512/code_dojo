@@ -65,6 +65,28 @@ def test_numeric_versions():
         version("1.a")
 
 
+@pytest.mark.parametrize("token", ["", "test-token"])
+def test_release_requests_use_optional_token(updates, token):
+    from bootstrap.github import GitHub
+
+    release = updates.github
+    client = GitHub("owner/code", token)
+    paths = []
+
+    def respond(request, timeout):
+        path = request.full_url.removeprefix(client.base)
+        paths.append(path)
+        assert request.get_header("Authorization") == (f"Bearer {token}" if token else None)
+        if path.endswith("payload-latest"):
+            return io.BytesIO(json.dumps(release.json(path)).encode())
+        return release.open(path, request.get_header("Accept"))
+
+    client.opener.open = respond
+    updates.github = client
+    assert updates.check().active.manifest["version"] == "1"
+    assert paths == ["/releases/tags/payload-latest", "/releases/assets/1", "/releases/assets/2"]
+
+
 def test_switch_after_ready_and_rollback(updates, monkeypatch):
     one = updates.check().active
     assert updates.current() is None
@@ -191,6 +213,23 @@ class Contents:
         assert data.get("sha") == (blob(self.files[name]) if name in self.files else None)
         self.files[name] = base64.b64decode(data["content"])
         self.puts.append(name)
+
+
+def test_first_exchange_includes_local_progress(tmp_path, monkeypatch):
+    path = tmp_path / "code_dojo.db"
+    local = ProgressSync(Store(path), "")
+    local.store.add_submission(problem_id="local-only", track="python", kind="submit", code="print(1)",
+                               elapsed_ms=100, result={"verdict": "accepted", "passed": 1, "total": 1},
+                               hints_used=0, counted=True)
+    pending = local.store.pending_events()
+    assert pending and local.sync()["pending"] == len(pending)
+    connected = ProgressSync(Store(path), "https://github.com/owner/sync.git")
+    monkeypatch.setattr("app.sync.shutil.which", lambda _: None)
+    connected.github = Contents()
+    state = connected.sync()
+    assert state["enabled"] and state["pending"] == 0 and not state["error"]
+    log, = connected.github.files.values()
+    assert [json.loads(line) for line in log.splitlines()] == pending
 
 
 def test_contents_roundtrip_retry_and_shutdown(tmp_path, monkeypatch):

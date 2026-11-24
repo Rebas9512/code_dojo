@@ -1,4 +1,4 @@
-"""私有 Release 和进度仓库共用的 HTTPS 请求。"""
+"""公开 Release 和私有进度仓库共用的 HTTPS 请求。"""
 
 import json
 import re
@@ -39,7 +39,8 @@ class GitHub:
                       headers={"Accept": accept, "User-Agent": "code-dojo-desktop",
                                "Content-Type": "application/json"})
         # Release 下载会跳到带临时签名的 CDN；凭据只交给原始 API 请求。
-        req.add_unredirected_header("Authorization", f"Bearer {self.token}")
+        if self.token:
+            req.add_unredirected_header("Authorization", f"Bearer {self.token}")
         return self.opener.open(req, timeout=20)
 
     def json(self, path: str, data: dict | None = None):

@@ -19,7 +19,8 @@ from bootstrap.update import Installed, Result
 def controller(tmp_path, monkeypatch):
     monkeypatch.setenv("CODE_DOJO_GITHUB_API", "http://127.0.0.1:1")
     monkeypatch.setenv("CODE_DOJO_SYNC_REPO", DEFAULT_SYNC)
-    monkeypatch.setattr(protocol, "tokens", lambda *args: {})
+    monkeypatch.setattr(protocol, "tokens", Mock(return_value={}))
+    monkeypatch.setattr(protocol, "clear_tokens", Mock())
     machine = protocol.Controller(tmp_path, tmp_path)
     active = Installed(tmp_path, {"version": "test.30"}, "now")
     updates = Mock()
@@ -27,7 +28,7 @@ def controller(tmp_path, monkeypatch):
     updates.check.return_value = Result(active)
     monkeypatch.setattr(protocol, "Updates", lambda *args: updates)
     def start(_, item):
-        machine.item, machine.port = item, 43210
+        machine.item, machine.port, machine.child = item, 43210, Mock()
         return True
     monkeypatch.setattr(machine, "start", start)
     return machine
@@ -40,34 +41,66 @@ def exchange(controller, commands, capsys):
     return [json.loads(line) for line in out.splitlines()], out + err
 
 
-def test_unlock_order_and_private_output(controller, capsys):
+def test_local_connect_disconnect(controller, capsys, monkeypatch):
     values = {"code": "synthetic-private-code", "sync": "synthetic-private-sync"}
     password = "synthetic-long-password"
     (controller.bundle / "sealed-tokens.json").write_text(json.dumps(seal(values, password, DEFAULT_REPO, DEFAULT_SYNC)))
-    commands = [{"command": "unlock", "password": key} for key in ("private-wrong", password)]
-    events, output = exchange(controller, commands + [{"command": "quit"}], capsys)
-    assert [e["type"] for e in events] == ["status", "need_unlock", "unlock_failed", "status", "status", "ready"]
-    assert events[2] == dict(type="unlock_failed", remaining=4, wait=0)
-    assert events[-1].items() >= dict(port=43210, version=VERSION, payload_version="test.30").items()
-    assert controller.values == values
+    commands = [{"command": "connect_sync", "code": key} for key in ("private-wrong", password)]
+    start = Mock(wraps=controller.start)
+    stop = Mock(wraps=controller.stop)
+    monkeypatch.setattr(controller, "start", start)
+    monkeypatch.setattr(controller, "stop", stop)
+    events, output = exchange(controller, commands + [{"command": "disconnect_sync"}], capsys)
+    assert [e["type"] for e in events] == [
+        "status", "status", "status", "ready", "sync_code_failed", "status", "ready", "status", "ready"]
+    assert events[4] == dict(type="sync_code_failed", remaining=4, wait=0)
+    ready = [e for e in events if e["type"] == "ready"]
+    assert [e["sync"] for e in ready] == [False, True, False]
+    assert all(e.items() >= dict(port=43210, version=VERSION, payload_version="test.30").items() for e in ready)
+    protocol.tokens.assert_any_call(controller.data, values)
+    protocol.clear_tokens.assert_called_once_with(controller.data)
+    assert start.call_count == 3 and all(call.args[1] is controller.item for call in start.call_args_list)
+    stop.assert_any_call("disconnect")
+    protocol.Updates().check.assert_called_once()
     assert all(value not in output for value in (*values.values(), password, "private-wrong"))
 
 
-def test_manual_tokens_and_eof(controller, capsys):
-    events, output = exchange(controller, [{"command": "set_tokens", "code": "private-fallback"}], capsys)
-    assert [e["type"] for e in events] == ["status", "need_tokens", "status", "status", "ready"]
-    assert controller.values["sync"] == "private-fallback"
-    assert "private-fallback" not in output
+@pytest.mark.parametrize("saved,token", [({}, ""), ({"code": "old-code", "sync": "old-sync"}, "old-sync")])
+def test_begin_passes_saved_token_to_service(controller, monkeypatch, capsys, saved, token):
+    protocol.tokens.return_value = saved
+    service = Mock(stdout=io.StringIO('{"ready":43210}\n'), stdin=io.StringIO())
+    monkeypatch.setattr(subprocess, "Popen", Mock(return_value=service))
+    monkeypatch.setattr(controller, "start", protocol.Controller.start.__get__(controller))
+    controller.begin()
+    config = json.loads(service.stdin.getvalue().splitlines()[0])
+    assert config["token"] == token and config["data"] == str(controller.data)
+    events = [json.loads(line) for line in capsys.readouterr().out.splitlines()]
+    assert [e["type"] for e in events] == ["status", "status", "status", "ready"]
+    assert events[-1]["sync"] is bool(token)
 
 
-def test_cooldown_blocks_correct_password(controller, capsys):
-    for _ in range(5):
-        controller.attempts.failed()
-    controller.unlock("never-echo-this")
-    output = capsys.readouterr().out
-    event = json.loads(output)
-    assert event["type"] == "unlock_failed" and event["remaining"] == 0 and 0 < event["wait"] <= 30
-    assert "never-echo-this" not in output
+def test_missing_envelope_keeps_local_service(controller, capsys):
+    controller.begin()
+    child = controller.child
+    controller.command({"command": "connect_sync", "code": "test-only"})
+    events = [json.loads(line) for line in capsys.readouterr().out.splitlines()]
+    assert events[-2]["type"] == "ready" and not events[-2]["sync"]
+    assert events[-1] == dict(type="error", scope="settings", message="这个安装包不支持同步码")
+    assert controller.child is child
+
+
+def test_cooldown_blocks_correct_code(controller, capsys, monkeypatch):
+    from bootstrap import window
+    monkeypatch.setattr(window.time, "time", lambda: 100)
+    values = {"code": "test-code", "sync": "test-sync"}
+    password = "never-echo-this"
+    (controller.bundle / "sealed-tokens.json").write_text(json.dumps(seal(values, password, DEFAULT_REPO, DEFAULT_SYNC)))
+    commands = [{"command": "connect_sync", "code": code} for code in ["wrong"] * 5 + [password]]
+    events, output = exchange(controller, commands, capsys)
+    failures = [(e["remaining"], e["wait"]) for e in events if e["type"] == "sync_code_failed"]
+    assert failures == [(4, 0), (3, 0), (2, 0), (1, 0), (0, 30), (0, 30)]
+    assert [e["sync"] for e in events if e["type"] == "ready"] == [False]
+    assert password not in output
 
 
 def test_module_entry_quits_with_stdin_open(tmp_path):
@@ -81,7 +114,7 @@ def test_module_entry_quits_with_stdin_open(tmp_path):
             proc.stdin.flush()
             assert proc.wait(timeout=10) == 0
             output = proc.stdout.read()
-            assert [json.loads(line)["type"] for line in output.splitlines()] == ["status", "need_tokens", "error"]
+            assert [json.loads(line)["type"] for line in output.splitlines()] == ["status", "status", "error", "error"]
             assert "private-malformed-value" not in output and proc.stderr.read() == ""
         finally:
             if proc.poll() is None:
@@ -101,7 +134,7 @@ def test_codex_alone_in_extension(controller, capsys, monkeypatch, tmp_path, pre
     codex.parent.mkdir(parents=True)
     codex.touch(mode=0o755)
     assert agents.has_agent()
-    events, _ = exchange(controller, [{"command": "set_tokens", "code": "test-token"}], capsys)
+    events, _ = exchange(controller, [], capsys)
     assert events[-1]["type"] == "ready" and events[-1]["ai"] is enabled
 
 

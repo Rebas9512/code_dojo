@@ -14,16 +14,21 @@ class SystemKeychain:
     def _call(self, args, payload=None):
         result = subprocess.run([self.tool, *args], input=payload or b"", capture_output=True,
                                 timeout=20, creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
+        if ((args[0] == "find-generic-password" and result.returncode == 44)
+                or (args[0] == "lookup" and result.returncode == 1 and not result.stderr)):
+            return b""
         if result.returncode:
             raise OSError("系统钥匙串不可用")
         return result.stdout.strip()
 
-    def _windows(self, service, account, value=None):
+    def _windows(self, service, account, value=None, *, delete=False):
         # PasswordVault 使用当前登录用户的 Windows 凭据保管库，秘密只通过标准输入交给系统。
         script = ("$ErrorActionPreference='Stop';"
                   "$v=[Windows.Security.Credentials.PasswordVault,Windows.Security.Credentials,ContentType=WindowsRuntime]::new();")
         if value is None:
-            script += f"$c=$v.Retrieve('{service}','{account}');$c.RetrievePassword();[Console]::Write($c.Password)"
+            script += (f"try{{$c=$v.Retrieve('{service}','{account}')}}catch{{"
+                       "if($_.Exception.GetBaseException().HResult -eq -2147023728){exit 0};throw};")
+            script += "$v.Remove($c)" if delete else "$c.RetrievePassword();[Console]::Write($c.Password)"
         else:
             script += ("$c=[Windows.Security.Credentials.PasswordCredential,Windows.Security.Credentials,ContentType=WindowsRuntime]"
                        f"::new('{service}','{account}',[Console]::In.ReadToEnd());$v.Add($c)")
@@ -50,6 +55,14 @@ class SystemKeychain:
             self._call(["store", "--label=code-dojo", "service", service, "account", account], encoded)
         if self.get_password(service, account) != value:
             raise OSError("系统钥匙串未确认保存")
+
+    def delete_password(self, service: str, account: str):
+        if sys.platform == "darwin":
+            self._call(["delete-generic-password", "-s", service, "-a", account])
+        elif os.name == "nt":
+            self._windows(service, account, delete=True)
+        else:
+            self._call(["clear", "service", service, "account", account])
 
 
 def available():

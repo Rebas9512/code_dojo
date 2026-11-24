@@ -128,8 +128,6 @@ class Updates:
 
     def check(self, progress=lambda message: None) -> Result:
         old = self.current()
-        if not self.github.token:
-            return Result(old, "请在设置中填写令牌以开启更新和同步")
         try:
             release = self.github.json("/releases/tags/payload-latest")
             assets = {a["name"]: f"/releases/assets/{int(a['id'])}" for a in release["assets"]}
@@ -181,7 +179,7 @@ class Updates:
             active = Installed(final, manifest, datetime.now(timezone.utc).isoformat(timespec="seconds"))
             return Result(active)
         except HTTPError as exc:
-            return Result(old, f"无法读取更新（HTTP {exc.code}），请检查网络和令牌")
+            return Result(old, f"无法读取更新（HTTP {exc.code}），请稍后重试")
         except URLError:
             return Result(old, "更新失败：无法连接 GitHub，请检查网络")
         except (OSError, HTTPException, ValueError, KeyError, TypeError, BadZipFile, subprocess.SubprocessError):

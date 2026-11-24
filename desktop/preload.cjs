@@ -12,8 +12,8 @@ if (process.isMainFrame) {
     contextBridge.exposeInMainWorld('dojoStartup', {
       read: () => ipcRenderer.invoke('startup:read'),
       subscribe: callback => { ipcRenderer.on('startup:state', (_event, state) => callback(state)) },
-      unlock: password => ipcRenderer.invoke('startup:unlock', password),
-      tokens: (code, sync) => ipcRenderer.invoke('startup:tokens', code, sync),
+      connectSync: code => ipcRenderer.invoke('startup:connect', code),
+      disconnectSync: () => ipcRenderer.invoke('startup:disconnect'),
       retry: () => ipcRenderer.invoke('startup:retry'),
     })
   }

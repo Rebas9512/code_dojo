@@ -17,6 +17,16 @@ const startup = pathToFileURL(path.join(__dirname, 'startup.html')).href
 const preferences = { preload: path.join(__dirname, 'preload.cjs'), sandbox: true, contextIsolation: true, nodeIntegration: false }
 let win, settingsWindow, child, origin, ready, quitting = false
 let state = { type: 'status', message: '正在打开…' }
+let settingsFeedback = {}
+
+function settingsState() {
+  return { type: 'settings', ai: ready?.ai, sync: ready?.sync, ...settingsFeedback }
+}
+
+function updateSettings(feedback) {
+  settingsFeedback = feedback
+  settingsWindow?.webContents.send('startup:state', settingsState())
+}
 
 function publish(next) {
   state = next
@@ -45,10 +55,13 @@ function onEvent(event) {
   switch (event.type) {
     case 'ready': {
       if (!Number.isInteger(event.port) || event.port < 1 || event.port > 65535) break
+      const current = win.webContents.getURL()
+      const route = ready && ready.sync !== event.sync && appPage(current) ? current.slice(origin.length) : '/'
       ready = event
       origin = 'http://127.0.0.1:' + event.port
-      settingsWindow?.close()
-      void win.loadURL(origin + '/').then(() => {
+      updateSettings({})
+      menu()
+      void win.loadURL(origin + route).then(() => {
         if (event.message && !quitting) showInfo(event.message, '', event.installer)
       }).catch(() => {
         if (!quitting) localPage({ type: 'error', message: '学习地图加载失败，请重试' })
@@ -57,6 +70,9 @@ function onEvent(event) {
     }
     case 'sync':
       break // 网页顶栏从同一后端读取最新同步状态。
+    case 'sync_code_failed':
+      updateSettings({ remaining: event.remaining, retryAt: Date.now() + event.wait * 1000 })
+      break
     case 'status':
       if (event.checked && ready) {
         if (win.webContents.getURL() === startup) void win.loadURL(origin)
@@ -66,11 +82,13 @@ function onEvent(event) {
       }
       break
     case 'error':
-    case 'need_tokens':
-    case 'need_unlock':
-    case 'unlock_failed':
+      if (event.scope === 'settings') {
+        updateSettings({ message: event.message })
+        break
+      }
       ready = null
       origin = null
+      menu()
       settingsWindow?.close()
       localPage(event)
       break
@@ -139,11 +157,7 @@ function protect(window) {
 }
 
 function settings() {
-  if (quitting) return
-  if (!ready) {
-    if (child) localPage({ type: 'need_tokens' })
-    return
-  }
+  if (quitting || !ready) return
   if (settingsWindow) return settingsWindow.focus()
   settingsWindow = new BrowserWindow({ parent: win, modal: true, width: 540, height: 500,
     title: '设置', autoHideMenuBar: true, webPreferences: preferences })
@@ -159,7 +173,7 @@ function about() {
 
 function menu() {
   const controls = [
-    { label: '立即同步', accelerator: 'CmdOrCtrl+Shift+S', click: () => send('sync') },
+    { label: '立即同步', visible: !!ready?.sync, accelerator: 'CmdOrCtrl+Shift+S', click: () => send('sync') },
     { label: '检查更新', click: () => { if (ready) send('check_update') } },
     { label: '设置…', accelerator: 'CmdOrCtrl+,', click: settings },
     { label: '关于 code-dojo', click: about },
@@ -190,14 +204,18 @@ function ipc() {
   listen('dojo:about', 'page', about)
   listen('dojo:quit', 'page', () => app.quit())
   listen('dojo:version', 'page', () => ({ launcher: app.getVersion(), payload: ready?.payload_version || '' }))
-  listen('startup:read', 'local', isSettings => isSettings ? { type: 'settings', ai: ready?.ai } : state)
-  listen('startup:unlock', 'local', (_, password) => {
-    if (typeof password === 'string' && !ready) send('unlock', { password })
+  listen('startup:read', 'local', isSettings => isSettings ? settingsState() : state)
+  listen('startup:connect', 'local', (isSettings, code) => {
+    if (isSettings && !ready.sync && typeof code === 'string') {
+      updateSettings({ busy: true, message: '正在开启同步…' })
+      send('connect_sync', { code })
+    }
   })
-  listen('startup:tokens', 'local', (_, code, sync) => {
-    if (typeof code !== 'string' || typeof sync !== 'string' || !code.trim()) return
-    if (!child) start()
-    send('set_tokens', { code, sync })
+  listen('startup:disconnect', 'local', isSettings => {
+    if (isSettings && ready.sync) {
+      updateSettings({ busy: true, message: '正在关闭同步…' })
+      send('disconnect_sync')
+    }
   })
   listen('startup:retry', 'local', () => {
     publish({ type: 'status', message: '正在重新启动…' })
@@ -221,7 +239,7 @@ function shutdown() {
   quitting = true
   try { fs.writeFileSync(boundsFile, JSON.stringify(win.getNormalBounds())) } catch { /* 仍然推送进度。 */ }
   settingsWindow?.destroy()
-  localPage({ type: 'status', message: '正在同步…' })
+  localPage({ type: 'status', message: ready?.sync ? '正在同步…' : '正在关闭…' })
   const proc = child
   if (!proc) return app.exit(0)
   const timer = setTimeout(() => {
@@ -234,7 +252,7 @@ function shutdown() {
     app.exit(0)
   }, 10000)
   proc.once('close', () => { clearTimeout(timer); app.exit(0) })
-  send('sync')
+  if (ready?.sync) send('sync')
   send('quit')
   proc.stdin.end()
 }

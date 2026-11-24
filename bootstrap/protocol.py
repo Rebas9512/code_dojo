@@ -14,7 +14,7 @@ from cryptography.exceptions import InvalidTag
 
 from . import DEFAULT_REPO, DEFAULT_SYNC, VERSION
 from .agents import has_agent
-from .credentials import credential_source, tokens
+from .credentials import clear_tokens, tokens
 from .github import GitHub, repository
 from .sealed import unseal
 from .update import Updates
@@ -54,62 +54,69 @@ class Controller:
         self.child = None
         self.values = {}
         self.item = None
-        self.notice = ""
 
     def begin(self):
         self.status("正在检查本机凭据…")
-        source, self.values = credential_source(tokens(self.data), self.bundle, self.repo, self.sync_repo, self.api)
-        if source == "sealed":
-            self.send("need_unlock")
-            if self.attempts.state()[1]:
-                self.unlock_failed()
-        elif source == "manual" and not (self.data / "desktop/current.json").is_file():
-            self.send("need_tokens")
-        else:
-            self.launch()
+        self.values = tokens(self.data)
+        self.launch()
 
     def status(self, message):
         self.send("status", message=message)
 
-    def unlock_failed(self):
+    def sync_code_failed(self):
         count, wait = self.attempts.state()
-        self.send("unlock_failed", remaining=max(0, 5 - count), wait=math.ceil(wait))
+        self.send("sync_code_failed", remaining=max(0, 5 - count), wait=math.ceil(wait))
 
-    def unlock(self, password):
+    def connect_sync(self, code):
+        envelope = self.bundle / "sealed-tokens.json"
+        if not envelope.is_file():
+            self.send("error", scope="settings", message="这个安装包不支持同步码")
+            return
         if self.attempts.state()[1]:
-            self.unlock_failed()
+            self.sync_code_failed()
             return
         try:
-            sealed = json.loads((self.bundle / "sealed-tokens.json").read_bytes())
-            values = unseal(sealed, password, self.repo, self.sync_repo)
+            values = unseal(json.loads(envelope.read_bytes()), code, self.repo, self.sync_repo)
         except InvalidTag:
             self.attempts.failed()
-            self.unlock_failed()
+            self.sync_code_failed()
+            return
         except (OSError, TypeError, ValueError):
-            self.send("need_tokens", message="令牌包无效或与仓库不匹配，请手动填写")
-        else:
-            self.save(values)
-
-    def save(self, values):
+            self.send("error", scope="settings", message="令牌包无效或与仓库不匹配")
+            return
+        notice = ""
         try:
             tokens(self.data, values)
-            self.notice = ""
         except PermissionError:
-            self.notice = "此数据目录无法保护令牌，令牌仅用于本次运行"
+            notice = "此数据目录无法保护令牌，令牌仅用于本次运行"
         self.values = values
         self.attempts.clear()
-        self.update(restart=True)
+        self.restart_service(notice)
+
+    def disconnect_sync(self):
+        try:
+            clear_tokens(self.data)
+        except Exception:
+            # 钥匙串后端的异常类型因平台而异，清除失败时继续使用现有服务。
+            self.send("error", scope="settings", message="无法清除已存凭据，请检查钥匙串和数据目录后重试")
+            return
+        self.values = {}
+        self.restart_service()
+
+    def restart_service(self, notice=""):
+        self.status("正在重新启动本机服务…")
+        self.stop("quit" if self.values else "disconnect")
+        if self.start(self.updates(), self.item):
+            self.ready(notice)
+        else:
+            self.send("error", message="本机服务启动失败，请重试")
 
     def command(self, message):
         name = message.get("command")
-        if name == "unlock" and isinstance(message.get("password"), str) and not self.child:
-            self.unlock(message["password"])
-        elif name == "set_tokens" and isinstance(message.get("code"), str) and isinstance(message.get("sync", ""), str):
-            code = message["code"].strip()
-            if code:
-                self.save(dict(code=code, sync=message.get("sync", "").strip() or code))
-            else:
-                self.send("need_tokens", message="请填写代码仓库令牌")
+        if name == "connect_sync" and self.child and isinstance(message.get("code"), str):
+            self.connect_sync(message["code"])
+        elif name == "disconnect_sync" and self.child:
+            self.disconnect_sync()
         elif name == "sync":
             self.write("sync")
             self.write("status")
@@ -156,20 +163,20 @@ class Controller:
     def ready(self, message="", installer=""):
         enabled = os.environ.get("CODE_DOJO_AI_PROVIDER") != "off" and has_agent()
         self.send("ready", port=self.port, version=VERSION, payload_version=self.item.manifest["version"],
-                  ai=enabled, message=message, installer=installer)
+                  ai=enabled, sync=bool(self.sync_token), message=message, installer=installer)
         self.write("status")
 
-    def update(self, restart=False):
+    def update(self):
         self.status("正在检查更新…")
         updates = self.updates()
         previous = updates.current()
         with self.checking:
             result = updates.check(self.status)
-        detail = "；".join(filter(None, (result.message, self.notice)))
+        detail = result.message
         if not result.active:
             self.send("error", message=detail or "尚未安装题库", installer=result.installer)
             return
-        if self.child and self.item == result.active and not restart:
+        if self.child and self.item == result.active:
             self.send("status", message=detail or "题库已是最新版本", installer=result.installer, checked=True)
             return
         self.stop()
@@ -181,9 +188,13 @@ class Controller:
             detail = "新版服务启动失败，已恢复上一版本"
         self.ready(detail, result.installer)
 
+    @property
+    def sync_token(self):
+        return self.values.get("sync") or self.values.get("code", "")
+
     def start(self, updates, item):
         config = dict(payload=str(item.root), libraries=str(updates.libraries(item.manifest)), data=str(self.data),
-                      api=self.api, repo=self.sync_repo, token=self.values.get("sync") or self.values.get("code", ""))
+                      api=self.api, repo=self.sync_repo, token=self.sync_token)
         script = self.bundle / "start.py"
         if not script.is_file():
             script = self.bundle / "scripts/desktop/start.py"
@@ -197,7 +208,8 @@ class Controller:
             self.stop()
             return False
         self.port = json.loads(line)["ready"]
-        updates.activate(item)
+        if item != self.item:
+            updates.activate(item)
         self.item = item
         threading.Thread(target=lines, args=(child.stdout, self.inbox, child), daemon=True).start()
         return True
@@ -210,10 +222,10 @@ class Controller:
             except (OSError, ValueError):
                 pass
 
-    def stop(self):
+    def stop(self, command="quit"):
         if self.child:
             child = self.child
-            self.write("quit")
+            self.write(command)
             try:
                 child.stdin.close()
             except BrokenPipeError:

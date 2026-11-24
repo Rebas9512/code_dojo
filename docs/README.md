@@ -47,21 +47,21 @@ code-dojo/
 
 ## 桌面应用
 
-桌面版 1.2.0 在同一个 Electron 窗口里完成解锁、进地图和做题。Linux x86-64 提供 AppImage 与备用 tar.gz，Apple Silicon macOS 提供 .app zip，Windows x64 提供便携 zip。安装包内有 Chromium、CPython 3.14、pip、锁定的后端依赖及启动器。Linux 的 AppImage 可以交给 AppImageLauncher Lite 集成到菜单，也可以使用 `--appimage-extract-and-run` 启动。AppImage 的 `AppRun` 是一个只用 shell 内建的包装脚本，一律带 `--no-sandbox` 启动 Electron。Ubuntu 23.10 起默认禁止普通程序建用户命名空间，AppImage 里的 `chrome-sandbox` 又不可能归 root，不带这个参数就会直接退出。网页仍然是 sandbox + contextIsolation 的隔离页面，冒烟测试确认这个参数还在。Windows 和 macOS 照常启用 Chromium 沙箱。[首次安装和令牌设置](../deploy/README.md#在一台新电脑上用)
+桌面版在同一个 Electron 窗口里打开学习地图和做题。Linux x86-64 提供 AppImage 与备用 tar.gz，Apple Silicon macOS 提供 .app zip，Windows x64 提供便携 zip。安装包内有 Chromium、CPython 3.14、pip、锁定的后端依赖及启动器。Linux 的 AppImage 可以交给 AppImageLauncher Lite 集成到菜单，也可以使用 `--appimage-extract-and-run` 启动。AppImage 的 `AppRun` 是一个只用 shell 内建的包装脚本，一律带 `--no-sandbox` 启动 Electron。Ubuntu 23.10 起默认禁止普通程序建用户命名空间，AppImage 里的 `chrome-sandbox` 又不可能归 root，不带这个参数就会直接退出。网页仍然是 sandbox + contextIsolation 的隔离页面，冒烟测试确认这个参数还在。Windows 和 macOS 照常启用 Chromium 沙箱。[首次安装和同步设置](../deploy/README.md#在一台新电脑上用)
 
-Electron 主进程建好窗口后，同时载入随包启动页和启动 `python -m bootstrap serve --protocol jsonl`，之后通过标准输入输出驱动它。启动器依次查本机凭据、能读取两个仓库的 GitHub CLI 登录、包内加密令牌，最后提供手动填写。输入的密码与令牌经本地启动页和标准输入传递。连续输错五次需等待 30 秒。首次解锁后优先存入系统钥匙串，备用位置是受保护的本机文件。
+Electron 同时载入启动页和运行 `python -m bootstrap serve --protocol jsonl`。启动器读取本机钥匙串或 `github-tokens.json` 里的凭据，已有凭据的机器直接带同步启动，包括已解锁的 1.2.0 安装。新机器直接进入本机模式，记录写入本机数据目录。公开的 `payload-latest` Release 支持匿名检查和下载，有已存代码令牌时会使用它。
 
-协议使用 UTF-8，每行一个 JSON 对象。stdin 的 `command` 支持 `unlock`（`password`）、`set_tokens`（`code`、可选的 `sync`）、`sync`、`check_update` 和 `quit`。stdout 的 `type` 为 `status`、`need_unlock`、`need_tokens`、`unlock_failed`、`ready`、`sync` 或 `error`。`unlock_failed` 返回剩余次数 `remaining` 和等待秒数 `wait`。`ready` 返回 `port`、启动器 `version` 和 `payload_version`。
+协议使用 UTF-8，每行一个 JSON 对象。stdin 的 `command` 支持 `connect_sync`（字段 `code`）、`disconnect_sync`、`sync`、`check_update` 和 `quit`。stdout 的 `type` 为 `status`、`ready`、`sync`、`sync_code_failed` 或 `error`。`ready` 包含 `port`、启动器 `version`、`payload_version`、助教状态 `ai` 和表示同步已开启的布尔值 `sync`。错码消息返回剩余次数 `remaining` 和等待秒数 `wait`，连续输错五次需等待 30 秒。`error` 带 `scope: "settings"` 时，错误显示在设置窗口，练习可以继续。
 
 启动器从 `CODE_DOJO_REPO`（默认 `Rebas9512/code_dojo`）的 `payload-latest` Release 获取清单。更新包包含 FastAPI 代码及其预编译字节码、网页、固定题库、判题程序、技能识别规则和预先计算的 SQL 期望表。清单记录版本、提交 SHA、生成时间、最低启动器版本、题库格式版本和依赖锁 SHA-256。外部清单还记录整个 zip 的 SHA-256，它只用作这个更新包的 ID 和目录名，下载后不再计算哈希核对；依赖锁 SHA-256 同样只用作依赖目录名和与安装包的比较。
 
 下载和解压均在用户数据目录的 `desktop/` 下完成。更新包的依赖锁和安装包的 `lock.sha256` 一致时，后端直接使用安装包里的 `libraries`，不复制。锁不一致时，内置 pip 按带哈希的运行时依赖清单安装到 `desktop/dependencies/<锁哈希>`；这时若又离线，旧更新包会缺依赖，联网更新一次即可。`.gitattributes` 让 `server/uv.lock` 在 Windows 检出时不转成 CRLF，否则两边的锁哈希对不上。已装过更新包时，启动器直接用 `current.json` 指向的版本起服务，同时在后台查更新，网络往返不挡启动。后台下载好的新版本记在 `desktop/next.json`，下次打开时先试它，起来了才原子替换 `current.json` 并保留上一个版本，起不来就回到原版本并提示。菜单里的“检查更新”仍是当场下载并换上新版本。断网、下载不完整或安装失败时仍可用原版本练习，后台查更新失败或启动器过旧时窗口弹出提示，后者附新版安装包链接。第一次使用需要联网下载题库，这次在启动页显示下载进度。
 
-本机服务绑定 `127.0.0.1`，优先复用上次端口。启动器发出 `ready` 后，主窗口载入该端口的学习地图，原题等外链交给系统浏览器。网页运行在隔离的渲染进程中，通过 preload 提供的有限接口使用桌面功能。顶栏“桌面”可立即同步、打开设置或查看版本，原生菜单另有检查更新和退出。设置提供令牌更换和助教状态。再次启动会聚焦原窗口。关闭窗口先推送进度，最多等待 10 秒。记录使用与 `dojo` 相同的数据目录和事件格式。进度仓库由 `CODE_DOJO_SYNC_REPO` 指定，默认 `Rebas9512/code_dojo_sync`。有 Git 时使用 Git，没有 Git 时通过 GitHub Contents API 同步 main 上每台机器自己的月度 JSONL。同步失败的事件保留在本机。
+本机服务绑定 `127.0.0.1`，优先复用上次端口。启动器发出 `ready` 后，主窗口载入该端口的学习地图，原题等外链交给系统浏览器。网页运行在隔离的渲染进程中，通过 preload 提供的有限接口使用桌面功能。顶栏“桌面”提供设置和版本信息，开启同步后还可立即同步，原生菜单另有检查更新和退出。状态栏在本机模式显示“本机保存”。打开“桌面 → 设置”（Ctrl+,，macOS 为 Cmd+,）可以查看助教状态，也可输入同步码解开随包的 `sealed-tokens.json`。开启后，令牌优先存入钥匙串，首次交换会带上本机积累的事件。确认关闭同步会清除钥匙串和备用文件中的凭据，保留做题记录和待推送事件。开启和关闭都直接用当前题库重启服务。再次启动会聚焦原窗口。已开启同步时，关闭窗口先推送进度，最多等待 10 秒。记录使用与 `dojo` 相同的数据目录和事件格式。进度仓库由 `CODE_DOJO_SYNC_REPO` 指定，默认 `Rebas9512/code_dojo_sync`。有 Git 时使用 Git，没有 Git 时通过 GitHub Contents API 同步 main 上每台机器自己的月度 JSONL。同步失败的事件保留在本机。
 
 普通 Python 题直接用随包解释器运行独立的 harness 子进程。数据科学题首次使用时在数据目录的 `judge-envs/` 创建专用环境并安装 NumPy、pandas 和 CPU 版 PyTorch。AppImage 启动时会将 `desktop/python-<解释器版本>` 链接到当前挂载的运行时，使同一 Python 版本的判题环境在重开后仍然可用。固定 SQL 题从更新包读取期望表，用户 SQL 和附加题的动态校验都在应用窗口内的 PGlite Worker 中运行。助教使用本机登录的 Claude Code 或 Codex，在做题页助教面板选择。桌面“设置”显示助教状态。只有 Codex 的机器需要含双助教探测的启动器；已发布的 1.1.2 启动器仍按 Claude Code 判断开关。
 
-**发布**。推送到 main 后，`ci.yml` 在 Linux 上测试，通过才触发 `release-payload.yml`。仓库自 2026-11-23 起公开，标准机器的 Actions 不计费；推送时仍只跑 Linux，更新包发得快。三系统测试手动触发（`gh workflow run ci.yml`），改了判题、启动器或发版前跑一次。固定 Release 提供桌面更新，另保留最近五个带版本号的 `payload-v*` Release。需要回退时将目标版本的一对 `payload.zip` 和 `manifest.json` 依次覆盖固定 Release 的同名资产。修改启动器时同步更新 `bootstrap.VERSION` 和 `desktop/package.json` 中的版本与 npm 锁文件，发布对应的 `app-vX.Y.Z` 标签。`release-app.yml` 用 electron-builder 在三系统构建，在 Linux 上用 xvfb 和 Playwright 实际解锁、交卷并检查退出推送，全部成功后发布安装包。可选的 Actions 密钥 `CODE_DOJO_SEALED_TOKENS` 由发布者在本机加密后上传，打包时写入 `sealed-tokens.json`。本版更新包的最低启动器版本是 1.0.0。有不兼容更新时先发布新版安装包，再提高 `bootstrap.MIN_BOOTSTRAP` 并发布更新包。
+**发布**。推送到 main 后，`ci.yml` 在 Linux 上测试，通过才触发 `release-payload.yml`。仓库自 2026-11-23 起公开，标准机器的 Actions 不计费；推送时仍只跑 Linux，更新包发得快。三系统测试手动触发（`gh workflow run ci.yml`），改了判题、启动器或发版前跑一次。固定 Release 提供桌面更新，另保留最近五个带版本号的 `payload-v*` Release。需要回退时将目标版本的一对 `payload.zip` 和 `manifest.json` 依次覆盖固定 Release 的同名资产。修改启动器时同步更新 `bootstrap.VERSION` 和 `desktop/package.json` 中的版本与 npm 锁文件，发布对应的 `app-vX.Y.Z` 标签。`release-app.yml` 用 electron-builder 在三系统构建，在 Linux 上用 xvfb 和 Playwright 验证本机启动、设置开关同步、交卷和退出推送，全部成功后发布安装包。可选的 Actions 密钥 `CODE_DOJO_SEALED_TOKENS` 由发布者在本机加密后上传，打包时写入 `sealed-tokens.json`。本版更新包的最低启动器版本是 1.0.0。有不兼容更新时先发布新版安装包，再提高 `bootstrap.MIN_BOOTSTRAP` 并发布更新包。
 
 ## 怎么跑
 
@@ -225,7 +225,7 @@ SQL 题按"用到的最高概念"归阶段，不照搬 SQL 50 的分节。阶段
 - 每条线的 `problems/<track>/track.yaml` 定义名称、顺序、语言、判题环境、阶段和前置线。新增阶段只需修改该配置。数学使用 Python 沙箱，另五条进阶线使用数据科学沙箱。
 - 技能按线保存、全局检索。例如 `algo.hash-seen` 使用 `py.set-basics` 的知识卡。曲线检查按前置线的拓扑顺序进行，直接和间接前置线的技能都算已学。
 - 首页有 Python 和 SQL 两个标签。URL 的 `tab` 优先于浏览器保存的标签，首次打开选 Python。两页共用无语言的根线，按配置顺序排列兄弟线，第一条前置决定缩进，其余前置列在行首。SQL 页也可跳到数据处理线。
-- 顶栏“继续”选择当前标签下最近运行或提交过的开放学习线（附加题算在原题线上），没有练习记录时选第一条根线。线上还没有提交过原题时从首道必修题开始，否则按地图顺序找到最靠后提交过的原题，先从它后面找本单元未做的必修题，再从单元开头补漏，最后依次找后续单元，找不到时隐藏按钮。
+- 顶栏“继续”选择当前标签下最近运行或提交过的开放学习线（附加题算在原题线上），没有练习记录时选第一条根线。线上还没有提交过原题时从首道必修题开始，否则按地图顺序找到最靠后提交过的原题，先从它后面找本单元未做的必修题，再从单元开头补漏，然后依次找后续单元；后面都做完了，再从这条线的开头补漏。整条线都做过才隐藏按钮。所以先跳到中后部做题，「继续」会接着那里走，不会把你拉回开头。
 - 每条线按阶段横排单元，宽屏空间不足时在阶段之间换行。圆点上的绿色弧长表示通过比例，全部通过后填实；角上的小点表示含 AI 协助通过。当前标签的推荐单元带外圈，优先标记有到期复习的单元。学习线与单元详情均列出掌握数。点击或回车查看详情，左右键沿单元移动，上下键切线。窄屏可以横滑单条线，仍有隐藏单元的一侧显示渐隐提示，详情在树下方。
 - `GET /api/tracks` 的每个阶段返回 `units`。每个单元包含题量、进度、技能和下一题。技能的小点取引入该技能的题目里最好的提交状态。题目列表的 `unit` 字段与地图共用归属。阶段内含 `week` 时按周列题，算法阶段 5 的 76 道周练按十周排列，其余 3 道在“未分周”中。没有周次的阶段沿用单元分组。题目列表和知识点页均支持 `#u-<阶段>-<单元>` 定位，包括空单元。展开知识点可读知识卡、打开引入该技能的题。
 
