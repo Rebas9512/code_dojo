@@ -18,6 +18,7 @@ const bin = path.join(work, 'bin')
 for (const dir of [tmp, bin]) fs.mkdirSync(dir)
 const contents = new Map()
 let closing = false, stall = false, finalReads = 0
+let stallRelease = false, releaseRequestedAt
 let connected = false
 const blob = bytes => createHash('sha1').update('blob ' + bytes.length + '\0').update(bytes).digest('hex')
 
@@ -27,6 +28,7 @@ const hub = http.createServer(async (req, res) => {
   assert.equal(req.headers.authorization, sync ? 'Bearer test-write' : connected ? 'Bearer test-read' : undefined)
   const reply = obj => res.end(JSON.stringify(obj))
   if (url.endsWith('payload-latest')) {
+    if (stallRelease) { releaseRequestedAt = Date.now(); return }
     reply({ assets: [{ id: 1, name: 'manifest.json' }, { id: 2, name: 'payload.zip' }] })
   } else if (url.endsWith('/assets/1')) {
     res.end(fs.readFileSync(path.join(payload, 'manifest.json')))
@@ -138,7 +140,7 @@ async function main() {
     // 登录 shell 也与系统 PATH 隔离。macOS 找不到 security 时走测试数据目录的凭据文件。
     Object.assign(env, { PATH: bin, SHELL: '/usr/bin/false', TMPDIR: tmp, XDG_CACHE_HOME: path.join(work, 'cache'),
       XDG_CONFIG_HOME: path.join(work, 'config'), CODE_DOJO_DATA: path.join(work, 'data'),
-      CODE_DOJO_AI_PROVIDER: 'off', CODE_DOJO_PORT: '8001', CODE_DOJO_GITHUB_API: 'http://127.0.0.1:' + hub.address().port,
+      CODE_DOJO_AI_PROVIDER: 'off', CODE_DOJO_PORT: '8019', CODE_DOJO_GITHUB_API: 'http://127.0.0.1:' + hub.address().port,
       DOJO_SMOKE_IMAGE: image, NO_CLEANUP: '1' })
     app = await _electron.launch({ executablePath: launcher, chromiumSandbox: true, env, args, timeout: 120000, artifactsDir: work })
     const page = await app.firstWindow()
@@ -230,6 +232,16 @@ async function main() {
     // 应用拦下的外链跳转在 Playwright 看来一直没结束，再点页面会一直等；先回首页。
     await page.goto(origin + '/')
     await page.getByRole('tab').first().waitFor()
+    const desktopData = path.join(env.CODE_DOJO_DATA, 'desktop')
+    const installed = JSON.parse(fs.readFileSync(path.join(desktopData, 'current.json'), 'utf8'))
+    const probeName = '/assets/smoke-ab12CD34.txt'
+    const probeFile = path.join(desktopData, installed.digest, 'web/dist', probeName)
+    fs.writeFileSync(probeFile, 'old')
+    const readProbe = name => fetch(name).then(reply => reply.text())
+    assert.equal(await page.evaluate(readProbe, probeName), 'old')
+    fs.writeFileSync(probeFile, 'new')
+    assert.equal(await page.evaluate(readProbe, probeName), 'old')
+    await page.evaluate(() => localStorage.setItem('smoke-draft', 'draft'))
     const settingsAtQuit = await openSettings(app, page)
     await settingsAtQuit.getByText('已开启进度同步').waitFor()
     const appProcess = app.process()
@@ -248,13 +260,21 @@ async function main() {
     await assert.rejects(fetch(origin + '/api/health'))
     console.log('外部链接 2 个，退出推送完成，端口已释放。', work)
 
-    // 再开一次已提取的同一成品，验证窗口记忆和远端无响应时的退出上限。
+    // 模拟上次载入过旧网页。重开时题库远端挂起，退出时再单独挂起进度远端。
     closing = false
+    fs.writeFileSync(path.join(desktopData, 'loaded-payload-version'), 'previous-smoke-version')
+    stallRelease = true
     // 此轮的 PATH、登录 shell 和扩展目录都隔离，只能选到接受 --version 的假命令。
     const agentEnv = { ...env, HOME: work, CODE_DOJO_AI_PROVIDER: 'claude' }
     app = await _electron.launch({ executablePath: main.executable, chromiumSandbox: true, env: agentEnv, args, artifactsDir: work })
     const reopened = await app.firstWindow()
-    await reopened.getByRole('tab').first().waitFor({ timeout: 90000 })
+    await reopened.getByRole('heading', { name: '正在检查更新…' }).waitFor({ timeout: 15000 })
+    await reopened.getByRole('tab').first().waitFor({ timeout: 18000 })
+    const launchMs = Date.now() - releaseRequestedAt
+    assert.ok(launchMs >= 4500 && launchMs < 18000, '挂起的更新请求到地图可用 ' + launchMs + ' 毫秒')
+    assert.equal(await reopened.evaluate(() => window.dojoDesktop.version().then(v => v.payload)), version.payload)
+    assert.equal(await reopened.evaluate(readProbe, probeName), 'new')
+    assert.equal(await reopened.evaluate(() => localStorage.getItem('smoke-draft')), 'draft')
     assert.deepEqual(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getNormalBounds()), expectedBounds)
     const reopenedOrigin = new URL(reopened.url()).origin
     await checkAgentPath(app, reopened, reopenedOrigin)
@@ -267,7 +287,7 @@ async function main() {
     const elapsed = Date.now() - started
     assert.ok(elapsed >= 8000 && elapsed < 11000, '退出耗时 ' + elapsed + ' 毫秒')
     await assert.rejects(fetch(reopenedOrigin + '/api/health'))
-    console.log('窗口位置与大小已恢复。远端不响应时退出耗时', elapsed, '毫秒，端口已释放。')
+    console.log('题库远端挂起后', launchMs, '毫秒进入地图，HTTP 缓存已刷新，草稿和窗口位置已保留。进度远端挂起时退出耗时', elapsed, '毫秒，端口已释放。')
   } finally {
     if (app) await app.close()
     hub.closeAllConnections()

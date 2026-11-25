@@ -108,19 +108,21 @@ def test_switch_after_ready_and_rollback(updates, monkeypatch):
     assert updates.check().active == two
 
 
-def test_staged_version_waits_for_next_launch(updates):
+def test_release_reuses_directory_downloaded_by_old_launcher(updates):
     one = updates.check().active
     updates.activate(one)
     updates.github.publish("2")
     two = updates.check().active
-    updates.stage(two)
-    assert updates.staged() == two and updates.current() == one
+    legacy = updates.root / "next.json"
+    legacy.write_text(json.dumps({"digest": two.root.name, "updated": two.updated}))
+    updates.clean()
+    assert not legacy.exists() and updates.current() == one
     downloads = []
     original = updates.github.open
     updates.github.open = lambda path, accept: (downloads.append(path), original(path, accept))[1]
     assert updates.check().active.root == two.root and not any(p.endswith("/2") for p in downloads)
     updates.activate(two)
-    assert updates.staged() is None and updates.current() == two
+    assert updates.current() == two
 
 
 def test_clean_removes_interrupted_downloads_only(updates):

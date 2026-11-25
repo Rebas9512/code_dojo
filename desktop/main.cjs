@@ -13,6 +13,7 @@ fs.mkdirSync(profile, { recursive: true })
 app.setPath('userData', profile)
 if (process.platform === 'linux') app.commandLine.appendSwitch('class', 'Code-dojo')
 const boundsFile = path.join(data, 'desktop', 'window.json')
+const loadedVersionFile = path.join(data, 'desktop', 'loaded-payload-version')
 const startup = pathToFileURL(path.join(__dirname, 'startup.html')).href
 const preferences = { preload: path.join(__dirname, 'preload.cjs'), sandbox: true, contextIsolation: true, nodeIntegration: false }
 let win, settingsWindow, child, origin, ready, quitting = false
@@ -51,6 +52,17 @@ function showInfo(message, detail, installer) {
   })
 }
 
+async function loadPayload(event, url) {
+  const lastVersion = fs.existsSync(loadedVersionFile) ? fs.readFileSync(loadedVersionFile, 'utf8') : null
+  const changed = lastVersion !== event.payload_version
+  if (changed) await win.webContents.session.clearCache()
+  if (quitting || ready !== event) return
+  await win.loadURL(url)
+  if (quitting || ready !== event) return
+  if (changed) fs.writeFileSync(loadedVersionFile, event.payload_version)
+  if (event.message) showInfo(event.message, '', event.installer)
+}
+
 function onEvent(event) {
   if (quitting) return
   switch (event.type) {
@@ -63,10 +75,8 @@ function onEvent(event) {
       origin = 'http://127.0.0.1:' + event.port
       updateSettings({})
       menu()
-      void win.loadURL(origin + route).then(() => {
-        if (event.message && !quitting) showInfo(event.message, '', event.installer)
-      }).catch(() => {
-        if (!quitting) localPage({ type: 'error', message: '学习地图加载失败，请重试' })
+      void loadPayload(event, origin + route).catch(() => {
+        if (!quitting && ready === event) localPage({ type: 'error', message: '学习地图加载失败，请重试' })
       })
       break
     }

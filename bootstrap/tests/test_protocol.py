@@ -4,7 +4,11 @@ import json
 import os
 import subprocess
 import sys
+import time
 from pathlib import Path
+from threading import Event
+from urllib.error import HTTPError, URLError
+from zipfile import ZipFile
 from unittest.mock import Mock
 
 import pytest
@@ -12,7 +16,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from bootstrap import DEFAULT_REPO, DEFAULT_SYNC, VERSION, agents, protocol
 from bootstrap.sealed import seal
-from bootstrap.update import Installed, Result
+from bootstrap.update import Installed, Result, Updates
 
 
 @pytest.fixture
@@ -167,44 +171,152 @@ def test_agent_path_commands_restart_only_on_success(controller, capsys, monkeyp
     assert agents.manual_paths(controller.data) == {}
 
 
-def test_launch_starts_installed_then_stages_update(controller, capsys, tmp_path):
-    installed = Installed(tmp_path / "a", {"version": "test.1"}, "then")
-    newer = Installed(tmp_path / "b", {"version": "test.2"}, "now")
-    newer.root.mkdir()
-    updates = protocol.Updates()
-    updates.current.return_value = installed
-    updates.staged.return_value = None
-    updates.check.return_value = Result(newer)
-    controller.launch()
-    events = [json.loads(line) for line in capsys.readouterr().out.splitlines()]
-    assert [e["type"] for e in events] == ["status", "ready"] and events[-1]["payload_version"] == "test.1"
-    source, message = controller.inbox.get(timeout=5)
-    assert source == "update"
-    controller.checked(*message)
-    updates.stage.assert_called_once_with(newer)
-    assert capsys.readouterr().out == ""
+@pytest.fixture
+def installed(controller, tmp_path, monkeypatch):
+    hub = Mock(base="https://api.github.com/repos/test/code")
+    hub.json.return_value = {"assets": [{"name": "manifest.json", "id": 1}, {"name": "payload.zip", "id": 2}]}
+    updates = Updates(tmp_path, tmp_path, hub)
+    (tmp_path / "libraries").mkdir()
+    (tmp_path / "lock.sha256").write_text("test")
+    manifest = dict(version="1", commit="first", built_at="today", min_bootstrap="1", problem_format="1", lock_sha256="test")
+    old = Installed(updates.root / ("a" * 64), manifest, "then")
+    old.root.mkdir()
+    (old.root / "manifest.json").write_text(json.dumps(manifest))
+    updates.activate(old)
+    monkeypatch.setattr(controller, "updates", lambda: updates)
+    return updates
 
 
-def test_launch_tries_staged_then_falls_back(controller, capsys, monkeypatch, tmp_path):
-    installed = Installed(tmp_path / "a", {"version": "test.1"}, "then")
-    staged = Installed(tmp_path / "b", {"version": "test.2"}, "now")
-    updates = protocol.Updates()
-    updates.current.return_value = installed
-    updates.staged.return_value = staged
-    updates.check.return_value = Result(installed, "更新失败：无法连接 GitHub，请检查网络")
-    started = []
-    def start(_, item):
-        started.append(item)
-        if item is staged:
-            return False
-        controller.item, controller.port = item, 43210
-        return True
+def offer(updates, *, newer=False, minimum="1"):
+    old = updates.current()
+    manifest = old.manifest | {"min_bootstrap": minimum}
+    if newer:
+        manifest.update(version="2", commit="second")
+    remote = manifest | {"payload_sha256": "b" * 64 if newer else old.root.name}
+
+    def open_asset(path, accept):
+        if path == "/releases/assets/1":
+            return io.BytesIO(json.dumps(remote).encode())
+        assert path == "/releases/assets/2" and newer
+        stream = io.BytesIO()
+        with ZipFile(stream, "w") as archive:
+            archive.writestr("manifest.json", json.dumps(manifest))
+            for name in ("server/app/main.py", "judge/python/harness.py", "web/dist/index.html",
+                         "requirements.txt", "problems/", "sql-cache/"):
+                archive.writestr(name, "")
+        stream.headers = {"Content-Length": str(stream.tell())}
+        stream.seek(0)
+        return stream
+    updates.github.open.side_effect = open_asset
+
+
+def test_launch_downloads_before_start(controller, installed, capsys, monkeypatch):
+    offer(installed, newer=True)
+    start = Mock(wraps=controller.start)
     monkeypatch.setattr(controller, "start", start)
-    controller.launch()
+    events, _ = exchange(controller, [], capsys)
+    assert [e["message"] for e in events] == [
+        "正在检查本机凭据…", "正在检查更新…", "正在下载题库…", "下载题库 100%", "准备运行环境…", "正在启动本机服务…", ""]
+    assert events[-1]["type"] == "ready" and events[-1]["payload_version"] == "2"
+    start.assert_called_once_with(installed, controller.item)
+    assert (controller.item.root / "web/dist/index.html").is_file()
+
+
+def test_menu_switches_version_in_same_session(controller, installed, capsys):
+    offer(installed)
+    controller.begin()
+    offer(installed, newer=True)
+    controller.command({"command": "check_update"})
     events = [json.loads(line) for line in capsys.readouterr().out.splitlines()]
-    assert started == [staged, installed]
-    assert events[-1]["type"] == "ready" and events[-1]["payload_version"] == "test.1" and "恢复" in events[-1]["message"]
-    controller.checked(*controller.inbox.get(timeout=5)[1])
-    updates.stage.assert_not_called()
-    event = json.loads(capsys.readouterr().out)
-    assert event["type"] == "status" and event["checked"] and "GitHub" in event["message"]
+    assert [event["payload_version"] for event in events if event["type"] == "ready"] == ["1", "2"]
+    assert events[-2]["message"] == "正在启动本机服务…"
+
+
+def test_download_can_outlast_manifest_deadline(controller, installed, capsys, monkeypatch):
+    from bootstrap import update
+    offer(installed, newer=True)
+    fetch = installed.github.open.side_effect
+    def slow_archive(path, accept):
+        if path.endswith("/2"):
+            time.sleep(.2)
+        return fetch(path, accept)
+    installed.github.open.side_effect = slow_archive
+    monkeypatch.setattr(update, "MANIFEST_TIMEOUT", .1)
+    events, _ = exchange(controller, [], capsys)
+    assert events[-1]["payload_version"] == "2" and events[-1]["message"] == ""
+
+
+def test_launch_current_ignores_obsolete_pointer(controller, installed, capsys):
+    offer(installed)
+    legacy = installed.root / "next.json"
+    legacy.write_text(json.dumps({"digest": "b" * 64, "updated": "then"}))
+    events, _ = exchange(controller, [], capsys)
+    assert [e["message"] for e in events] == ["正在检查本机凭据…", "正在检查更新…", "正在启动本机服务…", ""]
+    assert events[-1]["payload_version"] == "1"
+    installed.github.open.assert_called_once_with("/releases/assets/1", "application/octet-stream")
+    assert not legacy.exists()
+
+
+@pytest.mark.parametrize("error", [URLError("离线"), TimeoutError(), OSError("连接中断"),
+                                   HTTPError("", 503, "", None, None)])
+def test_launch_network_failure_is_silent(controller, installed, capsys, error):
+    installed.github.json.side_effect = error
+    events, _ = exchange(controller, [], capsys)
+    assert events[-1]["type"] == "ready" and events[-1]["payload_version"] == "1"
+    assert events[-1]["message"] == events[-1]["installer"] == ""
+    assert all(e["type"] != "error" for e in events)
+
+
+def test_release_missing_manifest_uses_installed(controller, installed, capsys):
+    installed.github.json.return_value = {"assets": []}
+    events, _ = exchange(controller, [], capsys)
+    assert events[-1]["payload_version"] == "1" and events[-1]["message"] == ""
+    installed.github.open.assert_not_called()
+
+
+def test_manifest_deadline_prevents_late_download(controller, installed, capsys, monkeypatch):
+    from bootstrap import update
+    entered, release, finished = Event(), Event(), Event()
+    offer(installed, newer=True)
+    fetch = installed.github.open.side_effect
+
+    def slow_asset(path, accept):
+        if path.endswith("/1"):
+            entered.set()
+            assert release.wait(5)
+            finished.set()
+        return fetch(path, accept)
+
+    installed.github.open.side_effect = slow_asset
+    monkeypatch.setattr(update, "MANIFEST_TIMEOUT", .1)
+    try:
+        events, _ = exchange(controller, [], capsys)
+        assert entered.is_set() and not finished.is_set()
+        assert events[-1]["payload_version"] == "1" and events[-1]["message"] == ""
+    finally:
+        release.set()
+    assert finished.wait(2)
+    installed.github.open.assert_called_once_with("/releases/assets/1", "application/octet-stream")
+
+
+def test_launch_and_menu_keep_installer_prompt(controller, installed, capsys):
+    offer(installed, newer=True, minimum="99")
+    events, _ = exchange(controller, [{"command": "check_update"}], capsys)
+    ready, _, checked = events[-3:]
+    assert ready["payload_version"] == "1" and checked["checked"]
+    assert ready["message"] == checked["message"] == "请下载新版安装包"
+    assert ready["installer"] == checked["installer"] == "https://github.com/test/code/releases/latest"
+
+
+def test_launch_restores_previous_if_new_service_fails(controller, installed, capsys, monkeypatch):
+    offer(installed, newer=True)
+    previous = installed.current()
+    start = controller.start
+    attempted = []
+    def try_start(updates, item):
+        attempted.append(item.manifest["version"])
+        return item == previous and start(updates, item)
+    monkeypatch.setattr(controller, "start", try_start)
+    events, _ = exchange(controller, [], capsys)
+    assert attempted == ["2", "1"]
+    assert events[-1]["payload_version"] == "1" and "恢复" in events[-1]["message"]

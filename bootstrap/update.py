@@ -7,15 +7,19 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from concurrent.futures import Future
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from http.client import HTTPException
 from pathlib import Path, PurePosixPath
+from threading import Thread
 from urllib.error import HTTPError, URLError
 from zipfile import BadZipFile, ZipFile
 
 from . import VERSION
 from .github import GitHub
+
+MANIFEST_TIMEOUT = 5
 
 
 def version(value: str) -> tuple[int, ...]:
@@ -66,36 +70,25 @@ class Updates:
         self.bundle = bundle
         self.github = github
         self.pointer = self.root / "current.json"
-        self.next = self.root / "next.json"  # 后台下载好、还没启动过的新版本，下次打开先试它
 
-    def _read(self, pointer: Path) -> Installed | None:
-        if not pointer.exists():
+    def current(self) -> Installed | None:
+        if not self.pointer.exists():
             return None
-        state = json.loads(pointer.read_bytes())
+        state = json.loads(self.pointer.read_bytes())
         if not re.fullmatch(r"[0-9a-f]{64}", state["digest"]):
             raise ValueError("本地版本指针无效")
         root = self.root / state["digest"]
         return Installed(root, json.loads((root / "manifest.json").read_bytes()), state["updated"])
 
-    def current(self) -> Installed | None:
-        return self._read(self.pointer)
-
-    def staged(self) -> Installed | None:
-        return self._read(self.next)
-
-    def stage(self, item: Installed) -> None:
-        atomic_json(self.next, {"digest": item.root.name, "updated": item.updated})
-
     def clean(self) -> None:
-        """后台下载或装依赖到一半就退出时（守护线程直接结束）留下的临时目录。只在起服务之前调用。"""
+        """启动时丢弃旧启动器的待切换指针，以及中断下载或安装留下的临时目录。"""
+        (self.root / "next.json").unlink(missing_ok=True)
         for parent in (self.root, self.root / "dependencies"):
             for path in parent.glob("tmp*"):
                 if re.fullmatch(r"tmp[a-z0-9_]{8}", path.name):
                     shutil.rmtree(path, ignore_errors=True)
 
     def activate(self, item: Installed) -> None:
-        # 换到任何版本都作废待试的版本；下面清理旧目录时它也可能被删掉。
-        self.next.unlink(missing_ok=True)
         prior = self.current()
         if prior == item:
             return
@@ -126,13 +119,30 @@ class Updates:
                            env=os.environ | {"TMPDIR": tmp, "TEMP": tmp, "TMP": tmp})
             libraries.rename(target)
 
-    def check(self, progress=lambda message: None) -> Result:
+    def _manifest(self) -> tuple[dict, dict[str, str]]:
+        release = self.github.json("/releases/tags/payload-latest")
+        assets = {a["name"]: f"/releases/assets/{int(a['id'])}" for a in release["assets"]}
+        with self.github.open(assets["manifest.json"], "application/octet-stream") as response:
+            return json.load(response), assets
+
+    def _launch_manifest(self) -> tuple[dict, dict[str, str]]:
+        # 两次请求、DNS 和重定向共用一个等待上限。即使迟到，这个线程也只读取清单。
+        pending = Future()
+
+        def read() -> None:
+            try:
+                pending.set_result(self._manifest())
+            except Exception as exc:
+                pending.set_exception(exc)
+
+        Thread(target=read, daemon=True).start()
+        return pending.result(timeout=MANIFEST_TIMEOUT)
+
+    def check(self, progress=lambda message: None, *, on_launch: bool = False) -> Result:
         old = self.current()
+        installing = False
         try:
-            release = self.github.json("/releases/tags/payload-latest")
-            assets = {a["name"]: f"/releases/assets/{int(a['id'])}" for a in release["assets"]}
-            with self.github.open(assets["manifest.json"], "application/octet-stream") as response:
-                manifest = json.load(response)
+            manifest, assets = self._launch_manifest() if on_launch else self._manifest()
             # payload_sha256 只当这个更新包的 ID 和目录名用，下载后不再对 zip 算哈希核对。
             checksum = manifest.pop("payload_sha256")
             if not all(isinstance(manifest.get(k), str) and manifest[k] for k in
@@ -145,16 +155,18 @@ class Updates:
                 return Result(old)
             final = self.root / checksum
             if final.is_dir():
-                # 之前已下载解压并准备好依赖（例如后台下载后等待下次启动），不再重复下载。
+                # 清单命中已准备好的本地目录，可直接尝试启动。
                 return Result(Installed(final, manifest, datetime.now(timezone.utc).isoformat(timespec="seconds")))
+            archive_path = assets["payload.zip"]
+            installing = True
             with tempfile.TemporaryDirectory(dir=self.root) as temporary:
                 stage = Path(temporary) / "payload"
                 archive = Path(temporary) / "payload.zip"
-                with self.github.open(assets["payload.zip"], "application/octet-stream") as source, archive.open("wb") as output:
+                progress("正在下载题库…")
+                with self.github.open(archive_path, "application/octet-stream") as source, archive.open("wb") as output:
                     size = int(getattr(source, "headers", {}).get("Content-Length", 0))
                     received = 0
                     last = -1
-                    progress("正在下载题库…")
                     while chunk := source.read(1024 * 1024):
                         output.write(chunk)
                         received += len(chunk)
@@ -179,8 +191,11 @@ class Updates:
             active = Installed(final, manifest, datetime.now(timezone.utc).isoformat(timespec="seconds"))
             return Result(active)
         except HTTPError as exc:
-            return Result(old, f"无法读取更新（HTTP {exc.code}），请稍后重试")
-        except URLError:
-            return Result(old, "更新失败：无法连接 GitHub，请检查网络")
-        except (OSError, HTTPException, ValueError, KeyError, TypeError, BadZipFile, subprocess.SubprocessError):
-            return Result(old, "更新包校验或安装失败，请检查下载内容和本机磁盘空间")
+            message = f"无法读取更新（HTTP {exc.code}），请稍后重试"
+        except (URLError, TimeoutError, ConnectionError, HTTPException):
+            message = "更新失败：无法连接 GitHub，请检查网络"
+        except (OSError, ValueError, KeyError, TypeError, BadZipFile, subprocess.SubprocessError):
+            if installing:
+                return Result(old, "更新包校验或安装失败，请检查下载内容和本机磁盘空间")
+            message = "无法读取更新清单，请稍后重试"
+        return Result(old, "" if on_launch and old else message)

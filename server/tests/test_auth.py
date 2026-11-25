@@ -135,18 +135,35 @@ def test_password_sources_and_startup(tmp_path, encoded, monkeypatch):
 
 def test_static_files_and_spa(tmp_path):
     (tmp_path / "index.html").write_text("学习地图", encoding="utf-8")
-    (tmp_path / "assets").mkdir()
-    (tmp_path / "assets/app.js").write_text("window.dojo = true", encoding="utf-8")
+    immutable = "public, max-age=31536000, immutable"
+    static = {"assets/app.js": "no-cache", "assets/app-D_x2Wm-g.js": immutable,
+              "assets/font-DF1abBS2.woff2": immutable, "fonts/regular.woff2": "no-cache",
+              "code-dojo.svg": "no-cache", "licenses/NOTICE.txt": "no-cache"}
+    for name in static:
+        file = tmp_path / name
+        file.parent.mkdir(exist_ok=True)
+        file.write_text(name, encoding="utf-8")
     app = FastAPI()
     app.mount("/", Frontend(tmp_path))
     client = TestClient(app)
-    for path in ("/", "/login", "/p/deep-link", "/t/python/skills"):
-        assert client.get(path).text == "学习地图"
-        assert client.head(path).status_code == 200
-    assert client.get("/assets/app.js").text == "window.dojo = true"
+    for name in ("", "index.html", "login", "p/deep-link", "t/python/skills", *static):
+        path = "/" + name
+        response = client.get(path)
+        assert response.text == (name if name in static else "学习地图")
+        head = client.head(path)
+        assert response.status_code == head.status_code == 200
+        cached = client.get(path, headers={"If-None-Match": response.headers["etag"]})
+        assert cached.status_code == 304 and not cached.content
+        for reply in (response, head, cached):
+            assert reply.headers["cache-control"] == static.get(name, "no-cache")
     for path in ("/assets/absent", "/absent.js", "/api/unknown", "/api"):
         assert client.get(path).status_code == 404
     assert client.post("/login").status_code == 405
+    old_entry = client.head("/").headers["etag"]
+    (tmp_path / "index.html").write_text("新版学习地图", encoding="utf-8")
+    refreshed = client.get("/p/deep-link", headers={"If-None-Match": old_entry})
+    assert refreshed.status_code == 200 and refreshed.text == "新版学习地图"
+    assert refreshed.headers["etag"] != old_entry and refreshed.headers["cache-control"] == "no-cache"
 
 
 def test_subscription_token_reaches_only_claude(tmp_path, monkeypatch):

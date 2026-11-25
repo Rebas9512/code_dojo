@@ -192,3 +192,7 @@
 - ✓ 68-memory-review：只做题时每台机器每天最多一次低 effort 后台回顾（只维护 progress），附加题参考目标技能的最新观察。主控复跑后端 427、前端构建。
 - 主控真实冒烟（各一次）：Claude 4.3 s、Codex 5.8 s 都接受带 memory 的聊天 schema 并自己记下"卡住时一次只给一步"；后台回顾 Claude 3.5 s 返回一条 progress。Claude 起初把描述和正文写成英文、用"him"指学生 → 指引加"description 和 body 用中文，称学习者一律写「学生」、不用他或她"。
 - ✓ 1.3.1 发布（2026-11-24）：release-app 手动试跑两次，修了两处冒烟测试问题（拦下外链后 Playwright 一直等导航；点"完成"关窗时报页面已关闭），之后打标签三系统全过。Release 只留 1.3.1，删了 app-v1.3.0；issue #1–#6 按用户要求全部关闭。
+
+## 打开即最新（用户 2026-11-25："不然就做成打开的时候如果有更新就显式读条更新 加载完以后刷新那种 确保同步打开的时候都是最新的设计"）
+- 起因：用户本机两天没开，打开看到 11-23 的 v25（新版后台下好、下次才生效）；重开后后端已是 v63，界面仍旧——index.html 没有 Cache-Control，Chromium 启发式缓存约 5 小时，固定端口同一地址。主控手动清了用户的 chromium/Cache、Code Cache。
+- ✓ 69-update-on-launch：打开时先查 payload-latest（5 秒内没回应就用本机版本），有新版显示进度、下好直接用；去掉后台下载和 next.json；index.html 和其他固定名文件 no-cache、带哈希的 assets 一年 immutable；版本变了先 clearCache 再载入。主控复跑启动器 36、后端 427、协议冒烟 update / stall。无新版时打开多约 0.5 秒（假 GitHub 每请求 0.25 秒）。发 1.3.2。

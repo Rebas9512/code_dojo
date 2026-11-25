@@ -14,8 +14,8 @@
 code-dojo/
 ├── README.md             仓库首页：英文展示页（下载即用说明、功能和截图），开发文档是本文件
 ├── dojo.py、dojo、dojo.ps1  本机启动、环境诊断和旧记录导入
-├── desktop/              Electron 主进程、受限 preload、本地启动页与打包配置
-├── bootstrap/            JSONL 控制协议、令牌、更新包下载与切换、助教命令探测与本机服务启动
+├── desktop/              Electron 主进程、按题库版本管理网页缓存、受限 preload、本地启动页与打包配置
+├── bootstrap/            JSONL 控制协议、令牌、启动前检查和安装更新、助教命令探测与本机服务启动
 ├── .github/workflows/    测试（推送跑 Linux，手动触发跑三系统）、更新包发布、桌面安装包发布
 ├── docs/
 │   ├── README.md         本文件
@@ -56,7 +56,11 @@ Electron 同时载入启动页和运行 `python -m bootstrap serve --protocol js
 
 启动器从 `CODE_DOJO_REPO`（默认 `Rebas9512/code_dojo`）的 `payload-latest` Release 获取清单。更新包包含 FastAPI 代码及其预编译字节码、网页、固定题库、判题程序、技能识别规则和预先计算的 SQL 期望表。清单记录版本、提交 SHA、生成时间、最低启动器版本、题库格式版本和依赖锁 SHA-256。外部清单还记录整个 zip 的 SHA-256，它只用作这个更新包的 ID 和目录名，下载后不再计算哈希核对；依赖锁 SHA-256 同样只用作依赖目录名和与安装包的比较。
 
-下载和解压均在用户数据目录的 `desktop/` 下完成。更新包的依赖锁和安装包的 `lock.sha256` 一致时，后端直接使用安装包里的 `libraries`，不复制。锁不一致时，内置 pip 按带哈希的运行时依赖清单安装到 `desktop/dependencies/<锁哈希>`；这时若又离线，旧更新包会缺依赖，联网更新一次即可。`.gitattributes` 让 `server/uv.lock` 在 Windows 检出时不转成 CRLF，否则两边的锁哈希对不上。已装过更新包时，启动器直接用 `current.json` 指向的版本起服务，同时在后台查更新，网络往返不挡启动。后台下载好的新版本记在 `desktop/next.json`，下次打开时先试它，起来了才原子替换 `current.json` 并保留上一个版本，起不来就回到原版本并提示。菜单里的“检查更新”仍是当场下载并换上新版本。断网、下载不完整或安装失败时仍可用原版本练习，后台查更新失败或启动器过旧时窗口弹出提示，后者附新版安装包链接。第一次使用需要联网下载题库，这次在启动页显示下载进度。
+每次打开，启动页先显示“正在检查更新…”。查询 Release 和读取清单合计最多等待约 5 秒。已是最新版就启动本机服务，有新版就显示下载百分比和“准备运行环境…”，随即用新版启动。首次使用需要联网。已有题库时，网络出错或检查超时会直接打开本机版本。若清单要求更高的启动器版本，窗口会提示“请下载新版安装包”并提供下载链接。菜单里的“检查更新”也会当场下载、切换并重新载入网页。
+
+下载和解压均在用户数据目录的 `desktop/` 下完成。更新包的依赖锁和安装包的 `lock.sha256` 一致时，后端直接使用安装包里的 `libraries`，不复制。锁不一致时，内置 pip 按带哈希的运行时依赖清单安装到 `desktop/dependencies/<锁哈希>`；这时若又离线，旧更新包会缺依赖，联网更新一次即可。`.gitattributes` 让 `server/uv.lock` 在 Windows 检出时不转成 CRLF，否则两边的锁哈希对不上。新版服务就绪后，启动器才原子替换 `desktop/current.json`，并保留上一版。新版服务起不来时，启动器会恢复原版本并提示。
+
+收到 `ready` 时，Electron 会把 `payload_version` 与本机 `desktop/loaded-payload-version` 中上次成功载入的版本比较。记录缺失或版本不同，就先清除 Chromium 的 HTTP 缓存，再加载网页。草稿和布局偏好保存在 Local Storage。桌面后端为 `index.html`、首页、前端路由的入口页和固定名称的静态文件发送 `Cache-Control: no-cache`，浏览器每次可用 ETag 确认是否有更新。`/assets/` 下文件名带构建哈希的资源发送 `Cache-Control: public, max-age=31536000, immutable`，可缓存一年。
 
 本机服务绑定 `127.0.0.1`，优先复用上次端口。启动器发出 `ready` 后，主窗口载入该端口的学习地图，原题等外链交给系统浏览器。网页运行在隔离的渲染进程中，通过 preload 提供的有限接口使用桌面功能。顶栏“桌面”提供设置和版本信息，开启同步后还可立即同步，原生菜单另有检查更新和退出。状态栏在本机模式显示“本机保存”。打开“桌面 → 设置”（Ctrl+,，macOS 为 Cmd+,）可以查看助教状态，也可输入同步码解开随包的 `sealed-tokens.json`。设置窗口右上角的“完成”和 Esc 都可返回练习。macOS 设置窗口带系统标题栏，可以在设置打开时按 Cmd+Q 退出。Windows 和 Linux 使用模态设置窗口。开启同步后，令牌优先存入钥匙串，首次交换会带上本机积累的事件。确认关闭同步会清除钥匙串和备用文件中的凭据，保留做题记录和待推送事件。开启和关闭都直接用当前题库重启服务。再次启动会聚焦原窗口。已开启同步时，关闭主窗口或退出应用会先推送进度，最多等待 10 秒。记录使用与 `dojo` 相同的数据目录和事件格式。进度仓库由 `CODE_DOJO_SYNC_REPO` 指定，默认 `Rebas9512/code_dojo_sync`。有 Git 时使用 Git，没有 Git 时通过 GitHub Contents API 同步 main 上每台机器自己的月度 JSONL。同步失败的事件保留在本机。
 
@@ -117,7 +121,7 @@ cd web && npm run build                                # 类型检查 + 打包
 - `server/app/github_sync.py` 通过 Contents API 读写与 Git 后端兼容的 JSONL。`desktop_sql.py` 将动态 SQL 验证交给网页，网页与 Node 共用 `web/src/sql/validate.ts`。
 - `server/app/ai/memory.py` 定义笔记格式，组织聊天上下文与后台回顾摘要。`main.py` 在进入地图和正式交卷时检查回顾条件。`db.py` 领取本机事件批次，用 `sync_versions` 核对笔记写入条件，把笔记与聊天答复或回顾游标一并提交。
 - `server/app/events.py` 给学习记录分配跨机器标识、导出按月分隔的 JSONL。写记录和登记待导出的事件共用一个 SQLite 事务。`sync.py` 管理独立 Git 克隆、重试和定时同步。`GET /api/sync` 返回状态，`POST /api/sync` 立即交换进度，外部页面顶栏和做题页状态栏共用 `web/src/components/SyncStatus.tsx`。
-- `server/app/auth.py` 管理密码校验、登录限流和签名会话，`server/scripts/set_password.py` 交互设密。`web/src/pages/LoginPage.tsx` 提供登录页，`web/src/api.ts` 统一处理 401。`server/app/frontend.py` 托管静态文件并支持直接打开前端路由。
+- `server/app/auth.py` 管理密码校验、登录限流和签名会话，`server/scripts/set_password.py` 交互设密。`web/src/pages/LoginPage.tsx` 提供登录页，`web/src/api.ts` 统一处理 401。`server/app/frontend.py` 为前端路由返回入口页，并按资源名设置 HTTP 缓存头。
 - `server/app/projects.py` 载入项目与骨架，拼装脚本和 notebook；`project_run.py` 处理 Python 整跑日志、指标和 SQL 项目检查。`web/src/pages/ProjectPage.tsx` 提供项目页。
 - 首页的 `pages/MapPage.tsx` 用 `pages/mapTree.ts` 组装学习线树，样式在 `pages/map.css`。`server/app/units.py` 按本阶段技能分组归题，供地图和题目列表共用。
 - `server/app/mastery.py` 根据正式提交和复习日程计算技能状态、下一题、卡住提示和周统计。`main.learning()` 按题库版本、数据库写入次数（`Store.version`）和日期缓存这份进度，没有新提交时各接口直接复用。`db.py` 以 SQLite 事务保存提交与复习日程，并记录提示、题解和每日上限。启动时升级旧表，首次读取学习进度时按历史通过日期补排到期日。

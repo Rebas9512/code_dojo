@@ -1,4 +1,4 @@
-"""Electron 与启动器的逐行 JSON 协议。只有主线程操作子进程或写事件；后台查更新的结果经收件箱交回主线程。"""
+"""Electron 与启动器的逐行 JSON 协议。只有主线程操作子进程或写事件。"""
 
 import json
 import math
@@ -50,7 +50,6 @@ class Controller:
         self.api = os.environ.get("CODE_DOJO_GITHUB_API", "https://api.github.com")
         self.attempts = UnlockAttempts(data)
         self.inbox = queue.Queue()
-        self.checking = threading.Lock()  # 后台和手动查更新不同时下载
         self.child = None
         self.agents = {}
         self.values = {}
@@ -144,36 +143,7 @@ class Controller:
         return Updates(self.data, self.bundle, GitHub(self.repo, self.values.get("code", ""), self.api))
 
     def launch(self):
-        """装过更新包时直接用它起服务，同时在后台查更新（网络往返不挡启动）。新版本下载好后下次打开生效。"""
-        updates = self.updates()
-        updates.clean()
-        current = updates.current()
-        if not current:
-            self.update()
-            return
-        self.status("正在启动本机服务…")
-        staged = updates.staged()
-        detail = ""
-        if staged and not self.start(updates, staged):
-            detail = "新版服务启动失败，已恢复上一版本"
-            staged = None
-        if not staged and not self.start(updates, current):
-            self.send("error", message="本机服务启动失败，请重试")
-            return
-        self.ready(detail)
-        threading.Thread(target=self.check_later, args=(updates,), daemon=True).start()
-
-    def check_later(self, updates):
-        with self.checking:
-            result = updates.check()
-        self.inbox.put(("update", (updates, result)))
-
-    def checked(self, updates, result):
-        # 手动更新清理旧目录时，后台刚下载完的目录可能已被删掉，那就不记。
-        if result.active and result.active.root != self.item.root and result.active.root.is_dir():
-            updates.stage(result.active)
-        if result.message or result.installer:
-            self.send("status", message=result.message, installer=result.installer, checked=True)
+        self.update(on_launch=True)
 
     def ready(self, message="", installer=""):
         enabled = os.environ.get("CODE_DOJO_AI_PROVIDER") != "off" and any(a["path"] for a in self.agents.values())
@@ -181,12 +151,13 @@ class Controller:
                   ai=enabled, agents=self.agents, sync=bool(self.sync_token), message=message, installer=installer)
         self.write("status")
 
-    def update(self):
+    def update(self, *, on_launch=False):
         self.status("正在检查更新…")
         updates = self.updates()
+        if on_launch:
+            updates.clean()
         previous = updates.current()
-        with self.checking:
-            result = updates.check(self.status)
+        result = updates.check(self.status, on_launch=on_launch)
         detail = result.message
         if not result.active:
             self.send("error", message=detail or "尚未安装题库", installer=result.installer)
@@ -270,8 +241,6 @@ class Controller:
                     if msg is None or msg.get("command") == "quit":
                         break
                     self.command(msg)
-                elif source == "update":
-                    self.checked(*msg)
                 elif source is self.child:
                     if msg is None:
                         self.stop()
