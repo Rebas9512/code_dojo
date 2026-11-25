@@ -223,6 +223,9 @@ async function main() {
       win.setBounds({ x: area.x, y: area.y, width: Math.min(1200, area.width), height: Math.min(760, area.height) })
       return win.getNormalBounds()
     })
+    // 应用拦下的外链跳转在 Playwright 看来一直没结束，再点页面会一直等；先回首页。
+    await page.goto(origin + '/')
+    await page.getByRole('tab').first().waitFor()
     const settingsAtQuit = await openSettings(app, page)
     await settingsAtQuit.getByText('已开启进度同步').waitFor()
     const appProcess = app.process()
