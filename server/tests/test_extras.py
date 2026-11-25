@@ -105,6 +105,9 @@ def test_failed_extra_is_reported(fresh, fake_agents):
 
 
 def test_tutor_can_make_and_delete_extras(fresh, fake_agents):
+    progress = dict(type="progress", scope="py.function-return", as_of="2026-11-24", description="核对返回值",
+                    body="下次让学生先预测函数返回的数字。")
+
     def respond(system, prompt):
         if "出题助手" in system:
             return spec()
@@ -113,7 +116,7 @@ def test_tutor_can_make_and_delete_extras(fresh, fake_agents):
             return {"reply": "删掉了附加题 1", "edits": [], "make_extra": "", "delete_extras": [1]}
         if "再来" in said:
             return {"reply": "正在出一道附加题，好了会出现在左边", "edits": [], "make_extra": "同样的套路换成乘法",
-                    "delete_extras": []}
+                    "delete_extras": [], "memory": [{"name": "predict-return", "note": progress}]}
         return {"reply": "先想想乘法怎么写", "edits": [], "make_extra": "", "delete_extras": []}
 
     fake = FakeProvider(respond)
@@ -121,6 +124,8 @@ def test_tutor_can_make_and_delete_extras(fresh, fake_agents):
     r = fresh.post("/api/problems/py-0a-001-add/chat", json={"message": "再来一道类似的", "code": ""}).json()
     assert r["new_extra"]["seq"] == 1 and r["deleted_extras"] == []
     ready = wait_ready(fresh, "py-0a-001-add", 1)
+    generated, = [c for c in fake.calls if "出题助手" in c["system"]]
+    assert progress["body"] in generated["prompt"]
     # 在附加题上和助教聊：助教知道学生在看哪一道
     fresh.post("/api/problems/py-0a-001-add/chat", json={"message": "这题怎么想", "code": "", "current": ready["id"]})
     tutor_prompts = [c["prompt"] for c in fake.calls if "教学助手" in c["system"]]
@@ -153,3 +158,30 @@ def test_algo_extra_uses_python_and_cross_track_skills(fresh, fake_agents):
     detail = fresh.get(f"/api/problems/{ready['id']}").json()
     assert detail["track"] == "algo" and detail["language"] == "python"
     assert "函数与返回值" in fake.calls[0]["prompt"]
+
+
+def test_requested_extra_reads_one_matching_progress_body(fresh, fake_agents):
+    from app import main
+    pid = "data-0-001-book-key"
+    kinds = [
+        ("old", "progress", "data.column-key", "2026-11-18"), ("recent", "progress", "data.column-key", "2026-11-24"),
+        ("prereq", "progress", "py.var-arith", "2026-11-24"), ("track", "progress", "data", "2026-11-25"),
+        ("feedback", "feedback", "data.column-key", "2026-11-25"), ("deleted", "progress", "data.column-key", "2026-11-25"),
+    ]
+    for name, kind, scope, day in kinds:
+        main.store.add_chat(pid, "assistant", "好。", snapshot=main.store.memory_snapshot(), memory=[{
+            "name": name, "note": dict(type=kind, description="不传摘要", scope=scope, as_of=day, body=name + "的正文")}])
+    main.store.add_chat(pid, "assistant", "好。", snapshot=main.store.memory_snapshot(), memory=[{"name": "deleted", "note": None}])
+    spec = dict(mode="inspect", title="找货号", statement="读第一列。", explain="货号在第一列。",
+                data=[dict(kind="csv", content="sku\nA1")], answer=dict(type="short", accept=["A1"]))
+    fake = FakeProvider([spec] * 4)
+    fake_agents(codex=fake)
+    for seq, (request, match) in enumerate([({}, "recent"), ({"practice_skill": "py.var-arith"}, "prereq"),
+                                            ({"practice_skill": "py.function-return"}, None), ({}, None)], 1):
+        if seq == 4:
+            main.store.set_memory_enabled(False)
+        fresh.post(f"/api/problems/{pid}/extras", json=request).raise_for_status()
+        assert wait_ready(fresh, pid, seq)["status"] == "ready"
+        prompt = fake.calls[seq - 1]["prompt"]
+        assert [name for name, *_ in kinds if name + "的正文" in prompt] == ([match] if match else [])
+        assert "不传摘要" not in prompt and "完整索引" not in prompt

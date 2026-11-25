@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from . import events
+from .ai.memory import BODY_LIMIT, DESCRIPTION_LIMIT, NAME_LIMIT, MemorySnapshot, ReviewBatch, ReviewEvidence
 from .mastery import independent, local_day, schedule
 from .result_preview import compact_result, syntax_error
 
@@ -53,6 +54,10 @@ CREATE TABLE IF NOT EXISTS reviews (
     last_reviewed TEXT
 );
 CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS memory_notes (
+    name TEXT PRIMARY KEY, type TEXT, description TEXT, scope TEXT, as_of TEXT, body TEXT,
+    deleted INTEGER NOT NULL DEFAULT 0
+);
 CREATE TABLE IF NOT EXISTS study_help (
     problem_id TEXT NOT NULL,
     attempt TEXT NOT NULL,
@@ -133,6 +138,8 @@ class Store:
                 self._conn.execute("BEGIN IMMEDIATE")
                 self.journal = events.Journal(self._conn, path.parent)
                 self.journal.install_triggers()
+                if not self._conn.execute("SELECT 1 FROM sync_meta WHERE key='memory_review_cursor'").fetchone():
+                    self._reset_review_cursor()
             self._flush_locked(recover=True)
         self.path = path
         self._reviews_ready = False
@@ -164,7 +171,11 @@ class Store:
             self._conn.execute("BEGIN IMMEDIATE")
             ordered = sorted(records, key=lambda e: (e["type"] != "extra_problems", e["timestamp"], e["id"]))
             self.version += 1
-            return sum(self.journal.apply(e) for e in ordered)
+            setting = self._memory_setting()
+            count = sum(self.journal.apply(e) for e in ordered)
+            if self._memory_setting() != setting:
+                self._reset_review_cursor()
+            return count
 
     def import_legacy(self, directory: Path) -> int:
         source = (directory / "code_dojo.db").resolve()
@@ -182,8 +193,11 @@ class Store:
                     self._conn.execute("BEGIN IMMEDIATE")
                     if events.meta(self._conn, marker):
                         return 0
+                    setting = self._memory_setting()
                     count = sum(self.journal.apply(e, local=True)
                                 for e in events.legacy_events(snapshot, self.journal.machine))
+                    if self._memory_setting() != setting:
+                        self._reset_review_cursor()
                     events.set_meta(self._conn, marker, "1")
                     self.version += 1
                     # 让旧库里只有通过提交的题也能按历史日期补排。已有日程由事件保留。
@@ -422,6 +436,157 @@ class Store:
 
     # ---------- AI 对话 ----------
 
+    def _memory_setting(self) -> tuple[bool, str | None]:
+        row = self._conn.execute(
+            "SELECT value,event_id FROM settings LEFT JOIN sync_versions "
+            "ON type='settings' AND entity=json_array(key) WHERE key='memory_enabled'"
+        ).fetchone()
+        return (bool(row["value"]), row["event_id"]) if row else (True, None)
+
+    def memory_enabled(self) -> bool:
+        with self._lock:
+            return self._memory_setting()[0]
+
+    def set_memory_enabled(self, enabled: bool) -> None:
+        with self._write():
+            if self._memory_setting()[0] != enabled:
+                self._conn.execute("INSERT OR REPLACE INTO settings VALUES ('memory_enabled', ?)", (enabled,))
+                self._reset_review_cursor()
+
+    def _memory_snapshot(self, setting_version: str | None) -> MemorySnapshot:
+        rows = self._conn.execute(
+            "SELECT n.*,v.event_id FROM memory_notes n JOIN sync_versions v "
+            "ON v.type='memory_notes' AND v.entity=json_array(n.name)"
+        )
+        notes, versions = [], {}
+        for row in rows:
+            versions[row["name"]] = row["event_id"]
+            if not row["deleted"]:
+                notes.append(dict(row))
+        return MemorySnapshot(notes, versions, setting_version, self._clear_generation())
+
+    def memory_snapshot(self) -> MemorySnapshot | None:
+        with self._lock, self._conn:
+            self._conn.execute("BEGIN")
+            enabled, version = self._memory_setting()
+            return self._memory_snapshot(version) if enabled else None
+
+    def latest_progress_body(self, skills: set[str]) -> str | None:
+        slots = ",".join("?" for _ in skills)
+        with self._lock:
+            row = self._conn.execute(
+                f"SELECT body FROM memory_notes WHERE deleted=0 AND type='progress' AND scope IN ({slots}) "
+                "AND COALESCE((SELECT value FROM settings WHERE key='memory_enabled'),1) "
+                "ORDER BY as_of DESC,name LIMIT 1", tuple(skills)).fetchone()
+            return row[0] if row else None
+
+    def _delete_memory(self, name: str | None = None) -> None:
+        sql = "UPDATE memory_notes SET deleted=1,type=NULL,description=NULL,scope=NULL,as_of=NULL,body=NULL WHERE deleted=0"
+        if name is None:
+            self._conn.execute(sql)
+        else:
+            self._conn.execute(sql + " AND name=?", (name,))
+
+    def _clear_generation(self) -> int:
+        return int(events.meta(self._conn, "memory_clear_generation", "0"))
+
+    def clear_memory(self) -> None:
+        with self._write():
+            self._delete_memory()
+            self._reset_review_cursor()
+            events.set_meta(self._conn, "memory_clear_generation", str(self._clear_generation() + 1))
+
+    def _apply_memory(self, snapshot: MemorySnapshot, operations: list[dict], *, review_day: str = "") -> bool:
+        if self._clear_generation() != snapshot.clear_generation or self._memory_setting() != (True, snapshot.setting_version):
+            return False
+        # 同一答复的操作依次执行。本事务的事件在 finish_capture 时才登记。
+        for op in operations:
+            name, note = op["name"], op["note"]
+            if len(name) > NAME_LIMIT or (note is not None and (
+                len(note["description"]) > DESCRIPTION_LIMIT or len(note["body"]) > BODY_LIMIT
+            )):
+                continue
+            row = self._conn.execute("SELECT v.event_id,n.type,n.as_of FROM sync_versions v JOIN memory_notes n "
+                                     "ON n.name=? WHERE v.type='memory_notes' AND v.entity=?",
+                                     (name, events.encode([name]))).fetchone()
+            if (row["event_id"] if row else None) != snapshot.versions.get(name):
+                continue
+            if review_day:
+                if note is not None and note["type"] != "progress":
+                    continue
+                evidence_day = min(review_day, note["as_of"]) if note else review_day
+                if row and row["type"] and (row["type"] != "progress" or row["as_of"] > evidence_day):
+                    continue
+            if note is None:
+                self._delete_memory(name)
+            else:
+                self._conn.execute(
+                    "INSERT OR REPLACE INTO memory_notes(name,type,description,scope,as_of,body) VALUES (?,?,?,?,?,?)",
+                    (name, note["type"], " ".join(note["description"].splitlines()), note["scope"], note["as_of"], note["body"]),
+                )
+        return True
+
+    def _reset_review_cursor(self) -> None:
+        tail = self._conn.execute("SELECT MAX(timestamp) FROM sync_events WHERE machine=?",
+                                  (self.journal.machine,)).fetchone()[0]
+        events.set_meta(self._conn, "memory_review_cursor", tail or "")
+
+    def _review_evidence(self, event: sqlite3.Row) -> ReviewEvidence:
+        row = json.loads(event["payload"])["row"]
+        pid = self.journal.ref(row["problem_id"], importing=True)
+        skills = None
+        if pid.startswith("x-"):
+            pid, practice, refs = self._conn.execute(
+                "SELECT parent_id,COALESCE(json_extract(spec_json,'$.practice_skill'), practice_skill),"
+                "json_extract(spec_json,'$.review_skills') FROM extra_problems WHERE id=?",
+                (pid[2:],)).fetchone()
+            if practice:
+                skills = [practice]
+            elif refs:
+                refs = json.loads(refs)
+                skills = ([refs["introduces"]] if refs["introduces"] else []) + refs["requires"]
+
+        flags = []
+        if row.get("hints_used") or row.get("author_hints") or row.get("ai_hints"):
+            flags.append("提示")
+        if row.get("ai_lines"):
+            flags.append("AI改码")
+        if row["solution_seen"]:
+            flags.append("题解")
+        if event["type"] == "submissions":
+            result = json.loads(row["result_json"])
+            outcome = " ".join([row["verdict"], *(flags or ["独立"])])
+            if mistake := result.get("misconception"):
+                outcome += " " + mistake["id"]
+        else:
+            outcome = "求助 " + " ".join(flags)
+        day = local_day(row.get("created_at") or event["timestamp"])
+        return ReviewEvidence(pid, day.isoformat(), outcome, row.get("track", ""), skills)
+
+    def claim_memory_review(self, day: str, *, after_submit: bool) -> ReviewBatch | None:
+        with self._lock, self._conn:
+            self._conn.execute("BEGIN IMMEDIATE")
+            enabled, version = self._memory_setting()
+            if not enabled or events.meta(self._conn, "memory_review_day") >= day:
+                return None
+            # 历史库导入的 UUIDv5 也挂在本机名下。回顾只取本机正常采集的事件。
+            where = "FROM sync_events WHERE machine=? AND timestamp>? AND substr(id,15,1)!='5' AND "
+            params = (self.journal.machine, events.meta(self._conn, "memory_review_cursor"))
+            formal = "(type='submissions' AND json_extract(payload,'$.row.kind') IN ('submit','review'))"
+            if after_submit and not self._conn.execute("SELECT 1 " + where + formal + " LIMIT 1 OFFSET 3", params).fetchone():
+                return None
+            rows = self._conn.execute("SELECT timestamp,type,payload " + where + "(type='study_help' OR " + formal +
+                                      ") ORDER BY timestamp LIMIT 24", params).fetchall()
+            if not rows:
+                return None
+            events.set_meta(self._conn, "memory_review_day", day)
+            return ReviewBatch(self._memory_snapshot(version), [self._review_evidence(r) for r in rows], rows[-1]["timestamp"])
+
+    def finish_memory_review(self, batch: ReviewBatch, operations: list[dict]) -> None:
+        with self._write():
+            if self._apply_memory(batch.snapshot, operations, review_day=max(e.day for e in batch.evidence)):
+                events.set_meta(self._conn, "memory_review_cursor", batch.through)
+
     @staticmethod
     def _chat_row(r: sqlite3.Row) -> dict[str, Any]:
         edits = json.loads(r["edit_json"]) if r["edit_json"] else []
@@ -446,6 +611,7 @@ class Store:
     def add_chat(
         self, problem_id: str, role: str, content: str, edits: list[dict[str, Any]] | None = None,
         notes: list[str] | None = None, *, agent: str | None = None,
+        snapshot: MemorySnapshot | None = None, memory: list[dict] | None = None,
     ) -> dict[str, Any]:
         metadata = {"agent": agent, "notes": notes or []} if agent else notes
         with self._write():
@@ -460,6 +626,8 @@ class Store:
                 ),
             )
             row = self._conn.execute("SELECT * FROM chat_messages WHERE id = ?", (cur.lastrowid,)).fetchone()
+            if snapshot is not None and memory:
+                self._apply_memory(snapshot, memory)
         return self._chat_row(row)
 
     def chat(self, problem_id: str) -> list[dict[str, Any]]:

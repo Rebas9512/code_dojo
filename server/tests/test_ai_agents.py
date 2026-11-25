@@ -17,8 +17,9 @@ from app.ai.provider import AIError, CodexProvider, FakeProvider
 from app.db import Store
 
 
-@pytest.mark.parametrize("schema", [tutor.SCHEMA, extra.INSPECT_SCHEMA, extra.SqlExtra.model_json_schema(), extra.SCHEMA],
-                         ids=["tutor", "inspect", "sql", "python"])
+@pytest.mark.parametrize("schema", [tutor.SCHEMA, tutor.SCHEMA_WITH_MEMORY, extra.INSPECT_SCHEMA,
+                                   extra.SqlExtra.model_json_schema(), extra.SCHEMA],
+                         ids=["tutor", "tutor-memory", "inspect", "sql", "python"])
 def test_strict_schemas(schema):
     def check(node):
         assert not ({"default", "format", "pattern", "oneOf", "const"} & node.keys())
@@ -48,6 +49,24 @@ def test_strict_tutor_edit_target():
     item = strict_schema(tutor.SCHEMA)["properties"]["edits"]["items"]
     assert item["properties"]["target"] == {"type": "string", "enum": ["answer", "scratch"]}
     assert "target" in item["required"]
+
+
+def test_tutor_memory_wire_formats():
+    schema = tutor.SCHEMA_WITH_MEMORY
+    assert "memory" not in tutor.SCHEMA["properties"]
+    assert schema["required"] == [*tutor.SCHEMA["required"], "memory"]
+    ops = schema["properties"]["memory"]
+    assert strict_schema(schema)["properties"]["memory"] == ops
+    assert ops["maxItems"] == 2 and ops["items"]["required"] == ["name", "note"]
+    note, null = ops["items"]["properties"]["note"]["anyOf"]
+    assert null == {"type": "null"} and note["additionalProperties"] is False
+    assert note["required"] == ["type", "description", "scope", "as_of", "body"]
+    assert note["properties"]["type"]["enum"] == ["learner", "feedback", "progress"]
+    assert note["properties"]["scope"] == {"anyOf": [{"type": "string"}, {"type": "null"}]}
+    fields = {"type": "feedback", "description": "偏好", "scope": None, "as_of": "2026-11-24", "body": "先演示"}
+    for operations in ([], [{"name": "demo", "note": fields}, {"name": "old", "note": None}]):
+        reply = {"reply": "好", "edits": [], "make_extra": "", "delete_extras": [], "memory": operations}
+        assert restore_result(reply, schema) == reply
 
 
 def test_restore_sql_and_inspect_results():

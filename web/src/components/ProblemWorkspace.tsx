@@ -29,6 +29,7 @@ import { variantRequest } from '../pages/PlanPages'
 import { FORMAT_NAME } from '../labels'
 import { readPref, writePref, type Theme } from '../theme'
 import { useTracks } from '../tracks'
+import { useTutorMemory } from '../tutorMemory'
 import { playPassSound, recordHelp, recordSubmission, sessionItemPath, usePracticeSession, visitItem, type PracticeSession } from '../practiceSession'
 import { DsPreparation } from './DsPreparation'
 import { ChatPanel, type ApplyResult } from './ChatPanel'
@@ -129,6 +130,7 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
   const [output, setOutput] = useState<PanelOutput | null>(null)
   const scratchRun = useRef(0)
   const [commandsOpen, setCommandsOpen] = useState(false)
+  const memory = useTutorMemory(commandsOpen)
   const [answerCursor, setAnswerCursor] = useState({ line: 1, col: 1 })
   const [scratchCursor, setScratchCursor] = useState({ line: 1, col: 1 })
   const cursor = inScratch ? scratchCursor : answerCursor
@@ -546,6 +548,8 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
     { id: 'focus', title: layout.focus ? '退出专注模式' : '开启专注模式', shortcut: 'Alt+Z', run: layout.toggleFocus },
     { id: 'sound', title: '开关通过提示音', run: toggleSound },
     { id: 'chat', title: '开关助教', shortcut: 'Ctrl+Alt+I', run: layout.toggleChat },
+    { id: 'memory', title: memory.enabled === null ? '助教记忆' : memory.enabled ? '关闭助教记忆' : '开启助教记忆',
+      disabled: memory.busy, run: memory.toggle },
     { id: 'reset', title: isInspect ? '清空答案' : '重置代码', run: resetCode },
     ...(onShowStandard ? [{ id: 'standard', title: '打开参考答案', run: onShowStandard }] : []),
     { id: 'lesson', title: '打开课', shortcut: 'Alt+L', run: onShowLesson },
@@ -625,11 +629,12 @@ const ActiveProblem = forwardRef<ActiveHandle, ActiveProps>(function ActiveProbl
               onCursor={(line, col) => setScratchCursor({ line, col })} theme={theme} bare={bare}
               placeholder="随手试代码，不判题" onRun={runCurrent} onSubmit={() => judge('submit')} /></Suspense>}
           </div>}
-          {(preparing || aiLines > 0 || requestError || ((busy || scratchBusy || generating) && runStatus)) && <div className="editor-notice" role="status">
+          {(preparing || aiLines > 0 || requestError || memory.error || ((busy || scratchBusy || generating) && runStatus)) && <div className="editor-notice" role="status">
             {(busy || scratchBusy || generating) && runStatus}
             {preparing && '正在准备数据库…'}
             {aiLines > 0 && <span className="ai-badge">AI 协助 {aiLines} 行</span>}
             {requestError && <span className="tone-fail">{requestError}</span>}
+            {memory.error && <span className="tone-fail">{memory.error}</span>}
           </div>}
         </section>
       </div>

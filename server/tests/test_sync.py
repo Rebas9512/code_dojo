@@ -249,3 +249,73 @@ def test_offline_deletion_survives_late_edits(machines):
     for sync in machines:
         assert sync.store.chat("题") == []
         assert sync.store.extras("题") == []
+
+
+def test_memory_clear_and_offline_new_name(machines):
+    a, b = machines
+    fields = {"type": "learner", "description": "想练面试", "scope": None, "as_of": "2026-11-24", "body": "练口述"}
+
+    def save(sync, *names):
+        sync.store.add_chat("题", "assistant", "好", snapshot=sync.store.memory_snapshot(),
+                            memory=[{"name": name, "note": fields} for name in names])
+
+    save(a, "goal", "habit")
+    exchange(a)
+    exchange(b)
+    a.store.clear_memory()
+    a.store.set_memory_enabled(False)
+    save(b, "offline")
+    exchange(b)
+    exchange(a)
+    exchange(b)
+    assert not b.store.memory_enabled()
+    b.store.set_memory_enabled(True)
+    exchange(b)
+    exchange(a)
+    for sync in machines:
+        snap = sync.store.memory_snapshot()
+        assert [n["name"] for n in snap.notes] == ["offline"]
+        assert set(snap.versions) == {"goal", "habit", "offline"}
+
+
+@pytest.mark.parametrize("newer_deleted", [True, False])
+@pytest.mark.parametrize("newer_first", [True, False])
+@pytest.mark.parametrize("same_time", [True, False])
+def test_memory_tie_break_and_replay(tmp_path, newer_deleted, newer_first, same_time):
+    store = Store(tmp_path / "db")
+    records = []
+    for number, deleted in enumerate([not newer_deleted, newer_deleted], 1):
+        row = {"type": "progress", "description": "求平均", "scope": "data", "as_of": "2026-01-01", "body": "画表"}
+        if deleted:
+            row = dict.fromkeys(row)
+        # 时间不同时让较晚的一条 ID 更小，核对先比时间、平局才比 ID。
+        event_id = number if same_time else 3 - number
+        second = 0 if same_time else number
+        records.append(dict(id=f"00000000-0000-4000-8000-{event_id:012}", timestamp=f"2026-11-24T00:00:0{second}+00:00",
+                            type="memory_notes", machine=str(number),
+                            payload=dict(entity='["avg"]', row=row | {"name": "avg", "deleted": int(deleted)}, removed=False)))
+    for record in reversed(records) if newer_first else records:
+        assert store.import_events([record]) == 1
+    assert store.import_events(records) == 0
+    snap = store.memory_snapshot()
+    assert snap.versions == {"avg": records[1]["id"]}
+    assert [n["body"] for n in snap.notes] == ([] if newer_deleted else ["画表"])
+
+
+def test_old_client_rolls_back_batch_with_memory(tmp_path, monkeypatch):
+    from app import events
+    source = Store(tmp_path / "new/db")
+    source.set_limit(9)
+    source.add_chat("题", "assistant", "好", snapshot=source.memory_snapshot(), memory=[{
+        "name": "goal", "note": {"type": "learner", "description": "练口述", "scope": None,
+                                  "as_of": "2026-11-24", "body": "做完后口述思路"}}])
+    records = source.pending_events()
+    with monkeypatch.context() as old:
+        old.delitem(events.KEYS, "memory_notes")
+        target = Store(tmp_path / "old/db")
+        with pytest.raises(ValueError, match="无法识别的同步事件类型"):
+            target.import_events(records)
+        assert target.daily_limit() == 5 and target.chat("题") == []
+    upgraded = Store(target.path)
+    assert upgraded.import_events(records) == len(records)
+    assert upgraded.daily_limit() == 9 and upgraded.memory_snapshot().notes[0]["name"] == "goal"

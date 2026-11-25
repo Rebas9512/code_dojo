@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useLoaderData, useNavigate, useRevalidator } from 'react-router-dom'
 import { api, practicePath, type PracticeLink, type TodayPlan, type Week } from '../api'
 import { useTracks } from '../tracks'
+import { useTutorMemory } from '../tutorMemory'
 import { unitAnchor } from './unitAnchor'
 import './plan.css'
 
@@ -37,22 +38,41 @@ export function TodayPage() {
   const { revalidate } = useRevalidator()
   const [limit, setLimit] = useState(String(plan.daily_limit))
   const [busy, setBusy] = useState(false)
+  const memory = useTutorMemory(true)
+  const [clearing, setClearing] = useState(false)
   const [error, setError] = useState('')
+  async function clearMemory() {
+    if (!window.confirm('清空本机现有的笔记？删除会同步，离线新增或更新的笔记可能再次出现。历史记录会保留。')) return
+    setClearing(true)
+    setError('')
+    try { await api.clearMemory() }
+    catch (err) { setError((err as Error).message) }
+    finally { setClearing(false) }
+  }
   return <main className="study-page">
     <header><h1>今日计划</h1><time dateTime={plan.date}>{plan.date.replaceAll('-', '.')}</time></header>
-    <section><div className="plan-heading"><h2>到期复习</h2>
-      <form onSubmit={async e => {
-        e.preventDefault()
-        setBusy(true)
-        setError('')
-        try { await api.dailyLimit(Number(limit)); await revalidate() }
-        catch (err) { setError((err as Error).message) }
-        finally { setBusy(false) }
-      }}><label>每日上限 <input type="number" min="0" required value={limit}
-        onChange={e => setLimit(e.target.value)} /></label>
-        {limit !== String(plan.daily_limit) && <button className="secondary" disabled={busy}>保存</button>}
-      </form></div>
-      {error && <p role="alert">{error}</p>}
+    <section>
+      <div className="plan-heading"><h2>到期复习</h2>
+        <div className="plan-settings">
+          <form onSubmit={async e => {
+            e.preventDefault()
+            setBusy(true)
+            setError('')
+            try { await api.dailyLimit(Number(limit)); await revalidate() }
+            catch (err) { setError((err as Error).message) }
+            finally { setBusy(false) }
+          }}><label>每日上限 <input type="number" min="0" required value={limit}
+            onChange={e => setLimit(e.target.value)} /></label>
+            {limit !== String(plan.daily_limit) && <button className="secondary" disabled={busy}>保存</button>}
+          </form>
+          <div className="memory-controls">
+            <label><input type="checkbox" role="switch" checked={memory.enabled === true}
+              disabled={memory.enabled === null} aria-disabled={memory.busy} onChange={memory.toggle} />允许助教记忆</label>
+            <button className="ghost" onClick={clearing ? undefined : clearMemory} aria-disabled={clearing}>清空记忆</button>
+          </div>
+        </div>
+      </div>
+      {(error || memory.error) && <p role="alert">{error || memory.error}</p>}
       {plan.reviews.length ? <ul>{plan.reviews.map(item => <ReviewRow key={item.source} item={item} />)}</ul> :
         <p className="muted">今天没有待做的复习。</p>}
     </section>

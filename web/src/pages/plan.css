@@ -10,8 +10,14 @@
 .study-page li a, .plan-rate a { text-decoration: none; }
 .study-page a:hover { text-decoration: underline; text-underline-offset: 4px; }
 .plan-heading { justify-content: space-between; }
+.plan-settings, .memory-controls, .memory-controls label { display: flex; align-items: center; }
+.plan-settings { gap: 8px 20px; flex-wrap: wrap; }
+.memory-controls { gap: 6px; }
+.memory-controls label { gap: 6px; cursor: pointer; }
+.memory-controls .ghost { font-size: 13px; }
 .study-page input, .study-page select { background: var(--panel); color: var(--text); border: 1px solid var(--line); font: inherit; padding: 3px 6px; }
-.study-page input { width: 4.5em; }
+.study-page input[type=number] { width: 4.5em; }
+.memory-controls input { width: 16px; height: 16px; margin: 0; accent-color: var(--action); }
 .plan-rate strong, .trend output { font-family: var(--font-code); font-variant-numeric: tabular-nums; }
 .plan-rate a, .week-select { margin-left: auto; font-size: 13px; color: var(--muted); }
 .week-select { text-align: right; padding: 16px 0 0; }

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import io
 import json
+import logging
 import os
 import threading
 import zipfile
@@ -21,7 +22,7 @@ from fastapi.responses import JSONResponse, Response, StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 
 from .ai import extra as extra_gen
-from .ai import tutor
+from .ai import memory, tutor
 from .ai.provider import AIError, AIProvider, AgentId, ClaudeCodeProvider, CodexProvider, available_agents
 from .auth import install_auth
 from .config import load_settings
@@ -340,6 +341,55 @@ def update_plan(req: PlanSettings) -> dict:
     return {"daily_limit": req.daily_limit}
 
 
+class MemorySettings(BaseModel):
+    enabled: bool
+
+
+@app.get("/api/memory/settings")
+def memory_settings() -> MemorySettings:
+    return MemorySettings(enabled=store.memory_enabled())
+
+
+@app.put("/api/memory/settings")
+def update_memory(req: MemorySettings) -> MemorySettings:
+    store.set_memory_enabled(req.enabled)
+    return req
+
+
+@app.post("/api/memory/clear")
+def clear_memory() -> dict[str, bool]:
+    store.clear_memory()
+    return {"ok": True}
+
+
+_review_lock = threading.Lock()
+_review_thread: threading.Thread | None = None
+
+
+def run_memory_review(provider: AIProvider, db: Store, batch: memory.ReviewBatch, problems: dict[str, Problem]) -> None:
+    try:
+        reply = provider.complete(system=memory.REVIEW_INSTRUCTIONS, prompt=memory.review_prompt(batch, problems),
+                                  schema=memory.REVIEW_SCHEMA, effort="low")
+        db.finish_memory_review(batch, reply["memory"])
+    except AIError:
+        logging.warning("本次助教学习回顾失败，保留游标供下次回顾")
+
+
+def start_memory_review(*, after_submit: bool = False) -> None:
+    global _review_thread
+    with _review_lock:
+        if _review_thread and _review_thread.is_alive():
+            return
+        agents = available_agents(settings)
+        if not agents:
+            return
+        batch = store.claim_memory_review(date.today().isoformat(), after_submit=after_submit)
+        if batch:
+            provider = providers[agents[0]["id"]]
+            _review_thread = threading.Thread(target=run_memory_review, args=(provider, store, batch, bank.problems), daemon=True)
+            _review_thread.start()
+
+
 @app.get("/api/stats")
 def stats() -> dict:
     state = learning()
@@ -349,6 +399,7 @@ def stats() -> dict:
 @app.get("/api/tracks")
 def tracks() -> list[dict[str, Any]]:
     ordered = bank.ordered()
+    start_memory_review()
     state = learning()
     statuses = {tid: store.status_by_problem(tid) for tid in bank.tracks}
     last_active = store.last_active_by_track()
@@ -623,6 +674,7 @@ def submit(problem_id: str, req: RunRequest) -> dict[str, Any]:
                                review_source=req.review_source, review_due=req.review_due)
     if result["verdict"] == "accepted":
         progress_sync.request()
+    start_memory_review(after_submit=True)
     return result | {"submission_id": sid}
 
 
@@ -718,8 +770,9 @@ def run_extra_job(provider: AIProvider, row_id: int, parent_id: str, request: st
             allowed = {sid for sid in bank.skill_index if state.state(sid) == "mastered"} | {practice_skill}
             refs = parent.meta.skills.model_copy(update={"introduces": None, "requires": [practice_skill]})
             parent = replace(parent, meta=parent.meta.model_copy(update={"skills": refs}))
+        progress = None if review_source else store.latest_progress_body(Exercise.from_problem(parent).skills)
         spec, notes = extra_gen.generate(provider, judge, parent, request=request, skill_names=skill_names, existing=existing,
-                                        allowed=allowed, review=bool(review_source))
+                                        allowed=allowed, review=bool(review_source), progress=progress)
         if review_source:
             spec["review_format"] = "inspect" if parent.inspect else "variant"
             spec["review_skills"] = parent.meta.skills.model_dump()
@@ -793,6 +846,7 @@ def chat_send(problem_id: str, req: ChatRequest) -> dict[str, Any]:
     history = store.chat(parent.id)
     user_msg = store.add_chat(parent.id, "user", req.message)
     skill_names = {s.id: s.name for s in bank.skill_index.values()}
+    snapshot = store.memory_snapshot()
     try:
         reply = tutor.ask(
             provider, cur,
@@ -805,19 +859,20 @@ def chat_send(problem_id: str, req: ChatRequest) -> dict[str, Any]:
             effort=settings.ai_effort,
             current_label=label,
             extras=store.extras(parent.id),
+            snapshot=snapshot,
         )
     except AIError as exc:
         raise HTTPException(502, f"AI 助教出错：{exc}") from exc
-    new_extra = None
-    if reply.make_extra:
-        new_extra = start_extra(provider, parent, reply.make_extra)
     deleted = [seq for seq in reply.delete_extras if store.delete_extra(parent.id, seq)]
-    notes = reply.notes + ([f"出附加题：{reply.make_extra}"] if new_extra else []) + (
+    notes = reply.notes + ([f"出附加题：{reply.make_extra}"] if reply.make_extra else []) + (
         [f"删掉附加题：{deleted}"] if deleted else [])
     scratch_only = bool(reply.edits) and all(edit["target"] == "scratch" for edit in reply.edits)
-    if not (new_extra or deleted or scratch_only):
+    if not (reply.make_extra or deleted or scratch_only):
         store.record_help(cur.id, solution=False, source=req.review_source, due=req.review_due)
-    assistant_msg = store.add_chat(parent.id, "assistant", reply.reply, edits=reply.edits, notes=notes, agent=agent)
+    assistant_msg = store.add_chat(parent.id, "assistant", reply.reply, edits=reply.edits, notes=notes, agent=agent,
+                                   snapshot=snapshot, memory=reply.memory)
+    # 同轮刚记下的观察也可用于出题，等聊天事务完成再启动线程。
+    new_extra = start_extra(provider, parent, reply.make_extra) if reply.make_extra else None
     return {"user": user_msg, "assistant": assistant_msg, "new_extra": new_extra, "deleted_extras": deleted}
 
 

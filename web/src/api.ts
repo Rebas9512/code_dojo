@@ -382,6 +382,11 @@ export const api = {
   dailyLimit: (daily_limit: number) => request('/api/today/settings', {
     method: 'PUT', body: JSON.stringify({ daily_limit }),
   }),
+  memorySettings: () => request<{ enabled: boolean }>('/api/memory/settings'),
+  setMemoryEnabled: (enabled: boolean) => request<{ enabled: boolean }>('/api/memory/settings', {
+    method: 'PUT', body: JSON.stringify({ enabled }),
+  }),
+  clearMemory: () => request<{ ok: boolean }>('/api/memory/clear', { method: 'POST' }),
   hint: (id: string, number: number, review: ReviewContext) => request(`/api/problems/${id}/hints/${number}`, {
     method: 'POST', body: JSON.stringify(review),
   }),

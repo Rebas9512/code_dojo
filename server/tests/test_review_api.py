@@ -138,7 +138,11 @@ def test_second_review_changes_target_and_records_source(site, monkeypatch, fake
     assert fallback["generate"] and fallback["source"] == A
     spec = {"title":"练习编号", "mode":"inspect", "statement":"读编号", "explain":"看第一列。",
             "data":[{"kind":"csv", "content":"编号\nABC"}], "answer":{"type":"short", "accept":["ABC"]}}
-    fake_agents(claude=FakeProvider([spec]))
+    progress = dict(type="progress", description="留意编号", body="练习时用两个同名图书作对照。",
+                    as_of=str(Day.today()), scope="data.column-key")
+    store.add_chat(A, "assistant", "好。", snapshot=store.memory_snapshot(), memory=[{"name": "key", "note": progress}])
+    fake = FakeProvider([spec])
+    fake_agents(claude=fake)
     import time
     extra = client.post(f"/api/problems/{A}/extras", json={"request":"同套路", "review_source": A, "review_due": fallback["due"]}).json()
     for _ in range(100):
@@ -146,9 +150,30 @@ def test_second_review_changes_target_and_records_source(site, monkeypatch, fake
             break
         time.sleep(.02)
     target, = client.get("/api/today").json()["reviews"]
+    assert len(fake.calls) == 1 and progress["body"] not in fake.calls[0]["prompt"]
     assert target["id"] == extra["id"] and target["parent"] == A
     send(client, target["id"], dict(review_source=A, review_due=target["due"], answer="ABC")).raise_for_status()
     assert store.review_rows()[0]["step"] == 3
+
+
+def test_background_progress_preserves_review_plan_and_mastery(site, monkeypatch, fake_agents):
+    from app import db, main
+    client, store = site
+    yesterday = stamp(-1)
+    monkeypatch.setattr(db, "now", lambda: yesterday)
+    send(client, A, {"answer": 1}).raise_for_status()
+    client.put("/api/today/settings", json={"daily_limit": 1}).raise_for_status()
+    plan = client.get("/api/today").json()
+    skills = client.get("/api/tracks/data/skills").json()
+    reviews = store.review_rows()
+    note = dict(type="progress", description="核对编号", scope="data.column-key", as_of=yesterday[:10], body="用书名相同的两行练习。")
+    fake = FakeProvider([{"memory": [{"name": "column-key", "note": note}]}])
+    fake_agents(claude=fake)
+    client.get("/api/tracks").raise_for_status()
+    main._review_thread.join(5)
+    assert store.memory_snapshot().notes[0]["body"] == note["body"]
+    assert store.review_rows() == reviews and client.get("/api/today").json() == plan
+    assert client.get("/api/tracks/data/skills").json() == skills and store.extras(A) == []
 
 
 def test_large_values_judged_before_preview(judging, site):

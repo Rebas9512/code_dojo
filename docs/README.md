@@ -23,6 +23,7 @@ code-dojo/
 │   ├── problem-format.md 题目 / 技能 / 课 / track 的文件格式（合同）
 │   ├── curriculum.md     学习曲线设计、各线题单规划
 │   ├── teaching-design.md 教学设计和具名误解目录
+│   ├── tutor-memory.md   助教长期笔记、后台学习回顾、出题与同步规则
 │   ├── reports/          调研报告
 │   └── research_notes/   调研的原始笔记（一个调研一个文件夹）
 ├── web/                  前端：登录、学习地图、练习工作区、今日计划、手感统计；SQL 查询、单条修改与多语句脚本在 PGlite Worker 中判题
@@ -75,6 +76,8 @@ Electron 同时载入启动页和运行 `python -m bootstrap serve --protocol js
 - Linux 默认记录目录为 `~/.local/share/code-dojo`（支持 `XDG_DATA_HOME`），macOS 为 `~/Library/Application Support/code-dojo`，Windows 为 `%APPDATA%\code-dojo`。三个系统都可用 `CODE_DOJO_DATA` 覆盖。迁移时运行 `./dojo import-legacy <旧数据目录>`，从旧 `code_dojo.db` 的只读快照导入。
 - 设置 `CODE_DOJO_SYNC_REPO` 后，启动、每次正式提交通过、每 10 分钟和 Ctrl+C 退出时交换学习记录。启动时的那次在后台进行，不挡服务就绪；网页打开后才完成的那次同步结束时，页面自动刷新一次数据。点网页右上角的同步时间可以立即同步。离线提交保存在本机，下次连接时重试。[从源码运行和自己的同步仓库](../deploy/self-host.md#从源码运行和自己的同步仓库)
 
+助教笔记和记忆开关随学习记录同步到自己的进度仓库。后台回顾的游标和最近尝试日只存在本机，两台电脑各自处理自己产生的练习证据。笔记以 `name` 区分，同名时取事件时间较新的一整条，同一微秒取字典序较大的事件 ID。清空会逐条同步删除标记。另一台机器独有的笔记或事件较新的离线更新仍可合入，本机日志、既有对话和仓库历史可能保留旧文。同步各端应先升级，旧客户端遇到笔记事件会回滚整批导入，升级后可重试。
+
 **开发模式**。从项目根目录分别在两个终端运行后端和 Vite。
 
 要固定使用本地判题，在后端终端先运行 `export CODE_DOJO_JUDGE=local`（Linux / macOS）或 `$env:CODE_DOJO_JUDGE = "local"`（Windows PowerShell）。首次运行代码时，uv 会安装或复用 CPython 3.14 并创建专用环境。固定使用镜像可把值设为 `docker`。[uv 安装指引](https://docs.astral.sh/uv/getting-started/installation/)
@@ -112,6 +115,7 @@ cd web && npm run build                                # 类型检查 + 打包
 ## 代码结构
 - `bootstrap/update.py` 管理不可变版本目录和活动版本指针。`protocol.py` 管理凭据、更新和后端生命周期。`desktop/main.cjs` 持有窗口、导航与菜单，`preload.cjs` 为启动页和练习页提供各自的接口。`service.py` 从选定更新包加载后端。`credentials.py` 选择凭据来源，`sealed.py` 与发布者的 `scripts/desktop/seal_tokens.py` 共用加解密格式。`scripts/desktop/build.py` 在发布机器上导出锁定依赖和预计算数据。安装包里的解释器、依赖和启动器统一编译成不查源码的哈希式 `.pyc`（electron-builder 复制时会改文件修改时间，按时间戳校验的 `.pyc` 会全部失效、每次启动都重新编译），更新包也附带 `server/app` 的同类 `.pyc`。Linux 发布构建在 Ubuntu 22.04 上运行，校验 appimagetool 和 Type 2 运行时的 SHA-256，用系统的 `squashfs-tools` 生成 AppImageLauncher Lite 2.2 可读的 gzip 镜像。桌面图标和网页 favicon 共用 `web/public/code-dojo.svg` 的图形。
 - `server/app/github_sync.py` 通过 Contents API 读写与 Git 后端兼容的 JSONL。`desktop_sql.py` 将动态 SQL 验证交给网页，网页与 Node 共用 `web/src/sql/validate.ts`。
+- `server/app/ai/memory.py` 定义笔记格式，组织聊天上下文与后台回顾摘要。`main.py` 在进入地图和正式交卷时检查回顾条件。`db.py` 领取本机事件批次，用 `sync_versions` 核对笔记写入条件，把笔记与聊天答复或回顾游标一并提交。
 - `server/app/events.py` 给学习记录分配跨机器标识、导出按月分隔的 JSONL。写记录和登记待导出的事件共用一个 SQLite 事务。`sync.py` 管理独立 Git 克隆、重试和定时同步。`GET /api/sync` 返回状态，`POST /api/sync` 立即交换进度，外部页面顶栏和做题页状态栏共用 `web/src/components/SyncStatus.tsx`。
 - `server/app/auth.py` 管理密码校验、登录限流和签名会话，`server/scripts/set_password.py` 交互设密。`web/src/pages/LoginPage.tsx` 提供登录页，`web/src/api.ts` 统一处理 401。`server/app/frontend.py` 托管静态文件并支持直接打开前端路由。
 - `server/app/projects.py` 载入项目与骨架，拼装脚本和 notebook；`project_run.py` 处理 Python 整跑日志、指标和 SQL 项目检查。`web/src/pages/ProjectPage.tsx` 提供项目页。
@@ -136,6 +140,18 @@ cd web && npm run build                                # 类型检查 + 打包
 - 列表状态：● 绿 = 有一次通过时未应用 AI 修改、● 黄 = 仅有 AI 协助通过、◐ = 提交过没通过。知识点页另列技能状态、独立写对题数和最近使用时间；技能接口对应字段为 `state`、`counted_solves`、`last_used`。
 - 课相关接口：`/api/problems/{id}/lesson`（这道题的课：按技能拼出的教学内容）、`/api/playground/run`（运行 Python 示例，只看输出）。SQL 示例随课取得共享库及补丁，在做题页的 Worker 中执行并显示结果表。助教的上下文里也带着这道题的课。
 - 附加题（2026-11-22）：左栏在题目、课及已解锁的参考答案之后列出附加题和「＋」。点"＋"或在助教里说"再来一道 / 换个场景 / 难一点"，后台由 `server/app/ai/extra.py` 出题。inspect 附加题验证内联数据和答案，SQL 附加题用 PGlite 验证，桌面端在浏览器运行，开发模式在服务端运行。Python 附加题在判题沙箱验证（参考解全过、典型错误写法和挖空 / 带 bug 的初始代码都被测试抓住，不过就带着问题重出，最多 3 次），出好自动切过去；实测 13–19 秒。助教也能按编号删附加题（`delete_extras`），用户在标签上点两下 × 删除。附加题存在 SQLite（`extra_problems` 表，编号删了不复用），id 形如 `x-12`，判题、课、共享编辑框都和原题一样用；原题和附加题共用一段助教对话，助教知道当前在看哪一道。接口：`GET/POST /api/problems/{id}/extras`、`DELETE /api/problems/{id}/extras/{seq}`。已知不足："只用原题的技能"目前只是提示词约束，以后可以把 check_curve 的 AST 技能检测接进验证。开发时 `CODE_DOJO_API=http://127.0.0.1:8001 npx vite --port 5174` 可以让前端指向另一个后端（比如用样例题库起的测试实例）。
+
+### 助教记忆设置 API
+
+桌面版和浏览器版都在网页「今日计划」的每日上限旁设置「允许助教记忆」，也可点「清空记忆」并确认。做题时按 Ctrl+Shift+P（macOS 也可用 Cmd+Shift+P），搜索「助教记忆」即可切换。
+
+各操作成功时均返回 HTTP 200。写请求使用 `Content-Type: application/json`。
+
+| 接口 | 请求正文 | 响应示例 |
+|---|---|---|
+| `GET /api/memory/settings` | 无 | `{"enabled":true}`，返回当前值，缺省为开 |
+| `PUT /api/memory/settings` | `{"enabled":false}` 或 `{"enabled":true}` | `{"enabled":false}` 或 `{"enabled":true}`，返回保存的值 |
+| `POST /api/memory/clear` | 可发 `{}` | `{"ok":true}`，清空本机现有有效笔记，保留开关和聊天 |
 
 ## 设计
 
@@ -299,6 +315,10 @@ Python 基础和算法题共用 Python 判题格式，SQL 题使用各自目录�
 - **CLI 环境**。两个助教都继承 `HOME`、`PATH`、`LANG`、`USER` 和 `LOGNAME`。macOS 钥匙串用登录用户名定位凭据。`LANG` 缺省时用 `C.UTF-8`。Claude 另外继承订阅令牌 `CLAUDE_CODE_OAUTH_TOKEN`，Codex 另外继承配置目录 `CODEX_HOME`。Windows 还传 `USERPROFILE`、`APPDATA`、`LOCALAPPDATA`、`SystemRoot`、`TEMP`、`TMP`、`ComSpec` 和 `PATHEXT`。
 - **默认助教**。`CODE_DOJO_AI_PROVIDER` 可设为 `claude`（默认）或 `codex`，缺少首选命令时使用另一个。`off` 关闭全部助教。Claude 模型由 `CODE_DOJO_AI_MODEL` 指定（默认 `claude-opus-5-5`），Codex 模型由 `CODE_DOJO_CODEX_MODEL` 指定（默认 `gpt-6.2-astra`）。`GET /api/status` 每次探测命令，返回默认助教、模型和默认项排在首位的 `ai_agents`。
 - **切换和历史**。助教顶部列出本机可用的助教和模型，浏览器记住选择。聊天、左栏「＋」和复习出题都使用所选助教。后台出题沿用发起时的选择。每条助教回复下方显示来源，同一道题的历史会传给接手的助教。
+- **跨题长期记忆**。聊天默认启用长期记忆，Claude 和 Codex 共用本机笔记。每轮都带本机日期和按类别排列的完整摘要索引。正文按全局教学偏好、当前题技能、其他全局条目、当前学习线的顺序选取，同档先取依据日期较新的，正文段最多 1,000 字符。在附加题里按正在看的附加题选取。学生可以直接问「你记得我什么」，助教依据索引区分学生自述与学习观察。
+- **聊天写入**。助教根据本轮新发言或作答，随最终有效回复自行新增、改写或删除最多两条笔记。开关关闭时使用原聊天格式，已存笔记保留。切换开关或在本机清空后，在途回复仍可显示，其旧记忆操作失效。期间有同名更新时只跳过冲突项。记笔记沿用本轮调用，提示次数仍按原聊天规则计算，学生只看到讲题答复。[助教长期记忆设计](tutor-memory.md)
+- **只做题时的回顾**。后台回顾随记忆默认开启。进入地图时有本机新交卷或求助记录，或连续做题已积累 4 次未回顾的正式交卷，就可触发。每台机器每个本地自然日最多调用一次默认助教，使用本人订阅，固定低推理强度。无证据、关闭记忆或没有可用助教时保留当日名额。每次最多取最早的 24 条，以日期、原题、学习线与技能、判定、协助情况和命中的误解编号组成摘要，附完整笔记索引和相关进度正文。只看提示也算证据。后台只维护 `progress`，返回空数组也推进游标，失败留待以后再试。清空或切换开关后从新的练习开始。
+- **附加题选例**。学生主动出题时，出题助教可读到一条目标技能匹配、依据日期最新的 `progress` 正文。指定前置技能练习时只匹配那个技能。今日计划的复习变式按原排期和技能生成，掌握度、每日名额和到期日仍由正式练习记录决定。
 - **调用**。两种助教共用 `complete(system, prompt, schema, effort)` 和两个并发槽。Claude 通过 `claude -p --json-schema` 返回 `structured_output`。Codex 在空工作目录以只读沙箱运行 `codex exec --ephemeral --output-schema`，通过 `developer_instructions` 接收教学设定，stdin 接收本轮内容，最后一条 JSON 回复从临时文件读取。聊天默认 `low`，由 `CODE_DOJO_AI_EFFORT` 调整，附加题使用 `medium`。
 
 **已实现（2026-11-22）：助教聊天 + 共享编辑框**
@@ -325,7 +345,7 @@ Python 基础和算法题共用 Python 判题格式，SQL 题使用各自目录�
   ├─ Python 判题 → 本地专用解释器或 Docker 临时容器（原生 CPython 3.14）
   ├─ AI 出题验证 → Python 用同一个沙箱，SQL 用 Node 里的 PGlite
   ├─ 题库 API（固定题库 = problems/ 下的文件）
-  ├─ 进度 / 提交 / 对话 / 我的题（SQLite）
+  ├─ 进度 / 提交 / 对话 / 助教笔记 / 我的题（SQLite）
   ├─ AI 服务 → claude -p（Claude Max）或 codex exec（ChatGPT 登录）
   └─ 登录（单用户）
 ```

@@ -19,6 +19,7 @@ from typing import Any
 
 from ..problems import Problem
 from ..sql_judge import sample_context
+from . import memory
 from .provider import AIError, AIProvider
 
 EDIT_ITEM = {
@@ -43,6 +44,11 @@ SCHEMA: dict[str, Any] = {
     },
     "required": ["reply", "edits", "make_extra", "delete_extras"],
     "additionalProperties": False,
+}
+
+SCHEMA_WITH_MEMORY = SCHEMA | {
+    "properties": SCHEMA["properties"] | {"memory": memory.OPERATIONS_SCHEMA},
+    "required": [*SCHEMA["required"], "memory"],
 }
 
 SYSTEM_PROMPT = """你是 code-dojo 的教学助手。学生正在这个平台上从零开始学 Python 算法和 SQL。你的目标是让他自己学会、自己把代码写出来，而不是替他写完。
@@ -75,6 +81,7 @@ class TutorReply:
     notes: list[str] = field(default_factory=list)  # 重试 / 丢弃记录，存档用
     make_extra: str = ""                             # 出附加题的要求（空 = 不出）
     delete_extras: list[int] = field(default_factory=list)
+    memory: list[dict] = field(default_factory=list)
 
 
 def numbered(text: str) -> str:
@@ -122,6 +129,7 @@ def build_prompt(
     lesson: list[dict[str, Any]] | None = None,
     current_label: str = "题目（原题）",
     extras: list[dict[str, Any]] | None = None,
+    snapshot: memory.MemorySnapshot | None = None,
 ) -> str:
     m = problem.meta
     parts = [f"学生现在在看：{current_label}"]
@@ -141,6 +149,10 @@ def build_prompt(
     introduces = skill_names.get(m.skills.introduces or "", m.skills.introduces or "")
     requires = [skill_names.get(s, s) for s in m.skills.requires]
     parts.append(f"本题新技能：{introduces or '无'}；用到的已学技能：{'、'.join(requires) or '无'}")
+    if snapshot is not None:
+        skill_ids = [*m.skills.requires] + ([m.skills.introduces] if m.skills.introduces else [])
+        parts.append(f"本题笔记可用的 scope：全局 null、学习线 {m.track}" +
+                     ("、技能 " + "、".join(skill_ids) if skill_ids else ""))
 
     if problem.inspect:
         exercise = problem.inspect
@@ -185,6 +197,10 @@ def build_prompt(
                 text += f"\n（当时改了{label}：{json.dumps(e.get('old'), ensure_ascii=False)} → {json.dumps(e.get('new'), ensure_ascii=False)}）"
             convo.append(f"{who}：{text}")
         parts.append("## 之前的对话\n" + "\n\n".join(convo))
+    if snapshot is not None:
+        parts.append(memory.format_context(snapshot, m.track, set(skill_ids)))
+    else:
+        parts.append("长期记忆已关闭。学生问起长期笔记时，请据实说明。")
     parts.append("## 学生现在说\n" + message.strip())
     return "\n\n".join(parts)
 
@@ -281,18 +297,23 @@ def ask(
     lesson: list[dict[str, Any]] | None = None,
     current_label: str = "题目（原题）",
     extras: list[dict[str, Any]] | None = None,
+    snapshot: memory.MemorySnapshot | None = None,
 ) -> TutorReply:
     prompt = build_prompt(
         problem, code=code, scratch=scratch, answer=answer, last_result=last_result, history=history,
         message=message, skill_names=skill_names, applied_edits=applied_edits, lesson=lesson,
-        current_label=current_label, extras=extras,
+        current_label=current_label, extras=extras, snapshot=snapshot,
     )
     targets = {"answer": (answer or "") if problem.meta.mode in ("predict", "inspect") else code, "scratch": scratch}
     choice = bool(problem.inspect and problem.inspect.answer["type"] == "choice")
     short = bool(problem.inspect and problem.inspect.answer["type"] == "short")
     unit = "整道题" if problem.inspect else "整条查询" if problem.track.language == "sql" else "整个函数"
     system = SYSTEM_PROMPT.replace("{editor_unit}", unit)
-    out = provider.complete(system=system, prompt=prompt, schema=SCHEMA, effort=effort)
+    schema = SCHEMA
+    if snapshot is not None:
+        system += memory.INSTRUCTIONS
+        schema = SCHEMA_WITH_MEMORY
+    out = provider.complete(system=system, prompt=prompt, schema=schema, effort=effort)
     notes: list[str] = []
     issues = check(out, targets, single_line=short, choice=choice)
     if issues:
@@ -303,7 +324,7 @@ def ask(
             + json.dumps(out, ensure_ascii=False)[:2000]
             + "\n问题：" + "；".join(issues)
         )
-        out = provider.complete(system=system, prompt=retry, schema=SCHEMA, effort=effort)
+        out = provider.complete(system=system, prompt=retry, schema=schema, effort=effort)
     reply = str(out.get("reply") or "").strip()
     if not reply:
         raise AIError("AI 回复为空")
@@ -314,4 +335,5 @@ def ask(
     edits = [edits[i] for i in ok]
     make_extra = str(out.get("make_extra") or "").strip()
     delete_extras = list(out.get("delete_extras") or [])  # JSON schema 已限定为整数
-    return TutorReply(reply=reply, edits=edits, notes=notes, make_extra=make_extra, delete_extras=delete_extras)
+    return TutorReply(reply=reply, edits=edits, notes=notes, make_extra=make_extra, delete_extras=delete_extras,
+                      memory=out.get("memory", []) if snapshot is not None else [])

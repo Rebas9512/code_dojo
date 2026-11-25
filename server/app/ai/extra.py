@@ -132,7 +132,7 @@ SYSTEM_PROMPT = """你是 code-dojo 的出题助手。学生刚做（或正在�
 
 
 def build_prompt(parent: Problem, *, request: str, skill_names: dict[str, str], existing: list[str],
-                 feedback: list[str] | None, previous: dict[str, Any] | None) -> str:
+                 feedback: list[str] | None, previous: dict[str, Any] | None, progress: str | None = None) -> str:
     m = parent.meta
     skills = [skill_names.get(s, s) for s in [*m.skills.requires, *([m.skills.introduces] if m.skills.introduces else [])]]
     parts = [
@@ -164,6 +164,8 @@ def build_prompt(parent: Problem, *, request: str, skill_names: dict[str, str], 
     if existing:
         parts.append("已有的附加题（不要重复）：" + "；".join(existing))
     parts.append("## 学生的要求\n" + (request.strip() or "出一道相似的题巩固一下"))
+    if progress:
+        parts.append("本题技能的学习观察（选例时参考，沿用上述技能和难度）：\n" + progress)
     if feedback:
         parts.append(
             "## 你上一次出的题没通过验证，请修好后重新给出完整的题\n"
@@ -277,14 +279,14 @@ def check_practice_scope(spec: dict, language: str, allowed: set[str]) -> None:
 
 def generate(provider: AIProvider, judge: Judge, parent: Problem, *, request: str, skill_names: dict[str, str],
              existing: list[str], effort: str = "medium", allowed: set[str] | None = None,
-             review: bool = False) -> tuple[dict[str, Any], list[str]]:
+             review: bool = False, progress: str | None = None) -> tuple[dict[str, Any], list[str]]:
     """出题 + 验证；返回（spec，重试记录）。三次都不过抛 AIError。"""
     feedback: list[str] | None = None
     previous: dict[str, Any] | None = None
     notes: list[str] = []
     for attempt in range(1, MAX_ATTEMPTS + 1):
         prompt = build_prompt(parent, request=request, skill_names=skill_names, existing=existing,
-                              feedback=feedback, previous=previous)
+                              feedback=feedback, previous=previous, progress=progress)
         if parent.inspect:
             out = provider.complete(system=INSPECT_PROMPT, prompt=prompt, schema=INSPECT_SCHEMA, effort=effort)
             spec, issues = out, []

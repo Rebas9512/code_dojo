@@ -1,10 +1,13 @@
 """AI 助教（共享编辑框）：用 FakeProvider 代替真 AI，测上下文组装、修改定位、重试和接口。"""
 
+from datetime import date
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 
 from app.ai import tutor
+from app.ai.memory import MemorySnapshot, format_context
 from app.ai.provider import FakeProvider
 from app.problems import load_problem
 
@@ -22,6 +25,149 @@ def ask(provider, problem_dir=ADD, **kw):
 
 def edit(old, new, why="w", target="answer"):
     return {"target": target, "old": old, "new": new, "why": why}
+
+
+def memory_note(name, kind="feedback", scope=None, as_of="2026-11-24", body="先给一个动作，等学生试完再继续。"):
+    return {"name": name, "note": {"type": kind, "scope": scope, "as_of": as_of, "description": name + "摘要",
+                                   "body": body}}
+
+
+def test_memory_cross_problem_then_clear(client, fake_agents, monkeypatch, tmp_path):
+    from app import main
+    from app.db import Store
+
+    store = Store(tmp_path / "chat.db")
+    monkeypatch.setattr(main, "store", store)
+    pref = memory_note("one-step")
+    skill = memory_note("trace", "progress", "py.function-return", body="先跟踪返回值。")
+    claude = FakeProvider([{"reply": "好，先看一处。", "edits": [], "memory": [pref, skill]}])
+    codex = FakeProvider([{"reply": "先看第一行。", "edits": [], "memory": []},
+                          {"reply": "长期记忆已关闭。", "edits": []},
+                          {"reply": "现在还没有长期笔记。", "edits": [], "memory": []}])
+    codex.complete = Mock(wraps=codex.complete)
+    fake_agents(claude=claude, codex=codex)
+    first = "/api/problems/py-0a-001-add/chat"
+    second = "/api/problems/data-0-001-book-key/chat"
+    msg = client.post(first, json={"message": "一口气讲三步我会忘记开头"}).json()
+    assert msg["assistant"]["content"] == "好，先看一处。"
+    assert set(msg) == {"assistant", "user", "new_extra", "deleted_extras"}
+    assert "memory" not in msg["assistant"] and "one-step" not in str(client.get(first).json())
+    store.add_chat("data-0-001-book-key", "user", "上次的问题")
+    payload = {"message": "你记得我什么？", "agent": "codex"}
+    client.post(second, json=payload).raise_for_status()
+    call = codex.complete.call_args.kwargs
+    prompt = call["prompt"]
+    assert call["schema"] is tutor.SCHEMA_WITH_MEMORY and "分清学生自述和助教观察" in call["system"]
+    assert prompt.index("之前的对话") < prompt.index("## 长期笔记") < prompt.index("学生现在说")
+    assert date.today().isoformat() in prompt and "one-step one-step摘要" in prompt
+    assert pref["note"]["body"] in prompt and "trace trace摘要" in prompt and skill["note"]["body"] not in prompt
+    client.put("/api/memory/settings", json={"enabled": False}).raise_for_status()
+    client.post(second, json=payload).raise_for_status()
+    call = codex.complete.call_args.kwargs
+    assert call["schema"] is tutor.SCHEMA and "长期记忆已关闭" in call["prompt"]
+    assert "one-step" not in call["prompt"] and "完整索引" not in call["prompt"]
+    assert client.post("/api/memory/clear", json={}).json() == {"ok": True}
+    client.put("/api/memory/settings", json={"enabled": True}).raise_for_status()
+    client.post(second, json=payload).raise_for_status()
+    assert "完整索引（空）" in codex.calls[-1]["prompt"] and "one-step" not in codex.calls[-1]["prompt"]
+    assert len(claude.calls) == 1 and len(codex.calls) == 3
+
+
+def test_memory_index_priority_dates_and_budget():
+    notes = [memory_note("track", "progress", "python"), memory_note("goal", "learner"),
+             memory_note("new", "progress", "py.function-return"), memory_note("b", "progress", "py.var-arith"),
+             memory_note("a", "progress", "py.var-arith"), memory_note("old", "progress", "py.var-arith", "2020-01-01"),
+             memory_note("pref", as_of="2019-01-01")]
+
+    def context(ops):
+        rows = [op["note"] | {"name": op["name"]} for op in ops]
+        snap = MemorySnapshot(rows, {}, None, 0)
+        return format_context(snap, "python", {"py.function-return", "py.var-arith"})
+
+    idx, body = context(notes).split("\n相关正文")
+    assert idx.splitlines()[2:] == ["[learner]", "goal goal摘要", "[feedback]", "pref pref摘要", "[progress]",
+                                    "a a摘要", "b b摘要", "new new摘要", "old old摘要", "track track摘要"]
+    assert [line.split("（")[0] for line in body.splitlines()[1:]] == ["pref", "a", "b", "new", "old", "goal", "track"]
+    many = [memory_note(f"long-{i:02}", body="字" * 160) for i in range(30)] + [memory_note("tiny", body="短")]
+    whole = context(many)
+    idx, body = whole.split("\n相关正文")
+    assert all(op["name"] + " " + op["note"]["description"] in idx.splitlines() for op in many)
+    assert len("\n相关正文" + body) <= 1000 and len(whole) <= 1120 + 74 * len(many)
+    assert body.count("字" * 160) == 5 and body.count("字") == 800 and "tiny（" in body
+
+
+@pytest.mark.parametrize("retry_issue", ["empty", "edit"])
+def test_memory_only_final_reply_saved(client, fake_agents, monkeypatch, tmp_path, retry_issue):
+    from app import main
+    from app.db import Store
+
+    store = Store(tmp_path / "db")
+    monkeypatch.setattr(main, "store", store)
+    first = {"reply": "", "edits": []} if retry_issue == "empty" else {
+        "reply": "看这里", "edits": [edit("没有", "x", target="scratch")]}
+    fake = FakeProvider([first | {"memory": [memory_note("discard")]},
+                         {"reply": "在草稿看一行。", "edits": [edit("", "print(1)", target="scratch")],
+                          "memory": [memory_note("keep")]}])
+    fake_agents(claude=fake)
+    url = "/api/problems/data-0-001-book-key"
+    client.post(url + "/chat", json={"message": "我想先试一个草稿例子"}).raise_for_status()
+    assert len(fake.calls) == 2 and len(store.chat("data-0-001-book-key")) == 2
+    events = store.pending_events()
+    assert [e["payload"]["row"]["name"] for e in events if e["type"] == "memory_notes"] == ["keep"]
+    assert all(e["type"] != "study_help" for e in events)
+    assert client.post(url + "/submit", json={"answer": 1}).json()["verdict"] == "accepted"
+    assert store.submissions("data-0-001-book-key")[0]["hints_used"] == 0
+
+
+def test_memory_uses_current_extra_skills(client, fake_agents, monkeypatch, tmp_path):
+    from app import main
+    from app.db import Store
+
+    store = Store(tmp_path / "db")
+    monkeypatch.setattr(main, "store", store)
+    parent = "py-0a-001-add"
+    extra = store.create_extra(parent, "练另一个技能", "py.print")
+    store.finish_extra(extra["row_id"], {"title": "输出", "mode": "stdio", "practice_skill": "py.print",
+                                         "solution": "print(1)"}, [])
+    ops = [memory_note("parent", "progress", "py.function-return", body="原题的进度正文"),
+           memory_note("extra", "progress", "py.print", body="附加题的进度正文")]
+    store.add_chat(parent, "assistant", "好。", snapshot=store.memory_snapshot(), memory=ops)
+    fake = FakeProvider([{"reply": "先看输出。", "edits": [], "memory": []}])
+    fake_agents(codex=fake)
+    client.post(f"/api/problems/{parent}/chat", json={"message": "先看什么？", "current": extra["id"]}).raise_for_status()
+    prompt = fake.calls[0]["prompt"]
+    assert "附加题的进度正文" in prompt and "原题的进度正文" not in prompt and "parent parent摘要" in prompt
+
+
+def test_failed_chat_discards_all_memory(client, fake_agents, monkeypatch, tmp_path):
+    from app import main
+    from app.db import Store
+
+    store = Store(tmp_path / "db")
+    monkeypatch.setattr(main, "store", store)
+    fake = FakeProvider([{"reply": "", "edits": [], "memory": [memory_note(name)]} for name in ("one", "two")])
+    fake_agents(codex=fake)
+    pid = "py-0a-001-add"
+    assert client.post(f"/api/problems/{pid}/chat", json={"message": "先讲一步"}).status_code == 502
+    assert len(fake.calls) == 2 and store.memory_snapshot().versions == {}
+    assert [m["role"] for m in store.chat(pid)] == ["user"]
+
+
+def test_clear_during_model_call_preserves_reply(client, fake_agents, monkeypatch, tmp_path):
+    from app import main
+    from app.db import Store
+
+    store = Store(tmp_path / "db")
+    monkeypatch.setattr(main, "store", store)
+
+    def respond(system, prompt):
+        client.post("/api/memory/clear", json={}).raise_for_status()
+        return {"reply": "先看看表头。", "edits": [], "memory": [memory_note("stale")]}
+
+    fake_agents(claude=FakeProvider(respond))
+    r = client.post("/api/problems/data-0-001-book-key/chat", json={"message": "这里先看什么？"})
+    assert r.json()["assistant"]["content"] == "先看看表头。"
+    assert store.memory_snapshot().versions == {}
 
 
 def test_prompt_has_context_and_soft_rules():

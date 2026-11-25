@@ -15,6 +15,7 @@ KEYS = {
     "extra_problems": ("id",), "submissions": ("id",), "chat_messages": ("id",),
     "project_completions": ("project_id",),
     "reviews": ("problem_id",), "study_help": ("problem_id", "attempt"), "settings": ("key",),
+    "memory_notes": ("name",),
 }
 REFS = ("problem_id", "review_source", "rewrite_target", "parent_id")
 SCHEMA = """
@@ -24,6 +25,7 @@ CREATE TABLE IF NOT EXISTS sync_events (
     type TEXT NOT NULL, payload TEXT NOT NULL, exported INTEGER NOT NULL, pushed INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS sync_outbox ON sync_events(machine,exported,pushed);
+CREATE INDEX IF NOT EXISTS sync_machine_time ON sync_events(machine,timestamp);
 CREATE TABLE IF NOT EXISTS sync_versions (
     type TEXT NOT NULL, entity TEXT NOT NULL, local_id INTEGER, timestamp TEXT NOT NULL, event_id TEXT NOT NULL,
     PRIMARY KEY(type,entity), UNIQUE(type,local_id)
