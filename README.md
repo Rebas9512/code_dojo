@@ -10,7 +10,7 @@
 
 ## Getting it
 
-Download the installer for your platform from the latest [`app-v*` release](https://github.com/Rebas9512/code_dojo/releases/latest): an AppImage (or tar.gz) for Linux x86-64, a zip for Apple Silicon macOS, and a portable zip for Windows x64. The builds are unsigned, so macOS and Windows will ask you to confirm the first launch. Step-by-step instructions (in Chinese), including how to hook up Claude Code or Codex for the tutor, are in [deploy/README.md](deploy/README.md).
+Download the installer for your platform from the latest [`app-v*` release](https://github.com/Rebas9512/code_dojo/releases/latest): an AppImage (or tar.gz) for Linux x86-64, a zip for Apple Silicon macOS, and a portable zip for Windows x64. The macOS build is ad-hoc signed but not notarized and the Windows build is unsigned, so both will ask you to confirm the first launch. Step-by-step instructions (in Chinese), including how to hook up Claude Code or Codex for the tutor, are in [deploy/README.md](deploy/README.md).
 
 - **Local by default.** No account, no password. On first launch the app downloads the problem bank from this repo's public releases, and checks for a newer bank each time it opens.
 - **Progress stays on your machine**, in your user data folder. There's no telemetry.
@@ -110,13 +110,14 @@ After you've passed a problem, the **参考答案** tab shows a standard solutio
 
 ## AI-assisted solving and problem generation
 
-> Requires [Claude Code](https://code.claude.com/docs/en/setup) or Codex installed and logged in on the same computer. The app detects them on launch, and *Desktop → Settings* shows whether the tutor is on.
+> Requires [Claude Code](https://code.claude.com/docs/en/setup) or Codex installed and logged in on the same computer. The app detects them on launch, and *Desktop → Settings* shows whether the tutor is on. If it can't find them, you can point it at the command there.
 
 ![Workspace with the AI tutor](docs/images/workspace.png)
 
 - **The tutor sees what you see**: the statement, the lesson, your answer, your scratch file and your last run. It explains in steps and gives graded hints rather than answers. Quick actions cover "explain the approach", "I'm stuck" and "fill in the next bit".
 - **Shared editors**: the tutor's edits go straight into the answer or the scratch file, and can be undone with Ctrl+Z. Lines written by AI in the answer are counted, and a submission that used them is recorded as *AI-assisted* rather than solved on your own.
 - **Demos in the scratch file**: ask it to show something ("print the intermediate values", "try it with other numbers") and it writes a small runnable example into the scratch file and switches you there. Scratch edits don't count as AI assistance, and the tutor is asked not to sneak the full solution in that way.
+- **It remembers you**: the tutor keeps short notes on how you like to be taught, your goals and where you're still shaky. It updates them on its own as you chat, and once a day reviews your recent submissions even if you never chat, so a preference you mention on a Python problem still applies on SQL the next day. Notes sync with your progress; you can turn them off or clear them on 今日计划.
 - **Pick your agent**: a dropdown lists the agents installed on the machine (Claude Code, Codex) and labels each reply with the agent that wrote it. Calls go through `claude -p` / `codex exec` with structured JSON output.
 - **Extra problems on demand**: click ＋ or ask in the chat ("make it about strings"). The agent writes a new problem in the same style, and it only appears after it passes verification in the sandbox: the reference solution must pass every test, and typical wrong solutions must fail. This usually takes 15–20 seconds.
 - **Drills when you're stuck**: if you keep failing on a skill, the tutor can generate a smaller drill. Static analysis checks that the drill uses only skills you've already mastered.
