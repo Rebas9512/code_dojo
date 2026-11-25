@@ -89,6 +89,13 @@ async function openSettings(app, page) {
   return settings
 }
 
+// "完成"会关掉自己所在的窗口；窗口关得比点击收尾快时 Playwright 报页面已关闭，这种情况算成功。
+async function closeSettings(settings) {
+  const closed = settings.waitForEvent('close', { timeout: 5000 })
+  await settings.getByRole('button', { name: '完成' }).click().catch(error => { if (!settings.isClosed()) throw error })
+  await closed
+}
+
 async function checkAgentPath(app, page, origin) {
   const binary = path.join(work, '手动 命令', 'claude')
   fs.mkdirSync(path.dirname(binary))
@@ -108,7 +115,7 @@ async function checkAgentPath(app, page, origin) {
   await row.getByText('未找到', { exact: true }).waitFor()
   await settings.getByText(/AI 助教已关闭/).waitFor()
   assert.deepEqual(await ids(), [])
-  await settings.getByRole('button', { name: '完成' }).click()
+  await closeSettings(settings)
   await page.getByRole('tab').first().waitFor()
   console.log('设置保存与改回自动后，后端助教列表分别为 [claude] 和 []')
 }
@@ -196,10 +203,7 @@ async function main() {
     connected = false
     assert.ok(!fs.existsSync(path.join(env.CODE_DOJO_DATA, mac ? 'github-tokens.json' : 'test-keyring')))
     await enable()
-    await Promise.all([
-      settings.waitForEvent('close', { timeout: 5000 }),
-      settings.getByRole('button', { name: '完成' }).click(),
-    ])
+    await closeSettings(settings)
     assert.ok(settings.isClosed() && !page.isClosed())
     origin = new URL(page.url()).origin
     await page.getByRole('tab').first().waitFor()
