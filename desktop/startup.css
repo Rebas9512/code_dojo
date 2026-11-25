@@ -2,13 +2,13 @@
 @font-face { font-family: 'TeX Gyre Heros'; src: url('fonts/tex-gyre-heros-regular.woff2') format('woff2'); font-weight: 400; }
 @font-face { font-family: 'TeX Gyre Heros'; src: url('fonts/tex-gyre-heros-bold.woff2') format('woff2'); font-weight: 700; }
 :root { color-scheme: dark; --bg: #1f1f1f; --bar: #181818; --fg: #cccccc; --muted: #9d9d9d; --line: #2b2b2b;
-  --field: #313131; --accent: #0078d4; --ink: #ffffff;
+  --field: #313131; --accent: #0078d4; --ink: #ffffff; --error: #f48771;
   font: 14px/1.55 "TeX Gyre Heros", "Helvetica Neue", Helvetica, Arial, "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei UI", sans-serif; }
 @media (prefers-color-scheme: light) {
   :root { color-scheme: light; --bg: #ffffff; --bar: #f8f8f8; --fg: #3b3b3b; --muted: #616161; --line: #e5e5e5;
-    --field: #ffffff; --accent: #005fb8; --ink: #ffffff; }
+    --field: #ffffff; --accent: #005fb8; --ink: #ffffff; --error: #b52020; }
 }
-header { background: var(--bar); }
+header { display: flex; align-items: center; justify-content: space-between; background: var(--bar); }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--fg); }
 header { border-bottom: 1px solid var(--line); font-size: 17px; font-weight: 600; padding: 12px 24px; }
@@ -20,10 +20,25 @@ input, button { font: inherit; border-radius: 3px; }
 input { background: var(--field); color: var(--fg); width: 100%; padding: 8px 10px; border: 1px solid var(--line); }
 form button { margin-top: 16px; }
 button { cursor: pointer; border: 0; background: var(--accent); color: var(--ink); padding: 6px 17px; }
-#disable, #confirmDisable { background: var(--field); color: var(--fg); border: 1px solid var(--line); }
+#done, #disable, #confirmDisable { background: var(--field); color: var(--fg); border: 1px solid var(--line); }
+#done { font-size: 14px; font-weight: 400; }
 button:disabled { cursor: default; opacity: .65; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 progress { accent-color: var(--accent); width: 100%; height: 5px; display: block; }
 a { display: inline-block; margin-top: 16px; color: var(--accent); }
-#ai { padding-top: 14px; border-top: 1px solid var(--line); }
+main:has(#agents:not([hidden])) { max-width: 44rem; margin: 24px auto; }
+#agents { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+#ai { font-size: 16px; margin: 0; }
+#path-help { margin: 5px 0 16px; }
+.agent + .agent { margin-top: 18px; }
+.agent-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 12px; margin-bottom: 5px; }
+.agent-heading label { font-weight: bold; margin: 0; }
+.agent-state { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.path-controls { display: flex; align-items: stretch; gap: 6px; }
+.path-controls input { flex: 1; min-width: 0; }
+.agent button { margin: 0; white-space: nowrap; }
+.browse { background: var(--field); color: var(--fg); border: 1px solid var(--line); }
+.agent .auto { margin-top: 6px; padding: 2px 0; background: transparent; color: var(--fg); text-decoration: underline; }
+.agent-note { margin: 6px 0 0; }
+.agent:has([aria-invalid="true"]) .agent-note { color: var(--error); }
 [hidden] { display: none !important; }

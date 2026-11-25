@@ -28,7 +28,8 @@ function useSize(key: string, fallback: number, min: number, max: number) {
   const clamp = (n: number) => Math.max(min, Math.min(max, n))
   const [value, set] = useState(() => clamp(Number(readPref(key, String(fallback)))))
   useEffect(() => writePref(key, String(value)), [key, value])
-  return { value, min, max, set: (n: number) => set(clamp(n)) }
+  // 窗口尺寸变化时只限制显示值，保留上次手动设置的偏好。
+  return { value: clamp(value), min, max, set: (n: number) => set(clamp(n)) }
 }
 
 export function useWorkbenchLayout() {
@@ -42,12 +43,32 @@ export function useWorkbenchLayout() {
   useEffect(() => writePref('dojo-drawer', drawer), [drawer])
   const sidebar = useSize('dojo-files-width', 224, 150, 480)
   const tutor = useSize('dojo-chat-width', 284, 190, 540)
+  const chatRef = useRef<HTMLElement>(null)
+  const chatQuickRef = useRef<HTMLDivElement>(null)
+  const [chatInputMax, setChatInputMax] = useState(400)
+  const [quickHeight, setQuickHeight] = useState(0)
+  useEffect(() => {
+    const chat = chatRef.current!
+    const quick = chatQuickRef.current!
+    const observer = new ResizeObserver(() => {
+      if (!chat.clientHeight) return
+      setChatInputMax(Math.min(400, Math.floor(chat.clientHeight / 2)))
+      setQuickHeight(quick.offsetHeight)
+    })
+    observer.observe(chat)
+    observer.observe(quick)
+    return () => observer.disconnect()
+  }, [])
+  // 按钮换行后，仍给文本框留一行字和内外边距。
+  const chatInputMin = Math.min(chatInputMax, quickHeight + 60)
+  const chatInput = useSize('dojo-chat-input-height', 160, chatInputMin, chatInputMax)
   const bottom = useSize('dojo-panel-height', 236, 92, 650)
   const split = useSize('dojo-editor-split', 46, 22, 78)
   const vertical = useSize('dojo-mobile-split', 48, 20, 75)
   const filesOpen = !focus && (narrow ? drawer === 'files' : files)
   const chatOpen = focus ? focusChat : narrow ? drawer === 'chat' : chat
   return { narrow, filesOpen, chatOpen, panel, setPanel, sidebar, tutor, bottom, split: narrow ? vertical : split,
+    chatInput, chatRef, chatQuickRef,
     focus, toggleFocus: () => {
       enableFocus(!focus)
       setFocus(!focus)
@@ -58,6 +79,7 @@ export function useWorkbenchLayout() {
     closeDrawer: () => focus ? setFocusChat(false) : setDrawer(''),
     style: { '--files-w': filesOpen ? `min(${sidebar.value}px, 20vw)` : '0px',
       '--chat-w': chatOpen ? `min(${tutor.value}px, 25vw)` : '0px',
+      '--chat-input-h': chatInput.value + 'px',
       '--split': (narrow ? vertical.value : split.value) + '%',
       '--panel-h': panel ? `min(${bottom.value}px, 44%)` : '0px',
     } as CSSProperties,

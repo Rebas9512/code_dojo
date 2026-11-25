@@ -9,7 +9,7 @@
   <script src="startup.js" defer></script>
 </head>
 <body>
-  <header>code-dojo</header>
+  <header>code-dojo <button type="button" id="done" hidden>完成</button></header>
   <main>
     <h1 id="heading" aria-live="polite">正在打开…</h1>
     <progress id="progress" max="100" hidden aria-label="题库下载进度"></progress>
@@ -31,7 +31,22 @@
     <p id="note" role="status" hidden></p>
     <button id="retry" hidden>重启</button>
     <a id="installer" target="_blank" rel="noreferrer" hidden>下载新版安装包</a>
-    <p id="ai" hidden></p>
+    <section id="agents" aria-labelledby="ai" hidden>
+      <h2 id="ai"></h2>
+      <p id="path-help">在终端运行 <code>command -v claude</code> 或 <code>command -v codex</code> 可查看路径。</p>
+      <template id="agent-row">
+        <form class="agent">
+          <div class="agent-heading"><label></label><span class="agent-state" role="status"></span></div>
+          <div class="path-controls">
+            <input type="text" placeholder="命令的完整路径" autocomplete="off" spellcheck="false" required>
+            <button type="button" class="browse">浏览…</button>
+            <button type="submit">保存</button>
+          </div>
+          <button type="button" class="auto" hidden>改回自动查找</button>
+          <p class="agent-note" role="status" hidden></p>
+        </form>
+      </template>
+    </section>
   </main>
 </body>
 </html>

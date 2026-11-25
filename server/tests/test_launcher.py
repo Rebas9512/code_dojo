@@ -10,6 +10,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import dojo
 
 
+@pytest.fixture
+def agent_commands(monkeypatch):
+    monkeypatch.setenv("CODE_DOJO_CLAUDE_BIN", "claude")
+    monkeypatch.setenv("CODE_DOJO_CODEX_BIN", "codex")
+    monkeypatch.setattr("bootstrap.agents._login_path", lambda: "")
+
+
 @pytest.mark.parametrize(("platform", "suffix"), [
     ("linux", ".local/share/code-dojo"), ("darwin", "Library/Application Support/code-dojo"),
     ("win32", "AppData/Roaming/code-dojo"),
@@ -24,14 +31,14 @@ def test_data_directory(tmp_path, monkeypatch, platform, suffix):
     assert dojo.data_directory() == tmp_path / "override"
 
 
-def test_dependencies_and_doctor(tmp_path, monkeypatch, capsys):
+def test_dependencies_and_doctor(tmp_path, monkeypatch, capsys, agent_commands):
     monkeypatch.setenv("CODE_DOJO_DATA", str(tmp_path))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    monkeypatch.setattr(dojo.shutil, "which", lambda name: None)
+    monkeypatch.setattr(dojo.shutil, "which", lambda name, path=None: None)
     assert dojo.main(["doctor"]) == 1
     out = capsys.readouterr().out
     assert all(s in out for s in ("Linux", "macOS", "Windows", "AI 助教会关闭"))
-    monkeypatch.setattr(dojo.shutil, "which", lambda name: name)
+    monkeypatch.setattr(dojo.shutil, "which", lambda name, path=None: name)
     monkeypatch.setattr(dojo.subprocess, "check_output", lambda *a, **kw: "v22.12.0")
     assert not dojo.dependencies()
     monkeypatch.setattr(dojo.subprocess, "check_output", lambda *a, **kw: "v22.13.0")
@@ -84,9 +91,9 @@ def test_build_cache(tmp_path, monkeypatch):
 
 
 @pytest.mark.parametrize("installed,expected", [({}, "off"), ({"codex": "/codex"}, "codex")])
-def test_launch_uses_single_local_backend(tmp_path, monkeypatch, installed, expected):
+def test_launch_uses_single_local_backend(tmp_path, monkeypatch, installed, expected, agent_commands):
     monkeypatch.setattr(dojo, "dependencies", lambda: True)
-    monkeypatch.setattr(dojo.shutil, "which", installed.get)
+    monkeypatch.setattr(dojo.shutil, "which", lambda name, path=None: installed.get(name))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("CODE_DOJO_DATA", str(tmp_path))
     monkeypatch.setenv("CODE_DOJO_AUTH", "on")

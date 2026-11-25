@@ -192,7 +192,7 @@ def installer(args, work: Path) -> None:
     desktop = ROOT / "desktop"
     builder = desktop / "node_modules/electron-builder/cli.js"
     output = work / "electron"
-    env = os.environ | {"CODE_DOJO_RESOURCES": str(bundle), "CSC_IDENTITY_AUTO_DISCOVERY": "false"}
+    env = os.environ | {"CODE_DOJO_RESOURCES": str(bundle)}
     subprocess.run(["node", str(builder), "--config", "builder.cjs", "--publish", "never",
                     f"--config.directories.output={output}"], cwd=desktop, env=env, check=True)
     if system == "Linux":

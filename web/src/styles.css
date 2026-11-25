@@ -830,7 +830,8 @@ details.lesson-section[open] > summary {
   font-size: 11px;
 }
 .chat-list {
-  flex: 1 1 auto;
+  flex: 1;
+  min-height: 0;
   overflow: auto;
   padding: 16px 18px 8px;
   display: flex;
@@ -894,7 +895,15 @@ details.lesson-section[open] > summary {
   font-size: 13px;
   margin: 0;
 }
+.chat-composer {
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  height: var(--chat-input-h);
+}
 .chat-quick {
+  flex: none;
   display: flex;
   flex-wrap: wrap;
   gap: 2px 4px;
@@ -905,6 +914,8 @@ details.lesson-section[open] > summary {
   font-size: 12px;
 }
 .chat-input {
+  flex: 1;
+  min-height: 0;
   margin: 6px 12px 12px;
   resize: none;
   background: var(--panel);

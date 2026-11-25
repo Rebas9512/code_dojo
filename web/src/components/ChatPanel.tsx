@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { api, preferredAgent, serverStatus, type Agent, type ChatMessage, type ExtraSummary, type TutorEdit, type ReviewContext } from '../api'
 import { writePref } from '../theme'
-import { Icon } from './WorkbenchLayout'
+import { Icon, Separator, type WorkbenchLayout } from './WorkbenchLayout'
 import { Markdown } from './Markdown'
 
 export interface ApplyResult {
@@ -12,7 +12,7 @@ export interface ApplyResult {
 
 interface Props {
   aiOn: boolean
-  close: () => void
+  layout: WorkbenchLayout
   onReply: () => void
   /** 原题 id：原题和它的附加题共用这一段对话 */
   problemId: string
@@ -72,7 +72,7 @@ function EditsView({ msg, result }: { msg: ChatMessage; result?: ApplyResult }) 
   )
 }
 
-export function ChatPanel({ aiOn, close, onReply, problemId, currentId, review, choice, getCode, getScratch, getAnswer, onEdits, lastFailed, onExtras }: Props) {
+export function ChatPanel({ aiOn, layout, onReply, problemId, currentId, review, choice, getCode, getScratch, getAnswer, onEdits, lastFailed, onExtras }: Props) {
   const [agents, setAgents] = useState<Agent[]>([])
   const [selected, setSelected] = useState('')
   useEffect(() => {
@@ -155,7 +155,7 @@ export function ChatPanel({ aiOn, close, onReply, problemId, currentId, review, 
   const quick: [string, string][] = lastFailed ? [...QUICK, ['这个错误是什么意思', '这个错误是什么意思']] : QUICK
 
   return (
-    <aside className="chat" aria-label="AI 助教">
+    <aside ref={layout.chatRef} className="chat" aria-label="AI 助教">
       <header className="chat-head">
         <Icon name="comment-discussion" /><span className="chat-title">{choice ? '助教' : '助教 · 共享编辑框'}</span>
         <span className="bar-spacer" />
@@ -164,7 +164,7 @@ export function ChatPanel({ aiOn, close, onReply, problemId, currentId, review, 
             清空
           </button>
         )}
-        <button className="icon-btn" onClick={close} title="收起助教（Ctrl+Alt+I）"><Icon name="close" /></button>
+        <button className="icon-btn" onClick={layout.toggleChat} title="收起助教（Ctrl+Alt+I）"><Icon name="close" /></button>
       </header>
 
       {agents.length > 0 && (
@@ -196,28 +196,31 @@ export function ChatPanel({ aiOn, close, onReply, problemId, currentId, review, 
         {error && <p className="tone-fail chat-error">{error}</p>}
       </div>
 
-      <div className="chat-quick">
-        {quick.filter(([label]) => !choice || label !== '帮我补一下').map(([label, text]) => (
-          <button key={label} className="ghost" disabled={sending || !aiOn} onClick={() => send(text)}>
-            {label}
-          </button>
-        ))}
+      <div className="chat-composer">
+        <Separator label="调整输入框高度" side="bottom" size={layout.chatInput} />
+        <div className="chat-quick" ref={layout.chatQuickRef}>
+          {quick.filter(([label]) => !choice || label !== '帮我补一下').map(([label, text]) => (
+            <button key={label} className="ghost" disabled={sending || !aiOn} onClick={() => send(text)}>
+              {label}
+            </button>
+          ))}
+        </div>
+        <textarea
+          ref={inputRef}
+          className="chat-input"
+          value={input}
+          disabled={!aiOn}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+              e.preventDefault()
+              send(input)
+            }
+          }}
+          placeholder="问助教（Enter 发送，Shift+Enter 换行）"
+          rows={3}
+        />
       </div>
-      <textarea
-        ref={inputRef}
-        className="chat-input"
-        value={input}
-        disabled={!aiOn}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
-            e.preventDefault()
-            send(input)
-          }
-        }}
-        placeholder="问助教（Enter 发送，Shift+Enter 换行）"
-        rows={3}
-      />
     </aside>
   )
 }

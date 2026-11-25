@@ -18,9 +18,10 @@ const preferences = { preload: path.join(__dirname, 'preload.cjs'), sandbox: tru
 let win, settingsWindow, child, origin, ready, quitting = false
 let state = { type: 'status', message: '正在打开…' }
 let settingsFeedback = {}
+let syncRetry = {}
 
 function settingsState() {
-  return { type: 'settings', ai: ready?.ai, sync: ready?.sync, ...settingsFeedback }
+  return { type: 'settings', ai: ready?.ai, agents: ready?.agents, sync: ready?.sync, ...syncRetry, ...settingsFeedback }
 }
 
 function updateSettings(feedback) {
@@ -56,7 +57,8 @@ function onEvent(event) {
     case 'ready': {
       if (!Number.isInteger(event.port) || event.port < 1 || event.port > 65535) break
       const current = win.webContents.getURL()
-      const route = ready && ready.sync !== event.sync && appPage(current) ? current.slice(origin.length) : '/'
+      const changedSettings = ready && (ready.sync !== event.sync || settingsFeedback.busy && settingsFeedback.agent)
+      const route = changedSettings && appPage(current) ? current.slice(origin.length) : '/'
       ready = event
       origin = 'http://127.0.0.1:' + event.port
       updateSettings({})
@@ -71,7 +73,8 @@ function onEvent(event) {
     case 'sync':
       break // 网页顶栏从同一后端读取最新同步状态。
     case 'sync_code_failed':
-      updateSettings({ remaining: event.remaining, retryAt: Date.now() + event.wait * 1000 })
+      syncRetry = { remaining: event.remaining, retryAt: Date.now() + event.wait * 1000 }
+      updateSettings({})
       break
     case 'status':
       if (event.checked && ready) {
@@ -83,7 +86,7 @@ function onEvent(event) {
       break
     case 'error':
       if (event.scope === 'settings') {
-        updateSettings({ message: event.message })
+        updateSettings({ agent: event.agent, message: event.message })
         break
       }
       ready = null
@@ -159,7 +162,7 @@ function protect(window) {
 function settings() {
   if (quitting || !ready) return
   if (settingsWindow) return settingsWindow.focus()
-  settingsWindow = new BrowserWindow({ parent: win, modal: true, width: 540, height: 500,
+  settingsWindow = new BrowserWindow({ parent: win, modal: process.platform !== 'darwin', width: 640, height: 720,
     title: '设置', autoHideMenuBar: true, webPreferences: preferences })
   settingsWindow.removeMenu()
   protect(settingsWindow)
@@ -205,8 +208,21 @@ function ipc() {
   listen('dojo:quit', 'page', () => app.quit())
   listen('dojo:version', 'page', () => ({ launcher: app.getVersion(), payload: ready?.payload_version || '' }))
   listen('startup:read', 'local', isSettings => isSettings ? settingsState() : state)
+  listen('startup:close', 'local', isSettings => { if (isSettings) settingsWindow.close() })
+  listen('startup:browse-agent', 'local', async isSettings => {
+    if (!isSettings) return
+    const result = await dialog.showOpenDialog(settingsWindow, { title: '选择助教命令', properties: ['openFile', 'showHiddenFiles'] })
+    return result.filePaths[0]
+  })
+  listen('startup:agent-path', 'local', (isSettings, agent, path) => {
+    if (!isSettings || settingsFeedback.busy) return
+    const reset = path === null
+    updateSettings({ busy: true, agent, message: reset ? '正在恢复自动查找…' : '正在检查命令并保存…' })
+    send(reset ? 'reset_agent_path' : 'set_agent_path', reset ? { agent } : { agent, path })
+  })
   listen('startup:connect', 'local', (isSettings, code) => {
     if (isSettings && !ready.sync && typeof code === 'string') {
+      syncRetry = {}
       updateSettings({ busy: true, message: '正在开启同步…' })
       send('connect_sync', { code })
     }
@@ -237,21 +253,21 @@ function bounds() {
 function shutdown() {
   if (quitting) return
   quitting = true
-  try { fs.writeFileSync(boundsFile, JSON.stringify(win.getNormalBounds())) } catch { /* 仍然推送进度。 */ }
-  settingsWindow?.destroy()
-  localPage({ type: 'status', message: ready?.sync ? '正在同步…' : '正在关闭…' })
   const proc = child
-  if (!proc) return app.exit(0)
   const timer = setTimeout(() => {
-    if (process.platform === 'win32') {
+    if (proc && process.platform === 'win32') {
       const killer = spawn(path.join(process.env.SystemRoot, 'System32/taskkill.exe'), ['/PID', String(proc.pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' })
       killer.unref()
-    } else {
+    } else if (proc) {
       try { process.kill(-proc.pid, 'SIGKILL') } catch { /* 进程已退出。 */ }
     }
     app.exit(0)
   }, 10000)
-  proc.once('close', () => { clearTimeout(timer); app.exit(0) })
+  proc?.once('close', () => { clearTimeout(timer); app.exit(0) })
+  try { fs.writeFileSync(boundsFile, JSON.stringify(win.getNormalBounds())) } catch { /* 仍然推送进度。 */ }
+  settingsWindow?.destroy()
+  if (!proc) return app.exit(0)
+  localPage({ type: 'status', message: ready?.sync ? '正在同步…' : '正在关闭…' })
   if (ready?.sync) send('sync')
   send('quit')
   proc.stdin.end()

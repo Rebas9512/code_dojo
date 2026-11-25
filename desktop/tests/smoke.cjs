@@ -1,4 +1,4 @@
-// 在全新数据目录中实跑 AppImage，所有发布与同步请求都只访问这个回环服务。
+// 在全新数据目录中实跑 AppImage 或 macOS .app，所有发布与同步请求都只访问这个回环服务。
 const assert = require('node:assert/strict')
 const { execFileSync } = require('node:child_process')
 const { createHash } = require('node:crypto')
@@ -10,6 +10,7 @@ const { setTimeout: delay } = require('node:timers/promises')
 const { _electron } = require('playwright-core')
 
 const [image, payload, output] = process.argv.slice(2).map(p => path.resolve(p))
+const mac = process.platform === 'darwin'
 const root = path.join(__dirname, '../..')
 const work = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'dojo-smoke-'))
 const tmp = path.join(work, 'tmp')
@@ -62,7 +63,7 @@ async function submit(page, origin, track, stage, id, file) {
   await page.goto(origin + '/p/' + id)
   const source = fs.readFileSync(path.join(root, 'problems', track, stage, id, file), 'utf8').trimEnd()
   await page.locator('.monaco-editor .view-lines').first().click({ position: { x: 30, y: 12 } })
-  await page.keyboard.press('Control+a')
+  await page.keyboard.press('ControlOrMeta+a')
   await page.keyboard.insertText(source)
   const result = page.waitForResponse(r => r.url().endsWith('/' + id + '/submit'))
   await page.getByRole('button', { name: '提交', exact: true }).click()
@@ -74,38 +75,65 @@ async function submit(page, origin, track, stage, id, file) {
   console.log(track, body.passed + '/' + body.total)
 }
 
-// 仅从本次 Electron 主进程的直接子树选取正在测试的 Python 服务。
-function childMatching(parent, matches) {
-  for (const task of fs.readdirSync('/proc/' + parent + '/task')) {
-    let children
-    try { children = fs.readFileSync('/proc/' + parent + '/task/' + task + '/children', 'utf8').trim() } catch { continue }
-    for (const pid of children.split(' ').filter(Boolean)) {
-      let args
-      try { args = fs.readFileSync('/proc/' + pid + '/cmdline', 'utf8').split('\0') } catch { continue }
-      if (matches(args)) return Number(pid)
-    }
-  }
-  assert.fail('未找到本轮启动的子进程')
+// 只在指定父进程的直接子进程中找本次测试的启动器和后端。
+function childMatching(parent, pattern) {
+  return Number(execFileSync('/usr/bin/pgrep', ['-P', String(parent), '-f', pattern], { encoding: 'utf8' }).trim())
+}
+
+async function openSettings(app, page) {
+  await page.locator('summary', { hasText: '桌面' }).click()
+  const opened = app.waitForEvent('window', { timeout: 10000 })
+  await page.getByRole('button', { name: '设置', exact: true }).click()
+  const settings = await opened
+  await settings.getByRole('button', { name: '完成' }).waitFor()
+  return settings
+}
+
+async function checkAgentPath(app, page, origin) {
+  const binary = path.join(work, '手动 命令', 'claude')
+  fs.mkdirSync(path.dirname(binary))
+  fs.writeFileSync(binary, '#!/bin/sh\n[ "$#" = 1 ] && [ "$1" = --version ] || exit 9\necho "2.0.0 (Claude Code)"\n', { mode: 0o755 })
+  const settings = await openSettings(app, page)
+  const row = settings.getByRole('form', { name: 'Claude Code' })
+  const ids = async () => (await (await fetch(origin + '/api/status')).json()).ai_agents.map(a => a.id)
+  await settings.getByText(/AI 助教已关闭/).waitFor()
+  await row.getByText('未找到', { exact: true }).waitFor()
+  assert.deepEqual(await ids(), [])
+  await row.getByRole('textbox').fill(binary)
+  await row.getByRole('button', { name: '保存' }).click()
+  await settings.getByText('AI 助教已启用', { exact: true }).waitFor()
+  await row.getByText('手动指定 · ' + binary, { exact: true }).waitFor()
+  assert.deepEqual(await ids(), ['claude'])
+  await row.getByRole('button', { name: '改回自动查找' }).click()
+  await row.getByText('未找到', { exact: true }).waitFor()
+  await settings.getByText(/AI 助教已关闭/).waitFor()
+  assert.deepEqual(await ids(), [])
+  await settings.getByRole('button', { name: '完成' }).click()
+  await page.getByRole('tab').first().waitFor()
+  console.log('设置保存与改回自动后，后端助教列表分别为 [claude] 和 []')
 }
 
 async function main() {
-  // Playwright 的调试参数由包装脚本转交给 Electron，AppImage 运行时参数必须排在首位。
-  const launcher = path.join(bin, 'launch')
-  fs.writeFileSync(launcher, '#!/bin/sh\nexec "$DOJO_SMOKE_IMAGE" --appimage-extract-and-run "$@"\n', { mode: 0o755 })
-  // 隔离用户的 Git、gh、助教和钥匙串。仅为本次测试提供凭据存储。
-  fs.writeFileSync(path.join(bin, 'secret-tool'), '#!/bin/sh\nfile="$CODE_DOJO_DATA/test-keyring"\ncase "$1" in store) /bin/cat > "$file";; lookup) [ -f "$file" ] && /bin/cat "$file";; clear) /bin/rm -f "$file";; esac\n', { mode: 0o755 })
+  const args = mac ? ['--use-mock-keychain'] : ['--ozone-platform=x11', '--password-store=basic', '--disable-dev-shm-usage']
+  let launcher = path.join(image, 'Contents/MacOS/code-dojo')
+  if (!mac) {
+    // 包装脚本把 AppImage 的解包参数放在 Playwright 调试参数之前。
+    launcher = path.join(bin, 'launch')
+    fs.writeFileSync(launcher, '#!/bin/sh\nexec "$DOJO_SMOKE_IMAGE" --appimage-extract-and-run "$@"\n', { mode: 0o755 })
+    fs.writeFileSync(path.join(bin, 'secret-tool'), '#!/bin/sh\nfile="$CODE_DOJO_DATA/test-keyring"\ncase "$1" in store) /bin/cat > "$file";; lookup) [ -f "$file" ] && /bin/cat "$file";; clear) /bin/rm -f "$file";; esac\n', { mode: 0o755 })
+  }
   hub.listen(0, '127.0.0.1')
   await once(hub, 'listening')
   let app
   try {
     const env = Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith('CODE_DOJO_')))
     delete env.ELECTRON_RUN_AS_NODE
-    Object.assign(env, { PATH: bin, TMPDIR: tmp, XDG_CACHE_HOME: path.join(work, 'cache'),
+    // 登录 shell 也与系统 PATH 隔离。macOS 找不到 security 时走测试数据目录的凭据文件。
+    Object.assign(env, { PATH: bin, SHELL: '/usr/bin/false', TMPDIR: tmp, XDG_CACHE_HOME: path.join(work, 'cache'),
       XDG_CONFIG_HOME: path.join(work, 'config'), CODE_DOJO_DATA: path.join(work, 'data'),
       CODE_DOJO_AI_PROVIDER: 'off', CODE_DOJO_PORT: '8001', CODE_DOJO_GITHUB_API: 'http://127.0.0.1:' + hub.address().port,
       DOJO_SMOKE_IMAGE: image, NO_CLEANUP: '1' })
-    app = await _electron.launch({ executablePath: launcher, chromiumSandbox: true, env, timeout: 120000,
-      args: ['--ozone-platform=x11', '--password-store=basic', '--disable-dev-shm-usage'], artifactsDir: work })
+    app = await _electron.launch({ executablePath: launcher, chromiumSandbox: true, env, args, timeout: 120000, artifactsDir: work })
     const page = await app.firstWindow()
     page.setDefaultTimeout(90000)
     page.on('framenavigated', frame => { if (frame === page.mainFrame()) console.log('窗口导航', frame.url()) })
@@ -127,12 +155,12 @@ async function main() {
       return { pid: process.pid, executable: process.execPath, sandbox: prefs.sandbox,
         isolated: prefs.contextIsolation, node: prefs.nodeIntegration, noSandbox: app.commandLine.hasSwitch('no-sandbox') }
     })
-    // 网页仍是隔离的沙箱页面；AppImage 的 AppRun 一律带 --no-sandbox（见 scripts/desktop/build.py），这里确认没丢。
-    assert.ok(main.sandbox && main.isolated && !main.node && main.noSandbox)
-    execFileSync(main.executable, ['--ozone-platform=x11'], { env, timeout: 10000, stdio: 'ignore' })
+    assert.ok(main.sandbox && main.isolated && !main.node)
+    assert.equal(main.noSandbox, !mac)
+    execFileSync(main.executable, args, { env, timeout: 10000, stdio: 'ignore' })
     assert.equal(await app.evaluate(() => globalThis.secondLaunches), 1)
-    const supervisor = childMatching(main.pid, args => args.includes('bootstrap') && args.includes('jsonl'))
-    const backend = childMatching(supervisor, args => args.some(arg => arg.endsWith('/runtime/start.py')))
+    const supervisor = childMatching(main.pid, ' -m bootstrap serve --protocol jsonl$')
+    const backend = childMatching(supervisor, '/runtime/start[.]py$')
     process.kill(backend, 'SIGKILL')
     await page.getByText('本机服务意外退出，请重启').waitFor()
     await shot('restart')
@@ -142,10 +170,12 @@ async function main() {
     await page.getByRole('tab').first().waitFor()
     console.log('已验证渲染器隔离、第二实例聚焦与后端崩溃重启')
     await page.getByText('本机保存', { exact: true }).waitFor()
-    await page.locator('summary', { hasText: '桌面' }).click()
-    const opened = app.waitForEvent('window')
-    await page.getByRole('button', { name: '设置', exact: true }).click()
-    const settings = await opened
+    const localSettings = await openSettings(app, page)
+    const nativeSettings = await app.browserWindow(localSettings)
+    assert.equal(await nativeSettings.evaluate(win => win.isModal()), !mac)
+    await Promise.all([localSettings.waitForEvent('close', { timeout: 5000 }), localSettings.keyboard.down('Escape')])
+    assert.ok(localSettings.isClosed() && !page.isClosed())
+    const settings = await openSettings(app, page)
     await settings.getByText(/AI 助教已关闭/).waitFor()
     await settings.screenshot({ path: path.join(output, 'settings.png') })
     await settings.getByLabel('同步码').fill('incorrect-smoke-password')
@@ -164,9 +194,13 @@ async function main() {
     await settings.getByRole('button', { name: '确认关闭' }).click()
     await settings.getByLabel('同步码').waitFor()
     connected = false
-    assert.ok(!fs.existsSync(path.join(env.CODE_DOJO_DATA, 'test-keyring')))
+    assert.ok(!fs.existsSync(path.join(env.CODE_DOJO_DATA, mac ? 'github-tokens.json' : 'test-keyring')))
     await enable()
-    await settings.close()
+    await Promise.all([
+      settings.waitForEvent('close', { timeout: 5000 }),
+      settings.getByRole('button', { name: '完成' }).click(),
+    ])
+    assert.ok(settings.isClosed() && !page.isClosed())
     origin = new URL(page.url()).origin
     await page.getByRole('tab').first().waitFor()
     await submit(page, origin, 'python', '0A', 'py-0a-003-rectangle-perimeter', 'solution.py')
@@ -183,17 +217,23 @@ async function main() {
     assert.deepEqual(await app.evaluate(() => globalThis.openedLinks), [url, 'https://github.com/'])
     assert.equal(new URL(page.url()).origin, origin)
     assert.equal(app.windows().length, 1)
-    const expectedBounds = await app.evaluate(({ BrowserWindow }) => {
+    const expectedBounds = await app.evaluate(({ BrowserWindow, screen }) => {
       const win = BrowserWindow.getAllWindows()[0]
-      win.setBounds({ x: 40, y: 50, width: 1200, height: 760 })
+      const area = screen.getPrimaryDisplay().workArea
+      win.setBounds({ x: area.x, y: area.y, width: Math.min(1200, area.width), height: Math.min(760, area.height) })
       return win.getNormalBounds()
     })
+    const settingsAtQuit = await openSettings(app, page)
+    await settingsAtQuit.getByText('已开启进度同步').waitFor()
+    const appProcess = app.process()
     closing = true
     const closed = app.waitForEvent('close', { timeout: 13000 })
-    await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].close())
+    await app.evaluate(({ app }) => app.quit())
     await page.getByRole('heading', { name: '正在同步…' }).waitFor()
     await shot('closing')
     await closed
+    assert.ok(settingsAtQuit.isClosed())
+    assert.equal(appProcess.exitCode, 0)
     app = null
     assert.ok(finalReads > 0 && contents.size > 0)
     const events = [...contents.values()].map(bytes => bytes.toString()).join('\n')
@@ -203,12 +243,14 @@ async function main() {
 
     // 再开一次已提取的同一成品，验证窗口记忆和远端无响应时的退出上限。
     closing = false
-    app = await _electron.launch({ executablePath: main.executable, chromiumSandbox: true, env,
-      args: ['--ozone-platform=x11', '--password-store=basic', '--disable-dev-shm-usage'], artifactsDir: work })
+    // 此轮的 PATH、登录 shell 和扩展目录都隔离，只能选到接受 --version 的假命令。
+    const agentEnv = { ...env, HOME: work, CODE_DOJO_AI_PROVIDER: 'claude' }
+    app = await _electron.launch({ executablePath: main.executable, chromiumSandbox: true, env: agentEnv, args, artifactsDir: work })
     const reopened = await app.firstWindow()
     await reopened.getByRole('tab').first().waitFor({ timeout: 90000 })
     assert.deepEqual(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getNormalBounds()), expectedBounds)
     const reopenedOrigin = new URL(reopened.url()).origin
+    await checkAgentPath(app, reopened, reopenedOrigin)
     stall = true
     const started = Date.now()
     const stopped = app.waitForEvent('close', { timeout: 12000 })

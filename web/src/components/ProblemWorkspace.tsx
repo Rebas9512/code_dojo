@@ -968,7 +968,7 @@ export function ProblemWorkspace({ data, theme }: { data: WorkspaceData; theme: 
       />
       <div className="wb-chat" hidden={!layout.chatOpen}>
         {!layout.narrow && layout.chatOpen && <Separator label="调整助教宽度" side="right" size={layout.tutor} />}
-        <ChatPanel aiOn={status.ai !== 'off'} close={layout.toggleChat} onReply={recordAi}
+        <ChatPanel aiOn={status.ai !== 'off'} layout={layout} onReply={recordAi}
           review={review}
           problemId={id}
           currentId={activeId}

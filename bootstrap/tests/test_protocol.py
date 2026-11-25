@@ -10,7 +10,7 @@ from unittest.mock import Mock
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from bootstrap import DEFAULT_REPO, DEFAULT_SYNC, VERSION, protocol
+from bootstrap import DEFAULT_REPO, DEFAULT_SYNC, VERSION, agents, protocol
 from bootstrap.sealed import seal
 from bootstrap.update import Installed, Result
 
@@ -19,6 +19,11 @@ from bootstrap.update import Installed, Result
 def controller(tmp_path, monkeypatch):
     monkeypatch.setenv("CODE_DOJO_GITHUB_API", "http://127.0.0.1:1")
     monkeypatch.setenv("CODE_DOJO_SYNC_REPO", DEFAULT_SYNC)
+    monkeypatch.setenv("PATH", str(tmp_path))
+    monkeypatch.delenv("CODE_DOJO_CLAUDE_BIN", raising=False)
+    monkeypatch.delenv("CODE_DOJO_CODEX_BIN", raising=False)
+    monkeypatch.setattr(agents, "_login_path", lambda: "")
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setattr(protocol, "tokens", Mock(return_value={}))
     monkeypatch.setattr(protocol, "clear_tokens", Mock())
     machine = protocol.Controller(tmp_path, tmp_path)
@@ -28,6 +33,7 @@ def controller(tmp_path, monkeypatch):
     updates.check.return_value = Result(active)
     monkeypatch.setattr(protocol, "Updates", lambda *args: updates)
     def start(_, item):
+        machine.agents = agents.service_agents(machine.data, os.environ.copy())
         machine.item, machine.port, machine.child = item, 43210, Mock()
         return True
     monkeypatch.setattr(machine, "start", start)
@@ -123,10 +129,8 @@ def test_module_entry_quits_with_stdin_open(tmp_path):
 
 @pytest.mark.parametrize("preference,enabled", [("claude", True), ("codex", True), ("off", False)])
 def test_codex_alone_in_extension(controller, capsys, monkeypatch, tmp_path, preference, enabled):
-    from bootstrap import agents
-
-    monkeypatch.setattr(agents.shutil, "which", lambda _: None)
-    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    monkeypatch.setenv("CODE_DOJO_CODEX_BIN", "codex")
+    monkeypatch.setattr(agents.shutil, "which", lambda *args, **kwargs: None)
     monkeypatch.setattr(agents.sys, "platform", "darwin")
     monkeypatch.setattr(agents.platform, "machine", lambda: "arm64")
     monkeypatch.setenv("CODE_DOJO_AI_PROVIDER", preference)
@@ -134,8 +138,33 @@ def test_codex_alone_in_extension(controller, capsys, monkeypatch, tmp_path, pre
     codex.parent.mkdir(parents=True)
     codex.touch(mode=0o755)
     assert agents.has_agent()
+    service = Mock(stdout=io.StringIO('{"ready":43210}\n'), stdin=io.StringIO())
+    monkeypatch.setattr(subprocess, "Popen", Mock(return_value=service))
+    monkeypatch.setattr(controller, "start", protocol.Controller.start.__get__(controller))
     events, _ = exchange(controller, [], capsys)
     assert events[-1]["type"] == "ready" and events[-1]["ai"] is enabled
+    assert events[-1]["agents"]["codex"]["path"] == str(codex)
+    assert subprocess.Popen.call_args.kwargs["env"]["CODE_DOJO_CODEX_BIN"] == str(codex)
+
+
+def test_agent_path_commands_restart_only_on_success(controller, capsys, monkeypatch):
+    monkeypatch.setenv("CODE_DOJO_AI_PROVIDER", "claude")
+    folder = controller.data / "desktop"
+    folder.mkdir()
+    restart = Mock(wraps=controller.restart_service)
+    monkeypatch.setattr(controller, "restart_service", restart)
+    command = {"command": "set_agent_path", "agent": "claude"}
+    # 解释器本身支持 --version，且位置独立于测试 PATH。
+    events, _ = exchange(controller, [command | {"path": str(folder / "missing")},
+                                      command | {"path": sys.executable},
+                                      {"command": "reset_agent_path", "agent": "claude"}], capsys)
+    assert [(e["type"], e.get("agent")) for e in events if e["type"] in ("error", "ready")] == [
+        ("ready", None), ("error", "claude"), ("ready", None), ("ready", None)]
+    assert restart.call_count == 2
+    ready = [e for e in events if e["type"] == "ready"]
+    assert [e["ai"] for e in ready] == [False, True, False]
+    assert [e["agents"]["claude"]["path"] for e in ready] == [None, sys.executable, None]
+    assert agents.manual_paths(controller.data) == {}
 
 
 def test_launch_starts_installed_then_stages_update(controller, capsys, tmp_path):

@@ -72,6 +72,8 @@ def test_codex_exec(tmp_path, monkeypatch, effort, expected):
     binary = str(tmp_path / "命令/codex")
     monkeypatch.setattr(provider.shutil, "which", lambda _: binary)
     monkeypatch.setenv("CODEX_HOME", str(tmp_path / "登录目录"))
+    monkeypatch.setenv("USER", "dojo-user")
+    monkeypatch.setenv("LOGNAME", "dojo-login")
     for secret in ("OPENAI_API_KEY", "CODEX_API_KEY", "CLAUDE_CODE_OAUTH_TOKEN", "CODE_DOJO_PASSWORD_HASH"):
         monkeypatch.setenv(secret, "测试专用")
 
@@ -83,7 +85,7 @@ def test_codex_exec(tmp_path, monkeypatch, effort, expected):
         assert cmd[cmd.index("-m") + 1] == "gpt-6.2-astra"
         config = tomllib.loads("\n".join(cmd[i + 1] for i, arg in enumerate(cmd) if arg == "-c"))
         assert config == dict(developer_instructions=system, model_reasoning_effort=expected, forced_login_method="chatgpt")
-        allowed = {"HOME", "PATH", "LANG", "CODEX_HOME"}
+        allowed = {"HOME", "PATH", "LANG", "USER", "LOGNAME", "CODEX_HOME"}
         if os.name == "nt":
             allowed.update(("USERPROFILE", "APPDATA", "LOCALAPPDATA", "SystemRoot", "TEMP", "TMP", "ComSpec", "PATHEXT"))
         assert env == {key: os.environ[key] for key in allowed if key in os.environ} | {"LANG": os.getenv("LANG", "C.UTF-8")}
@@ -115,6 +117,28 @@ def test_codex_failure_cleans_temp(tmp_path, monkeypatch, failure, detail):
     assert not list(tmp_path.iterdir())
 
 
+@pytest.mark.parametrize("cli,stdout,stderr,expected", [
+    (provider.ClaudeCodeProvider, '{"is_error":true,"result":"Not logged in · Please run /login"}', "", "claude auth status"),
+    (provider.ClaudeCodeProvider, "", "Please run /login", "claude auth status"),
+    (provider.ClaudeCodeProvider, '{"is_error":true,"result":"unknown model"}', "", "unknown model"),
+    (CodexProvider, "", "401 Unauthorized", "codex login status"),
+])
+def test_cli_error_message(tmp_path, monkeypatch, cli, stdout, stderr, expected):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(provider.shutil, "which", lambda _: os.path.join("bin", cli.command))
+    monkeypatch.setenv("USER", "dojo-user")
+    monkeypatch.setenv("LOGNAME", "dojo-login")
+
+    def run(cmd, *, env, **kwargs):
+        assert Path(cmd[0]) == tmp_path / "bin" / cli.command
+        assert (env["USER"], env["LOGNAME"]) == ("dojo-user", "dojo-login")
+        return subprocess.CompletedProcess(cmd, 1, stdout, stderr)
+
+    monkeypatch.setattr(provider.subprocess, "run", run)
+    with pytest.raises(AIError, match=expected):
+        cli(workdir=tmp_path).complete(system="设定", prompt="问题", schema=tutor.SCHEMA)
+
+
 @pytest.mark.parametrize("system,machine,rel", [("linux", "x86_64", "linux-x86_64/codex"),
                                                 ("darwin", "arm64", "macos-aarch64/codex"),
                                                 ("win32", "AMD64", "windows-x86_64/codex.exe")])
@@ -128,6 +152,7 @@ def test_codex_extension_version(tmp_path, monkeypatch, system, machine, rel):
         binary.touch(mode=0o755)
     monkeypatch.setattr(provider.shutil, "which", lambda _: None)
     assert provider.find_codex("codex") == str(binary)
+    assert provider.find_codex(str(tmp_path / "missing" / "codex")) is None
     monkeypatch.setattr(provider.shutil, "which", lambda name: "/path/codex" if name == "custom" else None)
     assert provider.find_codex("custom") == "/path/codex"
 

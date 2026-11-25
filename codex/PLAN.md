@@ -172,3 +172,16 @@
 - ✓ 60-tutor-scratch：聊天请求带草稿；edits 加 target（answer / scratch）；改草稿自动切过去、可撤销，不计入 AI 协助。主控真实冒烟 Claude、Codex 都返回 target=scratch；主控补了一条软约束：草稿里只演示知识点和中间过程，不借草稿写出本题完整解法（否则抄进答案会被记成独立通过）。
 - 两项都完成后：整体更新仓库首页 README 展示新功能（一组练习、参考答案、项目、草稿、本机即用 + 同步码；写明 AI 助教要用户自己在本机装好 Claude Code 或 Codex），配新截图。
 - ✓ Opus 清理（8 个文件 +37/−31；SQL 项目参考结果按项目缓存，完整跑一遍从约 1 秒到约 0）；全量复验通过；1.3.0 发版。（用户 2026-11-23：最后提交前也派一个opus去做一下优化和性能检查以免codex写了太多防御性代码）：59、60 验收后、最终提交前，派 Opus 过一遍今天（dc12c34 之后）codex 写的平台代码（server/app、web/src、bootstrap、desktop、scripts），清理防御性代码、查性能；不碰 problems/ 内容。
+
+## macOS 1.3.0 反馈（issue #1–#6，用户 2026-11-24："现在我想 把这6条解决一下，分别先做一下能修的部分，然后其他conflict的问题的话看看出一个推荐方案这样，然后长期记忆也出一个方案 可以并行做"）
+四个任务并行，文件互不重叠；版本号由主控在发版时统一改。
+- 61-agent-env（#3 + #5）：`bootstrap/agents.py`、`server/app/ai/provider.py` 及测试；deploy/README.md 只改"AI 助教已关闭"一节。#5 走更新包，#3 随 1.3.1 安装包。
+- 62-mac-shell（#1 + #2）：`desktop/`、`.github/workflows/release-app.yml`（加 workflow_dispatch，手动触发只构建不发布）；deploy/README.md 只改 macOS 下载和首次打开。
+- 63-chat-input（#4）：`web/`，走更新包。
+- 64-tutor-memory-design（#6）：只写 `docs/tutor-memory.md`，等用户拍板再派开发。
+- 发版顺序：61/63 验收后推 main（更新包先修 #4、#5）→ 分支上手动跑 release-app 三系统构建 + 冒烟 + macOS codesign 检查 → 改版本号 1.3.1、打标签 → 请用户在 Mac 上验。
+- ✓ 61-agent-env：沙箱外启动器 17、后端 378 全过（含 codex 跳过的 7 个 git 同步测试）；Linux GUI 模拟读登录 shell 后找到 claude、codex。只在两个命令都找不到时才读登录 shell（主控接受：只装一个助教的机器不必每次启动多开一个 shell）。
+- ✓ 62-mac-shell：主控补 `hardenedRuntime: false`（只有公证才需要；关掉后随包 Python 加载判题环境里未签名的扩展库，行为同 1.3.0）。workflow_dispatch 要先进默认分支才能手动触发，所以试跑放在推 main 之后。
+- ✓ 63-chat-input：主控沙箱外重跑浏览器验证全过（48 条消息时文本框 77.81px 不变，拖高刷新保留，窄屏可用）。
+- ✓ 65-manual-agent-path（用户 2026-11-24："如果不行的话可以在设置里做一个手动链接agent的这个设计"）：设置里分别指定 claude / codex 位置，存 desktop/agents.json，保存时跑 --version，restart_service() 当场生效。主控复跑启动器 26、settings VM 冒烟、协议冒烟 --fake-agent（自动 → 手动列出 claude → 重开仍手动 → 改回自动）。
+- 64 第一版（显式"记住"、记忆页面）被用户否掉；64b 跑到一半按新要求停掉（未改文件）；64c 重写为助教自己管理的记忆（用户："就有点像现在你开发目录下的这个memory功能这样就行 整体让agent自己管理我的学习进度这样的就可以"），待拍板后派两期五个任务。

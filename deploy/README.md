@@ -22,7 +22,7 @@ AI 助教是可选的，要在你电脑上自己装好并登录 Claude Code 或 
 
 ## 2. 第一次打开
 
-安装包没有做代码签名，所以 Windows 和 macOS 第一次打开时会拦一下，按下面的步骤确认即可。
+Windows 和 macOS 首次打开时可能会要求确认，按对应系统的步骤操作即可。
 
 ### Windows
 
@@ -34,9 +34,11 @@ AI 助教是可选的，要在你电脑上自己装好并登录 Claude Code 或 
 
 ### macOS
 
+Apple 芯片版的 `.app` 带有 ad-hoc 签名，可校验安装包的完整性。Apple 尚未公证此版本，首次打开时可能提示“无法验证开发者”。
+
 1. 双击 zip 解压，把 `code-dojo.app` 拖进“应用程序”文件夹。
-2. 双击打开。系统提示无法验证开发者时，先关掉提示，然后打开“系统设置 → 隐私与安全性”，在页面下方 code-dojo 那一行点“仍要打开”，输入开机密码确认。之后再打开就不会提示了。
-3. 如果提示“已损坏，无法打开”，打开“终端”运行下面这行，再重新打开应用：
+2. 在“应用程序”里双击 code-dojo。如果系统拦截，关掉提示，随即打开“系统设置 → 隐私与安全性”，在 code-dojo 旁点“仍要打开”，按提示验证身份，再点“打开”。系统会记住这次选择。
+3. 如果使用旧版本，或从本项目 Release 重新下载后仍提示“已损坏”，可在“终端”运行下面的命令移除下载隔离标记，再打开应用。
 
    ```sh
    xattr -dr com.apple.quarantine /Applications/code-dojo.app
@@ -103,7 +105,7 @@ Claude Code 和 Codex 装一个就行。两个都装了的话，可以在助教�
 
    其他安装方式（Homebrew、WinGet、npm）见官方文档。[Claude Code 安装说明](https://code.claude.com/docs/en/setup)
 2. 新开一个终端窗口，运行 `claude`，按提示在浏览器里登录。登录好以后输入 `/exit` 退出。
-3. 在新开的终端里运行 `claude --version`，能显示版本号就说明装好了。
+3. 在新开的终端里运行 `claude auth status`，确认输出中的 `loggedIn` 为 `true`（已登录）。
 
 ### 用 Codex
 
@@ -111,7 +113,7 @@ Claude Code 和 Codex 装一个就行。两个都装了的话，可以在助教�
 
 1. 安装。装了 Node.js 的话，运行 `npm install -g @openai/codex`；macOS 也可以运行 `brew install --cask codex`。其他方式见官方文档。[Codex CLI 安装说明](https://developers.openai.com/codex/cli)
 2. 运行 `codex`，选 “Sign in with ChatGPT”，在浏览器里登录。
-3. 在新开的终端里运行 `codex --version`，能显示版本号就说明装好了。
+3. 在新开的终端里运行 `codex login status`，确认显示已用 ChatGPT 登录。
 
 如果你已经在 VS Code 里装了 OpenAI 的 ChatGPT / Codex 扩展，并且已经登录，可以跳过上面的步骤，应用会自动找到扩展自带的 codex。
 
@@ -127,16 +129,11 @@ Claude Code 和 Codex 装一个就行。两个都装了的话，可以在助教�
 
 - **终端里也找不到命令**：说明命令所在的目录不在 PATH 里。请按安装程序最后的提示，把这个目录加进 PATH。Claude Code 默认装在 `~/.local/bin`；Windows 上是 `%USERPROFILE%\.local\bin`。加好以后，新开一个终端再试。
 - **终端里能找到，应用里找不到**：
-  - **macOS**：从访达、启动台或程序坞打开的应用，读不到终端里的 PATH，所以装在 `~/.local/bin` 或 Homebrew 目录里的命令都找不到。目前的办法是从终端启动应用：
+  1. 在 macOS 或 Linux 终端运行 `command -v claude` 或 `command -v codex`。在 Windows PowerShell 运行 `where.exe claude` 或 `where.exe codex`，选择输出中的 `.exe` 或 `.cmd` 文件。
+  2. 打开“桌面 → 设置”，在“AI 助教”下找到对应命令，粘贴完整路径。也可以点“浏览…”选择文件，包括 `~/.local/bin` 等隐藏目录里的文件。如果看不到路径输入框，请先更新桌面安装包。
+  3. 点“保存”。应用会运行一次 `--version` 检查文件，成功后会显示“手动指定”和实际路径，回到练习即可使用。位置只保存在这台电脑上，重启后仍然有效。要撤销时，点“改回自动查找”。
 
-    ```sh
-    /Applications/code-dojo.app/Contents/MacOS/code-dojo
-    ```
-
-  - **Linux**：刚装好的 `~/.local/bin`，要注销后重新登录桌面，才会对从应用菜单打开的程序生效。也可以直接从终端启动 AppImage。
-  - **Windows**：确认装好以后完全退出了应用，并且是重新打开的。
-
-如果设置里显示已启用，但一提问就报错，多半是登录过期了，或者账号用不了上面写的模型。在终端里运行一次 `claude` 或 `codex` 重新登录，然后再试。
+如果设置里显示已启用，但提问时报登录错误，在终端运行 `claude auth status` 或 `codex login status`。如果显示未登录，按上面对应的步骤登录。如果终端显示已登录，1.3.0 用户可以先从应用菜单“检查更新”取得助教登录修复，再试一次。
 
 ## 5. 记录保存在哪
 

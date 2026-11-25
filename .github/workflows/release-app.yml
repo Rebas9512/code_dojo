@@ -2,6 +2,7 @@ name: 发布桌面安装包
 'on':
   push:
     tags: ['app-v*']
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -28,6 +29,7 @@ jobs:
         with:
           node-version: '22'
       - name: 校验标签与两个启动器的版本
+        if: github.event_name == 'push'
         run: python -c "import json, os; from bootstrap import VERSION; assert os.environ['GITHUB_REF_NAME'] == 'app-v' + VERSION; assert json.load(open('desktop/package.json'))['version'] == VERSION"
       - working-directory: desktop
         env:
@@ -42,10 +44,20 @@ jobs:
         env:
           CODE_DOJO_SEALED_TOKENS: ${{ secrets.CODE_DOJO_SEALED_TOKENS }}
         run: python scripts/desktop/build.py --output dist app
+      - name: 验证 macOS 发布 zip 中的应用和 Python 运行时签名
+        if: runner.os == 'macOS'
+        run: |
+          ditto -x -k dist/*-arm64-mac.zip "$RUNNER_TEMP/release-mac"
+          app="$RUNNER_TEMP/release-mac/code-dojo.app"
+          codesign --verify --deep --strict --verbose=2 "$app"
+          runtime="$app/Contents/Resources/runtime"
+          codesign --verify --strict "$runtime/python/bin/python3"
+          find "$runtime" -type f \( -name '*.so' -o -name '*.dylib' \) -exec codesign --verify --strict {} +
       - name: 检查正式 AppImage 的菜单、图标和压缩格式
         if: runner.os == 'Linux'
         run: |
-          name="dist/code-dojo-${GITHUB_REF_NAME#app-v}-x86_64"
+          version=$(node -p "require('./desktop/package.json').version")
+          name="dist/code-dojo-$version-x86_64"
           test -s "$name-linux.tar.gz"
           image="$name.AppImage"
           unsquashfs -s -o "$("$image" --appimage-offset)" "$image" | grep -Fx 'Compression gzip'
@@ -53,8 +65,8 @@ jobs:
           desktop-file-validate squashfs-root/code-dojo.desktop
           test -x squashfs-root/AppRun && cmp squashfs-root/.DirIcon scripts/desktop/code-dojo.png
           cmp squashfs-root/usr/share/icons/hicolor/scalable/apps/code-dojo.svg web/public/code-dojo.svg
-      - name: 用合成令牌和回环服务验证解锁、交卷、同步与退出
-        if: runner.os == 'Linux'
+      - name: 准备回环服务的更新包和合成令牌安装包
+        if: runner.os != 'Windows'
         env:
           CODE_DOJO_DATA: ${{ runner.temp }}/dojo-data
         run: |
@@ -65,13 +77,22 @@ jobs:
           mkdir -p smoke
           server/.venv/bin/python scripts/desktop/build.py --output smoke/payload payload --sha "$GITHUB_SHA" --version smoke.30
           CODE_DOJO_SEALED_TOKENS="$(server/.venv/bin/python desktop/tests/seal.py)" python scripts/desktop/build.py --output smoke/app app
-          xvfb-run -a -s '-screen 0 1600x1000x24' node desktop/tests/smoke.cjs smoke/app/*.AppImage smoke/payload smoke
+      - name: 在 Linux 上验证设置、交卷、同步与退出
+        if: runner.os == 'Linux'
+        run: xvfb-run -a -s '-screen 0 1600x1000x24' node desktop/tests/smoke.cjs smoke/app/*.AppImage smoke/payload smoke
+      - name: 在 macOS 上验证设置、交卷、同步与退出，退出后复验签名
+        if: runner.os == 'macOS'
+        run: |
+          ditto -x -k smoke/app/*-arm64-mac.zip smoke
+          node desktop/tests/smoke.cjs smoke/code-dojo.app smoke/payload smoke
+          codesign --verify --deep --strict --verbose=2 smoke/code-dojo.app
       - uses: actions/upload-artifact@v4
         with:
           name: app-${{ matrix.os }}
           path: dist/code-dojo-*
           if-no-files-found: error
   publish-app:
+    if: github.event_name == 'push'
     needs: build-app
     runs-on: ubuntu-latest
     permissions:

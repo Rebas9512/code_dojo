@@ -13,7 +13,7 @@ from pathlib import Path
 from cryptography.exceptions import InvalidTag
 
 from . import DEFAULT_REPO, DEFAULT_SYNC, VERSION
-from .agents import has_agent
+from .agents import BIN_VARS, service_agents, set_manual_path
 from .credentials import clear_tokens, tokens
 from .github import GitHub, repository
 from .sealed import unseal
@@ -52,6 +52,7 @@ class Controller:
         self.inbox = queue.Queue()
         self.checking = threading.Lock()  # 后台和手动查更新不同时下载
         self.child = None
+        self.agents = {}
         self.values = {}
         self.item = None
 
@@ -117,6 +118,20 @@ class Controller:
             self.connect_sync(message["code"])
         elif name == "disconnect_sync" and self.child:
             self.disconnect_sync()
+        elif name in ("set_agent_path", "reset_agent_path") and self.child and message.get("agent") in tuple(BIN_VARS):
+            agent = message["agent"]
+            if name == "set_agent_path" and not isinstance(message.get("path"), str):
+                self.send("error", scope="settings", agent=agent, message="请输入命令的完整路径")
+                return
+            try:
+                set_manual_path(self.data, agent, message["path"] if name == "set_agent_path" else None)
+            except ValueError as exc:
+                self.send("error", scope="settings", agent=agent, message=str(exc))
+                return
+            except OSError:
+                self.send("error", scope="settings", agent=agent, message="无法写入本机的助教设置")
+                return
+            self.restart_service()
         elif name == "sync":
             self.write("sync")
             self.write("status")
@@ -161,9 +176,9 @@ class Controller:
             self.send("status", message=result.message, installer=result.installer, checked=True)
 
     def ready(self, message="", installer=""):
-        enabled = os.environ.get("CODE_DOJO_AI_PROVIDER") != "off" and has_agent()
+        enabled = os.environ.get("CODE_DOJO_AI_PROVIDER") != "off" and any(a["path"] for a in self.agents.values())
         self.send("ready", port=self.port, version=VERSION, payload_version=self.item.manifest["version"],
-                  ai=enabled, sync=bool(self.sync_token), message=message, installer=installer)
+                  ai=enabled, agents=self.agents, sync=bool(self.sync_token), message=message, installer=installer)
         self.write("status")
 
     def update(self):
@@ -198,8 +213,10 @@ class Controller:
         script = self.bundle / "start.py"
         if not script.is_file():
             script = self.bundle / "scripts/desktop/start.py"
+        env = os.environ.copy()
+        self.agents = service_agents(self.data, env)
         child = subprocess.Popen([sys.executable, "-I", "-B", "-X", "utf8", str(script)],
-                                 cwd=item.root, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                                 cwd=item.root, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                                  text=True, encoding="utf-8", creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
         self.child = child
         self.write(json.dumps(config))

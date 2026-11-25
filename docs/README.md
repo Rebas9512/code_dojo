@@ -1,7 +1,7 @@
 # code-dojo · 开发文档入口
 
 > 给自己用的手写代码练习网站：从学习地图进入各条线，按阶段和知识点练固定题库，AI 随时答疑、分级提示、按需当场出新题。
-> 最后更新 2026-11-23。摘要层（状态、发现、决策、可复用知识）在 Obsidian vault `coding_practice/projects/code-dojo/`；本文件和代码里的注释是原始文档。
+> 最后更新 2026-11-24。摘要层（状态、发现、决策、可复用知识）在 Obsidian vault `coding_practice/projects/code-dojo/`；本文件和代码里的注释是原始文档。
 
 ## 这个项目是什么
 - **目标**：长时间没手写代码，手很生。做一个类似 LeetCode 的网页，从 beginner 开始一步步把手写能力练回来，同时覆盖求职常用的标准题单。
@@ -15,7 +15,7 @@ code-dojo/
 ├── README.md             仓库首页：英文展示页（下载即用说明、功能和截图），开发文档是本文件
 ├── dojo.py、dojo、dojo.ps1  本机启动、环境诊断和旧记录导入
 ├── desktop/              Electron 主进程、受限 preload、本地启动页与打包配置
-├── bootstrap/            JSONL 控制协议、令牌、更新包下载与切换、本机服务启动
+├── bootstrap/            JSONL 控制协议、令牌、更新包下载与切换、助教命令探测与本机服务启动
 ├── .github/workflows/    测试（推送跑 Linux，手动触发跑三系统）、更新包发布、桌面安装包发布
 ├── docs/
 │   ├── README.md         本文件
@@ -51,17 +51,19 @@ code-dojo/
 
 Electron 同时载入启动页和运行 `python -m bootstrap serve --protocol jsonl`。启动器读取本机钥匙串或 `github-tokens.json` 里的凭据，已有凭据的机器直接带同步启动，包括已解锁的 1.2.0 安装。新机器直接进入本机模式，记录写入本机数据目录。公开的 `payload-latest` Release 支持匿名检查和下载，有已存代码令牌时会使用它。
 
-协议使用 UTF-8，每行一个 JSON 对象。stdin 的 `command` 支持 `connect_sync`（字段 `code`）、`disconnect_sync`、`sync`、`check_update` 和 `quit`。stdout 的 `type` 为 `status`、`ready`、`sync`、`sync_code_failed` 或 `error`。`ready` 包含 `port`、启动器 `version`、`payload_version`、助教状态 `ai` 和表示同步已开启的布尔值 `sync`。错码消息返回剩余次数 `remaining` 和等待秒数 `wait`，连续输错五次需等待 30 秒。`error` 带 `scope: "settings"` 时，错误显示在设置窗口，练习可以继续。
+协议使用 UTF-8，每行一个 JSON 对象。stdin 的 `command` 支持 `connect_sync`（字段 `code`）、`disconnect_sync`、`set_agent_path`（字段 `agent`、`path`）、`reset_agent_path`（字段 `agent`）、`sync`、`check_update` 和 `quit`。stdout 的 `type` 为 `status`、`ready`、`sync`、`sync_code_failed` 或 `error`。`ready` 包含 `port`、启动器 `version`、`payload_version`、助教开关 `ai`、按命令列出来源和路径的 `agents` 和同步开关 `sync`。错码消息返回剩余次数 `remaining` 和等待秒数 `wait`，连续输错五次需等待 30 秒。`error` 带 `scope: "settings"` 时，错误显示在设置窗口，练习可以继续。
 
 启动器从 `CODE_DOJO_REPO`（默认 `Rebas9512/code_dojo`）的 `payload-latest` Release 获取清单。更新包包含 FastAPI 代码及其预编译字节码、网页、固定题库、判题程序、技能识别规则和预先计算的 SQL 期望表。清单记录版本、提交 SHA、生成时间、最低启动器版本、题库格式版本和依赖锁 SHA-256。外部清单还记录整个 zip 的 SHA-256，它只用作这个更新包的 ID 和目录名，下载后不再计算哈希核对；依赖锁 SHA-256 同样只用作依赖目录名和与安装包的比较。
 
 下载和解压均在用户数据目录的 `desktop/` 下完成。更新包的依赖锁和安装包的 `lock.sha256` 一致时，后端直接使用安装包里的 `libraries`，不复制。锁不一致时，内置 pip 按带哈希的运行时依赖清单安装到 `desktop/dependencies/<锁哈希>`；这时若又离线，旧更新包会缺依赖，联网更新一次即可。`.gitattributes` 让 `server/uv.lock` 在 Windows 检出时不转成 CRLF，否则两边的锁哈希对不上。已装过更新包时，启动器直接用 `current.json` 指向的版本起服务，同时在后台查更新，网络往返不挡启动。后台下载好的新版本记在 `desktop/next.json`，下次打开时先试它，起来了才原子替换 `current.json` 并保留上一个版本，起不来就回到原版本并提示。菜单里的“检查更新”仍是当场下载并换上新版本。断网、下载不完整或安装失败时仍可用原版本练习，后台查更新失败或启动器过旧时窗口弹出提示，后者附新版安装包链接。第一次使用需要联网下载题库，这次在启动页显示下载进度。
 
-本机服务绑定 `127.0.0.1`，优先复用上次端口。启动器发出 `ready` 后，主窗口载入该端口的学习地图，原题等外链交给系统浏览器。网页运行在隔离的渲染进程中，通过 preload 提供的有限接口使用桌面功能。顶栏“桌面”提供设置和版本信息，开启同步后还可立即同步，原生菜单另有检查更新和退出。状态栏在本机模式显示“本机保存”。打开“桌面 → 设置”（Ctrl+,，macOS 为 Cmd+,）可以查看助教状态，也可输入同步码解开随包的 `sealed-tokens.json`。开启后，令牌优先存入钥匙串，首次交换会带上本机积累的事件。确认关闭同步会清除钥匙串和备用文件中的凭据，保留做题记录和待推送事件。开启和关闭都直接用当前题库重启服务。再次启动会聚焦原窗口。已开启同步时，关闭窗口先推送进度，最多等待 10 秒。记录使用与 `dojo` 相同的数据目录和事件格式。进度仓库由 `CODE_DOJO_SYNC_REPO` 指定，默认 `Rebas9512/code_dojo_sync`。有 Git 时使用 Git，没有 Git 时通过 GitHub Contents API 同步 main 上每台机器自己的月度 JSONL。同步失败的事件保留在本机。
+本机服务绑定 `127.0.0.1`，优先复用上次端口。启动器发出 `ready` 后，主窗口载入该端口的学习地图，原题等外链交给系统浏览器。网页运行在隔离的渲染进程中，通过 preload 提供的有限接口使用桌面功能。顶栏“桌面”提供设置和版本信息，开启同步后还可立即同步，原生菜单另有检查更新和退出。状态栏在本机模式显示“本机保存”。打开“桌面 → 设置”（Ctrl+,，macOS 为 Cmd+,）可以查看助教状态，也可输入同步码解开随包的 `sealed-tokens.json`。设置窗口右上角的“完成”和 Esc 都可返回练习。macOS 设置窗口带系统标题栏，可以在设置打开时按 Cmd+Q 退出。Windows 和 Linux 使用模态设置窗口。开启同步后，令牌优先存入钥匙串，首次交换会带上本机积累的事件。确认关闭同步会清除钥匙串和备用文件中的凭据，保留做题记录和待推送事件。开启和关闭都直接用当前题库重启服务。再次启动会聚焦原窗口。已开启同步时，关闭主窗口或退出应用会先推送进度，最多等待 10 秒。记录使用与 `dojo` 相同的数据目录和事件格式。进度仓库由 `CODE_DOJO_SYNC_REPO` 指定，默认 `Rebas9512/code_dojo_sync`。有 Git 时使用 Git，没有 Git 时通过 GitHub Contents API 同步 main 上每台机器自己的月度 JSONL。同步失败的事件保留在本机。
 
-普通 Python 题直接用随包解释器运行独立的 harness 子进程。数据科学题首次使用时在数据目录的 `judge-envs/` 创建专用环境并安装 NumPy、pandas 和 CPU 版 PyTorch。AppImage 启动时会将 `desktop/python-<解释器版本>` 链接到当前挂载的运行时，使同一 Python 版本的判题环境在重开后仍然可用。固定 SQL 题从更新包读取期望表，用户 SQL 和附加题的动态校验都在应用窗口内的 PGlite Worker 中运行。助教使用本机登录的 Claude Code 或 Codex，在做题页助教面板选择。桌面“设置”显示助教状态。只有 Codex 的机器需要含双助教探测的启动器；已发布的 1.1.2 启动器仍按 Claude Code 判断开关。
+普通 Python 题直接用随包解释器运行独立的 harness 子进程。数据科学题首次使用时在数据目录的 `judge-envs/` 创建专用环境并安装 NumPy、pandas 和 CPU 版 PyTorch。AppImage 启动时会将 `desktop/python-<解释器版本>` 链接到当前挂载的运行时，使同一 Python 版本的判题环境在重开后仍然可用。固定 SQL 题从更新包读取期望表，用户 SQL 和附加题的动态校验都在应用窗口内的 PGlite Worker 中运行。
 
-**发布**。推送到 main 后，`ci.yml` 在 Linux 上测试，通过才触发 `release-payload.yml`。仓库自 2026-11-23 起公开，标准机器的 Actions 不计费；推送时仍只跑 Linux，更新包发得快。三系统测试手动触发（`gh workflow run ci.yml`），改了判题、启动器或发版前跑一次。固定 Release 提供桌面更新，另保留最近五个带版本号的 `payload-v*` Release。需要回退时将目标版本的一对 `payload.zip` 和 `manifest.json` 依次覆盖固定 Release 的同名资产。修改启动器时同步更新 `bootstrap.VERSION` 和 `desktop/package.json` 中的版本与 npm 锁文件，发布对应的 `app-vX.Y.Z` 标签。`release-app.yml` 用 electron-builder 在三系统构建，在 Linux 上用 xvfb 和 Playwright 验证本机启动、设置开关同步、交卷和退出推送，全部成功后发布安装包。可选的 Actions 密钥 `CODE_DOJO_SEALED_TOKENS` 由发布者在本机加密后上传，打包时写入 `sealed-tokens.json`。本版更新包的最低启动器版本是 1.0.0。有不兼容更新时先发布新版安装包，再提高 `bootstrap.MIN_BOOTSTRAP` 并发布更新包。
+“桌面 → 设置”分别显示 Claude Code 和 Codex 的状态和路径。桌面启动器依次采用对应的环境变量（`CODE_DOJO_CLAUDE_BIN` 或 `CODE_DOJO_CODEX_BIN`）、本机手动指定的位置、自动查找。手动位置保存在用户数据目录的 `desktop/agents.json`，每台电脑单独设置。保存时运行一次 `--version`，限时 5 秒，失败原因显示在对应输入框下。保存成功或改回自动查找都会重启本机服务并刷新设置。在做题页的助教面板可选择已找到的命令，首次提问前需在终端完成登录。
+
+**发布**。推送到 main 后，`ci.yml` 在 Linux 上测试，通过才触发 `release-payload.yml`。仓库自 2026-11-23 起公开，标准机器的 Actions 不计费；推送时仍只跑 Linux，更新包发得快。三系统测试手动触发（`gh workflow run ci.yml`），改了判题、启动器或发版前跑一次。固定 Release 提供桌面更新，另保留最近五个带版本号的 `payload-v*` Release。需要回退时将目标版本的一对 `payload.zip` 和 `manifest.json` 依次覆盖固定 Release 的同名资产。修改启动器时同步更新 `bootstrap.VERSION` 和 `desktop/package.json` 中的版本与 npm 锁文件，发布对应的 `app-vX.Y.Z` 标签。`release-app.yml` 在三系统构建安装包。macOS 对 Python 原生库、解释器和整个 `.app` 做 ad-hoc 签名，CI 解开发行 zip 后执行 `codesign --verify --deep --strict`。Linux（xvfb）和 macOS 都用 Playwright 测试打开设置、按 Esc 或点“完成”关闭、交卷，以及设置开着时退出并同步。手动运行 `gh workflow run release-app.yml --ref <分支名>` 可下载这次构建的 Actions 产物。只有推送 `app-v*` 标签时才校验标签版本，并在全部检查通过后发布 Release。可选的 Actions 密钥 `CODE_DOJO_SEALED_TOKENS` 由发布者在本机加密后上传，打包时写入 `sealed-tokens.json`。本版更新包的最低启动器版本是 1.0.0。有不兼容更新时先发布新版安装包，再提高 `bootstrap.MIN_BOOTSTRAP` 并发布更新包。
 
 ## 怎么跑
 
@@ -121,9 +123,9 @@ cd web && npm run build                                # 类型检查 + 打包
 - `server/app/judge.py` 选择判题后端，`local_judge.py` 用 uv 准备专用解释器并管理子进程。题库、课和技能索引由 `tracks.py` 和 `problems.py` 加载，文件修改后自动重载。YAML 用 libyaml（`yaml.CSafeLoader`）解析，各题的 `tests.json`（全题库约 46 MB）在第一次判题或打开题目时才读。桌面版 `CODE_DOJO_BANK_WATCH=off`，启动时只加载一次，不扫修改时间。服务就绪前在 `lifespan` 里载入题库并算好学习进度。`db.py` 保存提交和 AI 对话，`main.py` 提供相应 API。
 - `server/app/sql_judge.py` 展开 SQL 数据集、缓存期望表并调用 `sql_runner.mjs`。开发后端和 `scripts/verify_bank.py` 使用这个 Node 入口，内容侧 `verify_sql.py` 通过 `pglite_runner.mjs` 批量验题。两个入口共用 `server/app/validate_sql.mjs` 校验 MySQL 原稿、修改题与脚本题。浏览器的入口在 `web/src/sql/client.ts` 和 `worker.ts`，两个环境共用 `engine.ts` 和 `compare.ts`。
 - `server/app/inspect_data.py` 是题库加载、内容检查和 AI 附加题共用的数据块与答案校验。前端 `components/InspectData.tsx` 显示五种题面数据和课里的 CSV 编辑视图。
-- `server/app/ai/provider.py` 探测本机命令，通过 `claude -p` 和 `codex exec` 使用个人订阅，测试用 `FakeProvider`。`codex_schema.py` 转换严格输出格式并还原可选字段和误解映射。`tutor.py` 组装题面、参考解、带行号的当前代码、最近一次判题和对话历史，并检查修改建议的位置。
+- `bootstrap/agents.py` 为桌面版和源码启动器查找助教命令。`server/app/ai/provider.py` 读取命令路径，通过 `claude -p` 和 `codex exec` 使用个人订阅，测试用 `FakeProvider`。`codex_schema.py` 转换严格输出格式并还原可选字段和误解映射。`tutor.py` 组装题面、参考解、带行号的当前代码、最近一次判题和对话历史，并检查修改建议的位置。
 - `web/src/pages/` 的学习地图、题目列表、知识点、今日计划、统计和登录页共用深浅两套 VS Code Modern 色板。界面使用本地 TeX Gyre Heros 和按需加载的 Noto Sans SC 分片，代码和数值使用 JetBrains Mono。字体和图标的署名及许可证随前端发布到 `/licenses/`。
-- 做题页（带 Monaco）和知识点页（带 Markdown）单独打包，首页的包里没有它们。首页画好后，`App.tsx` 趁浏览器空闲预先载入做题页和 Monaco，第一次点开题目不用再等编辑器初始化。`pages/ProblemPage.tsx` 打开做题工作区。`api.ts` 给题目详情、学习线题目列表和今日计划留 60 秒读缓存，任何写请求完成后全部作废；判题状态一个页面会话只读一次。做题页提前取好上一题、下一题、继续和单元列表里悬停的题，切题时路由不等网络。路由等数据超过 120ms 时顶边出现一条蓝线。`components/WorkbenchLayout.tsx` 管理本单元题目列表、分隔线和布局偏好。`ProblemWorkspace.tsx` 在两个编辑器组中显示题面、课、附加题和作答区；每题独立保存草稿。`LessonView.tsx` 显示讲解、可运行的示例和小测。`ChatPanel.tsx` 提供共享编辑框和快捷提问。宽度小于 900px 时，编辑器组上下排列，题目列表和助教从两侧呼出。
+- 做题页（带 Monaco）和知识点页（带 Markdown）单独打包，首页的包里没有它们。首页画好后，`App.tsx` 趁浏览器空闲预先载入做题页和 Monaco，第一次点开题目不用再等编辑器初始化。`pages/ProblemPage.tsx` 打开做题工作区。`api.ts` 给题目详情、学习线题目列表和今日计划留 60 秒读缓存，任何写请求完成后全部作废；判题状态一个页面会话只读一次。做题页提前取好上一题、下一题、继续和单元列表里悬停的题，切题时路由不等网络。路由等数据超过 120ms 时顶边出现一条蓝线。`components/WorkbenchLayout.tsx` 管理本单元题目列表、分隔线和布局偏好。`ProblemWorkspace.tsx` 在两个编辑器组中显示题面、课、附加题和作答区；每题独立保存草稿。`LessonView.tsx` 显示讲解、可运行的示例和小测。`ChatPanel.tsx` 提供共享编辑框和快捷提问，对话列表独立滚动，快捷按钮上方的分隔线支持拖动或用上下方向键调整输入区高度，并记住设置。宽度小于 900px 时，编辑器组上下排列，题目列表和助教从两侧呼出。
 - `GET /api/problems/{id}/standard` 从已有正式通过记录解锁答案。`server/app/standard.py` 读取本题代码和说明，响应包含 `code`、`language`、`notes_md`、`advanced_md` 和 `has_notes`。未通过的代码题返回 403，附加题、预测题和看数据题返回 404。`components/StandardAnswerView.tsx` 按需显示 Markdown 与只读 Monaco，代码对比左侧跟随当前答案编辑框，右侧显示标准写法。
 - 每道题都有草稿，按题保存在当前浏览器。点文件标签或按 Alt+S 可在答案与草稿之间切换。在草稿中按 Ctrl+Enter 只看运行输出，不记作答。普通 SQL 题的 `scratch.sql` 使用本题首个样例库，SQL 看数据题使用书店练习库。其余题的 `scratch.py` 运行 Python。Ctrl+Shift+Enter 始终提交答案。
 - `WorkbenchPanel.tsx` 的测试结果页使用 `ResultPanel.tsx` 展示用例和结果表，输出页显示用例 stdout 和最近运行的草稿或课示例，问题页的源代码行可跳回答案编辑器。运行和提交会展开面板。22px 状态栏显示行列、判题方式、同步状态和上下题，桌面菜单位于最右。悬停时钟才显示本题用时（分钟），运行和提交时计算实际的 `elapsed_ms`。提交按钮旁的声音图标和命令面板可开关通过提示音，默认关闭，打开时先播一遍。提示音由 Web Audio 合成：G5 → D6 两声轻敲，每声是基音加两个衰减更快的泛音。
@@ -292,7 +294,9 @@ Python 基础和算法题共用 Python 判题格式，SQL 题使用各自目录�
 - SQL 起步题使用书店数据集，题目描述中列出样例，隐藏数据用于校验。[补全用户姓名和邮箱](../problems/sql/0/sql-0-101-complete-user-emails/problem.yaml)
 
 ### 5. AI
-- **订阅和命令**。先登录 Claude Code（Claude Max）或用 ChatGPT 登录 Codex。后端从 PATH 找 `CODE_DOJO_CLAUDE_BIN`（默认 `claude`）和 `CODE_DOJO_CODEX_BIN`（默认 `codex`），也可填可执行文件的绝对路径。找不到 Codex 时，从 `~/.vscode/extensions/openai.chatgpt-*/bin/` 选含本平台可执行文件的最高数字版本。Linux x64、Apple Silicon 和 Windows x64 分别使用 `linux-x86_64/codex`、`macos-aarch64/codex` 和 `windows-x86_64/codex.exe`。
+- **订阅和命令**。先登录 Claude Code（Claude Max）或用 ChatGPT 登录 Codex。桌面版优先使用 `CODE_DOJO_CLAUDE_BIN`、`CODE_DOJO_CODEX_BIN` 指定的绝对路径或命令名，其次读取本机数据目录 `desktop/agents.json` 中相应的手动路径，其余按 `claude`、`codex` 自动查找。`dojo` 源码启动器使用环境变量和自动查找。自动查找先看当前 PATH，两个命令都没找到时，macOS 和 Linux 会用交互式登录 shell 读一次 PATH（限时 3 秒），追加新增目录后再找。仍缺少默认的 `codex` 命令时，选用 `~/.vscode/extensions/openai.chatgpt-*/bin/` 中包含本平台可执行文件、版本号最高的扩展。Linux x64、Apple Silicon 和 Windows x64 分别用 `linux-x86_64/codex`、`macos-aarch64/codex` 和 `windows-x86_64/codex.exe`。
+- **启动器与后端**。桌面启动器通过后端子进程的环境变量传入实际选用的绝对路径。旧版启动器或直接运行 uvicorn 时，后端仍支持从当前 PATH 查找命令，并从 VS Code 扩展查找 Codex。
+- **CLI 环境**。两个助教都继承 `HOME`、`PATH`、`LANG`、`USER` 和 `LOGNAME`。macOS 钥匙串用登录用户名定位凭据。`LANG` 缺省时用 `C.UTF-8`。Claude 另外继承订阅令牌 `CLAUDE_CODE_OAUTH_TOKEN`，Codex 另外继承配置目录 `CODEX_HOME`。Windows 还传 `USERPROFILE`、`APPDATA`、`LOCALAPPDATA`、`SystemRoot`、`TEMP`、`TMP`、`ComSpec` 和 `PATHEXT`。
 - **默认助教**。`CODE_DOJO_AI_PROVIDER` 可设为 `claude`（默认）或 `codex`，缺少首选命令时使用另一个。`off` 关闭全部助教。Claude 模型由 `CODE_DOJO_AI_MODEL` 指定（默认 `claude-opus-5-5`），Codex 模型由 `CODE_DOJO_CODEX_MODEL` 指定（默认 `gpt-6.2-astra`）。`GET /api/status` 每次探测命令，返回默认助教、模型和默认项排在首位的 `ai_agents`。
 - **切换和历史**。助教顶部列出本机可用的助教和模型，浏览器记住选择。聊天、左栏「＋」和复习出题都使用所选助教。后台出题沿用发起时的选择。每条助教回复下方显示来源，同一道题的历史会传给接手的助教。
 - **调用**。两种助教共用 `complete(system, prompt, schema, effort)` 和两个并发槽。Claude 通过 `claude -p --json-schema` 返回 `structured_output`。Codex 在空工作目录以只读沙箱运行 `codex exec --ephemeral --output-schema`，通过 `developer_instructions` 接收教学设定，stdin 接收本轮内容，最后一条 JSON 回复从临时文件读取。聊天默认 `low`，由 `CODE_DOJO_AI_EFFORT` 调整，附加题使用 `medium`。

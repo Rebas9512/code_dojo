@@ -9,7 +9,6 @@ import tempfile
 import threading
 from pathlib import Path
 
-from .agents import has_agent
 from .github import GitHub
 from .update import atomic_json
 
@@ -47,8 +46,6 @@ def serve() -> None:
     tmp = data / "desktop/tmp"
     tmp.mkdir(exist_ok=True)
     os.environ.update(TMPDIR=str(tmp), TEMP=str(tmp), TMP=str(tmp))
-    if not has_agent():
-        os.environ["CODE_DOJO_AI_PROVIDER"] = "off"
     import uvicorn
     from app.main import app, progress_sync
 
